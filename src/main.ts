@@ -7,6 +7,7 @@ import { BattleView } from './ui/battleView';
 import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, starStyle, tierHTML } from './ui/components';
 import { gameAlert, gameConfirm, showDialog } from './ui/dialog';
 import { installPerfGuards } from './ui/perf';
+import { enterBattleMode, leaveBattleMode } from './ui/orientation';
 import { bakeGridArt } from './ui/gridArt';
 import { DECK_MAX, DECK_REQUIRED, loadSave, resetSave, teamReady, writeSave, type SaveData } from './ui/save';
 
@@ -41,6 +42,7 @@ function go(screen: string) {
 
 // ---------------- BASE ----------------
 function home() {
+  leaveBattleMode();
   const next = STAGES.find((s) => !save.cleared.includes(s.id));
   app.innerHTML = `<div class="screen home">
     <div class="logo">
@@ -68,6 +70,7 @@ function home() {
 
 // ---------------- AVENTURA ----------------
 function adventure() {
+  leaveBattleMode();
   app.innerHTML = `<div class="screen">${topbar('Aventura')}
     <p class="hint">Sua equipe (${save.deck.length}/${DECK_REQUIRED}): ${save.deck.map((id) => esc(getChar(id).name)).join(', ')}</p>
     ${teamReady(save) ? '' : `<p class="warn-bar">⚠ A equipe precisa de ${DECK_REQUIRED} personagens para lutar. <button class="btn small" data-nav="collection">Completar equipe</button></p>`}
@@ -112,6 +115,8 @@ function startBattle(stageId: number) {
   }
   const stage = STAGES.find((s) => s.id === stageId)!;
   const deck = save.deck.filter((id) => save.cards[id]).map((id) => ({ charId: id, level: save.cards[id].level, stars: save.cards[id].stars, plus: !!save.cards[id].plus }));
+  window.scrollTo(0, 0);
+  enterBattleMode();
   app.innerHTML = '<div class="screen battle-screen" id="bs"></div>';
   new BattleView(app.querySelector('#bs')!, stage, deck, {
     speed: () => save.speed || 1,
@@ -166,6 +171,7 @@ function finishBattle(stageId: number, winner: string) {
 
 // ---------------- COLEÇÃO ----------------
 function collection() {
+  leaveBattleMode();
   void bakeAllGrid();
   const byPower = (a: string, b: string) => {
     const A = save.cards[a], B = save.cards[b];
@@ -342,6 +348,7 @@ function ladderHTML(card: { charId: string; stars: number; plus?: boolean; level
 }
 
 function train() {
+  leaveBattleMode();
   void bakeAllGrid();
   if (!save.cards[trainSel]) trainSel = Object.keys(save.cards)[0];
   const card = save.cards[trainSel];
@@ -451,6 +458,7 @@ function evolutionReveal(charId: string, from: { stars: number; plus: boolean },
 
 // ---------------- AJUDA ----------------
 function help() {
+  leaveBattleMode();
   app.innerHTML = `<div class="screen">${topbar('Como jogar')}
   <div class="help">
     <h3>Objetivo</h3><p>A arena tem <b>2 fileiras × 7 colunas</b>. Cada Líder (Herói) fica posicionado nas extremidades da arena. Zere a vida do <b>Líder inimigo</b> (à direita) antes que ele zere a sua.</p>
