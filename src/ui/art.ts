@@ -513,3 +513,51 @@ export function heroSVG(side: 'player' | 'enemy'): string {
   <circle cx="82" cy="62" r="9" fill="${aura}" opacity=".85"/><circle cx="82" cy="62" r="4.5" fill="#fff"/>
 </svg>`;
 }
+
+// ---------------- v0.10.1: cache de retratos como imagem ----------------
+const PORTRAIT_IMG_CACHE = new Map<string, string>();
+
+/**
+ * Mesmo desenho de `portraitSVG`, mas entregue como `<img>` com o SVG em data-URL,
+ * gerado UMA vez por (personagem, cor, camada) e reaproveitado. Assim cada carta tem
+ * 1 nó em vez de centenas de nós SVG; o navegador rasteriza e guarda a imagem, e os
+ * ids de gradiente deixam de se repetir no documento. Visual idêntico ao SVG em linha.
+ */
+export function portraitImg(def: CharacterDef, opts: { stars?: number; layer?: 'all' | 'bg' | 'fg' } = {}): string {
+  const t = Math.max(1, Math.min(6, opts.stars ?? def.minStars));
+  const layer = opts.layer ?? 'all';
+  const key = `${def.id}|${t}|${layer}`;
+  let src = PORTRAIT_IMG_CACHE.get(key);
+  if (!src) {
+    const svg = portraitSVG(def, { stars: t, layer }).replace(/>\s+</g, '><').trim();
+    src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    PORTRAIT_IMG_CACHE.set(key, src);
+  }
+  return `<img class="portrait tier-${t}" src="${src}" alt="" draggable="false">`;
+}
+
+/**
+ * Pré-aquece o cache de retratos (e a decodificação das imagens) em tempo ocioso, para que
+ * abrir a Coleção / Treinar / Batalha não precise gerar tudo no mesmo quadro do toque.
+ */
+export function warmPortraits(list: { def: CharacterDef; stars: number }[]): void {
+  const queue: (() => void)[] = [];
+  for (const { def, stars } of list) {
+    for (const layer of ['bg', 'fg'] as const) {
+      queue.push(() => {
+        const html = portraitImg(def, { stars, layer });
+        const src = html.slice(html.indexOf('src="') + 5, html.indexOf('" alt'));
+        const img = new Image();
+        img.src = src;
+        img.decode?.().catch(() => {});
+      });
+    }
+  }
+  const ric: (cb: (d: { timeRemaining(): number }) => void) => void =
+    (window as unknown as { requestIdleCallback?: typeof ric }).requestIdleCallback ?? ((cb) => setTimeout(() => cb({ timeRemaining: () => 8 }), 16));
+  const step = (d: { timeRemaining(): number }) => {
+    while (queue.length && d.timeRemaining() > 2) queue.shift()!();
+    if (queue.length) ric(step);
+  };
+  ric(step);
+}

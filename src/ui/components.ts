@@ -2,7 +2,7 @@ import { ABILITIES } from '../core/abilities';
 import { CATEGORY_INFO, RACE_INFO, STAR_COLORS, getChar } from '../core/characters';
 import { statsFor, tierLabel } from '../core/progression';
 import type { CardInstance, CharacterDef } from '../core/types';
-import { portraitSVG } from './art';
+import { portraitImg } from './art';
 
 export const esc = (s: string) => s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]!);
 
@@ -65,11 +65,11 @@ export function cardHTML(
   return `<div class="card s${t} race-${def.race} ${opts.compact ? 'compact' : ''} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}" style="${starStyle(t)};--ac:${def.palette.aura};--race-c:${race.color}" ${opts.attrs ?? ''}>
     <div class="card-metal"><div class="card-frame">
       <div class="card-art">
-        <div class="card-bg">${portraitSVG(def, { stars: t, layer: 'bg' })}</div>
+        <div class="card-bg">${portraitImg(def, { stars: t, layer: 'bg' })}</div>
         <div class="card-aura"></div>
         ${t >= 3 ? '<div class="card-shine"></div>' : ''}
       </div>
-      <div class="card-fig">${portraitSVG(def, { stars: t, layer: 'fg' })}</div>
+      <div class="card-fig">${portraitImg(def, { stars: t, layer: 'fg' })}</div>
       <div class="card-top"><span class="card-tier">${tier}</span></div>
       <div class="medal card-cost" title="Custo de energia">${def.cost}</div>
       <div class="medal card-cat" title="${race.label} · ${cat.label}">${cat.icon}</div>

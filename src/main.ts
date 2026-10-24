@@ -2,10 +2,11 @@ import './ui/style.css';
 import { CATEGORY_INFO, CHAR_BY_ID, PLAYABLE, RACE_INFO, STAR_COLORS, getChar, isComingSoon } from './core/characters';
 import { STAGES } from './core/campaign';
 import { TIER_NAMES, XP_ITEMS, ascend, ascendCost, ascendCostFor, canAscend, cardMaxLevel, cardXpToNext, feedXp, maxLevel, newOwned, nextTier, statsFor, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
-import { portraitSVG, unitSpriteSVG } from './ui/art';
+import { portraitImg, portraitSVG, unitSpriteSVG, warmPortraits } from './ui/art';
 import { BattleView } from './ui/battleView';
 import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, starStyle, tierHTML } from './ui/components';
 import { gameAlert, gameConfirm, showDialog } from './ui/dialog';
+import { installPerfGuards } from './ui/perf';
 import { DECK_MAX, DECK_REQUIRED, loadSave, resetSave, teamReady, writeSave, type SaveData } from './ui/save';
 
 const app = document.getElementById('app')!;
@@ -45,7 +46,7 @@ function home() {
       <div class="logo-ki">KI-CLASH</div>
       <div class="logo-sub">DRAGON LEGACY</div>
     </div>
-    <div class="home-heroes">${['kenji', 'vorax', 'nyx'].map((id) => `<div class="home-hero" style="${starStyle(getChar(id).maxStars)}">${portraitSVG(getChar(id), { stars: getChar(id).maxStars })}</div>`).join('')}</div>
+    <div class="home-heroes">${['kenji', 'vorax', 'nyx'].map((id) => `<div class="home-hero" style="${starStyle(getChar(id).maxStars)}">${portraitImg(getChar(id), { stars: getChar(id).maxStars })}</div>`).join('')}</div>
     <div class="res big"><span>✴ ${save.essencias} Essências</span>${XP_ITEMS.map((i) => `<span>${i.icon} ${save.items[i.id]}</span>`).join('')}</div>
     <nav class="menu">
       <button class="btn primary" data-nav="adventure">⚔ Aventura <small>${next ? `Fase ${next.id}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
@@ -78,7 +79,7 @@ function adventure() {
           <small>Herói inimigo ❤${s.enemyHeroHp} · Nível inimigo ~${s.enemyDeck[0].level}</small>
           <small>Recompensa: ✴${s.rewards.essencias} 📜${s.rewards.pergaminho}${s.rewards.cristal ? ` 💎${s.rewards.cristal}` : ''}${s.rewards.orbe ? ` 🔮${s.rewards.orbe}` : ''}${s.unlock && !save.cards[s.unlock] ? ` · desbloqueia <b>${esc(getChar(s.unlock).name)}</b>` : ''}</small>
         </div>
-        <div class="stage-enemies">${s.enemyDeck.filter((c, k, a) => a.findIndex((x) => x.charId === c.charId) === k).slice(0, 5).map((c) => `<span class="mini" style="${starStyle(c.stars)}">${portraitSVG(getChar(c.charId), { stars: c.stars })}</span>`).join('')}</div>
+        <div class="stage-enemies">${s.enemyDeck.filter((c, k, a) => a.findIndex((x) => x.charId === c.charId) === k).slice(0, 5).map((c) => `<span class="mini" style="${starStyle(c.stars)}">${portraitImg(getChar(c.charId), { stars: c.stars })}</span>`).join('')}</div>
         <button class="btn small ${unlocked ? 'primary' : ''}" data-stage="${s.id}" ${unlocked ? '' : 'disabled'}>${done ? 'Repetir' : unlocked ? 'Lutar' : '🔒'}</button>
       </div>`;
     }).join('')}</div></div>`;
@@ -494,4 +495,6 @@ function closeModal() {
 
 // garante que o save tem todos os campos e personagens válidos
 save.deck = save.deck.filter((id) => CHAR_BY_ID[id] && save.cards[id]);
+installPerfGuards(app);
 home();
+warmPortraits(PLAYABLE.map((def) => ({ def, stars: save.cards[def.id]?.stars ?? def.minStars })));
