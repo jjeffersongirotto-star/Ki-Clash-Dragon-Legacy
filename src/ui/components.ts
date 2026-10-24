@@ -48,6 +48,9 @@ export function dmgLabel(def: CharacterDef) {
  * - Base: Emblema explosivo de Ataque (punho) à esquerda, placa metálica chanfrada com o nome no centro,
  *   e gota rubra de Vida à direita.
  */
+/** v0.10.3: carta bloqueada de grade — tons cinza diretos (no lugar de filter: grayscale + opacity) */
+const LOCKED_GRID_STYLE = '--rc:#535559;--rg:#7b7d80;--ac:#55575a;--race-c:#55575a';
+
 export function cardHTML(
   card: CardInstance,
   opts: { extraClass?: string; attrs?: string; locked?: boolean; badge?: string; compact?: boolean; grid?: boolean } = {},
@@ -65,7 +68,7 @@ export function cardHTML(
     ? ''
     : `<div class="card-stats"><span class="atk ${def.damageType}" title="Ataque">${def.damageType === 'fisico' ? '👊' : '✨'}${st.atk}</span><span class="hp" title="Vida">❤${st.hp}</span><span class="ab">${def.abilities.map((a) => ABILITIES[a].icon).join('')}</span></div>
       <div class="card-rarity">${race.icon} ${race.label} · ${tier} · ${cat.label}</div>`;
-  return `<div class="card s${t} race-${def.race} ${opts.compact ? 'compact' : ''} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}${ga ? ` grid-card${ga.baked ? ' baked' : ''}` : ''}" style="${starStyle(t)};--ac:${def.palette.aura};--race-c:${race.color}" ${opts.attrs ?? ''}>
+  return `<div class="card s${t} race-${def.race} ${opts.compact ? 'compact' : ''} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}${ga ? ` grid-card${ga.baked ? ' baked' : ''}` : ''}" style="${ga && opts.locked ? LOCKED_GRID_STYLE : `${starStyle(t)};--ac:${def.palette.aura};--race-c:${race.color}`}" ${opts.attrs ?? ''}>
     <div class="card-metal"><div class="card-frame">
       <div class="card-art">
         <div class="card-bg">${ga ? ga.bg : portraitImg(def, { stars: t, layer: 'bg' })}</div>

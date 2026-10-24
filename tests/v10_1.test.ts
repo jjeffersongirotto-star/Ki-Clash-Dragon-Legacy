@@ -44,7 +44,7 @@ describe('v0.10.2 — cartas de grade congeladas (rolagem fluida)', () => {
     expect(html).toContain('grid-card');
     expect(html).not.toContain('card-shine');
     expect(html).not.toContain('<svg');
-    expect((html.match(/decoding="async" loading="lazy"/g) ?? []).length).toBe(2);
+    expect((html.match(/decoding="async"/g) ?? []).length).toBe(2);
     expect(html).toContain('data-gk="nyx|6||bg"');
     expect(html).toContain('data-gk="nyx|6||fg"');
   });

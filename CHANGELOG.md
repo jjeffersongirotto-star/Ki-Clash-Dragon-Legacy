@@ -2,6 +2,14 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.10.3] — 24/10/2026 · PR #13 — Cartas "Ainda não obtidos" sem travadas ao rolar
+- **Travadas fortes quando o "Ainda não obtidos" entrava na tela (descendo e subindo) corrigidas.** As cartas bloqueadas usavam `filter: grayscale(1)` + `opacity: .55` na carta inteira e `brightness(.45)` na arte: no celular, essa camada cinza era recalculada pela GPU toda vez que as cartas entravam na tela.
+  - Agora a arte cinza escurecida vem **pronta no bitmap** e a moldura, os medalhões e a placa do nome usam **tons cinza diretos** (os mesmos que o filtro produzia). Nenhum filtro e nenhuma opacidade de grupo na grade. Os ícones coloridos (emoji) ficam só apagados.
+  - O cadeado do "Em breve" saiu de `drop-shadow` para sombra de texto.
+- **Imagens das cartas de grade** passam a ser carregadas e decodificadas antes de aparecer (sem carregamento preguiçoso, que podia decodificar no meio da rolagem).
+- **Barra de endereço do celular:** o fundo fixo da página agora tem a altura do maior viewport (`100lvh`), então não é redimensionado/redesenhado quando a barra some ou volta.
+- Rastreamento de rolagem por toque (390×844, CPU 6×, com 9 cartas bloqueadas): **0 pinturas, 0 recálculos de estilo, 0 layouts**, quadros em 16,7 ms; trabalho da thread principal ≈ 0,2–0,5 ms por quadro (cabe em 120 Hz / 8,3 ms).
+
 ## [0.10.2] — 24/10/2026 · PR #12 — Rolagem fluida na Coleção & Equipe (celular)
 - **Travadas ao rolar a Coleção no celular corrigidas.** Medido com rastreamento do Chrome durante um gesto real de rolagem por toque (390×844, CPU 4× e 6× mais lenta): a cada passo da rolagem a v0.10.1 ainda **redesenhava as cartas** (~1.200 pinturas, ~840 recálculos de estilo e ~190 camadas por quadro em 7 s de rolagem). Agora: **0 pinturas, 0 recálculos de estilo, 0 layouts** durante a rolagem, quadros sempre em 16,7 ms.
 - **Causas:**

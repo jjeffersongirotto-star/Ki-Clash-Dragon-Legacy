@@ -28,7 +28,7 @@ export const gridKey = (def: CharacterDef, t: number, locked: boolean) => `${def
 export function gridArtHTML(def: CharacterDef, t: number, locked: boolean): { bg: string; fg: string; baked: boolean } {
   const key = gridKey(def, t, locked);
   const b = BAKED.get(key);
-  const img = (src: string, layer: string) => `<img class="portrait" data-gk="${key}|${layer}" src="${src}" alt="" draggable="false" decoding="async" loading="lazy">`;
+  const img = (src: string, layer: string) => `<img class="portrait" data-gk="${key}|${layer}" src="${src}" alt="" draggable="false" decoding="async">`;
   if (b) return { bg: img(b.bg, 'bg'), fg: img(b.fg, 'fg'), baked: true };
   const src = (h: string) => h.slice(h.indexOf('src="') + 5, h.indexOf('" alt'));
   return { bg: img(src(portraitImg(def, { stars: t, layer: 'bg' })), 'bg'), fg: img(src(portraitImg(def, { stars: t, layer: 'fg' })), 'fg'), baked: false };
@@ -135,21 +135,29 @@ async function bake(def: CharacterDef, t: number, locked: boolean): Promise<void
     loadImg(svgWithSize(portraitSVG(def, { stars: t, layer: 'bg' }), W, H)),
     loadImg(svgWithSize(portraitSVG(def, { stars: t, layer: 'fg' }), FW, FW, 'shadow')),
   ]);
-  const [bc, bg] = canvas(W, H);
-  bg.drawImage(bgImg, 0, 0, W, H);
-  bg.globalCompositeOperation = 'screen';
-  bg.globalAlpha = AURA_OPACITY[t];
-  bg.drawImage(drawAura(W, H, t, def.palette.aura), 0, 0);
-  bg.globalAlpha = 1;
-  const [fc, fg] = canvas(FW, FW);
-  fg.drawImage(fgImg, 0, 0, FW, FW);
+  const [bc0, bg0] = canvas(W, H);
+  bg0.drawImage(bgImg, 0, 0, W, H);
+  bg0.globalCompositeOperation = 'screen';
+  bg0.globalAlpha = AURA_OPACITY[t];
+  bg0.drawImage(drawAura(W, H, t, def.palette.aura), 0, 0);
+  const [fc0, fg0] = canvas(FW, FW);
+  fg0.drawImage(fgImg, 0, 0, FW, FW);
+  let bc = bc0, fc = fc0;
   if (locked) {
-    // .card.locked .card-art/.card-fig { filter: brightness(.45) } já aplicado no bitmap
-    for (const g of [bg, fg]) {
+    // bloqueada: o antigo `filter: grayscale(1)` + `brightness(.45)` + `opacity: .55` da carta
+    // ficam prontos no bitmap (cinza escurecido), sem nenhum filtro CSS na grade
+    const grey = (src: HTMLCanvasElement) => {
+      const [c, g] = canvas(src.width, src.height);
+      g.filter = 'grayscale(1) brightness(.45)';
+      g.drawImage(src, 0, 0);
+      g.filter = 'none';
       g.globalCompositeOperation = 'source-atop';
-      g.fillStyle = 'rgba(0,0,0,.55)';
-      g.fillRect(0, 0, g.canvas.width, g.canvas.height);
-    }
+      g.fillStyle = 'rgba(11,13,26,.45)';
+      g.fillRect(0, 0, c.width, c.height);
+      return c;
+    };
+    bc = grey(bc0);
+    fc = grey(fc0);
   }
   const [bgUrl, fgUrl] = await Promise.all([toUrl(bc), toUrl(fc)]);
   BAKED.set(key, { bg: bgUrl, fg: fgUrl });
