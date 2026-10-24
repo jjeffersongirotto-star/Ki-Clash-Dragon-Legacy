@@ -91,6 +91,24 @@ Cada Despertar muda o visual do personagem em todas as telas (coleção, treino,
 - O físico cresce a cada estrela (ombros mais largos e cabelo maior).
 - Ao Despertar, uma animação mostra o visual antigo virando o novo (**DESPERTAR!**).
 
+### Cenário de fundo de cada personagem
+Cada retrato tem um cenário próprio, que também fica mais rico a cada estrela (mais camadas, luz, partículas e cores). A borda colorida da carta continua mostrando as estrelas.
+
+| Personagem | Cenário | O que aparece nas estrelas mais altas |
+|---|---|---|
+| Riku | Vento e céu aberto | mais rajadas de vento a cada ★, colinas (2★), nuvens (3★), folhas ao vento (4★) |
+| Nara | Noite de luar | lua maior e mais estrelas a cada ★, montanhas (3★), halo da lua (5★), estrelas cadentes (6★) |
+| Toru | Templo das sombras (portal) | lanterna (2★), santuário (3★), névoa e 2 lanternas (4★), brasas (5★), fogo roxo (6★) |
+| Aiko | Acima das nuvens | mais nuvens a cada ★, céu lilás (3★), arco-íris (4★), pôr do sol (5★), raios de sol (6★) |
+| Lyra | Campo de estrelas | nebulosa (3★), constelações (4★), segunda nebulosa (5★), galáxia (6★) |
+| Gorath | Fortaleza de ferro | muralha mais alta a cada ★, ameias (3★), tochas (4★), céu em brasa (6★) |
+| Mei | Lago de lótus | mais lótus a cada ★, reflexos (3★), céu rosado (4★), vaga-lumes (5★), brilho celestial (6★) |
+| Yume | Caçada na floresta | lua entre as árvores (3★), olhos vermelhos na mata (4★), luar forte (5★), pétalas (6★) |
+| Zarek | Eclipse | coroa do eclipse cresce a cada ★, horizonte (3★), raios do eclipse (4★), labaredas (6★) |
+| Kenji | Dojô | pergaminho (3★), luz dourada (5★), tochas e 2º pergaminho (6★) |
+| Nyx-07 | Laboratório tecnológico | telas (3★), plataforma holográfica (5★), fluxo de dados (6★) |
+| Vorax e Cria | Abismo sombrio | mais tentáculos e olhos a cada ★, fenda de energia (5★), vórtice (6★) |
+
 ## 11. Evolução
 - **Status:** ataque e vida = base × (1 + 0,08 × (nível − 1)) × (1 + 0,15 × (estrelas − 1)), arredondado.
 - **XP:** Pergaminho de Ki +100, Cristal de Ki +400, Orbe do Dragão Ancestral +1500. Subir do nível N exige 80 × 1,12^(N−1) XP (cada nível pede mais). Ao chegar em 100% da barra, o nível sobe.
