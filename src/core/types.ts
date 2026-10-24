@@ -5,17 +5,22 @@ export type Side = 'player' | 'enemy';
 export type DamageType = 'fisico' | 'magico';
 export type Rarity = 'comum' | 'incomum' | 'raro' | 'epico' | 'lendario' | 'mitico';
 
+export type Category = 'tanque' | 'suporte' | 'dps' | 'mago' | 'arqueiro' | 'assassino';
+
 export type AbilityId =
   | 'diagFrente'
   | 'diagTras'
+  | 'guarda'
   | 'salto'
   | 'longoAlcance'
-  | 'ultimoDaFila'
+  | 'flechaDupla'
+  | 'perfurante'
   | 'retaguarda'
   | 'menorVida'
   | 'prole'
   | 'contraGolpe'
   | 'sifao'
+  | 'lotus'
   | 'inabalavel';
 
 export interface Palette {
@@ -32,6 +37,7 @@ export interface CharacterDef {
   name: string;
   title: string;
   rarity: Rarity;
+  category: Category;
   minStars: number;
   maxStars: number;
   cost: number;
@@ -127,6 +133,7 @@ export type BattleEvent =
   | { type: 'counter'; uid: number; target: number; text: string }
   | { type: 'push'; uid: number; from: [number, number]; to: [number, number]; text: string }
   | { type: 'aura'; uid: number; text: string }
+  | { type: 'heal'; uid: number; amount: number; text: string }
   | { type: 'end'; winner: Side | 'empate'; text: string };
 
 export type RecordedEvent = BattleEvent & { snap: Snapshot };

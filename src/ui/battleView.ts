@@ -5,7 +5,7 @@ import type { BattleState, RecordedEvent, Side, Snapshot, Unit } from '../core/t
 import type { Stage } from '../core/campaign';
 import { PLAYER_HERO_HP } from '../core/campaign';
 import { heroSVG, portraitSVG } from './art';
-import { abilityListHTML, cardHTML, dmgLabel, esc, reachLabel, starsHTML } from './components';
+import { abilityListHTML, cardHTML, dmgLabel, esc, reachLabel, starStyle, starsHTML } from './components';
 
 export interface BattleCallbacks {
   speed: () => number;
@@ -127,12 +127,12 @@ export class BattleView {
     const c = this.state.decks.player.hand[i];
     if (!c) return;
     const def = getChar(c.charId);
-    this.setInfo(`<b>${esc(def.name)}</b> ${starsHTML(c.stars)} · custo ${def.cost} · ${dmgLabel(def)} · alcance ${reachLabel(def)}${abilityListHTML(def)}`);
+    this.setInfo(`<b>${esc(def.name)}</b> ${starsHTML(c.stars)} · custo ${def.cost} · ${dmgLabel(def)} · alcance ${reachLabel(def)}${abilityListHTML(def, c.stars, c.level)}`);
   }
 
   showUnitInfo(u: Unit) {
     const def = getChar(u.charId);
-    this.setInfo(`<b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${starsHTML(u.stars)} Nv.${u.level} · ❤ ${u.hp}/${u.maxHp} · ataque ${effectiveAtk(this.state, u)} (${dmgLabel(def)}) · alcance ${reachLabel(def)}${abilityListHTML(def)}`);
+    this.setInfo(`<b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${starsHTML(u.stars)} Nv.${u.level} · ❤ ${u.hp}/${u.maxHp} · ataque ${effectiveAtk(this.state, u)} (${dmgLabel(def)}) · alcance ${reachLabel(def)}${abilityListHTML(def, u.stars, u.level)}`);
   }
 
   setInfo(html: string) {
@@ -221,6 +221,7 @@ export class BattleView {
       if (!el) {
         el = document.createElement('div');
         el.className = `unit side-${u.side} ${u.isMinion ? 'minion' : ''} appear`;
+        el.setAttribute('style', starStyle(u.stars));
         el.innerHTML = `<div class="u-portrait">${portraitSVG(getChar(u.charId), { flip: u.side === 'enemy' })}</div><div class="u-hp"><i></i></div><div class="u-atk"></div><div class="u-hpn"></div>`;
         el.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -384,6 +385,15 @@ export class BattleView {
         this.board.parentElement!.classList.add('quake');
         setTimeout(() => this.board.parentElement!.classList.remove('quake'), 300);
         await sleep(this.dur(380));
+        break;
+      }
+      case 'heal': {
+        const t = ev.snap.units.find((x) => x.uid === ev.uid);
+        if (t) {
+          const [x, y] = this.center(t.row, t.col);
+          this.floatText(x, y, `+${ev.amount}`, 'heal');
+        }
+        await sleep(this.dur(300));
         break;
       }
       case 'death':

@@ -20,6 +20,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: PR precisa atualizar REGRAS.md e CHANGELOG.md
+        if: github.event_name == 'pull_request'
+        run: |
+          changed=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          echo "$changed"
+          echo "$changed" | grep -qx 'REGRAS.md' || { echo '::error::Atualize o REGRAS.md nesta PR'; exit 1; }
+          echo "$changed" | grep -qx 'CHANGELOG.md' || { echo '::error::Adicione uma entrada no CHANGELOG.md nesta PR'; exit 1; }
       - uses: actions/setup-node@v4
         with:
           node-version: 20
