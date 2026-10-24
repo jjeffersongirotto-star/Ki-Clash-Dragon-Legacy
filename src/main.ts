@@ -76,7 +76,7 @@ function adventure() {
           <small>Herói inimigo ❤${s.enemyHeroHp} · Nível inimigo ~${s.enemyDeck[0].level}</small>
           <small>Recompensa: ✴${s.rewards.essencias} 📜${s.rewards.pergaminho}${s.rewards.cristal ? ` 💎${s.rewards.cristal}` : ''}${s.rewards.orbe ? ` 🔮${s.rewards.orbe}` : ''}${s.unlock && !save.cards[s.unlock] ? ` · desbloqueia <b>${esc(getChar(s.unlock).name)}</b>` : ''}</small>
         </div>
-        <div class="stage-enemies">${s.enemyDeck.slice(0, 4).map((c) => `<span class="mini" style="${starStyle(c.stars)}">${portraitSVG(getChar(c.charId), { stars: c.stars })}</span>`).join('')}</div>
+        <div class="stage-enemies">${s.enemyDeck.filter((c, k, a) => a.findIndex((x) => x.charId === c.charId) === k).slice(0, 5).map((c) => `<span class="mini" style="${starStyle(c.stars)}">${portraitSVG(getChar(c.charId), { stars: c.stars })}</span>`).join('')}</div>
         <button class="btn small ${unlocked ? 'primary' : ''}" data-stage="${s.id}" ${unlocked ? '' : 'disabled'}>${done ? 'Repetir' : unlocked ? 'Lutar' : '🔒'}</button>
       </div>`;
     }).join('')}</div></div>`;
@@ -116,7 +116,9 @@ function finishBattle(stageId: number, winner: string) {
     if (stage.unlock && !save.cards[stage.unlock]) {
       save.cards[stage.unlock] = newOwned(stage.unlock);
       const def = getChar(stage.unlock);
-      unlocked = `<div class="unlock" style="${starStyle(def.minStars)}">${portraitSVG(def, { stars: def.minStars })}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${categoryHTML(def, true)} · ${RARITY_INFO[def.rarity].label} ${starsHTML(def.minStars)}</div></div>`;
+      const joined = save.deck.length < DECK_MAX && !save.deck.includes(def.id);
+      if (joined) save.deck.push(def.id);
+      unlocked = `<div class="unlock" style="${starStyle(def.minStars)}">${cardHTML(save.cards[def.id], { compact: true })}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${categoryHTML(def, true)} · ${RARITY_INFO[def.rarity].label} ${starsHTML(def.minStars)}${joined ? '<br><small>Entrou direto na sua equipe.</small>' : ''}</div></div>`;
     }
     html = `<h2 class="win">🏆 Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : 'Recompensa de repetição (50%).'}</p>
       <div class="res big"><span>✴ +${got.essencias}</span><span>📜 +${got.pergaminho}</span>${got.cristal ? `<span>💎 +${got.cristal}</span>` : ''}${got.orbe ? `<span>🔮 +${got.orbe}</span>` : ''}</div>${unlocked}`;
@@ -147,10 +149,10 @@ function collection() {
   const locked = PLAYABLE.filter((d) => !save.cards[d.id]).sort((a, b) => (unlockStage(a.id) ?? 99) - (unlockStage(b.id) ?? 99));
   app.innerHTML = `<div class="screen">${topbar('Coleção & Equipe')}
     <section class="deck-bar">
-      <div class="deck-title">Equipe de batalha <b>${save.deck.length}/${DECK_MAX}</b> <small>(mínimo ${DECK_MIN})</small></div>
+      <div class="deck-title">Equipe = baralho <b>${save.deck.length}/${DECK_MAX}</b> <small>(cada carta vale 4 cópias · ${save.deck.length < DECK_MAX ? `faltam ${DECK_MAX - save.deck.length}: repetem as primeiras da equipe` : '40 cartas'})</small></div>
       <div class="deck-slots">${Array.from({ length: DECK_MAX }, (_, i) => {
         const id = save.deck[i];
-        return id ? `<div class="slot filled" data-card="${id}" style="${starStyle(save.cards[id].stars)}">${portraitSVG(getChar(id), { stars: save.cards[id].stars })}<span>${getChar(id).cost}</span><em>${CATEGORY_INFO[getChar(id).category].icon}</em></div>` : '<div class="slot">+</div>';
+        return id ? cardHTML(save.cards[id], { compact: true, attrs: `data-card="${id}"` }) : '<div class="slot">+</div>';
       }).join('')}</div>
     </section>
     <p class="hint">Toque numa carta para ver detalhes e colocar/tirar da equipe. A cor da carta mostra as estrelas.</p>
@@ -171,7 +173,7 @@ function cardDetail(id: string) {
   const st = statsFor(def, lvl, stars);
   const inDeck = save.deck.includes(id);
   modal(`<div class="detail" style="${starStyle(stars)}">
-    <div class="detail-art">${portraitSVG(def, { stars })}</div>
+    ${cardHTML({ charId: id, level: lvl, stars }, { extraClass: 'detail-card', locked: !owned })}
     <div class="detail-info">
       <div class="rarity-tag">${RARITY_INFO[def.rarity].label}</div> ${categoryHTML(def, true)}
       <h2>${esc(def.name)}</h2><div class="subtitle">${esc(def.title)}</div>
@@ -269,7 +271,7 @@ function train() {
   const pct = Math.round(xpProgress(card) * 100);
   app.innerHTML = `<div class="screen">${topbar('Treinar')}
     <div class="train-list">${Object.values(save.cards)
-      .map((c) => `<button class="mini-card ${c.charId === trainSel ? 'sel' : ''}" data-sel="${c.charId}" style="${starStyle(c.stars)}">${portraitSVG(getChar(c.charId), { stars: c.stars })}<i class="mc-cat">${CATEGORY_INFO[getChar(c.charId).category].icon}</i><span>Nv.${c.level}</span></button>`)
+      .map((c) => cardHTML(c, { compact: true, extraClass: `train-pick ${c.charId === trainSel ? 'sel' : ''}`, attrs: `data-sel="${c.charId}"` }))
       .join('')}</div>
     <div class="train-main" style="${starStyle(card.stars)}">
       <div class="train-art">${portraitSVG(def, { stars: card.stars })}</div>
@@ -350,12 +352,17 @@ function help() {
   <div class="help">
     <h3>Objetivo</h3><p>A arena tem <b>2 fileiras × 7 colunas</b>. Cada herói fica logo depois da última coluna do seu lado. Zere a vida do <b>herói inimigo</b> (à direita) antes que ele zere a sua.</p>
     <h3>Seu turno</h3><ol>
-      <li>Você recebe <b>energia ⚡</b> (3 no 1º turno, +1 por turno, máx. 10) e compra <b>exatamente 1 carta</b>.</li>
+      <li>Você recebe <b>energia ⚡</b> (3 no 1º turno, +1 por turno, máx. 10) e compra <b>1 carta</b> (se a mão de 6 não estiver cheia).</li>
       <li>Toque numa carta e numa casa brilhante das <b>3 colunas da esquerda</b> para invocá-la. O inimigo invoca nas 3 colunas da direita.</li>
       <li>Toque em <b>LUTAR</b>: suas unidades agem sozinhas, depois o inimigo invoca e age.</li></ol>
     <h3>Cartas e baralho</h3><ul>
-      <li>Cartas que você não usa <b>continuam na mão</b> (até 6).</li>
-      <li>Toda carta usada <b>volta para o fim do baralho</b> e pode ser comprada de novo depois de algumas rodadas — mesmo que o personagem ainda esteja em campo. Assim o mesmo personagem pode aparecer mais de uma vez.</li></ul>
+      <li>Sua <b>equipe é o baralho</b>: <b>10 cartas diferentes × 4 cópias = 40 cartas</b>. Com menos de 10 personagens, as vagas que faltam repetem as primeiras cartas da equipe.</li>
+      <li>A <b>mão tem 6 cartas</b>. Você começa com 6 diferentes e compra <b>1 por rodada</b> (com a mão cheia, não compra). Cartas não usadas ficam na mão.</li>
+      <li>À esquerda da mão fica o <b>Baralho</b> (quantas cartas ainda podem vir); à direita, as <b>Derrotadas</b>.</li>
+      <li>A carta jogada vira unidade em campo. Quando a unidade <b>morre</b>, aquela cópia vai para as <b>Derrotadas e não volta mais</b> (sobram 3 daquela carta, e assim por diante).</li>
+      <li><b>Compra semi-aleatória:</b> depois de comprada, a carta fica <b>bloqueada nas 6 compras seguintes</b>; na <b>7ª, 8ª e 9ª</b> pode vir no sorteio e na <b>10ª vem garantida</b>. Conta a partir da compra, não de quando você joga.</li>
+      <li><b>Começo da luta:</b> as 6 cartas da mão inicial voltam ao sorteio já na <b>5ª compra</b> (só restam 4 outras) e ficam garantidas na 8ª.</li>
+      <li>Se várias cartas ficarem garantidas ao mesmo tempo, elas saem <b>em fila, uma por compra</b>.</li></ul>
     <h3>Como as unidades agem</h3><ul>
       <li>Se houver alvo no alcance, atacam. Senão, <b>andam até 2 casas</b> e tentam atacar.</li>
       <li><b>Só a própria fileira:</b> ninguém ataca a outra fileira, exceto Corte Diagonal (Nara) e Golpe Reverso (Toru). A cura de Mei também alcança vizinhos da outra fileira.</li>

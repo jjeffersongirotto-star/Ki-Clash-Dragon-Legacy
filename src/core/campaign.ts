@@ -1,6 +1,7 @@
 import { getChar } from './characters';
 import type { CardInstance } from './types';
 import { maxLevel } from './progression';
+import { DECK_SLOTS } from './deck';
 
 export interface Stage {
   id: number;
@@ -42,7 +43,9 @@ const UNLOCKS: Record<number, string> = { 3: 'kenji', 5: 'nyx', 8: 'vorax' };
 export const STAGES: Stage[] = NAMES.map((name, i) => {
   const id = i + 1;
   const level = 1 + Math.round(i * 1.5);
-  const deck = POOLS[i].map((charId) => {
+  // baralho da IA: 10 grupos (o conjunto da fase repetido em ordem até 10), 4 cópias cada
+  const pool10 = Array.from({ length: DECK_SLOTS }, (_, k) => POOLS[i][k % POOLS[i].length]);
+  const deck = pool10.map((charId) => {
     const def = getChar(charId);
     const stars = Math.min(def.maxStars, def.minStars + (i >= 9 ? 1 : 0));
     return { charId, level: Math.min(level, maxLevel(stars)), stars };

@@ -286,7 +286,7 @@ export const CHARACTERS: CharacterDef[] = [
     physRes: 0,
     magRes: 0,
     damageType: 'magico',
-    abilities: ['longoAlcance', 'prole'],
+    abilities: ['disparoSombrio', 'prole'],
     palette: { primary: '#2d6a4f', secondary: '#081c15', hair: '#52b788', aura: '#b5ff3b', skin: '#74c69d', eyes: '#ff0054' },
     hairStyle: 4,
     lore: 'Pequena, frágil e faminta.',

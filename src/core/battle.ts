@@ -1,7 +1,7 @@
 import { ABILITIES, AURA_CAP, MINION_CAP, RES_CAP, abilityPower, has } from './abilities';
 import { getChar } from './characters';
 import { statsFor } from './progression';
-import { shuffle } from './rng';
+import { createDeck, defeatCopy, drawOpening, drawStep, playFromHand, HAND_SIZE } from './deck';
 import type {
   AbilityId,
   BattleEvent,
@@ -16,8 +16,7 @@ import type {
 export const ROWS = 2;
 export const COLS = 7;
 export const DEPLOY_DEPTH = 3;
-export const HAND_MAX = 6;
-export const START_HAND = 4;
+export const HAND_MAX = HAND_SIZE;
 export const MAX_ENERGY = 10;
 
 export interface BattleSetup {
@@ -68,7 +67,7 @@ export function createBattle(setup: BattleSetup): BattleState {
     },
     energy: { player: 0, enemy: 0 },
     units: [],
-    decks: { player: { draw: [], hand: [] }, enemy: { draw: [], hand: [] } },
+    decks: { player: createDeck([], { seed: 0 }), enemy: createDeck([], { seed: 0 }) },
     winner: null,
     nextUid: 1,
     seed: setup.seed ?? Math.floor(Math.random() * 1e9),
@@ -76,21 +75,18 @@ export function createBattle(setup: BattleSetup): BattleState {
     fury: setup.fury ?? true,
     log: [],
   };
-  state.decks.player.draw = shuffle(setup.playerDeck.map((c) => ({ ...c })), state);
-  state.decks.enemy.draw = shuffle(setup.enemyDeck.map((c) => ({ ...c })), state);
-  for (let i = 0; i < START_HAND - 1; i++) {
-    drawCard(state, 'player');
-    drawCard(state, 'enemy');
-  }
+  state.decks.player = createDeck(setup.playerDeck, state);
+  state.decks.enemy = createDeck(setup.enemyDeck, state);
+  drawOpening(state.decks.player, state);
+  drawOpening(state.decks.enemy, state);
   startTurn(state, new Ctx(), 'player');
   return state;
 }
 
+/** Compra da rodada: 1 carta (se a mão estiver cheia, não compra e a fila não anda). */
+export const DRAW_PER_ROUND = 1;
 function drawCard(state: BattleState, side: Side) {
-  const d = state.decks[side];
-  if (d.hand.length >= HAND_MAX) return;
-  const c = d.draw.shift();
-  if (c) d.hand.push(c);
+  drawStep(state.decks[side], state, DRAW_PER_ROUND);
 }
 
 export function startTurn(state: BattleState, ctx: Ctx, side: Side) {
@@ -346,6 +342,7 @@ const stepped = new WeakMap<Ctx, Set<number>>();
 function kill(state: BattleState, ctx: Ctx, victim: Unit, killer: Unit) {
   victim.hp = 0;
   state.units = state.units.filter((x) => x !== victim);
+  if (victim.slot != null) defeatCopy(state.decks[victim.side], victim.slot);
   ctx.emit(state, { type: 'death', uid: victim.uid, text: `✖ ${nameOf(victim)} foi derrotado.` });
   const oldPos: [number, number] = [killer.row, killer.col];
   // regra: ao derrotar, avança 1 casa se estiver livre
@@ -366,13 +363,18 @@ function kill(state: BattleState, ctx: Ctx, victim: Unit, killer: Unit) {
     if (alive < MINION_CAP) {
       const spot = [[victim.row, victim.col], oldPos].find(([r, c]) => inBoard(state, r, c) && !unitAt(state, r, c));
       if (spot) {
-        const atk = 2 + Math.min(2, Math.floor((killer.level - 1) / 15));
+        const atk = criaAtk(killer.stars);
         const hp = pw(killer, 'prole') || 1;
         const m = placeUnit(state, { charId: summon, level: killer.level, stars: killer.stars }, killer.side, spot[0], spot[1], { minion: true, atk, hp });
         ctx.emit(state, { type: 'spawn', uid: m.uid, text: `🥚 Uma ${getChar(summon).name} surge dos restos!` });
       }
     }
   }
+}
+
+/** Ataque da Cria Sombria: 2 com o Vorax em 5★ (ou menos), 3 em 6★. */
+export function criaAtk(stars: number): number {
+  return stars >= 6 ? 3 : 2;
 }
 
 /** Move a unidade; retorna true se saltou. */
@@ -488,11 +490,10 @@ export function deploy(state: BattleState, side: Side, handIndex: number, row: n
   if (state.energy[side] < def.cost) return { ok: false, reason: 'Energia insuficiente', events: [] };
   if (!isDeployCell(state, side, row, col)) return { ok: false, reason: 'Fora da zona de invocação', events: [] };
   if (unitAt(state, row, col)) return { ok: false, reason: 'Casa ocupada', events: [] };
-  state.decks[side].hand.splice(handIndex, 1);
-  // a carta usada volta ao fim do baralho: pode ser comprada de novo mesmo com o personagem em campo
-  state.decks[side].draw.push({ ...card });
+  playFromHand(state.decks[side], handIndex);
   state.energy[side] -= def.cost;
-  const u = placeUnit(state, card, side, row, col);
+  const u = placeUnit(state, { charId: card.charId, level: card.level, stars: card.stars }, side, row, col);
+  u.slot = card.slot;
   ctx.emit(state, { type: 'deploy', uid: u.uid, text: `${side === 'player' ? 'Você invoca' : 'Inimigo invoca'} ${def.name} (${card.stars}★ Nv.${card.level}).` });
   const aura = has(u.abilities, (a) => a.enemyAtkAura);
   if (aura) ctx.emit(state, { type: 'aura', uid: u.uid, text: `🌀 ${def.name} drena o ataque de todos os inimigos!` });

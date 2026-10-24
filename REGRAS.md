@@ -12,15 +12,38 @@ Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói do jog
 
 ## 3. Turnos e energia
 1. No início do seu turno você recebe **energia ⚡** = 2 + número do turno (3 no 1º turno), máximo **10**. A energia não acumula.
-2. Você compra **exatamente 1 carta**.
+2. Você compra **1 carta** (se a mão de 6 estiver cheia, não compra — ver seção 4).
 3. Invoca quantas cartas a energia permitir (cada carta tem um custo), em casas livres da sua zona.
 4. Ao tocar **LUTAR**, suas unidades agem sozinhas, da mais avançada para a mais recuada. Depois o inimigo compra, invoca e age.
 
 ## 4. Mão e baralho
-- Equipe de **3 a 6** personagens. A partida começa com **4 cartas** na mão (máximo **6**).
+### Baralho de 40 cartas
+- A **equipe é o baralho**: **10 cartas diferentes × 4 cópias = 40 cartas**. A IA também joga com 10 cartas × 4.
+- **Equipe com menos de 10 personagens** (de 3 a 9): as vagas que faltam **repetem as cartas da equipe em ordem** (a 1ª carta ganha um 2º grupo de 4 cópias, depois a 2ª, e assim por diante). Cada grupo tem a sua própria fila de compra. O baralho continua com 40 cartas. Exemplo: com os 9 personagens iniciais, a 1ª carta da equipe fica com 8 cópias.
+- **Equipe da IA:** cada fase tem o seu conjunto de personagens; ele é repetido em ordem até formar 10 grupos (ex.: fase 1 = Riku, Nara, Riku, Nara… → 5 grupos de cada).
+- Na batalha, o **Baralho** fica à esquerda da mão (com quantas cartas ainda podem ser compradas) e as **Derrotadas** à direita (com quantas cópias já caíram).
+
+### Mão
+- A **mão tem 6 cartas**. A partida começa com **6 cartas diferentes** sorteadas.
+- Compra de **1 carta por rodada**, no início do turno. Se a mão estiver **cheia (6)**, a rodada **não compra** — e, como não houve compra, a fila de nenhuma carta anda.
 - Cartas não usadas **ficam na mão**.
-- Toda carta usada **volta na hora para o fim do baralho** e pode ser comprada de novo depois de algumas rodadas, mesmo com o personagem ainda em campo. O **mesmo personagem pode estar em campo mais de uma vez**.
-- Se a mão estiver cheia (6), a compra da rodada é pulada.
+- A mão pode ficar vazia se você jogar tudo, mas no turno seguinte sempre há compra enquanto restar alguma carta no Baralho.
+
+### Cópias em campo e derrotadas
+- A carta jogada sai da mão e vira **unidade em campo**. Enquanto a unidade está viva, aquela cópia não está no Baralho.
+- Quando a unidade **morre**, aquela cópia vai para as **Derrotadas e nunca volta**. A carta fica com 3 cópias no ciclo, depois 2, e assim por diante.
+- Uma carta com as **4 cópias derrotadas sai do rodízio**. Crias Sombrias não vêm de cartas e não vão para as Derrotadas.
+
+### Compra semi-aleatória (fila de cada carta)
+- **Toda compra conta**, inclusive a mão inicial (que é a compra 0). A contagem começa **na compra**, não quando a carta é jogada: ficar parada na mão **não pausa** a fila.
+- Depois de comprada, a carta fica **bloqueada nas 6 compras seguintes**.
+- Na **7ª, 8ª e 9ª** compra depois dela, ela **pode vir no sorteio** (entre todas as cartas liberadas).
+- Se não veio até a 9ª, vem **garantida na 10ª**.
+- **Exceção do começo:** as 6 cartas da mão inicial podem voltar no sorteio a partir da **5ª compra** (as compras 1 a 4 trazem as 4 cartas que ficaram fora da mão). Elas ficam **garantidas a partir da 8ª compra**. Depois disso vale a regra normal (7ª–9ª sorteio, 10ª garantida).
+- **Garantias em fila:** se várias cartas vencem ao mesmo tempo, sai **uma por compra**, na ordem em que foram compradas (10ª, 11ª, 12ª...). Uma compra que traga 2 cartas atende 2 garantias de uma vez.
+- **Ordem de escolha numa compra:** 1) garantias vencidas, em fila; 2) sorteio entre as cartas liberadas; 3) se nenhuma estiver liberada, vem a que está **mais perto de liberar**, para a compra nunca falhar.
+- Uma carta só pode vir se tiver **cópia no Baralho**. Se todas as cópias vivas estão na mão ou em campo, ela espera; se for uma garantia, sai assim que tiver cópia disponível.
+- **Efeito prático:** com as 10 cartas no rodízio e 1 compra por rodada, a regra deixa um intervalo de exatamente 10 compras entre duas vindas da mesma carta. A partida começa com uma ordem sorteada, e essa ordem tende a se repetir. O sorteio volta a variar quando cartas saem do rodízio (4 cópias derrotadas) ou ficam sem cópia disponível no Baralho.
 
 ## 5. Ação de cada unidade
 1. **Cura** (só Mei): cura os aliados vizinhos.
@@ -41,7 +64,7 @@ Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói do jog
   - **Golpe Reverso (Toru):** prioriza a casa diagonal logo atrás.
 - **Herói:** se não houver unidade inimiga válida, a unidade ataca o herói com seu alcance normal:
   - corpo a corpo: da **última coluna**;
-  - Zarek e Yume (mira 2): da **penúltima**;
+  - Zarek e Yume (mira 2) e a Cria Sombria (alcance 2): da **penúltima**;
   - longo alcance (3): a partir da **antepenúltima**.
 - Unidades inimigas no alcance sempre têm **prioridade** sobre o herói.
 
@@ -79,6 +102,16 @@ A partir do **turno 8**, todas as unidades dos dois lados ganham **+1 de ataque*
 | 3★ | 5★ | Yume, Zarek |
 | 4★ | 6★ | Nyx-07 |
 | 5★ (único) | 6★ | Kenji, Vorax |
+
+### Visual das cartas
+Todas as cartas (mão, coleção, equipe, treino, troca de equipe, detalhes e recompensas) seguem o mesmo padrão:
+- **Moldura metálica chanfrada** na cor das estrelas.
+- **Cenário** do personagem ao fundo, com uma **aura de energia** na cor do personagem.
+- O **personagem grande**, saindo um pouco pela borda de cima da moldura.
+- **Medalhões em relevo:** custo de energia (azul, canto superior esquerdo), categoria (canto superior direito) e nível (dourado, à esquerda).
+- **Estrelas** no topo e **faixa com o nome** embaixo; abaixo dela, ataque, vida, ícones das habilidades e raridade · categoria.
+- Quanto mais estrelas, mais brilho: 3★ reflexo de luz passando; 4★ aura pulsando com raios girando; **5★ e 6★ premium** com borda dourada, brilho pulsante e faíscas; 6★ ainda com metal em movimento e raios mais rápidos.
+- Cartas pequenas (mão no celular) mostram só o primeiro nome; cartas bloqueadas ficam cinza e sem animação.
 
 ### Evolução visual por estrela
 Cada Despertar muda o visual do personagem em todas as telas (coleção, treino, mão e batalha). Os efeitos se acumulam:
@@ -135,7 +168,8 @@ Ataque/vida mostrados em 1★ nível 1 (base) e, entre parênteses, na estrela m
 | Zarek do Eclipse | 💀 Assassino | Épico | 3–5★ | 4 | 4 / 5 (5 / 7 em 3★) | Físico | 1 | 0/0 | Emboscada — Perfura 1 de resistência em 3★, 2 em 4★, 3 em 5★; +1 no nível 25 (máx. 3). |
 | Kenji Punho-Espelhado ✦ | ⚔️ DPS | Lendário | 5–6★ | 5 | 3 / 7 (5 / 11 em 5★) | Físico | 1 | 1/0 | Punho Espelhado — Multiplicador: ×2 (5★) · ×2,25 (6★, máx.). |
 | Nyx-07 | ➕ Suporte | Lendário | 4–6★ | 5 | 2 / 6 (3 / 9 em 4★) | Mágico | 3 | 0/1 | Sifão de Energia — −1 de ataque (4–5★) · −2 (6★). |
-| Vorax ✦ | 🪄 Mago | Mítico | 5–6★ | 6 | 3 / 6 (5 / 10 em 5★) | Mágico | 3 | 0/1 | Prole Sombria — Vida da cria: 1 (5★) · 2 (6★). Ataque: 2, +1 a cada 15 níveis (máx. 4). |
+| Vorax ✦ | 🪄 Mago | Mítico | 5–6★ | 6 | 3 / 6 (5 / 10 em 5★) | Mágico | 3 | 0/1 | Prole Sombria — Cria: ataque 2 e vida 1 (5★) · ataque 3 e vida 2 (6★). |
+| *Cria Sombria* (invocada) | 🪄 Mago | — | — | — | 2 ou 3 / 1 ou 2 | Mágico | 2 | 0/0 | Disparo Sombrio (alcance 2) e Prole Sombria. |
 
 ✦ = **personagem único**: muito forte, já nasce em 5★ e só chega a 6★.
 
@@ -152,10 +186,13 @@ Habilidades em detalhe:
 - **Emboscada:** mais distante da fileira até 2 casas; ignora parte da resistência.
 - **Punho Espelhado:** ao sofrer golpe físico corpo a corpo de frente, contra-ataca com ataque multiplicado e empurra o agressor 1 casa para trás.
 - **Sifão de Energia:** enquanto em campo, todos os inimigos perdem ataque (ataque mínimo 1).
-- **Prole Sombria:** ao derrotar, surge uma **Cria Sombria** (maga, alcance 3, ataque mágico) na casa do derrotado ou na antiga casa de Vorax. Crias também geram crias. Cria: ataque 2 (+1 a cada 15 níveis de quem a gerou, máx. 4); vida 1 (5★) ou 2 (6★).
+- **Prole Sombria:** ao derrotar, surge uma **Cria Sombria** na casa do derrotado ou na antiga casa de Vorax. Crias também geram crias (máx. 3 por lado). A cria tem **ataque 2** com Vorax em **5★** e **ataque 3** com Vorax em **6★**; vida 1 (5★) ou 2 (6★). Uma cria gerada por outra cria herda as mesmas estrelas.
+- **Disparo Sombrio (Cria):** ataque **mágico** no inimigo **mais próximo até 2 casas à frente** na própria fileira (como as unidades de longo alcance, mas com alcance 2), inclusive o herói a partir da penúltima coluna. Não avança quando pode atacar.
 
 ## 13. Equipe e janelas do jogo
-- A equipe tem de 3 a 6 personagens.
+- A equipe tem de **3 a 10** personagens e é o seu baralho (cada um vale 4 cópias; com menos de 10, os primeiros se repetem — ver seção 4).
+- Novo jogo: a equipe começa com os **9 personagens iniciais**. Ao desbloquear um personagem, ele **entra direto na equipe** se houver vaga.
+- Saves antigos (equipe de até 6) são completados automaticamente até 10 com os seus personagens mais fortes que estavam fora da equipe (uma única vez).
 - Com a equipe cheia, **Colocar na equipe** abre a janela de **troca**: todas as cartas da equipe começam marcadas; toque nas que vão **sair** (ficam cinza com ✖). **Trocar** só libera quando o número certo estiver desmarcado; **Cancelar** não muda nada.
 - Todas as confirmações e avisos (sair da batalha, apagar progresso, equipe mínima) usam janelas do próprio jogo, no tema escuro/dourado.
 

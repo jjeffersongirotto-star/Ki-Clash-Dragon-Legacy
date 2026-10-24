@@ -17,6 +17,7 @@ import {
   ROWS,
 } from '../src/core/battle';
 import { aiDeploy } from '../src/core/ai';
+import { pileCount, totalCards } from '../src/core/deck';
 import type { BattleState, CardInstance } from '../src/core/types';
 
 const c = (charId: string, level = 1, stars = 1): CardInstance => ({ charId, level, stars });
@@ -231,31 +232,43 @@ describe('fúria de batalha (anti-empate)', () => {
 });
 
 describe('mão e baralho', () => {
-  const deck6 = ['riku', 'nara', 'toru', 'aiko', 'gorath', 'lyra'].map((id) => c(id, 1, 2));
-  it('começa com 4 cartas e compra exatamente 1 por rodada; cartas não usadas ficam na mão', () => {
-    const s = createBattle({ playerDeck: deck6, enemyDeck: deck6, playerHeroHp: 30, enemyHeroHp: 30, seed: 5 });
-    expect(s.decks.player.hand).toHaveLength(4);
-    const before = s.decks.player.hand.map((x) => x.charId);
+  const deck10 = ['riku', 'nara', 'toru', 'aiko', 'gorath', 'lyra', 'mei', 'yume', 'zarek', 'kenji'].map((id) => c(id, 1, id === 'kenji' ? 5 : 3));
+  it('começa com 6 cartas na mão, baralho de 40 (10 × 4); compra 1 por rodada e cartas não usadas ficam', () => {
+    const s = createBattle({ playerDeck: deck10, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 5 });
+    expect(s.decks.player.hand).toHaveLength(6);
+    expect(new Set(s.decks.player.hand.map((x) => x.charId)).size).toBe(6);
+    expect(totalCards(s.decks.player)).toBe(40);
+    expect(pileCount(s.decks.player)).toBe(34);
+    // mão cheia: a rodada não compra
     endPlayerTurn(s, () => {});
-    expect(s.decks.player.hand).toHaveLength(5);
-    expect(s.decks.player.hand.slice(0, 4).map((x) => x.charId)).toEqual(before);
-  });
-  it('carta usada volta ao fim do baralho na hora (mesmo com a unidade viva)', () => {
-    const s = createBattle({ playerDeck: deck6, enemyDeck: deck6, playerHeroHp: 30, enemyHeroHp: 30, seed: 5 });
-    const card = s.decks.player.hand[0];
-    const def = card.charId;
-    const i = s.decks.player.hand.findIndex((x) => x.charId === def);
+    expect(s.decks.player.hand).toHaveLength(6);
     s.energy.player = 10;
-    expect(deploy(s, 'player', i, 0, 0).ok).toBe(true);
-    expect(s.decks.player.draw[s.decks.player.draw.length - 1].charId).toBe(def);
-    expect(s.decks.player.hand.length + s.decks.player.draw.length).toBe(6);
+    const before = s.decks.player.hand.slice(1).map((x) => x.charId);
+    expect(deploy(s, 'player', 0, 0, 0).ok).toBe(true);
+    endPlayerTurn(s, () => {});
+    expect(s.decks.player.hand).toHaveLength(6);
+    expect(s.decks.player.hand.slice(0, 5).map((x) => x.charId)).toEqual(before);
   });
-  it('a mão nunca esvazia de vez e o mesmo personagem pode estar em campo mais de uma vez', () => {
+  it('cópia jogada fica em campo; quando a unidade morre vai para as derrotadas e não volta', () => {
+    const s = createBattle({ playerDeck: deck10, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 5 });
+    s.energy.player = 10;
+    const card = s.decks.player.hand[0];
+    expect(deploy(s, 'player', 0, 0, 2).ok).toBe(true);
+    expect(pileCount(s.decks.player) + s.decks.player.hand.length).toBe(39);
+    const u = s.units.find((x) => x.side === 'player')!;
+    expect(u.slot).toBe(card.slot);
+    const killer = placeUnit(s, c('riku'), 'enemy', 0, 3, { atk: 99 });
+    act(s, new Ctx(), killer);
+    expect(s.units.includes(u)).toBe(false);
+    expect(s.decks.player.defeated.map((x) => x.charId)).toEqual([card.charId]);
+    expect(s.decks.player.slots[card.slot!].copies - s.decks.player.slots[card.slot!].defeated).toBe(3);
+    expect(pileCount(s.decks.player) + s.decks.player.hand.length).toBe(39);
+  });
+  it('a mão não esvazia de vez e o mesmo personagem pode estar em campo mais de uma vez', () => {
     const deck3 = ['riku', 'nara', 'toru'].map((id) => c(id));
     const s = createBattle({ playerDeck: deck3, enemyDeck: deck3, playerHeroHp: 999, enemyHeroHp: 999, seed: 2, maxTurns: 99 });
     let maxSame = 0;
     for (let t = 0; t < 12 && !s.winner; t++) {
-      // joga tudo que puder
       s.energy.player = 10;
       for (let k = 0; k < 6; k++) {
         const cells: [number, number][] = [];

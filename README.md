@@ -8,7 +8,7 @@ Jogo de estratégia com cartas e **batalha automática em grade**, com personage
 - 📖 **[REGRAS.md](REGRAS.md)**: todas as regras do jogo (arena, alcance, categorias, estrelas, evolução, personagens).
 - 📝 **[CHANGELOG.md](CHANGELOG.md)**: histórico de atualizações.
 
-Resumo: arena 2×7 com heróis nas pontas, invocação nas 3 primeiras colunas, unidades andam e atacam sozinhas, corpo a corpo com alcance 1 e longo alcance com 3 (sempre na própria fileira, exceto as diagonais), passo à frente ao derrotar, cartas coloridas por estrela e 6 categorias (🛡️ ➕ ⚔️ 🪄 🏹 💀). Cada personagem tem uma faixa de estrelas (1–2★ → 4★, 3★ → 5★, 4–5★ → 6★; únicos de 5★ a 6★) e o visual (roupa e cenário de fundo próprio) evolui a cada estrela.
+Resumo: baralho de 40 cartas (equipe de 10 × 4 cópias) com mão de 6 e compra semi-aleatória, arena 2×7 com heróis nas pontas, invocação nas 3 primeiras colunas, unidades andam e atacam sozinhas, corpo a corpo com alcance 1 e longo alcance com 3 (sempre na própria fileira, exceto as diagonais), passo à frente ao derrotar, cartas coloridas por estrela e 6 categorias (🛡️ ➕ ⚔️ 🪄 🏹 💀). Cada personagem tem uma faixa de estrelas (1–2★ → 4★, 3★ → 5★, 4–5★ → 6★; únicos de 5★ a 6★) e o visual (roupa, cenário de fundo próprio e moldura da carta) evolui a cada estrela.
 
 ## Desenvolvimento
 ```bash
