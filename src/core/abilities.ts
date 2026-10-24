@@ -14,6 +14,8 @@ export interface AbilityDef {
   targeting?: 'diagFrente' | 'diagTras' | 'ultimoDaFila' | 'retaguarda' | 'menorVida';
   /** bônus de alcance */
   rangeBonus?: number;
+  /** alcance (em colunas à frente) da mira especial */
+  reach?: number;
   /** pode pular unidades no movimento */
   jump?: boolean;
   /** ao derrotar: invoca uma unidade */
@@ -30,14 +32,14 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   diagFrente: {
     id: 'diagFrente',
     name: 'Corte Diagonal',
-    description: 'Também ataca inimigos nas diagonais à frente.',
+    description: 'Também ataca o inimigo na diagonal logo à frente (outra fileira, 1 coluna adiante).',
     icon: '↗',
     targeting: 'diagFrente',
   },
   diagTras: {
     id: 'diagTras',
     name: 'Golpe Reverso',
-    description: 'Prioriza inimigos nas diagonais para trás (pega quem passou por ele).',
+    description: 'Prioriza o inimigo na diagonal logo atrás (pega quem passou por ele na outra fileira).',
     icon: '↙',
     targeting: 'diagTras',
   },
@@ -51,30 +53,33 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   longoAlcance: {
     id: 'longoAlcance',
     name: 'Longo Alcance',
-    description: '+2 de alcance. Não avança quando consegue atacar.',
+    description: 'Ataca até 2 casas à frente (inclusive o herói). Não avança quando consegue atacar.',
     icon: '🏹',
-    rangeBonus: 2,
+    rangeBonus: 1,
   },
   ultimoDaFila: {
     id: 'ultimoDaFila',
     name: 'Tiro Perfurante',
-    description: 'Ataca o último inimigo da sua fileira, onde quer que esteja.',
+    description: 'Feixe mágico que atravessa a linha: ataca o inimigo mais distante na sua fileira, até 2 casas à frente.',
     icon: '⇥',
     targeting: 'ultimoDaFila',
+    reach: 2,
   },
   retaguarda: {
     id: 'retaguarda',
     name: 'Emboscada',
-    description: 'Ataca o inimigo mais recuado (retaguarda) de qualquer fileira.',
+    description: 'Ataca o inimigo mais recuado entre os que estão até 2 colunas à frente, em qualquer fileira.',
     icon: '🗡',
     targeting: 'retaguarda',
+    reach: 2,
   },
   menorVida: {
     id: 'menorVida',
     name: 'Instinto Predador',
-    description: 'Ataca o inimigo com menos vida em todo o campo.',
+    description: 'Ataca o inimigo com menos vida entre os que estão até 2 colunas à frente, em qualquer fileira.',
     icon: '🎯',
     targeting: 'menorVida',
+    reach: 2,
   },
   prole: {
     id: 'prole',

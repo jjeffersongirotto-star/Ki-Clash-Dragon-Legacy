@@ -30,11 +30,11 @@ const POOLS: string[][] = [
   ['nara', 'toru', 'aiko', 'gorath', 'riku'],
   ['toru', 'aiko', 'lyra', 'gorath', 'riku'],
   ['aiko', 'lyra', 'gorath', 'yume', 'kenji'],
-  ['lyra', 'gorath', 'yume', 'zarek', 'nyx'],
-  ['gorath', 'yume', 'zarek', 'kenji', 'aiko', 'nyx'],
-  ['zarek', 'kenji', 'nyx', 'vorax', 'toru', 'lyra'],
+  ['lyra', 'riku', 'yume', 'zarek', 'nyx'],
+  ['nara', 'yume', 'zarek', 'kenji', 'aiko', 'riku'],
+  ['vorax', 'kenji', 'toru', 'lyra', 'riku', 'nara'],
   ['yume', 'zarek', 'kenji', 'nyx', 'aiko', 'riku'],
-  ['kenji', 'nyx', 'vorax', 'zarek', 'lyra', 'nara'],
+  ['vorax', 'nyx', 'kenji', 'toru', 'nara', 'riku'],
 ];
 
 const UNLOCKS: Record<number, string> = { 3: 'kenji', 5: 'nyx', 8: 'vorax' };
@@ -50,11 +50,11 @@ export const STAGES: Stage[] = NAMES.map((name, i) => {
   return {
     id,
     name,
-    enemyHeroHp: 20 + i * 3,
+    enemyHeroHp: 12 + i * 2,
     enemyDeck: deck,
     rewards: { pergaminho: 4 + i * 2, cristal: 1 + Math.floor(i / 2), orbe: i >= 5 ? 1 : 0, essencias: 6 + i * 3 },
     unlock: UNLOCKS[id],
   };
 });
 
-export const PLAYER_HERO_HP = 30;
+export const PLAYER_HERO_HP = 20;

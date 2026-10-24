@@ -17,6 +17,13 @@ export function rarityStyle(def: CharacterDef): string {
   return `--rc:${r.color};--rg:${r.glow}`;
 }
 
+/** Alcance exibido: alcance básico + bônus; miras especiais mostram o alcance delas. */
+export function reachLabel(def: CharacterDef): string {
+  const r = def.range + def.abilities.reduce((s, a) => s + (ABILITIES[a].rangeBonus ?? 0), 0);
+  const sp = Math.max(0, ...def.abilities.map((a) => ABILITIES[a].reach ?? 0));
+  return sp > r ? `${r} (habilidade: ${sp})` : String(r);
+}
+
 export function dmgLabel(def: CharacterDef) {
   return def.damageType === 'fisico' ? '👊 Físico' : '✨ Mágico';
 }
