@@ -1,11 +1,11 @@
 import { aiDeploy } from '../core/ai';
-import { createBattle, deploy, deployCells, endPlayerTurn, rangeOf, effectiveAtk, unitAt } from '../core/battle';
+import { createBattle, deploy, deployCells, endPlayerTurn, effectiveAtk, unitAt, DEPLOY_DEPTH } from '../core/battle';
 import { getChar } from '../core/characters';
 import type { BattleState, RecordedEvent, Side, Snapshot, Unit } from '../core/types';
 import type { Stage } from '../core/campaign';
 import { PLAYER_HERO_HP } from '../core/campaign';
 import { heroSVG, portraitSVG } from './art';
-import { abilityListHTML, cardHTML, dmgLabel, esc, starsHTML } from './components';
+import { abilityListHTML, cardHTML, dmgLabel, esc, reachLabel, starsHTML } from './components';
 
 export interface BattleCallbacks {
   speed: () => number;
@@ -33,7 +33,7 @@ export class BattleView {
     this.mount();
     this.renderSnapshot(this.snap());
     this.renderHand();
-    this.log(`⚔ Fase ${stage.id}: ${stage.name}. Invoque cartas na sua zona (2 colunas da esquerda) e toque em LUTAR!`, 'sys');
+    this.log(`⚔ Fase ${stage.id}: ${stage.name}. Invoque cartas na sua zona (3 colunas da esquerda) e toque em LUTAR!`, 'sys');
   }
 
   snap(): Snapshot {
@@ -46,7 +46,7 @@ export class BattleView {
     let cells = '';
     for (let r = 0; r < s.rows; r++)
       for (let c = 0; c < s.cols; c++)
-        cells += `<div class="cell ${c < 2 ? 'zone-p' : c >= s.cols - 2 ? 'zone-e' : ''}" data-r="${r}" data-c="${c}"></div>`;
+        cells += `<div class="cell ${c < DEPLOY_DEPTH ? 'zone-p' : c >= s.cols - DEPLOY_DEPTH ? 'zone-e' : ''}" data-r="${r}" data-c="${c}"></div>`;
     this.root.innerHTML = `
     <div class="battle">
       <div class="bhud">
@@ -127,12 +127,12 @@ export class BattleView {
     const c = this.state.decks.player.hand[i];
     if (!c) return;
     const def = getChar(c.charId);
-    this.setInfo(`<b>${esc(def.name)}</b> ${starsHTML(c.stars)} · custo ${def.cost} · ${dmgLabel(def)} · alcance ${def.range + (def.abilities.includes('longoAlcance') ? 2 : 0)}${abilityListHTML(def)}`);
+    this.setInfo(`<b>${esc(def.name)}</b> ${starsHTML(c.stars)} · custo ${def.cost} · ${dmgLabel(def)} · alcance ${reachLabel(def)}${abilityListHTML(def)}`);
   }
 
   showUnitInfo(u: Unit) {
     const def = getChar(u.charId);
-    this.setInfo(`<b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${starsHTML(u.stars)} Nv.${u.level} · ❤ ${u.hp}/${u.maxHp} · ataque ${effectiveAtk(this.state, u)} (${dmgLabel(def)}) · alcance ${rangeOf(u)}${abilityListHTML(def)}`);
+    this.setInfo(`<b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${starsHTML(u.stars)} Nv.${u.level} · ❤ ${u.hp}/${u.maxHp} · ataque ${effectiveAtk(this.state, u)} (${dmgLabel(def)}) · alcance ${reachLabel(def)}${abilityListHTML(def)}`);
   }
 
   setInfo(html: string) {

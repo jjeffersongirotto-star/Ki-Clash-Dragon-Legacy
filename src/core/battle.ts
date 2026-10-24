@@ -12,9 +12,9 @@ import type {
   Unit,
 } from './types';
 
-export const ROWS = 5;
-export const COLS = 9;
-export const DEPLOY_DEPTH = 2;
+export const ROWS = 2;
+export const COLS = 7;
+export const DEPLOY_DEPTH = 3;
 export const HAND_MAX = 6;
 export const START_HAND = 4;
 export const MAX_ENERGY = 10;
@@ -93,6 +93,8 @@ export function startTurn(state: BattleState, ctx: Ctx, side: Side) {
   state.active = side;
   state.energy[side] = energyFor(state.turn);
   drawCard(state, side);
+  if (side === 'player' && furyBonus(state.turn) > furyBonus(state.turn - 1))
+    ctx.emit(state, { type: 'aura', uid: 0, text: `🔥 Fúria de batalha! Todas as unidades ganham +${furyBonus(state.turn)} de ataque.` });
   ctx.emit(state, {
     type: 'turn',
     side,
@@ -186,8 +188,15 @@ export function auraPenalty(state: BattleState, u: Unit): number {
   return p;
 }
 
+/** Fúria de batalha: a partir do turno FURY_START, todos ganham +1 de ataque a cada FURY_EVERY turnos (evita empates travados). */
+export const FURY_START = 8;
+export const FURY_EVERY = 3;
+export function furyBonus(turn: number): number {
+  return turn < FURY_START ? 0 : 1 + Math.floor((turn - FURY_START) / FURY_EVERY);
+}
+
 export function effectiveAtk(state: BattleState, u: Unit): number {
-  return Math.max(1, u.atk - auraPenalty(state, u));
+  return Math.max(1, u.atk - auraPenalty(state, u)) + furyBonus(state.turn);
 }
 
 /** Dano após resistência. Resistência física 1 contra 3 de dano físico = 2. Mínimo 1. */
@@ -200,49 +209,47 @@ export function distanceToEnemyHero(state: BattleState, u: Unit): number {
   return u.side === 'player' ? state.cols - u.col : u.col + 1;
 }
 
-/** "Recuo" de uma unidade: quão perto está do próprio herói (maior = mais recuada). */
-function rearness(state: BattleState, u: Unit): number {
-  return u.side === 'player' ? state.cols - 1 - u.col : u.col;
-}
-
+/**
+ * Mira. Regras (arena 2x7):
+ * - Básico: inimigo na casa logo à frente (alcance 1). Longo alcance: até 2 casas à frente na fileira.
+ * - Herói: atingido quando o herói está dentro do alcance (corpo a corpo: na última coluna).
+ * - Miras especiais (último da fila, retaguarda, menor vida) só enxergam até `reach` colunas à frente.
+ * - Diagonais: apenas a casa diagonal adjacente (à frente ou atrás).
+ */
 export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
   const enemies = state.units.filter((e) => e.hp > 0 && e.side !== u.side);
-  const targeting = has(u.abilities, (a) => a.targeting)?.targeting;
+  const ab = has(u.abilities, (a) => a.targeting);
+  const targeting = ab?.targeting;
   const d = dir(u.side);
   const r = rangeOf(u);
+  const reach = Math.max(r, ab?.reach ?? 0);
+  const fwd = (e: Unit) => (e.col - u.col) * d;
+  const ahead = (e: Unit) => fwd(e) >= 1 && fwd(e) <= reach;
 
-  if (enemies.length) {
-    if (targeting === 'menorVida') {
-      return enemies.slice().sort((a, b) => a.hp - b.hp || Math.abs(a.col - u.col) - Math.abs(b.col - u.col) || a.uid - b.uid)[0];
-    }
-    if (targeting === 'retaguarda') {
-      return enemies
-        .slice()
-        .sort((a, b) => rearness(state, b) - rearness(state, a) || Math.abs(a.row - u.row) - Math.abs(b.row - u.row) || a.uid - b.uid)[0];
-    }
-    if (targeting === 'ultimoDaFila') {
-      const inRow = enemies.filter((e) => e.row === u.row);
-      if (inRow.length) return inRow.sort((a, b) => rearness(state, b) - rearness(state, a))[0];
-    }
+  if (targeting === 'menorVida') {
+    const c = enemies.filter(ahead).sort((a, b) => a.hp - b.hp || fwd(a) - fwd(b) || a.uid - b.uid);
+    if (c.length) return c[0];
+  } else if (targeting === 'retaguarda') {
+    const c = enemies.filter(ahead).sort((a, b) => fwd(b) - fwd(a) || Math.abs(a.row - u.row) - Math.abs(b.row - u.row) || a.uid - b.uid);
+    if (c.length) return c[0];
+  } else if (targeting === 'ultimoDaFila') {
+    const c = enemies.filter((e) => e.row === u.row && ahead(e)).sort((a, b) => fwd(b) - fwd(a));
+    if (c.length) return c[0];
   }
 
   const straight: Unit[] = [];
   const diagF: Unit[] = [];
   const diagB: Unit[] = [];
   for (const e of enemies) {
-    const f = (e.col - u.col) * d;
+    const f = fwd(e);
     const dr = Math.abs(e.row - u.row);
     if (dr === 0 && f >= 1 && f <= r) straight.push(e);
-    else if (targeting === 'diagFrente' && f >= 1 && f <= r && dr === f) diagF.push(e);
-    else if (targeting === 'diagTras' && f <= -1 && -f <= r && dr === -f) diagB.push(e);
+    else if (targeting === 'diagFrente' && f === 1 && dr === 1) diagF.push(e);
+    else if (targeting === 'diagTras' && f === -1 && dr === 1) diagB.push(e);
   }
-  const byDist = (a: Unit, b: Unit) =>
-    Math.max(Math.abs(a.col - u.col), Math.abs(a.row - u.row)) - Math.max(Math.abs(b.col - u.col), Math.abs(b.row - u.row)) ||
-    (a.row === u.row ? -1 : 0) - (b.row === u.row ? -1 : 0) ||
-    a.hp - b.hp;
-  if (diagB.length) return diagB.sort(byDist)[0];
-  const cand = [...straight, ...diagF].sort(byDist);
-  if (cand.length) return cand[0];
+  if (diagB.length) return diagB.sort((a, b) => a.hp - b.hp)[0];
+  if (straight.length) return straight.sort((a, b) => fwd(a) - fwd(b))[0];
+  if (diagF.length) return diagF.sort((a, b) => a.hp - b.hp)[0];
   if (distanceToEnemyHero(state, u) <= r) return 'hero';
   return null;
 }
@@ -251,7 +258,7 @@ function isMeleeFrontAttack(att: Unit, target: Unit): boolean {
   if (att.damageType !== 'fisico' || hasRangeBonus(att)) return false;
   if (att.row !== target.row) return false;
   const f = (att.col - target.col) * dir(target.side);
-  return f >= 1 && f <= 2;
+  return f === 1;
 }
 
 const nameOf = (u: Unit) => `${getChar(u.charId).name}${u.side === 'enemy' ? ' (inimigo)' : ''}`;
@@ -275,7 +282,7 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
     return;
   }
   const dist = Math.max(Math.abs(target.col - u.col), Math.abs(target.row - u.row));
-  const ranged = !(u.damageType === 'fisico' && dist <= 2 && !hasRangeBonus(u));
+  const ranged = !(u.damageType === 'fisico' && dist <= 1 && !hasRangeBonus(u));
   const dmg = computeDamage(atk, u.damageType, target);
   ctx.emit(state, {
     type: 'attack',
@@ -321,7 +328,6 @@ function kill(state: BattleState, ctx: Ctx, victim: Unit, killer: Unit) {
   victim.hp = 0;
   state.units = state.units.filter((x) => x !== victim);
   ctx.emit(state, { type: 'death', uid: victim.uid, text: `✖ ${nameOf(victim)} foi derrotado.` });
-  if (victim.card && !victim.isMinion) state.decks[victim.side].draw.push({ ...victim.card });
   // gancho: invocar ao derrotar
   const summon = has(killer.abilities, (a) => a.onKillSummon)?.onKillSummon;
   if (summon && !unitAt(state, victim.row, victim.col)) {
@@ -395,6 +401,8 @@ export function deploy(state: BattleState, side: Side, handIndex: number, row: n
   if (!isDeployCell(state, side, row, col)) return { ok: false, reason: 'Fora da zona de invocação', events: [] };
   if (unitAt(state, row, col)) return { ok: false, reason: 'Casa ocupada', events: [] };
   state.decks[side].hand.splice(handIndex, 1);
+  // a carta usada volta ao fim do baralho: pode ser comprada de novo mesmo com o personagem em campo
+  state.decks[side].draw.push({ ...card });
   state.energy[side] -= def.cost;
   const u = placeUnit(state, card, side, row, col);
   ctx.emit(state, { type: 'deploy', uid: u.uid, text: `${side === 'player' ? 'Você invoca' : 'Inimigo invoca'} ${def.name} (${card.stars}★ Nv.${card.level}).` });

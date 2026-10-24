@@ -7,7 +7,7 @@
   --gold: #ffcf4a;
   --p: #2fb8ff;
   --e: #ff3d6e;
-  --cell: clamp(30px, min(calc((100vw - 96px) / 9), calc((100dvh - 330px) / 5)), 78px);
+  --cell: clamp(34px, min(calc((100vw - 120px) / 7), calc((100dvh - 330px) / 2)), 96px);
   font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
   color: var(--text);
   background: var(--bg);
@@ -152,9 +152,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .bhud { display: flex; align-items: center; gap: 8px; }
 .bhud-title { flex: 1; text-align: center; font-weight: 800; font-size: 14px; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .turn-ind { font-size: 14px; background: rgba(255,255,255,.07); padding: 4px 10px; border-radius: 99px; }
-.field { display: flex; align-items: center; justify-content: center; gap: 4px; }
-.hero { width: 44px; flex: 0 0 44px; text-align: center; position: relative; }
-.hero-svg { width: 44px; height: 44px; filter: drop-shadow(0 0 8px var(--hc)); }
+.field { display: flex; align-items: stretch; justify-content: center; gap: 4px; }
+.hero { width: 56px; flex: 0 0 56px; min-height: calc(var(--cell) * 2); display: flex; flex-direction: column; justify-content: center; text-align: center; position: relative; border-radius: 12px; background: linear-gradient(180deg, color-mix(in srgb, var(--hc) 22%, transparent), rgba(10,14,34,.6)); border: 1px solid color-mix(in srgb, var(--hc) 55%, transparent); padding: 4px 3px; }
+.hero-svg { width: 48px; height: 48px; margin: 0 auto; filter: drop-shadow(0 0 8px var(--hc)); }
 .hero-p { --hc: var(--p); } .hero-e { --hc: var(--e); }
 .hero-hp .bar { height: 7px; background: #200; border-radius: 4px; overflow: hidden; margin-top: 3px; }
 .hero-hp .bar i { display: block; height: 100%; background: linear-gradient(90deg, #ff3d3d, #ffcf4a); transition: width .3s; }
@@ -242,13 +242,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* desktop: registro ao lado */
 @media (min-width: 1000px) {
-  :root { --cell: clamp(40px, min(calc((100vw - 460px) / 9), calc((100dvh - 330px) / 5)), 84px); }
+  :root { --cell: clamp(48px, min(calc((100vw - 520px) / 7), calc((100dvh - 330px) / 2)), 112px); }
   .battle { grid-template-columns: 1fr 300px; }
   .bhud, .field, .info, .bottom { grid-column: 1; }
   .log-panel { grid-column: 2; grid-row: 1 / span 4; align-self: stretch; }
   .log { max-height: calc(100dvh - 120px); }
-  .hero { width: 70px; flex-basis: 70px; }
-  .hero-svg { width: 64px; height: 64px; }
+  .hero { width: 96px; flex-basis: 96px; }
+  .hero-svg { width: 80px; height: 80px; }
   .hand .card { flex-basis: 108px; width: 108px; }
 }
 @media (max-width: 640px) {
@@ -262,18 +262,17 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .btn.fight { grid-column: 1 / -1; }
   .hand .card { flex-basis: 78px; width: 78px; }
   .card-stats { font-size: 11px; gap: 4px; }
-  :root { --cell: clamp(30px, min(calc((100vw - 14px) / 9), calc((100dvh - 400px) / 5)), 64px); }
-  .field { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: 'hp he' 'board board'; gap: 6px; }
-  .hero { width: auto; flex: none; display: flex; align-items: center; gap: 6px; text-align: left; }
-  .hero-p { grid-area: hp; } .hero-e { grid-area: he; flex-direction: row-reverse; text-align: right; }
+  :root { --cell: clamp(32px, calc((100vw - 86px) / 7), 64px); }
+  .battle-screen { padding: 4px 3px 16px; }
+  .field { gap: 2px; }
+  .hero { width: 36px; flex-basis: 36px; padding: 3px 1px; }
   .hero-svg { width: 30px; height: 30px; }
-  .hero-hp { flex: 1; } .hero-name { display: none; }
-  .board-wrap { grid-area: board; justify-self: center; }
+  .hero-hp span { font-size: 10px; }
   .banner { font-size: 18px; } .banner.big { font-size: 34px; padding: 10px 30px; }
 }
 /* celular deitado */
 @media (max-height: 500px) and (orientation: landscape) {
-  :root { --cell: clamp(28px, min(calc((100vw - 330px) / 9), calc((100dvh - 70px) / 5)), 70px); }
+  :root { --cell: clamp(30px, min(calc((100vw - 380px) / 7), calc((100dvh - 120px) / 2)), 80px); }
   .battle { grid-template-columns: 1fr 230px; }
   .bhud { grid-column: 1 / -1; }
   .field { grid-column: 1; grid-row: 2 / span 3; }

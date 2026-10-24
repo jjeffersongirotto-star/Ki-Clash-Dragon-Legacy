@@ -4,7 +4,7 @@ import { STAGES } from './core/campaign';
 import { XP_ITEMS, ascend, ascendCost, canAscend, feedXp, maxLevel, newOwned, statsFor, xpProgress, xpToNext, type XpItemId } from './core/progression';
 import { portraitSVG } from './ui/art';
 import { BattleView } from './ui/battleView';
-import { abilityListHTML, cardHTML, dmgLabel, esc, rarityStyle, starsHTML } from './ui/components';
+import { abilityListHTML, cardHTML, dmgLabel, esc, rarityStyle, reachLabel, starsHTML } from './ui/components';
 import { DECK_MAX, DECK_MIN, loadSave, resetSave, writeSave, type SaveData } from './ui/save';
 
 const app = document.getElementById('app')!;
@@ -170,7 +170,7 @@ function cardDetail(id: string) {
       <div class="rarity-tag">${RARITY_INFO[def.rarity].label}</div>
       <h2>${esc(def.name)}</h2><div class="subtitle">${esc(def.title)}</div>
       <div>${starsHTML(stars, def.maxStars)} <small>(${def.minStars}★ a ${def.maxStars}★)</small> · Nv.${lvl}/${maxLevel(stars)}</div>
-      <div class="stat-row"><span>Custo <b>${def.cost}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${def.range + (def.abilities.includes('longoAlcance') ? 2 : 0)}</b></span><span>Movimento <b>${def.move}</b></span></div>
+      <div class="stat-row"><span>Custo <b>${def.cost}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${reachLabel(def)}</b></span><span>Movimento <b>${def.move}</b></span></div>
       ${abilityListHTML(def)}
       <p class="lore">${esc(def.lore)}</p>
     </div></div>
@@ -260,17 +260,22 @@ function train() {
 function help() {
   app.innerHTML = `<div class="screen">${topbar('Como jogar')}
   <div class="help">
-    <h3>Objetivo</h3><p>Zere a vida do <b>herói inimigo</b> (à direita do campo) antes que ele zere a sua.</p>
+    <h3>Objetivo</h3><p>A arena tem <b>2 fileiras × 7 colunas</b>. Cada herói fica logo depois da última coluna do seu lado. Zere a vida do <b>herói inimigo</b> (à direita) antes que ele zere a sua.</p>
     <h3>Seu turno</h3><ol>
-      <li>Você recebe <b>energia ⚡</b> (3 no 1º turno, +1 por turno, máx. 10) e compra 1 carta.</li>
-      <li>Toque numa carta e numa casa brilhante das <b>2 colunas da esquerda</b> para invocá-la.</li>
+      <li>Você recebe <b>energia ⚡</b> (3 no 1º turno, +1 por turno, máx. 10) e compra <b>exatamente 1 carta</b>.</li>
+      <li>Toque numa carta e numa casa brilhante das <b>3 colunas da esquerda</b> para invocá-la. O inimigo invoca nas 3 colunas da direita.</li>
       <li>Toque em <b>LUTAR</b>: suas unidades agem sozinhas, depois o inimigo invoca e age.</li></ol>
+    <h3>Cartas e baralho</h3><ul>
+      <li>Cartas que você não usa <b>continuam na mão</b> (até 6).</li>
+      <li>Toda carta usada <b>volta para o fim do baralho</b> e pode ser comprada de novo depois de algumas rodadas — mesmo que o personagem ainda esteja em campo. Assim o mesmo personagem pode aparecer mais de uma vez.</li></ul>
     <h3>Como as unidades agem</h3><ul>
       <li>Se houver alvo no alcance, atacam. Senão, <b>andam até 2 casas</b> e tentam atacar.</li>
-      <li>Alcance básico 2 na mesma fileira. <b>Longo alcance</b> soma +2 e não avança se puder atacar.</li>
-      <li>Ninguém atravessa um inimigo sem derrotá-lo — exceto quem tem <b>Salto</b>.</li>
-      <li>Ao chegar perto do fim do campo, atacam o herói inimigo.</li>
-      <li>Quando uma unidade cai, sua carta volta ao fim do baralho.</li></ul>
+      <li><b>Corpo a corpo:</b> só atinge o inimigo na casa <b>logo à frente</b>. Para bater no herói, precisa estar na última coluna, de frente para ele.</li>
+      <li><b>Longo alcance 🏹:</b> atinge até <b>2 casas à frente</b> na mesma fileira (o herói também, a partir da penúltima coluna) e não avança se puder atacar.</li>
+      <li><b>Miras especiais</b> nunca atacam de qualquer lugar: <b>Tiro Perfurante</b> pega o inimigo mais distante da sua fileira até 2 casas; <b>Emboscada</b> pega o mais recuado e <b>Instinto Predador</b> o de menos vida, entre os inimigos até 2 colunas à frente (nas duas fileiras). Se não houver ninguém assim, atacam normalmente.</li>
+      <li><b>Diagonais:</b> Corte Diagonal atinge a casa diagonal logo à frente; Golpe Reverso, a casa diagonal logo atrás.</li>
+      <li>Ninguém atravessa um inimigo sem derrotá-lo — exceto quem tem <b>Salto</b> (pula 1 unidade, 2 casas).</li></ul>
+    <h3>Fúria de batalha 🔥</h3><p>A partir do <b>turno 8</b>, todas as unidades dos dois lados ganham <b>+1 de ataque a cada 3 turnos</b>, para a luta não travar. Se chegar ao turno 40, vence quem tiver mais vida (em %) no herói.</p>
     <h3>Dano</h3><p><b>Físico 👊</b> é reduzido pela resistência física; <b>Mágico ✨</b> pela resistência mágica. Ex.: 3 de dano físico contra resistência 1 = 2 de dano.</p>
     <h3>Raridade e estrelas</h3><p>${Object.values(RARITY_INFO).map((r) => `<span class="rar-chip" style="--rc:${r.color}">${r.label}</span>`).join(' ')}</p>
     <p>Cartas vão de 1★ a 6★. Personagens fracos chegam a 4★ (alguns 5★); os Lendários e Míticos começam em 4★ e alguns chegam a 6★. Cada estrela libera +10 níveis.</p>
