@@ -59,23 +59,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .menu .btn { font-size: 19px; padding: 14px; }
 
 /* ---- cartas ---- */
-.card { position: relative; width: 100%; border-radius: 12px; background: linear-gradient(160deg, var(--rc), #0d1022 70%); padding: 3px; box-shadow: 0 0 0 1px rgba(0,0,0,.6), 0 4px 14px rgba(0,0,0,.5), 0 0 12px color-mix(in srgb, var(--rc) 45%, transparent); cursor: pointer; user-select: none; transition: transform .12s; }
-.card:hover { transform: translateY(-3px); }
-.card-art { border-radius: 9px 9px 4px 4px; overflow: hidden; aspect-ratio: 1; border: 1px solid rgba(255,255,255,.25); }
-.card-body { background: #0e1228; border-radius: 4px 4px 9px 9px; padding: 5px 6px 6px; }
-.card-name { font-weight: 800; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
-.card-stats { display: flex; gap: 8px; font-size: 13px; font-weight: 700; margin-top: 2px; }
-.card-stats .ab { margin-left: auto; }
-.card-rarity { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--rg); font-weight: 800; }
-.card-cost { position: absolute; top: -6px; left: -6px; width: 28px; height: 28px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #9ef0ff, #0077ff 60%, #002a80); border: 2px solid #fff; display: grid; place-items: center; font-weight: 900; z-index: 2; text-shadow: 0 1px 2px #000; }
-.card-art { position: relative; }
-.card-cat { position: absolute; top: -6px; right: -6px; width: 28px; height: 28px; border-radius: 50%; background: #0e1228; border: 2px solid var(--rc); display: grid; place-items: center; font-size: 15px; z-index: 2; box-shadow: 0 0 6px var(--rc); }
-.card-badge { position: absolute; bottom: 4px; left: 4px; z-index: 2; background: rgba(0,0,0,.75); font-size: 11px; padding: 2px 6px; border-radius: 6px; font-weight: 700; }
-.card.locked { filter: grayscale(1); opacity: .55; animation: none !important; transition: none; box-shadow: 0 0 0 1px rgba(0,0,0,.6); }
-.card.locked:hover { transform: none; }
-.card.locked .card-art { filter: brightness(.45); }
-.card.locked * { animation: none !important; }
 .card.in-deck { outline: 2px solid var(--gold); outline-offset: 2px; }
 .stars .on { color: #ffd23f; text-shadow: 0 0 4px #ff9500; }
 .stars .off { color: #3d4466; }
@@ -225,8 +208,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .deck-count { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .hand { display: flex; gap: 8px; overflow-x: auto; padding: 8px 4px 4px; scroll-snap-type: x mandatory; }
 .hand .card { flex: 0 0 92px; width: 92px; min-width: 0; scroll-snap-align: start; }
-.hand .card-name { font-size: 11px; }
-.hand .card-rarity, .hand .lvl { display: none; }
 .hand .card.sel { transform: translateY(-8px); box-shadow: 0 0 0 3px #fff, 0 0 22px var(--rc); }
 .hand .card.cant { filter: grayscale(.85) brightness(.6); }
 .empty-hand { color: var(--muted); font-size: 13px; padding: 20px; }
@@ -251,7 +232,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .log { max-height: calc(100dvh - 120px); }
   .hero { width: 96px; flex-basis: 96px; }
   .hero-svg { width: 80px; height: 80px; }
-  .hand .card { flex-basis: 108px; width: 108px; }
+  .hand .card { flex-basis: 96px; width: 96px; }
 }
 @media (max-width: 640px) {
   .detail, .train-main { grid-template-columns: 1fr; }
@@ -263,7 +244,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .bottom { grid-template-columns: auto 1fr; }
   .btn.fight { grid-column: 1 / -1; }
   .hand .card { flex-basis: 78px; width: 78px; }
-  .card-stats { font-size: 11px; gap: 4px; }
   :root { --cell: clamp(32px, calc((100vw - 86px) / 7), 64px); }
   .battle-screen { padding: 4px 3px 16px; }
   .field { gap: 2px; }
@@ -279,7 +259,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .bhud { grid-column: 1 / -1; }
   .field { grid-column: 1; grid-row: 2 / span 3; }
   .bottom { grid-column: 2; grid-row: 2; grid-template-columns: auto 1fr; }
-  .hand { grid-column: 1 / -1; grid-row: 2; }
+  .hand-row { grid-column: 1 / -1; grid-row: 2; }
   .btn.fight { grid-column: 2; grid-row: 1; padding: 10px; }
   .info { grid-column: 2; grid-row: 3; max-height: 90px; overflow: auto; font-size: 11px; }
   .log-panel { grid-column: 1 / -1; }
@@ -298,7 +278,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .mini-card .mc-cat { position: absolute; top: 2px; right: 2px; font-style: normal; font-size: 12px; }
 .float.heal { color: #7dff9a; }
 .u-portrait { border: 3px solid var(--rc, var(--sc)); box-shadow: 0 0 0 2px var(--sc), 0 0 10px var(--sc); }
-.hand .card-stats { white-space: nowrap; gap: 3px; font-size: 11px; } .hand .card-stats .ab { display: none; }
 
 /* ---- diálogos do jogo ---- */
 .dialog-bg { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 14px; background: rgba(3,4,12,.8); backdrop-filter: blur(3px); animation: fade .18s; }
@@ -316,14 +295,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .swap-in .card { width: 92px; flex: none; }
 .swap-arrow { font-size: 28px; color: var(--gold); }
 .swap-hint { font-size: 13px; color: var(--muted); max-width: 140px; text-align: left; }
-.swap-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; padding: 4px; }
-.swap-grid .card, .swap-grid .card * { min-width: 0; }
-.swap-grid .card-stats { font-size: 10px; overflow: hidden; }
+.swap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 9px; padding: 4px; }
 .swap-card { transition: transform .12s, filter .12s, opacity .12s; }
 .swap-card.sel-on { outline: 3px solid #7dff9a; outline-offset: 2px; }
 .swap-card.sel-off { filter: grayscale(1) brightness(.55); opacity: .7; outline: 3px dashed #ff3d6e; outline-offset: 2px; transform: scale(.94); }
-.swap-card .card-name { font-size: 11px; }
-.swap-card .card-rarity { display: none; }
 /* evolução ao despertar */
 .evo-bg { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: radial-gradient(circle, rgba(40,20,80,.98), rgba(2,3,10,.99)); animation: fade .25s; }
 .evo { text-align: center; padding: 16px; }
@@ -343,3 +318,135 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .evo-stars { font-size: 22px; margin: 6px 0; animation: fade .4s 1.6s both; }
 .evo-stars span { color: var(--gold); margin: 0 6px; }
 .evo-stats { color: #d6dcff; margin-bottom: 14px; animation: fade .4s 1.7s both; }
+
+/* =====================================================================
+   CARTAS v0.7 — moldura metálica chanfrada na cor das estrelas,
+   personagem saindo da moldura, aura, medalhões, faixa com o nome.
+   Tamanhos em cqw (1% da largura da carta): fica legível de 60px a 220px.
+   ===================================================================== */
+.card { --metal-d: color-mix(in srgb, var(--rc) 40%, #05060f); --metal-l: color-mix(in srgb, var(--rg) 70%, #fff);
+  container-type: inline-size; position: relative; width: 100%; border-radius: 10px; cursor: pointer; user-select: none; transition: transform .12s; }
+.card-metal { position: relative; padding: 5cqw; border-radius: 10cqw; isolation: isolate;
+  background: linear-gradient(140deg, var(--metal-l) 0%, var(--rc) 16%, var(--metal-d) 38%, var(--rc) 56%, var(--metal-l) 72%, var(--rc) 84%, var(--metal-d) 100%);
+  box-shadow: inset 0 0 0 .9cqw rgba(255,255,255,.45), inset 0 -1.6cqw 2cqw rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.85), 0 3cqw 9cqw rgba(0,0,0,.6), 0 0 7cqw color-mix(in srgb, var(--rc) 45%, transparent); }
+.card:hover { transform: translateY(-3px); }
+.card-frame { position: relative; border-radius: 6cqw; background: linear-gradient(180deg, #121839, #070a1c); box-shadow: inset 0 0 0 .8cqw rgba(0,0,0,.7), 0 0 0 .6cqw rgba(255,255,255,.18); padding-bottom: 3cqw; }
+.card-art { position: relative; aspect-ratio: 1; border-radius: 6cqw 6cqw 2cqw 2cqw; overflow: hidden; box-shadow: inset 0 0 0 .6cqw rgba(0,0,0,.6); }
+.card-bg, .card-aura, .card-shine { position: absolute; inset: 0; }
+.card-bg svg { width: 100%; height: 100%; display: block; }
+/* aura de energia atrás do personagem */
+.card-aura { background: radial-gradient(ellipse 55% 60% at 50% 70%, color-mix(in srgb, var(--ac) 75%, #fff) 0%, color-mix(in srgb, var(--ac) 45%, transparent) 35%, transparent 70%); mix-blend-mode: screen; opacity: .35; }
+.card.s2 .card-aura { opacity: .5; }
+.card.s3 .card-aura { opacity: .65; }
+.card.s4 .card-aura, .card.s5 .card-aura, .card.s6 .card-aura { opacity: .8; animation: auraPulse 2.6s ease-in-out infinite; }
+.card.s4 .card-aura::before, .card.s5 .card-aura::before, .card.s6 .card-aura::before { content: ''; position: absolute; inset: -40%; background: repeating-conic-gradient(from 0deg at 50% 62%, color-mix(in srgb, var(--ac) 55%, transparent) 0 6deg, transparent 6deg 20deg); -webkit-mask: radial-gradient(circle at 50% 62%, #000 15%, transparent 55%); mask: radial-gradient(circle at 50% 62%, #000 15%, transparent 55%); animation: auraSpin 14s linear infinite; opacity: .55; }
+.card.s6 .card-aura::before { animation-duration: 8s; opacity: .8; }
+@keyframes auraPulse { 50% { opacity: 1; transform: scale(1.06); } }
+@keyframes auraSpin { to { transform: rotate(360deg); } }
+/* reflexo de brilho (3★+) */
+.card-shine { background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,.5) 48%, rgba(255,255,255,.12) 54%, transparent 62%); transform: translateX(-130%); animation: cardShine 7s ease-in-out infinite; mix-blend-mode: screen; z-index: 4; pointer-events: none; }
+.card.s4 .card-shine { animation-duration: 5s; }
+.card.s5 .card-shine, .card.s6 .card-shine { animation-duration: 3.6s; }
+@keyframes cardShine { 0%, 55% { transform: translateX(-130%); } 85%, 100% { transform: translateX(130%); } }
+/* personagem grande, saindo pela borda de cima */
+.card-fig { position: absolute; left: -5cqw; top: -11cqw; width: calc(100% + 10cqw); height: auto; aspect-ratio: 1; clip-path: inset(-40% 4.6% 0 4.6%); z-index: 2; pointer-events: none; filter: drop-shadow(0 1.5cqw 1.5cqw rgba(0,0,0,.55)); }
+.card-fig svg { width: 100%; height: 100%; display: block; }
+/* estrelas no topo */
+.card-top { position: absolute; top: -3.5cqw; left: 0; right: 0; text-align: center; z-index: 5; line-height: 1; pointer-events: none; }
+.card-top .stars { font-size: max(8px, 12cqw); letter-spacing: -.5cqw; -webkit-text-stroke: .5cqw #2a1600; filter: drop-shadow(0 .6cqw 0 #000); }
+.card-top .stars .on { color: #ffe066; text-shadow: 0 0 3cqw #ff9500; }
+/* medalhões em relevo */
+.medal { position: absolute; z-index: 6; display: grid; place-items: center; border-radius: 50%; font-weight: 900; color: #fff; line-height: 1; text-shadow: 0 .6cqw 0 #000, 0 0 2cqw #000; }
+.card-cost { top: -8cqw; left: -8cqw; width: 26cqw; height: 26cqw; font-size: max(11px, 15cqw); background: radial-gradient(circle at 35% 28%, #e8fdff 0%, #5fd8ff 22%, #0a6dff 58%, #021b66 100%); box-shadow: 0 0 0 1.4cqw #f4d77a, 0 0 0 2.2cqw #5a3a00, inset 0 -2cqw 2.5cqw rgba(0,0,0,.45), 0 1.5cqw 3cqw rgba(0,0,0,.6); }
+.card-cat { top: -8cqw; right: -8cqw; width: 24cqw; height: 24cqw; font-size: max(10px, 12.5cqw); background: radial-gradient(circle at 35% 28%, color-mix(in srgb, var(--rg) 60%, #fff), var(--rc) 45%, var(--metal-d) 100%); box-shadow: 0 0 0 1.4cqw #f4d77a, 0 0 0 2.2cqw #5a3a00, inset 0 -2cqw 2.5cqw rgba(0,0,0,.45), 0 1.5cqw 3cqw rgba(0,0,0,.6); }
+.card-lvl { left: -6cqw; top: 58cqw; width: 22cqw; height: 22cqw; font-size: max(9px, 10.5cqw); flex-direction: column; background: radial-gradient(circle at 35% 28%, #fff3c4, #d9a521 45%, #6b4200 100%); box-shadow: 0 0 0 1cqw #3b2400, 0 0 0 2.4cqw rgba(255,214,90,.65), inset 0 -2cqw 2cqw rgba(0,0,0,.4); color: #fff; }
+.card-lvl small { font-size: max(6px, 5.5cqw); font-weight: 800; margin-bottom: -.5cqw; opacity: .9; }
+.card-lvl { display: flex; align-items: center; justify-content: center; gap: 0; }
+/* faixa com o nome */
+.card-ribbon { position: relative; z-index: 5; margin: -9cqw -8cqw 0; padding: 2.4cqw 10cqw 2.8cqw; text-align: center;
+  background: linear-gradient(180deg, var(--metal-l) 0%, var(--rc) 22%, var(--metal-d) 100%);
+  clip-path: polygon(0 0, 100% 0, 93% 50%, 100% 100%, 0 100%, 7% 50%); filter: drop-shadow(0 1cqw 0 rgba(0,0,0,.6)); }
+.card-ribbon::before { content: ''; position: absolute; inset: 1.2cqw 5cqw; border-top: .6cqw solid rgba(255,255,255,.55); border-bottom: .6cqw solid rgba(0,0,0,.35); pointer-events: none; }
+.card-name { display: block; font-weight: 900; font-size: max(9px, 11cqw); letter-spacing: .2cqw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; text-shadow: 0 .7cqw 0 #000, 0 0 2cqw rgba(0,0,0,.8); }
+.card-stats { display: flex; gap: 4cqw; align-items: center; padding: 2.5cqw 6cqw 0; font-size: max(9px, 11cqw); font-weight: 800; white-space: nowrap; }
+.card-stats .ab { margin-left: auto; overflow: hidden; }
+.card-rarity { padding: 0 6cqw; font-size: max(7px, 6.5cqw); text-transform: uppercase; letter-spacing: .6cqw; color: var(--rg); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-badge { position: absolute; z-index: 7; right: 2cqw; top: 66cqw; background: rgba(0,0,0,.8); border: 1px solid rgba(255,255,255,.3); font-size: max(9px, 8.5cqw); padding: .8cqw 3cqw; border-radius: 3cqw; font-weight: 800; white-space: nowrap; }
+.card.compact .card-frame { padding-bottom: 1cqw; }
+.card.compact .card-ribbon { margin-bottom: 0; }
+.card-name .short { display: none; }
+@container (max-width: 104px) { .card-name .full { display: none; } .card-name .short { display: inline; } }
+/* brilho por estrela */
+.card.s1 { --metal-l: #e9edf2; }
+.card.s5 .card-metal, .card.s6 .card-metal { box-shadow: inset 0 0 0 .9cqw rgba(255,240,180,.7), inset 0 -1.6cqw 2cqw rgba(0,0,0,.5), 0 0 0 1px #000, 0 0 0 1.6cqw color-mix(in srgb, #ffd23f 55%, transparent), 0 3cqw 9cqw rgba(0,0,0,.6), 0 0 12cqw var(--rc); animation: premiumGlow 2.4s ease-in-out infinite; }
+.card.s5 .card-frame, .card.s6 .card-frame { box-shadow: inset 0 0 0 .8cqw rgba(0,0,0,.7), 0 0 0 .8cqw #ffd23f; }
+.card.s6 .card-metal { background-size: 260% 260%; animation: premiumGlow 2s ease-in-out infinite, metalFlow 5s linear infinite; }
+@keyframes premiumGlow { 50% { filter: brightness(1.12) saturate(1.15); } }
+@keyframes metalFlow { 0% { background-position: 0% 0%; } 100% { background-position: 260% 260%; } }
+.spk { position: absolute; z-index: 8; width: 9cqw; height: 9cqw; pointer-events: none; clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); background: #fff; box-shadow: 0 0 3cqw #fff; opacity: 0; animation: twinkle 2.2s ease-in-out infinite; animation-delay: calc(var(--i) * .41s); }
+.spk:nth-of-type(1) { left: 8%; top: 18%; } .spk:nth-of-type(2) { left: 80%; top: 30%; } .spk:nth-of-type(3) { left: 16%; top: 62%; } .spk:nth-of-type(4) { left: 74%; top: 72%; }
+.spk:nth-of-type(5) { left: 46%; top: 6%; } .spk:nth-of-type(6) { left: 88%; top: 52%; } .spk:nth-of-type(7) { left: 4%; top: 40%; }
+.card.s6 .spk { background: #ffe9a8; box-shadow: 0 0 3cqw #ffd23f; }
+@keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0); } 45% { opacity: 1; transform: scale(1) rotate(45deg); } 60% { opacity: .9; } }
+.card.locked { filter: grayscale(1); opacity: .55; transition: none; }
+.card.locked .card-metal { animation: none !important; box-shadow: 0 0 0 1px rgba(0,0,0,.6); }
+.card.locked:hover { transform: none; }
+.card.locked .card-art, .card.locked .card-fig { filter: brightness(.45); }
+.card.locked *, .card.locked *::before { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { .card, .card *, .card *::before { animation: none !important; } }
+
+/* mão: espaço para o personagem sair por cima; toques maiores */
+.hand { padding: 14px 10px 6px; }
+.hand .card-rarity, .hand .card-stats .ab { display: none; }
+.hand .card-stats { justify-content: space-between; gap: 2px; padding-left: 4cqw; padding-right: 4cqw; }
+.swap-grid .card-rarity, .swap-card .card-rarity { display: none; }
+.swap-grid { padding-top: 12px; row-gap: 18px; }
+.card-grid { row-gap: 22px; padding-top: 14px; }
+
+/* barra de baixo da batalha: baralho | mão | derrotadas */
+.hand-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.hand-row .hand { flex: 1; min-width: 0; }
+.pile { flex: none; width: 58px; text-align: center; position: relative; }
+.pile-stack { position: relative; width: 58px; aspect-ratio: .72; border-radius: 8px; display: grid; place-items: center; }
+.pile-stack::before, .pile-stack::after { content: ''; position: absolute; inset: 0; border-radius: 8px; background: inherit; border: inherit; z-index: -1; }
+.pile-stack::before { transform: translate(3px, 3px); filter: brightness(.6); }
+.pile-stack::after { transform: translate(6px, 6px); filter: brightness(.4); z-index: -2; }
+.pile-draw .pile-stack { background: radial-gradient(circle at 50% 42%, #ffe58a 0 10%, transparent 11%), repeating-conic-gradient(from 0deg at 50% 42%, #1d4fd8 0 15deg, #0f2f99 15deg 30deg), #0f2f99; border: 3px solid #f4d77a; box-shadow: inset 0 0 0 2px #5a3a00, 0 0 12px rgba(80,150,255,.6); }
+.pile-dead .pile-stack { background: radial-gradient(circle at 50% 42%, rgba(190,120,255,.55) 0 22%, transparent 45%), linear-gradient(180deg, #3b2a55, #140c22); border: 3px solid #8c7aa8; box-shadow: inset 0 0 0 2px #1b1028, 0 0 10px rgba(150,80,255,.35); }
+.pile-dead.empty .pile-stack { opacity: .55; }
+.pile-ico { font-size: 22px; filter: drop-shadow(0 2px 0 #000); }
+.pile-count { position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%); min-width: 30px; padding: 1px 6px; border-radius: 99px; font-weight: 900; font-size: 15px; background: linear-gradient(180deg, #2a3366, #0d1130); border: 2px solid #f4d77a; text-shadow: 0 1px 0 #000; z-index: 3; }
+.pile-dead .pile-count { border-color: #b9a7d6; }
+.pile-label { white-space: nowrap; font-size: 10px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--muted); margin-top: 10px; }
+.pile.bump .pile-stack { animation: pileBump .45s; }
+@keyframes pileBump { 40% { transform: scale(1.12); filter: brightness(1.5); } }
+
+/* equipe (10 cartas) e treino com o novo visual */
+.deck-slots { grid-template-columns: repeat(5, minmax(0, 118px)); justify-content: center; gap: 14px 12px; padding-top: 10px; }
+.deck-slots .card { cursor: pointer; }
+.slot { aspect-ratio: .78; }
+.train-list { padding: 14px 10px 10px; gap: 12px; }
+.train-pick { flex: 0 0 78px; width: 78px; }
+.train-pick.sel { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 10px; }
+.detail-card { width: 200px; max-width: 100%; align-self: start; margin: 10px auto 0; }
+.unlock .card { width: 104px; flex: none; }
+@media (max-width: 640px) {
+  .pile, .pile-stack { width: 44px; }
+  .pile-ico { font-size: 17px; }
+  .pile-count { font-size: 13px; min-width: 26px; }
+  .pile-label { font-size: 7.5px; letter-spacing: 0; }
+  .deck-slots { gap: 12px 7px; }
+  /* celular em pé: baralho | mão | derrotadas ocupam a linha toda; energia e LUTAR embaixo */
+  .bottom { grid-template-columns: auto 1fr; }
+  .bottom .hand-row { grid-column: 1 / -1; grid-row: 1; }
+  .bottom .energy { grid-row: 2; display: flex; align-items: center; gap: 6px; }
+  .bottom .energy .energy-orb { width: 46px; height: 46px; }
+  .bottom .btn.fight { grid-column: 2; grid-row: 2; padding: 12px; }
+  .hand { gap: 6px; padding-left: 2px; padding-right: 2px; }
+  .hand .card { flex-basis: 62px; width: 62px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .battle { grid-template-columns: 1fr 300px; }
+  .pile, .pile-stack { width: 36px; } .pile-ico { font-size: 14px; } .pile-count { font-size: 11px; min-width: 22px; } .pile-label { font-size: 7px; letter-spacing: 0; }
+  .hand .card { flex-basis: 58px; width: 58px; }
+}

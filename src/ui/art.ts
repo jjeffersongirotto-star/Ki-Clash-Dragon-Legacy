@@ -29,7 +29,12 @@ function hairPath(style: number): string {
  * energizado, partículas · 6★ forma suprema: cabelo radiante, halo, raios, aura dupla.
  * O físico também cresce (ombros mais largos) a cada estrela.
  */
-export function portraitSVG(def: CharacterDef, opts: { flip?: boolean; className?: string; stars?: number } = {}): string {
+/**
+ * `layer`: 'all' (padrão) desenha cenário + personagem; 'bg' só o cenário (fundo da carta);
+ * 'fg' só o personagem com aura, fundo transparente (para "sair" da moldura da carta).
+ */
+export function portraitSVG(def: CharacterDef, opts: { flip?: boolean; className?: string; stars?: number; layer?: 'all' | 'bg' | 'fg' } = {}): string {
+  const layer = opts.layer ?? 'all';
   const p = def.palette;
   const t = Math.max(1, Math.min(6, opts.stars ?? def.minStars));
   const id = `g-${def.id}-${t}`;
@@ -91,9 +96,10 @@ export function portraitSVG(def: CharacterDef, opts: { flip?: boolean; className
     <linearGradient id="${id}-metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff"/><stop offset="45%" stop-color="${metal}"/><stop offset="100%" stop-color="#4a4e69"/></linearGradient>
     <linearGradient id="${id}-hair" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="${t >= 6 ? p.aura : p.hair}"/><stop offset="100%" stop-color="${t >= 6 ? '#fff' : p.aura}"/></linearGradient>
   </defs>
-  ${sceneSVG(def.id, t, id + "-sc", p.primary)}
+  ${layer === 'fg' ? '' : `${sceneSVG(def.id, t, id + "-sc", p.primary)}
   <rect width="100" height="100" fill="url(#${id}-bg)"/>
-  <rect width="100" height="100" fill="url(#${id}-vig)"/>
+  <rect width="100" height="100" fill="url(#${id}-vig)"/>`}
+  ${layer === 'bg' ? '</svg>' : ''}${layer === 'bg' ? '' : `
   ${outerAura}
   ${halo}
   ${flames}
@@ -118,8 +124,7 @@ export function portraitSVG(def: CharacterDef, opts: { flip?: boolean; className
   ${headband}
   ${crown}
   ${t >= 4 ? '' : emblem}
-  ${particles}
-</svg>`;
+  ${particles}`}${layer === 'bg' ? '' : '\n</svg>'}`;
 }
 
 export function heroSVG(side: 'player' | 'enemy'): string {

@@ -226,13 +226,37 @@ describe('habilidades por estrela/nível (com teto)', () => {
     const cria = s.units.find((u) => u.charId === 'cria')!;
     expect(cria.hp).toBe(1);
     expect(cria.damageType).toBe('magico');
-    expect(rangeOf(cria)).toBe(3);
+    expect(rangeOf(cria)).toBe(2);
+    expect(cria.atk).toBe(2);
     for (let i = 0; i < 5; i++) {
       v.col = 1;
       placeUnit(s, c('riku'), 'enemy', 1, 3, { hp: 1 });
       act(s, new Ctx(), v);
     }
     expect(s.units.filter((u) => u.charId === 'cria').length).toBeLessThanOrEqual(MINION_CAP);
+  });
+  it('Cria Sombria: ataque 2 com Vorax 5★ e 3 com Vorax 6★', () => {
+    for (const [stars, atk, hp] of [[5, 2, 1], [6, 3, 2]]) {
+      const s = empty();
+      const v = placeUnit(s, c('vorax', 60, stars), 'player', 1, 1, { atk: 9 });
+      placeUnit(s, c('riku'), 'enemy', 1, 3, { hp: 1 });
+      act(s, new Ctx(), v);
+      const cria = s.units.find((u) => u.charId === 'cria')!;
+      expect([cria.atk, cria.hp]).toEqual([atk, hp]);
+    }
+  });
+  it('Cria Sombria: ataque mágico no inimigo mais próximo até 2 casas, só na própria fileira', () => {
+    const s = empty();
+    const cria = placeUnit(s, c('cria'), 'player', 0, 1, { minion: true, atk: 2, hp: 1 });
+    const far = placeUnit(s, c('toru'), 'enemy', 0, 4, { hp: 30 });
+    expect(findTarget(s, cria)).toBeNull();
+    const near = placeUnit(s, c('toru'), 'enemy', 0, 3, { hp: 30 });
+    placeUnit(s, c('toru'), 'enemy', 1, 2, { hp: 30 });
+    expect(findTarget(s, cria)).toBe(near);
+    act(s, new Ctx(), cria);
+    expect(cria.col).toBe(1);
+    expect(near.hp).toBe(30 - 2);
+    expect(far.hp).toBe(30);
   });
   it('crias que derrotam alguém geram novas crias', () => {
     const s = empty();

@@ -135,10 +135,10 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     id: 'prole',
     name: 'Prole Sombria',
     description:
-      'Ao derrotar um inimigo, uma Cria Sombria (maga frágil de longo alcance) surge no campo. Crias que derrotam alguém também geram novas crias. Máximo de 3 crias por lado.',
+      'Ao derrotar um inimigo, uma Cria Sombria (maga frágil com ataque mágico até 2 casas à frente) surge no campo. Crias que derrotam alguém também geram novas crias. Máximo de 3 crias por lado.',
     icon: '🥚',
     onKillSummon: 'cria',
-    scaling: 'Vida da cria: 1 (5★) · 2 (6★). Ataque: 2, +1 a cada 15 níveis (máx. 4).',
+    scaling: 'Cria: ataque 2 e vida 1 (5★) · ataque 3 e vida 2 (6★).',
     power: (s) => (s >= 6 ? 2 : 1),
     powerLabel: (p) => `cria com ${p} de vida`,
   },
@@ -180,6 +180,13 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     scaling: '3★: +1 de resistência física · 4★: também +1 de resistência mágica.',
     resBonus: (s) => ({ phys: s >= 3 ? 1 : 0, mag: s >= 4 ? 1 : 0 }),
     unpushable: true,
+  },
+  disparoSombrio: {
+    id: 'disparoSombrio',
+    name: 'Disparo Sombrio',
+    description: 'Ataque mágico no inimigo mais próximo até 2 casas à frente na sua fileira (inclusive o herói). Não avança quando consegue atacar.',
+    icon: '🌑',
+    rangeBonus: 1,
   },
 };
 

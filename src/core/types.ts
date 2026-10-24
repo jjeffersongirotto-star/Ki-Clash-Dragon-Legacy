@@ -21,7 +21,8 @@ export type AbilityId =
   | 'contraGolpe'
   | 'sifao'
   | 'lotus'
-  | 'inabalavel';
+  | 'inabalavel'
+  | 'disparoSombrio';
 
 export interface Palette {
   primary: string;
@@ -82,8 +83,10 @@ export interface Unit {
   level: number;
   stars: number;
   isMinion: boolean;
-  /** carta de origem (volta ao baralho quando a unidade cai) */
+  /** carta de origem */
   card?: CardInstance;
+  /** grupo do baralho de onde a cópia saiu (vai para as derrotadas quando a unidade cai) */
+  slot?: number;
 }
 
 export interface Hero {
@@ -91,10 +94,8 @@ export interface Hero {
   maxHp: number;
 }
 
-export interface SideDeck {
-  draw: CardInstance[];
-  hand: CardInstance[];
-}
+export type { DeckState as SideDeck } from './deck';
+import type { DeckState } from './deck';
 
 export interface BattleState {
   rows: number;
@@ -104,7 +105,7 @@ export interface BattleState {
   heroes: Record<Side, Hero>;
   energy: Record<Side, number>;
   units: Unit[];
-  decks: Record<Side, SideDeck>;
+  decks: Record<Side, DeckState>;
   winner: Side | 'empate' | null;
   nextUid: number;
   seed: number;

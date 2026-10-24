@@ -1,6 +1,7 @@
 import { aiDeploy } from '../core/ai';
 import { createBattle, deploy, deployCells, endPlayerTurn, effectiveAtk, unitAt, DEPLOY_DEPTH } from '../core/battle';
 import { getChar } from '../core/characters';
+import { pileCount } from '../core/deck';
 import type { BattleState, RecordedEvent, Side, Snapshot, Unit } from '../core/types';
 import type { Stage } from '../core/campaign';
 import { PLAYER_HERO_HP } from '../core/campaign';
@@ -22,6 +23,9 @@ export class BattleView {
   root: HTMLElement;
   selected: number | null = null;
   busy = false;
+  /** unidades do jogador vindas de cartas (para animar o monte de derrotadas) */
+  mine = new Set<number>();
+  deadShown = 0;
   tokens = new Map<number, HTMLElement>();
   cb: BattleCallbacks;
   stage: Stage;
@@ -71,7 +75,11 @@ export class BattleView {
       <div class="info" id="info">Toque numa carta e depois numa casa brilhante para invocar.</div>
       <div class="bottom">
         <div class="energy" id="energy"></div>
-        <div class="hand" id="hand"></div>
+        <div class="hand-row">
+          <div class="pile pile-draw" id="pileDraw" title="Baralho: cartas que ainda podem ser compradas"><div class="pile-stack"><span class="pile-ico">🐉</span><b class="pile-count">0</b></div><div class="pile-label">Baralho</div></div>
+          <div class="hand" id="hand"></div>
+          <div class="pile pile-dead" id="pileDead" title="Derrotadas: cópias cujas unidades caíram (não voltam)"><div class="pile-stack"><span class="pile-ico">💀</span><b class="pile-count">0</b></div><div class="pile-label">Derrotadas</div></div>
+        </div>
         <button class="btn fight" data-act="fight" id="fightBtn">LUTAR ⚔</button>
       </div>
       <details class="log-panel" open><summary>📜 Registro da batalha</summary><ol class="log" id="log"></ol></details>
@@ -120,8 +128,23 @@ export class BattleView {
     );
     const e = this.root.querySelector('#energy')!;
     const max = s.active === 'player' ? Math.min(10, 2 + s.turn) : s.energy.player;
-    e.innerHTML = `<div class="energy-orb">⚡<b>${s.energy.player}</b></div><div class="energy-pips">${Array.from({ length: max }, (_, i) => `<i class="${i < s.energy.player ? 'on' : ''}"></i>`).join('')}</div><div class="deck-count">🂠 ${s.decks.player.draw.length}</div>`;
+    e.innerHTML = `<div class="energy-orb">⚡<b>${s.energy.player}</b></div><div class="energy-pips">${Array.from({ length: max }, (_, i) => `<i class="${i < s.energy.player ? 'on' : ''}"></i>`).join('')}</div>`;
+    this.setPile('#pileDraw', pileCount(s.decks.player));
+    this.setPile('#pileDead', s.decks.player.defeated.length);
     (this.root.querySelector('#fightBtn') as HTMLButtonElement).disabled = this.busy || !!s.winner;
+  }
+
+  setPile(sel: string, n: number) {
+    const el = this.root.querySelector<HTMLElement>(sel);
+    if (!el) return;
+    const b = el.querySelector('.pile-count')!;
+    if (b.textContent !== String(n)) {
+      b.textContent = String(n);
+      el.classList.remove('bump');
+      void el.offsetWidth;
+      el.classList.add('bump');
+    }
+    if (sel === '#pileDead') el.classList.toggle('empty', n === 0);
   }
 
   showCardInfo(i: number) {
@@ -178,6 +201,8 @@ export class BattleView {
     this.selected = null;
     this.highlight();
     this.renderHand();
+    this.mine = new Set(this.state.units.filter((u) => u.side === 'player' && u.slot != null).map((u) => u.uid));
+    this.deadShown = this.state.decks.player.defeated.length;
     const events = endPlayerTurn(this.state, aiDeploy);
     await this.play(events);
     this.busy = false;
@@ -398,6 +423,7 @@ export class BattleView {
         break;
       }
       case 'death':
+        if (this.mine.has(ev.uid)) this.setPile('#pileDead', ++this.deadShown);
         await sleep(this.dur(380));
         break;
       case 'end':
