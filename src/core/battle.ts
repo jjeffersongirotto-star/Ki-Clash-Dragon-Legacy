@@ -1,7 +1,7 @@
-import { ABILITIES, AURA_CAP, MINION_CAP, RES_CAP, abilityPower, has } from './abilities';
+import { ABILITIES, AURA_CAP, BUFF_CAP, MINION_CAP, RES_CAP, abilityPower, has } from './abilities';
 import { getChar } from './characters';
 import { statsFor } from './progression';
-import { createDeck, defeatCopy, drawOpening, drawStep, playFromHand, HAND_SIZE } from './deck';
+import { createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, HAND_SIZE } from './deck';
 import type {
   AbilityId,
   BattleEvent,
@@ -55,7 +55,15 @@ export const dir = (side: Side) => (side === 'player' ? 1 : -1);
 export const enemyOf = (side: Side): Side => (side === 'player' ? 'enemy' : 'player');
 export const energyFor = (turn: number) => Math.min(MAX_ENERGY, 2 + turn);
 
+/**
+ * Cria a batalha. Cada baralho precisa de exatamente 10 cartas diferentes (regra v0.8);
+ * um baralho vazio só é aceito para cenários de teste (unidades colocadas à mão).
+ */
 export function createBattle(setup: BattleSetup): BattleState {
+  for (const [who, cards] of [['jogador', setup.playerDeck], ['inimigo', setup.enemyDeck]] as const) {
+    const problem = cards.length ? deckProblem(cards) : null;
+    if (problem) throw new Error(`Baralho do ${who} inválido: ${problem}`);
+  }
   const state: BattleState = {
     rows: setup.rows ?? ROWS,
     cols: setup.cols ?? COLS,
@@ -83,10 +91,15 @@ export function createBattle(setup: BattleSetup): BattleState {
   return state;
 }
 
-/** Compra da rodada: 1 carta (se a mão estiver cheia, não compra e a fila não anda). */
-export const DRAW_PER_ROUND = 1;
+/**
+ * Compra da rodada: quantas cartas faltarem para a mão voltar a ter 6 (tudo numa compra só).
+ * Mão cheia: não compra e a fila não anda.
+ */
+export function refillCount(state: BattleState, side: Side): number {
+  return Math.max(0, HAND_SIZE - state.decks[side].hand.length);
+}
 function drawCard(state: BattleState, side: Side) {
-  drawStep(state.decks[side], state, DRAW_PER_ROUND);
+  drawStep(state.decks[side], state, refillCount(state, side));
 }
 
 export function startTurn(state: BattleState, ctx: Ctx, side: Side) {
@@ -205,8 +218,20 @@ export function furyBonus(turn: number): number {
   return turn < FURY_START ? 0 : 1 + Math.floor((turn - FURY_START) / FURY_EVERY);
 }
 
+/** Tambor de Guerra: o maior bônus entre os aliados vizinhos (não acumula), com teto. */
+export function allyBuff(state: BattleState, u: Unit): number {
+  if (u.isMinion && u.charId === 'cria') return 0;
+  let b = 0;
+  for (const a of state.units) {
+    if (a === u || a.hp <= 0 || a.side !== u.side) continue;
+    if (Math.abs(a.row - u.row) > 1 || Math.abs(a.col - u.col) > 1) continue;
+    if (has(a.abilities, (x) => x.allyAtkAura)) b = Math.max(b, pw(a, 'tambor'));
+  }
+  return Math.min(BUFF_CAP, b);
+}
+
 export function effectiveAtk(state: BattleState, u: Unit): number {
-  return Math.max(1, u.atk - auraPenalty(state, u)) + (state.fury ? furyBonus(state.turn) : 0);
+  return Math.max(1, u.atk - auraPenalty(state, u)) + allyBuff(state, u) + (state.fury ? furyBonus(state.turn) : 0);
 }
 
 /** Dano após resistência. Resistência física 1 contra 3 de dano físico = 2. Mínimo 1. `pierce` ignora parte da resistência. */
@@ -239,6 +264,13 @@ export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
 
   if (targeting === 'menorVida' && rowAhead.length) {
     return rowAhead.sort((a, b) => a.hp - b.hp || fwd(a) - fwd(b))[0];
+  }
+  if (targeting === 'longoAlcance') {
+    const casters = rowAhead.filter((e) => hasRangeBonus(e)).sort((a, b) => fwd(a) - fwd(b));
+    if (casters.length) return casters[0];
+  }
+  if (targeting === 'maiorAtaque' && rowAhead.length) {
+    return rowAhead.sort((a, b) => b.atk - a.atk || fwd(a) - fwd(b))[0];
   }
   if (targeting === 'retaguarda' && rowAhead.length) {
     return rowAhead.sort((a, b) => fwd(b) - fwd(a))[0];
@@ -294,6 +326,7 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   if (opts.pct != null && opts.fixed == null) atk = Math.max(1, Math.ceil((atk * opts.pct) / 100));
   const verb = opts.label ?? (opts.counter ? 'contra-ataca' : 'ataca');
   if (target === 'hero') {
+    if (!opts.counter && !opts.secondary) atk += pw(u, 'mare');
     const side = enemyOf(u.side);
     ctx.emit(state, { type: 'attack', uid: u.uid, target: 'hero', targetSide: side, ranged: true, damageType: u.damageType, text: `${nameOf(u)} ${verb} o herói ${side === 'enemy' ? 'inimigo' : 'aliado'}!` });
     state.heroes[side].hp = Math.max(0, state.heroes[side].hp - atk);
@@ -303,8 +336,14 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   }
   // execução (Instinto Predador)
   if (!opts.counter && u.abilities.includes('menorVida') && target.hp * 2 <= target.maxHp) atk += pw(u, 'menorVida');
-  const pierce = pw(u, 'retaguarda');
   const dist = Math.max(Math.abs(target.col - u.col), Math.abs(target.row - u.row));
+  if (!opts.counter && !opts.secondary && opts.fixed == null) {
+    // Olho de Águia (2–3 casas), Caça-Conjuradores (alvo de longo alcance), Ataque Surpresa (vida cheia)
+    if (dist >= 2) atk += pw(u, 'olhoAguia');
+    if (hasRangeBonus(target)) atk += pw(u, 'cacaMagos');
+    if (target.hp >= target.maxHp) atk += pw(u, 'surpresa');
+  }
+  const pierce = pw(u, 'retaguarda') + pw(u, 'precisao');
   const ranged = !(u.damageType === 'fisico' && dist <= 1 && !hasRangeBonus(u));
   const dmg = computeDamage(atk, u.damageType, target, pierce);
   ctx.emit(state, { type: 'attack', uid: u.uid, target: target.uid, targetSide: target.side, ranged, damageType: u.damageType, text: `${nameOf(u)} ${verb} ${nameOf(target)}` });
@@ -320,6 +359,16 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   if (target.hp <= 0) {
     kill(state, ctx, target, u);
     return;
+  }
+  // gancho: Couraça de Espinhos (só golpe principal, físico corpo a corpo de frente)
+  if (!opts.counter && !opts.secondary && u.hp > 0 && has(target.abilities, (a) => a.thorns) && isMeleeFrontAttack(u, target)) {
+    const back = pw(target, 'espinhos');
+    u.hp -= back;
+    ctx.emit(state, { type: 'damage', uid: u.uid, amount: back, damageType: 'fisico', text: `  🌵 ${nameOf(u)} se fere nos espinhos de ${nameOf(target)}: ${back} de dano.` });
+    if (u.hp <= 0) {
+      kill(state, ctx, u, target);
+      return;
+    }
   }
   // gancho: contra-golpe
   if (!opts.counter && !opts.secondary && u.hp > 0 && has(target.abilities, (a) => a.counter) && isMeleeFrontAttack(u, target)) {
@@ -420,6 +469,19 @@ function healNeighbors(state: BattleState, ctx: Ctx, u: Unit) {
   }
 }
 
+/** Sopro Restaurador: cura o aliado mais ferido da própria fileira. */
+function healRow(state: BattleState, ctx: Ctx, u: Unit) {
+  const amount = pw(u, 'sopro');
+  if (!amount) return;
+  const hurt = state.units
+    .filter((a) => a !== u && a.side === u.side && a.hp > 0 && a.row === u.row && a.hp < a.maxHp)
+    .sort((a, b) => b.maxHp - b.hp - (a.maxHp - a.hp) || a.hp - b.hp)[0];
+  if (!hurt) return;
+  const h = Math.min(amount, hurt.maxHp - hurt.hp);
+  hurt.hp += h;
+  ctx.emit(state, { type: 'heal', uid: hurt.uid, amount: h, text: `🍃 ${nameOf(u)} cura ${nameOf(hurt)} em ${h}.` });
+}
+
 /** Golpe completo de uma unidade: alvo principal + efeitos de habilidade. */
 function strike(state: BattleState, ctx: Ctx, u: Unit, t: Unit | 'hero', bonus = 0) {
   if (t === 'hero') {
@@ -449,6 +511,14 @@ function strike(state: BattleState, ctx: Ctx, u: Unit, t: Unit | 'hero', bonus =
       if (state.winner || u.hp <= 0) return;
     }
   }
+  // Explosão de Brasas: atinge o inimigo da mesma coluna na outra fileira
+  const splash = pw(u, 'brasa');
+  if (splash) {
+    for (const e of state.units.filter((e) => e.side !== u.side && e.hp > 0 && e.col === tCol && e.row !== tRow)) {
+      attack(state, ctx, u, e, { fixed: splash, secondary: true, label: 'explode em' });
+      if (state.winner || u.hp <= 0) return;
+    }
+  }
   // Flecha Dupla
   const second = pw(u, 'flechaDupla');
   if (second && t.hp > 0 && state.units.includes(t)) attack(state, ctx, u, t, { fixed: second, secondary: true, label: 'dispara a 2ª flecha em' });
@@ -459,6 +529,7 @@ export function act(state: BattleState, ctx: Ctx, u: Unit) {
   if (u.hp <= 0 || state.winner) return;
   stepped.set(ctx, new Set());
   healNeighbors(state, ctx, u);
+  healRow(state, ctx, u);
   let t = findTarget(state, u);
   if (t) {
     strike(state, ctx, u, t);

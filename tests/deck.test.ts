@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildSlots,
   COPIES,
+  deckProblem,
   createDeck,
   defeatCopy,
   drawOpening,
@@ -47,14 +48,13 @@ describe('baralho: estrutura', () => {
     expect(new Set(d.hand.map((h) => h.slot)).size).toBe(6);
     expect(pileCount(d)).toBe(34);
   });
-  it('equipe com menos de 10: grupos extras repetem a equipe em ordem', () => {
+  it('v0.8: sem preenchimento — a equipe precisa ter exatamente 10 cartas diferentes', () => {
     const nine = team().slice(0, 9);
-    const s = buildSlots(nine);
-    expect(s).toHaveLength(10);
-    expect(s[9].charId).toBe(nine[0].charId);
-    expect(buildSlots([{ charId: 'riku', level: 1, stars: 1 }, { charId: 'nara', level: 1, stars: 1 }]).map((c) => c.charId)).toEqual(
-      ['riku', 'nara', 'riku', 'nara', 'riku', 'nara', 'riku', 'nara', 'riku', 'nara'],
-    );
+    expect(buildSlots(nine)).toHaveLength(9); // não repete mais a 1ª carta
+    expect(deckProblem(nine)).toMatch(/9 de 10/);
+    expect(deckProblem(team())).toBeNull();
+    expect(deckProblem(team().slice(0, 9).concat([{ charId: 'riku', level: 1, stars: 1 }]))).toMatch(/repetidos/);
+    expect(deckProblem([])).toMatch(/0 de 10/);
     expect(buildSlots([])).toEqual([]);
   });
 });
@@ -102,7 +102,7 @@ describe('baralho: fila de compra semi-aleatória', () => {
     const gaps: number[] = [];
     for (let seed = 1; seed <= 40; seed++) {
       const rng = { seed };
-      const d = createDeck(team().slice(0, 9).concat([{ charId: 'riku', level: 1, stars: 3 }]), rng);
+      const d = createDeck(team(), rng);
       drawOpening(d, rng);
       // dois grupos perdem as 4 cópias logo no começo → 8 no rodízio
       for (const slot of [d.hand[0].slot, d.hand[1].slot]) d.slots[slot].defeated = COPIES;
@@ -246,5 +246,85 @@ describe('baralho: derrotadas', () => {
     d.slots[6].eligibleAt = 500;
     const got = drawStep(d, rng);
     expect(got).toHaveLength(1);
+  });
+});
+
+/** Como na batalha: a cada rodada joga `plays` cartas e compra o que falta para voltar a 6. */
+function runRefill(seed: number, rounds: number, plays: (round: number, rng: { seed: number }) => number) {
+  const rng = { seed };
+  const d = createDeck(team(), rng);
+  drawOpening(d, rng);
+  const history: number[][] = [[...d.hand.map((h) => h.slot)]];
+  const play = { seed: seed * 7 + 1 };
+  for (let i = 0; i < rounds; i++) {
+    const n = Math.min(d.hand.length, plays(i, play));
+    for (let k = 0; k < n; k++) playFromHand(d, Math.floor(((play.seed = (play.seed * 1103515245 + 12345) >>> 0) / 2 ** 32) * d.hand.length));
+    // unidades morrem/voltam: libera as cópias de campo para o baralho não secar no teste
+    for (const s of d.slots) s.onField = 0;
+    const before = d.step;
+    const got = drawStep(d, rng, HAND_SIZE - d.hand.length);
+    if (got.length) expect(d.step).toBe(before + 1); // várias cartas = uma compra só
+    expect(d.hand).toHaveLength(HAND_SIZE);
+    history.push(got.map((h) => h.slot));
+  }
+  return { d, history };
+}
+
+describe('baralho v0.8: compra até completar 6 na mão', () => {
+  it('compra quantas faltarem (jogou 3, compra 3) e tudo conta como UMA compra', () => {
+    const rng = { seed: 11 };
+    const d = createDeck(team(), rng);
+    drawOpening(d, rng);
+    for (let k = 0; k < 3; k++) playFromHand(d, 0);
+    const got = drawStep(d, rng, HAND_SIZE - d.hand.length);
+    expect(got).toHaveLength(3);
+    expect(d.step).toBe(1);
+    expect(d.hand).toHaveLength(6);
+    // as 3 vieram das 4 que ficaram fora da mão inicial (as 6 iniciais só voltam na 5ª compra)
+    const opening = new Set(d.hand.slice(0, 3).map((h) => h.slot));
+    for (const h of got) expect(opening.has(h.slot)).toBe(false);
+  });
+  it('mão cheia: não compra e a fila não anda', () => {
+    const rng = { seed: 12 };
+    const d = createDeck(team(), rng);
+    drawOpening(d, rng);
+    expect(drawStep(d, rng, HAND_SIZE - d.hand.length)).toEqual([]);
+    expect(d.step).toBe(0);
+  });
+  it('uma compra de 3 cartas atende 3 garantias vencidas de uma vez (na ordem da fila)', () => {
+    const rng = { seed: 13 };
+    const d = createDeck(team(), rng);
+    drawOpening(d, rng);
+    d.hand.length = 0;
+    for (const s of d.slots) Object.assign(s, { inHand: 0, eligibleAt: 999, dueAt: 999 });
+    d.step = 30;
+    [6, 2, 9, 4].forEach((slot, i) => Object.assign(d.slots[slot], { dueAt: 31, eligibleAt: 28, seq: 10 + i }));
+    expect(drawStep(d, rng, 3).map((h) => h.slot)).toEqual([6, 2, 9]);
+    expect(drawStep(d, rng, 1).map((h) => h.slot)).toEqual([4]);
+  });
+  it('a janela é respeitada sempre que há carta liberada: nunca volta antes da 7ª compra quando joga 1 por rodada', () => {
+    const gaps: number[] = [];
+    for (let seed = 1; seed <= 30; seed++) {
+      const { history } = runRefill(seed, 60, () => 1);
+      for (let slot = 0; slot < 10; slot++) {
+        const ds = history.flatMap((h, i) => (h.includes(slot) ? [i] : [])).filter((i) => i >= 1);
+        for (let j = 1; j < ds.length; j++) gaps.push(ds[j] - ds[j - 1]);
+      }
+    }
+    expect(Math.min(...gaps)).toBeGreaterThanOrEqual(7);
+  });
+  it('jogando várias cartas por rodada, a ordem continua variando (o ciclo não fica fixo)', () => {
+    const tails = new Set<string>();
+    const gaps = new Set<number>();
+    for (let seed = 1; seed <= 30; seed++) {
+      const { history } = runRefill(seed, 40, (_, r) => 1 + Math.floor(((r.seed = (r.seed * 1664525 + 1013904223) >>> 0) / 2 ** 32) * 3));
+      tails.add(history.slice(20).map((h) => h.join(',')).join('|'));
+      for (let slot = 0; slot < 10; slot++) {
+        const ds = history.flatMap((h, i) => (h.includes(slot) ? [i] : [])).filter((i) => i >= 10);
+        for (let j = 1; j < ds.length; j++) gaps.add(ds[j] - ds[j - 1]);
+      }
+    }
+    expect(tails.size).toBe(30);
+    expect(gaps.size).toBeGreaterThan(3); // intervalos diferentes entre as vindas da mesma carta
   });
 });

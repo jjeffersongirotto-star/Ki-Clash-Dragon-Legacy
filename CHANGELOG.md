@@ -2,6 +2,38 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.8.0] — 24/10/2026 · PR #8 — Mão sempre cheia, equipe de 10 obrigatória e 9 novos personagens de 1★
+- **Compra até completar a mão:** a cada rodada você compra **quantas cartas faltarem para voltar a 6** (antes era 1 por rodada). Todas as cartas da rodada contam como **uma compra só** na fila.
+  - A fila de cada carta continua igual: bloqueada nas 6 compras seguintes, sorteio na 7ª–9ª, garantida na 10ª, garantias em fila e exceção da mão inicial (volta na 5ª compra).
+  - Uma compra de várias cartas atende várias garantias de uma vez.
+  - Como a quantidade por rodada varia, a ordem das cartas **não fica mais presa num ciclo fixo**.
+  - Se faltarem cartas liberadas para completar 6, vem a que está mais perto de liberar (completar a mão tem prioridade).
+- **Equipe de 10 obrigatória:** sem 10 personagens diferentes não há batalha. Acabou o preenchimento com a 1ª carta repetida.
+  - **Lutar** com menos de 10 abre a janela do jogo **Equipe incompleta**, com a contagem (ex.: 9/10) e o botão **Ir para a equipe**.
+  - A Coleção mostra "faltam N" em vermelho; a Aventura mostra um aviso com **Completar equipe**; tirar alguém da equipe avisa que a batalha fica bloqueada.
+  - Toda fase da IA agora tem **10 personagens diferentes**.
+- **Progressão nova:** o jogador novo começa **só com personagens de 1★** — **12 iniciais**, 2 de cada categoria.
+  - 2★, 3★ e 4★ saem na primeira vitória das fases: Aiko (1), Mei (2), Lyra (3), Gorath (4), Yume (5), Zarek (6) e Nyx-07 (8).
+  - **Kenji e Vorax (5★) ficam bloqueados por enquanto**, sem forma de obter. Na coleção aparecem apagados, com cadeado e **"🔒 Em breve"**. Continuam como inimigos nas fases finais.
+  - Fases 1 e 2 ficaram mais leves para a equipe inicial (inimigos nível 1 e 2; a fase 1 sem tanques).
+- **9 novos personagens de 1★ (vão até 4★)**, cada um com cenário próprio que evolui por estrela, marca visual própria e habilidade da categoria:
+  - 🛡️ **Daichi Punho-de-Rocha** — Couraça de Espinhos: quem bate nele corpo a corpo sofre dano de volta.
+  - ➕ **Sora Brisa-Serena** — Sopro Restaurador: cura o aliado mais ferido da fileira (ataca à distância).
+  - ➕ **Tobi Tambor-de-Guerra** — Tambor de Guerra: aliados vizinhos ganham ataque.
+  - 🪄 **Kael Chama-Rubra** — Explosão de Brasas: a explosão atinge também a outra fileira, na mesma coluna.
+  - 🪄 **Suri Maré-Gélida** — Maré Implacável: dano extra no herói inimigo.
+  - 🏹 **Hana Pena-Veloz** — Tiro Certeiro: ignora resistência física.
+  - 🏹 **Jin Arco-Trovão** — Olho de Águia: mais dano em alvos a 2–3 casas.
+  - 💀 **Ren Presa-Oculta** — Caça-Conjuradores: caça magos, arqueiros e suportes à distância.
+  - 💀 **Kuro Garra-Noturna** — Ataque Surpresa: mira o inimigo de maior ataque e bate mais em quem está com a vida cheia.
+- **Saves antigos:** mantêm todos os personagens e o progresso (inclusive Kenji e Vorax, se já obtidos), ganham os 9 novos de 1★ e têm a equipe completada até 10.
+- Testes novos: compra até 6 numa compra só, várias garantias numa compra, ordem variando, baralho de 10 obrigatório, fases com 10 diferentes, progressão só com 1★, bloqueio de Kenji/Vorax, migração de save e as 9 habilidades novas.
+- **Simulações (IA × IA):**
+  - Só os 12 de 1★ (nível 1): cada um entre 48% e 53% de vitórias nas equipes em que está; média de 17,6 turnos.
+  - Todos no máximo (equipes de 10): os personagens que vão até 4★, 5★ e o Nyx ficam entre 47% e 53%. Kenji (60%) e Vorax (56%) ficam acima por chegarem a 6★, mas estão bloqueados.
+  - Equipe inicial de 1★ nível 1: vence a fase 1 em 97% e a fase 2 em 53% (93% treinando até o nível 3 com os itens iniciais).
+  - Fase 10 continua difícil: 55% para uma equipe treinada no nível da fase e 100% com equipe no máximo.
+
 ## [0.7.0] — 24/10/2026 · PR #7 — Baralho de 40 cartas, Cria Sombria e cartas redesenhadas
 - **Novo baralho:** a equipe vira o baralho, com **10 cartas × 4 cópias = 40**. A IA também usa 10 × 4: o conjunto de cada fase é repetido até formar 10 grupos.
   - Equipe com menos de 10 personagens: os primeiros da equipe se repetem até completar 10 grupos.

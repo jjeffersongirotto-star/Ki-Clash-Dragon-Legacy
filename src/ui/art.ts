@@ -17,8 +17,48 @@ function hairPath(style: number): string {
       return 'M24 46 Q20 18 50 14 Q80 18 76 46 L72 32 L66 40 L62 30 L56 38 L50 28 L44 38 L38 30 L34 40 L28 32 Z';
     case 4: // crista / chifres
       return 'M30 34 L16 6 L36 26 L50 10 L64 26 L84 6 L70 34 Z';
+    case 6: // coque alto com mechas laterais
+      return 'M26 60 L22 40 Q24 22 50 20 Q76 22 78 40 L74 60 L70 38 L60 30 L40 30 L30 38 Z M40 22 Q38 6 50 4 Q62 6 60 22 Z';
+    case 7: // juba selvagem
+      return 'M16 58 L12 40 L20 42 L14 24 L28 30 L26 12 L40 24 L46 6 L54 22 L64 6 L66 26 L80 14 L76 32 L90 28 L82 44 L88 58 L76 46 L72 34 L28 34 L24 46 Z';
     default: // moicano
       return 'M40 30 L42 8 L50 2 L58 8 L60 30 Z';
+  }
+}
+
+/**
+ * Marcas próprias dos personagens iniciais da v0.8 (desenhadas por cima do rosto/cabelo),
+ * para cada um ter uma silhueta reconhecível mesmo em 1★.
+ */
+function signature(def: CharacterDef, t: number): string {
+  const p = def.palette;
+  switch (def.id) {
+    case 'daichi': // faixa de pedra com chifre e cicatriz
+      return `<path d="M27 41 Q50 35 73 41 L73 46 Q50 40 27 46 Z" fill="#7f5539" stroke="#2b1a10" stroke-width=".6"/><path d="M46 38 L50 ${t >= 3 ? 24 : 30} L54 38 Z" fill="#b08968" stroke="#2b1a10" stroke-width=".6"/><path d="M60 58 L65 66" stroke="#5c2a12" stroke-width="1.4"/>` +
+        `<path d="M${16 - t} 86 L22 74 L28 84 Z M${84 + t} 86 L78 74 L72 84 Z" fill="#b08968" stroke="#2b1a10" stroke-width=".6"/>`;
+    case 'sora': // presilha de folha e fitas ao vento
+      return `<path d="M58 22 Q66 14 72 20 Q66 26 58 22 Z" fill="${p.secondary}"/><path d="M60 22 L70 19" stroke="#1b4332" stroke-width=".6"/>` +
+        `<path d="M28 44 Q14 54 ${10 - t} 72" fill="none" stroke="${p.secondary}" stroke-width="2" stroke-linecap="round"/><path d="M72 44 Q86 54 ${90 + t} 72" fill="none" stroke="${p.secondary}" stroke-width="2" stroke-linecap="round"/>`;
+    case 'tobi': // pintura de guerra e baquetas
+      return `<path d="M33 60 L40 58 M33 63 L40 61 M67 60 L60 58 M67 63 L60 61" stroke="${p.secondary}" stroke-width="1.4" stroke-linecap="round"/>` +
+        `<path d="M10 ${92 - t} L26 70" stroke="#6f1d1b" stroke-width="2.4" stroke-linecap="round"/><circle cx="26" cy="70" r="2.6" fill="${p.secondary}"/><path d="M90 ${92 - t} L74 70" stroke="#6f1d1b" stroke-width="2.4" stroke-linecap="round"/><circle cx="74" cy="70" r="2.6" fill="${p.secondary}"/>`;
+    case 'kael': // marca de chama na testa e brasas
+      return `<path d="M50 38 Q46 44 50 48 Q54 44 50 38 Z" fill="${p.aura}" stroke="#ffba08" stroke-width=".6"/>` +
+        Array.from({ length: 2 + t }, (_, i) => `<circle cx="${12 + ((i * 41) % 76)}" cy="${20 + ((i * 23) % 44)}" r="${1 + (i % 2) * 0.6}" fill="#ffba08" opacity=".85"/>`).join('');
+    case 'suri': // tiara de gelo
+      return `<path d="M32 36 L36 ${28 - t} L40 35 L44 ${26 - t} L48 34 L50 ${22 - t} L52 34 L56 ${26 - t} L60 35 L64 ${28 - t} L68 36 Z" fill="#caf0f8" stroke="#0077b6" stroke-width=".6" opacity=".95"/><path d="M36 64 Q50 70 64 64" stroke="${p.aura}" stroke-width=".8" fill="none" opacity=".7"/>`;
+    case 'hana': // pena no cabelo e pintura de caçadora
+      return `<path d="M70 30 Q86 14 ${88 + t} 4 Q78 18 72 34 Z" fill="${p.aura}" stroke="#386641" stroke-width=".6"/><path d="M72 32 L86 8" stroke="#386641" stroke-width=".5"/><path d="M34 60 L40 60 M60 60 L66 60" stroke="#6a994e" stroke-width="1.6" stroke-linecap="round"/>`;
+    case 'jin': // óculos de atirador e raio
+      return `<rect x="31" y="38" width="16" height="7" rx="3" fill="#14213d" stroke="${p.secondary}" stroke-width="1"/><rect x="53" y="38" width="16" height="7" rx="3" fill="#14213d" stroke="${p.secondary}" stroke-width="1"/><path d="M47 41 H53" stroke="${p.secondary}" stroke-width="1.2"/><circle cx="39" cy="41.5" r="2" fill="${p.aura}" opacity=".8"/><circle cx="61" cy="41.5" r="2" fill="${p.aura}" opacity=".8"/>` +
+        `<polyline points="${82 + t},10 76,22 81,23 74,36" fill="none" stroke="${p.aura}" stroke-width="1.6"/>`;
+    case 'ren': // lenço cobrindo a boca
+      return `<path d="M30 60 Q50 58 70 60 L68 70 Q50 74 32 70 Z" fill="${p.secondary}" opacity=".95"/><path d="M68 64 L84 ${70 + t} L80 62 Z" fill="${p.secondary}"/>`;
+    case 'kuro': // orelhas de gato e cicatrizes de garra
+      return `<path d="M28 34 L24 ${14 - t} L40 28 Z M72 34 L76 ${14 - t} L60 28 Z" fill="${p.hair}" stroke="${p.aura}" stroke-width="1"/><path d="M29 31 L27 ${20 - t} L36 29 Z M71 31 L73 ${20 - t} L64 29 Z" fill="${p.aura}" opacity=".7"/>` +
+        `<path d="M58 58 L64 66 M61 57 L67 65" stroke="${p.aura}" stroke-width="1" opacity=".85"/>`;
+    default:
+      return '';
   }
 }
 
@@ -40,7 +80,7 @@ export function portraitSVG(def: CharacterDef, opts: { flip?: boolean; className
   const id = `g-${def.id}-${t}`;
   const isAndroid = def.id === 'nyx';
   const isParasite = def.id === 'vorax' || def.id === 'cria';
-  const bigBuild = def.id === 'gorath' || def.id === 'kenji' || def.id === 'vorax';
+  const bigBuild = def.id === 'gorath' || def.id === 'kenji' || def.id === 'vorax' || def.id === 'daichi';
   const shoulder = Math.max(-2, (bigBuild ? 4 : 14) - (t - 1) * 1.8);
   const gold = '#ffd23f';
   const metal = t >= 5 ? gold : '#c9d1d9';
@@ -76,13 +116,13 @@ export function portraitSVG(def: CharacterDef, opts: { flip?: boolean; className
       ? `<path d="M30 60 L70 60 L68 68 L32 68 Z" fill="${p.primary}" opacity="0.95"/>`
       : '';
   const headband =
-    def.id === 'riku' || def.id === 'kenji' || def.id === 'toru'
+    def.id === 'riku' || def.id === 'kenji' || def.id === 'toru' || def.id === 'tobi'
       ? `<path d="M26 40 Q50 34 74 40 L74 45 Q50 39 26 45 Z" fill="${p.secondary}"/><path d="M74 42 L90 36 L86 44 L92 48 L74 45 Z" fill="${p.secondary}"/>`
       : '';
   const crown = t >= 5
     ? `<path d="M30 38 Q50 31 70 38 L70 41 Q50 34 30 41 Z" fill="${gold}" stroke="#7a4b00" stroke-width=".5"/><path d="M44 35 L50 ${t >= 6 ? 20 : 25} L56 35 Z" fill="${gold}" stroke="#7a4b00" stroke-width=".5"/><circle cx="50" cy="33" r="2.4" fill="${p.aura}" stroke="#fff" stroke-width=".6"/>`
     : '';
-  const beard = def.id === 'gorath' ? `<path d="M36 62 Q50 82 64 62 L60 74 Q50 84 40 74 Z" fill="${p.hair}"/>` : '';
+  const beard = def.id === 'gorath' || def.id === 'daichi' ? `<path d="M36 62 Q50 82 64 62 L60 74 Q50 84 40 74 Z" fill="${p.hair}"/>` : '';
   const emblem = `<circle cx="50" cy="90" r="5" fill="${p.secondary}" stroke="${p.aura}" stroke-width="1"/><path d="M50 86 L52 90 L50 94 L48 90 Z" fill="${p.primary}"/>`;
   const hs = 1 + (t - 1) * 0.06;
   const hairFill = t >= 5 ? `url(#${id}-hair)` : p.hair;
@@ -122,6 +162,7 @@ export function portraitSVG(def: CharacterDef, opts: { flip?: boolean; className
   ${hairGlow}
   <path d="${hairPath(def.hairStyle)}" fill="${hairFill}" stroke="rgba(0,0,0,.35)" stroke-width="0.8" transform="translate(50 34) scale(${hs}) translate(-50 -34)"/>
   ${headband}
+  ${signature(def, t)}
   ${crown}
   ${t >= 4 ? '' : emblem}
   ${particles}`}${layer === 'bg' ? '' : '\n</svg>'}`;

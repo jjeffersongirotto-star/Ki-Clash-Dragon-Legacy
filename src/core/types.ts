@@ -22,7 +22,16 @@ export type AbilityId =
   | 'sifao'
   | 'lotus'
   | 'inabalavel'
-  | 'disparoSombrio';
+  | 'disparoSombrio'
+  | 'espinhos'
+  | 'sopro'
+  | 'tambor'
+  | 'brasa'
+  | 'mare'
+  | 'precisao'
+  | 'olhoAguia'
+  | 'cacaMagos'
+  | 'surpresa';
 
 export interface Palette {
   primary: string;

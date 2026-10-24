@@ -233,7 +233,7 @@ describe('fúria de batalha (anti-empate)', () => {
 
 describe('mão e baralho', () => {
   const deck10 = ['riku', 'nara', 'toru', 'aiko', 'gorath', 'lyra', 'mei', 'yume', 'zarek', 'kenji'].map((id) => c(id, 1, id === 'kenji' ? 5 : 3));
-  it('começa com 6 cartas na mão, baralho de 40 (10 × 4); compra 1 por rodada e cartas não usadas ficam', () => {
+  it('começa com 6 cartas na mão, baralho de 40 (10 × 4); compra o que falta para voltar a 6 e cartas não usadas ficam', () => {
     const s = createBattle({ playerDeck: deck10, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 5 });
     expect(s.decks.player.hand).toHaveLength(6);
     expect(new Set(s.decks.player.hand.map((x) => x.charId)).size).toBe(6);
@@ -243,11 +243,25 @@ describe('mão e baralho', () => {
     endPlayerTurn(s, () => {});
     expect(s.decks.player.hand).toHaveLength(6);
     s.energy.player = 10;
-    const before = s.decks.player.hand.slice(1).map((x) => x.charId);
+    const before = s.decks.player.hand.slice(3).map((x) => x.charId);
     expect(deploy(s, 'player', 0, 0, 0).ok).toBe(true);
+    s.energy.player = 10;
+    expect(deploy(s, 'player', 0, 1, 0).ok).toBe(true);
+    s.energy.player = 10;
+    expect(deploy(s, 'player', 0, 0, 1).ok).toBe(true);
+    expect(s.decks.player.hand).toHaveLength(3);
+    const step = s.decks.player.step;
     endPlayerTurn(s, () => {});
+    // jogou 3 → comprou 3 numa compra só
     expect(s.decks.player.hand).toHaveLength(6);
-    expect(s.decks.player.hand.slice(0, 5).map((x) => x.charId)).toEqual(before);
+    expect(s.decks.player.step).toBe(step + 1);
+    expect(s.decks.player.hand.slice(0, 3).map((x) => x.charId)).toEqual(before);
+  });
+  it('só começa a batalha com 10 cartas diferentes (sem preencher com repetidas)', () => {
+    const nine = deck10.slice(0, 9);
+    expect(() => createBattle({ playerDeck: nine, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow(/9 de 10/);
+    expect(() => createBattle({ playerDeck: deck10, enemyDeck: nine, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow();
+    expect(() => createBattle({ playerDeck: nine.concat([c('riku')]), enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow(/repetidos/);
   });
   it('cópia jogada fica em campo; quando a unidade morre vai para as derrotadas e não volta', () => {
     const s = createBattle({ playerDeck: deck10, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 5 });
@@ -265,8 +279,7 @@ describe('mão e baralho', () => {
     expect(pileCount(s.decks.player) + s.decks.player.hand.length).toBe(39);
   });
   it('a mão não esvazia de vez e o mesmo personagem pode estar em campo mais de uma vez', () => {
-    const deck3 = ['riku', 'nara', 'toru'].map((id) => c(id));
-    const s = createBattle({ playerDeck: deck3, enemyDeck: deck3, playerHeroHp: 999, enemyHeroHp: 999, seed: 2, maxTurns: 99 });
+    const s = createBattle({ playerDeck: deck10, enemyDeck: deck10, playerHeroHp: 999, enemyHeroHp: 999, seed: 2, maxTurns: 99 });
     let maxSame = 0;
     for (let t = 0; t < 12 && !s.winner; t++) {
       s.energy.player = 10;
@@ -289,7 +302,8 @@ describe('mão e baralho', () => {
 
 describe('fluxo de batalha', () => {
   it('invocar gasta energia e só vale na zona de invocação', () => {
-    const s = createBattle({ playerDeck: [c('riku'), c('nara'), c('toru'), c('riku')], enemyDeck: [c('riku')], playerHeroHp: 30, enemyHeroHp: 30, seed: 3 });
+    const ten = ['riku', 'nara', 'toru', 'daichi', 'sora', 'tobi', 'kael', 'suri', 'hana', 'jin'].map((id) => c(id));
+    const s = createBattle({ playerDeck: ten, enemyDeck: ten, playerHeroHp: 30, enemyHeroHp: 30, seed: 3 });
     expect(s.energy.player).toBe(3);
     const idx = s.decks.player.hand.findIndex((x) => x.charId === 'riku' || x.charId === 'nara');
     expect(deploy(s, 'player', idx, 0, 3).ok).toBe(false);
@@ -303,7 +317,7 @@ describe('fluxo de batalha', () => {
     expect(s.winner).toBe('player');
   });
   it('partida completa contra a IA termina', () => {
-    const deck = ['riku', 'nara', 'toru', 'aiko', 'gorath', 'lyra'].map((id) => c(id, 5, 2));
+    const deck = ['riku', 'nara', 'toru', 'aiko', 'gorath', 'lyra', 'daichi', 'kael', 'ren', 'kuro'].map((id) => c(id, 5, 2));
     const s = createBattle({ playerDeck: deck, enemyDeck: deck, playerHeroHp: 30, enemyHeroHp: 30, seed: 42 });
     for (let i = 0; i < 100 && !s.winner; i++) {
       aiDeploy(s, new Ctx(), 'player');
