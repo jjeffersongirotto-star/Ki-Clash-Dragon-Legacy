@@ -6,24 +6,24 @@ import { sceneSVG } from './scenes';
  * Cada personagem possui anatomia da sua raça (Humano, Extraterrestre, Monstro,
  * Mago, Androide, Necromante), pose de ação com arma/Ki e evolução visual de Comum a Mítico.
  */
-function hairPath(style: number): string {
+export function hairPath(style: number): string {
   switch (style) {
-    case 0: // espetado para cima (shonen clássico)
-      return 'M20 46 L14 28 L26 33 L20 10 L35 25 L40 2 L48 21 L57 1 L61 21 L72 6 L69 27 L83 14 L75 35 L86 33 L79 48 L70 35 L30 35 Z';
-    case 1: // longo e esvoaçante em mechas
-      return 'M22 74 L15 44 L21 24 Q30 8 50 8 Q70 8 79 24 L85 44 L78 74 L71 44 L66 29 L55 34 L46 27 L38 34 L32 29 L29 44 Z';
-    case 2: // penteado dinâmico para trás em pontas
-      return 'M23 44 L18 28 Q24 12 44 10 L65 6 L90 12 L77 19 L92 25 L77 30 L86 40 L74 38 L72 31 L29 31 Z';
-    case 3: // corte estilizado com franja afiada
-      return 'M23 46 Q19 16 50 12 Q81 16 77 46 L72 31 L66 40 L61 29 L56 39 L50 27 L44 39 L39 29 L34 40 L28 31 Z';
-    case 4: // crista demoníaca / chifres de energia
-      return 'M28 35 L12 4 L35 25 L50 7 L65 25 L88 4 L72 35 L62 31 L38 31 Z';
-    case 6: // coque duplo/alto com mechas longas
-      return 'M25 62 L21 40 Q24 20 50 18 Q76 20 79 40 L75 62 L70 38 L60 29 L40 29 L30 38 Z M38 20 Q36 3 50 2 Q64 3 62 20 Z';
-    case 7: // juba colossal selvagem
-      return 'M14 60 L10 38 L19 41 L12 22 L27 29 L24 9 L39 23 L46 3 L54 21 L65 3 L67 25 L82 12 L77 31 L92 27 L83 44 L90 60 L76 46 L72 33 L28 33 L24 46 Z';
-    default: // crista guerreira / moicano largo
-      return 'M36 32 L38 7 L45 12 L50 1 L55 12 L62 7 L64 32 Z';
+    case 0: // espetado para cima (shonen clássico) — pontas saem do topo da cabeça
+      return 'M28 47 L26 36 L19 31 L27 27 L23 13 L36 20 L41 4 L49 18 L57 3 L62 19 L75 11 L72 26 L81 30 L74 36 L72 47 L68 37 L63 42 L59 35 L54 41 L49 34 L44 41 L39 35 L35 42 L31 38 Z';
+    case 1: // longo e esvoaçante em mechas — mechas descem rente ao rosto
+      return 'M27 74 L24 50 Q22 23 50 21 Q78 23 76 50 L73 74 L69 58 L70 43 L65 35 L57 41 L49 33 L41 41 L35 35 L30 43 L31 58 Z';
+    case 2: // penteado dinâmico para trás em pontas — sai da nuca, não da testa
+      return 'M28 46 Q25 24 46 21 L64 18 L82 21 L72 25 L84 30 L72 33 L77 40 L71 41 L69 35 L62 33 L56 38 L50 32 L43 38 L37 33 L31 38 Z';
+    case 3: // corte estilizado com franja afiada (chanel)
+      return 'M28 50 Q24 22 50 21 Q76 22 72 50 L70 36 L65 42 L61 33 L56 41 L50 31 L44 41 L39 33 L35 42 L30 36 Z';
+    case 4: // crista demoníaca / chifres de energia — nascem do couro cabeludo
+      return 'M29 41 Q28 27 40 24 L24 6 L45 21 L50 11 L55 21 L76 6 L60 24 Q72 27 71 41 L65 33 L57 36 L50 31 L43 36 L35 33 Z';
+    case 6: // coque alto com mechas longas
+      return 'M27 64 L25 44 Q25 23 50 22 Q75 23 75 44 L73 64 L69 46 L66 36 L58 32 L50 36 L42 32 L34 36 L31 46 Z M39 25 Q37 8 50 7 Q63 8 61 25 Z';
+    case 7: // juba colossal selvagem — em volta da cabeça, presa nas têmporas
+      return 'M28 62 L15 56 L21 46 L13 35 L25 32 L19 17 L33 24 L35 8 L44 20 L50 5 L56 20 L65 8 L67 24 L81 17 L75 32 L87 35 L79 46 L85 56 L72 62 L71 44 L66 36 L58 40 L50 34 L42 40 L34 36 L29 44 Z';
+    default: // crista guerreira / moicano — base no topo do crânio
+      return 'M36 35 Q36 27 41 25 L39 8 L45 13 L50 2 L55 13 L61 8 L59 25 Q64 27 64 35 Q50 31 36 35 Z';
   }
 }
 
@@ -259,7 +259,7 @@ function signature(def: CharacterDef, t: number): string {
 
 /**
  * Evolução visual por estrela (Comum → Mítico), cumulativa:
- * Comum roupa simples, sem aura · Incomum aura fraca, faixa de batalha e acabamento · Raro ombreiras metálicas, manoplas, cabelo maior
+ * Comum roupa simples, sem aura · Incomum aura fraca, faixa de batalha e acabamento · Raro ombreiras metálicas, manoplas (o cabelo NÃO cresce com a cor desde a v0.11.2)
  * Épico peitoral com gema, capa esvoaçante, olhos brilhando · Lendário coroa/diadema, ombreiras com espinhos dourados, cabelo
  * energizado, partículas · Mítico forma suprema: cabelo radiante, halo divino, raios e aura dupla.
  * `layer`: 'all' (padrão) desenha cenário + personagem; 'bg' só o cenário (fundo da carta);
@@ -316,9 +316,8 @@ export function portraitSVG(def: CharacterDef, opts: { flip?: boolean; className
     : '';
   const beard = def.id === 'gorath' || def.id === 'daichi' ? `<path d="M36 62 Q50 82 64 62 L60 74 Q50 84 40 74 Z" fill="${p.hair}"/>` : '';
   const emblem = `<circle cx="50" cy="90" r="5" fill="${p.secondary}" stroke="${p.aura}" stroke-width="1"/><path d="M50 86 L52 90 L50 94 L48 90 Z" fill="${p.primary}"/>`;
-  const hs = 1 + (t - 1) * 0.06;
   const hairFill = t >= 5 ? `url(#${id}-hair)` : p.hair;
-  const hairGlow = t >= 5 ? `<path d="${hairPath(def.hairStyle)}" fill="none" stroke="${p.aura}" stroke-width="${t >= 6 ? 4 : 2.5}" opacity=".55" transform="translate(50 34) scale(${hs}) translate(-50 -34)"/>` : '';
+  const hairGlow = t >= 5 ? `<path d="${hairPath(def.hairStyle)}" fill="none" stroke="${p.aura}" stroke-width="${t >= 6 ? 4 : 2.5}" opacity=".55"/>` : '';
   const mouth =
     def.race === 'monstro' || def.id === 'kenji'
       ? `<path d="M43 64 H57 L55 67.5 H45 Z" fill="#fff" stroke="#2b1a10" stroke-width=".7"/>`
@@ -359,7 +358,7 @@ export function portraitSVG(def: CharacterDef, opts: { flip?: boolean; className
   ${mouth}
   ${beard}
   ${hairGlow}
-  <path d="${hairPath(def.hairStyle)}" fill="${hairFill}" stroke="rgba(0,0,0,.35)" stroke-width="0.8" transform="translate(50 34) scale(${hs}) translate(-50 -34)"/>
+  <path d="${hairPath(def.hairStyle)}" fill="${hairFill}" stroke="rgba(0,0,0,.35)" stroke-width="0.8"/>
   ${headband}
   ${signature(def, t)}
   ${crown}
@@ -466,7 +465,7 @@ export function unitSpriteSVG(def: CharacterDef, opts: { flip?: boolean; stars?:
         : `<ellipse cx="42" cy="55" rx="4.2" ry="4.5" fill="#fff" stroke="#000" stroke-width=".5"/><ellipse cx="58" cy="55" rx="4.2" ry="4.5" fill="#fff" stroke="#000" stroke-width=".5"/><circle cx="43" cy="55" r="2.5" fill="${t >= 4 ? p.aura : p.eyes}"/><circle cx="59" cy="55" r="2.5" fill="${t >= 4 ? p.aura : p.eyes}"/><circle cx="42" cy="53.8" r="1" fill="#fff"/><circle cx="58" cy="53.8" r="1" fill="#fff"/>`
       }
       <path d="M46 63 Q50 65.5 55 63" fill="none" stroke="#3b1f1f" stroke-width="1.4" stroke-linecap="round"/>
-      <path d="${hairPath(def.hairStyle)}" fill="${p.hair}" stroke="rgba(0,0,0,.4)" stroke-width=".9" transform="translate(50 34) scale(${1 + (t - 1) * 0.04}) translate(-50 -34)"/>
+      <path d="${hairPath(def.hairStyle)}" fill="${p.hair}" stroke="rgba(0,0,0,.4)" stroke-width=".9"/>
       ${t >= 5 ? `<path d="M34 38 L50 26 L66 38 Z" fill="${gold}" stroke="#7a4b00" stroke-width=".7"/>` : ''}
     </g>
     <!-- Braço da frente e arma/Ki -->
@@ -508,7 +507,7 @@ export function heroSVG(side: 'player' | 'enemy'): string {
   <path d="M32 34 Q32 56 50 58 Q68 56 68 34 Q68 20 50 20 Q32 20 32 34 Z" fill="${skin}" stroke="#000" stroke-width=".9"/>
   <ellipse cx="43" cy="43" rx="3.8" ry="4" fill="#fff"/><ellipse cx="57" cy="43" rx="3.8" ry="4" fill="#fff"/>
   <circle cx="44" cy="43" r="2.2" fill="${aura}"/><circle cx="58" cy="43" r="2.2" fill="${aura}"/>
-  <path d="M20 36 L14 18 L28 24 L24 6 L38 20 L48 2 L54 18 L66 4 L64 22 L80 12 L74 30 L86 28 L76 40 L26 40 Z" fill="${hair}" stroke="#000" stroke-width=".9"/>
+  <path d="M30 40 L28 31 L21 27 L28 23 L25 11 L37 17 L42 3 L49 15 L57 2 L61 16 L73 9 L71 22 L80 25 L73 30 L70 40 L66 31 L58 34 L50 28 L42 34 L34 31 Z" fill="${hair}" stroke="#000" stroke-width=".9"/>
   <path d="M34 28 L50 16 L66 28 Z" fill="${secondary}" stroke="#000" stroke-width=".7"/>
   <circle cx="82" cy="62" r="9" fill="${aura}" opacity=".85"/><circle cx="82" cy="62" r="4.5" fill="#fff"/>
 </svg>`;

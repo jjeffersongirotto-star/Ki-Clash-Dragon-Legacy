@@ -2,6 +2,15 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.11.2] — 24/10/2026 · PR #16 — Cabelos presos à cabeça
+- **Cabelos que pareciam perucas flutuando corrigidos em todos os personagens** (carta, lutador da arena, Líderes, Base e janela de detalhes).
+- **Causas:**
+  - O cabelo **crescia a cada cor** (até +30% na carta e +20% na arena), mas a cabeça não: em Lendário/Mítico virava uma peruca de cabeça maior e saía da moldura da carta (Zarek Lendário, Kenji, Vorax…).
+  - Os desenhos de cabelo eram **largos demais** (1,4× a 2× a largura da cabeça) e vários **não encostavam no couro cabeludo**: a base ficava acima do topo da cabeça (cristas, chifres, penteado para trás) ou o cabelo era deslocado para um lado (penteado para trás do Zarek, Toru e Jin).
+- **Correção:** os 8 penteados foram redesenhados sobre o crânio (topo da cabeça coberto, franja na testa, mechas rente às têmporas, largura 1,1× a 1,6× a cabeça; a juba do Daichi 1,85× por ser juba) e o tamanho passa a ser o mesmo em todas as cores. A evolução por cor continua no brilho/gradiente do cabelo, coroa, halo etc. O cabelo dos Líderes também foi ajustado à cabeça.
+- Nova verificação automática (`hairAudit`): para cada penteado mede largura × cabeça, centro e contato com o couro cabeludo e se fica dentro da moldura; teste falha se algum cabelo ficar solto, largo ou deslocado.
+- O resto da carta não muda. As imagens prontas das cartas são geradas a cada carregamento (cache só em memória), então já saem com o cabelo novo.
+
 ## [0.11.1] — 24/10/2026 · PR #15 — Líderes grandes, unidades dentro das casas
 - **Proporção corrigida (estava ao contrário da referência):** os **Líderes** agora são as maiores figuras da arena, de corpo inteiro com ~2 fileiras de altura, em pé sobre um piso na sua ponta e com a barra de vida perto. Coluna do Líder deitada: de 7% para 13,5% da largura.
 - **Unidades invocadas menores:** o lutador fica **inteiro dentro da sua casa** (antes passava ~24% para cima e 8% para os lados, invadindo as casas vizinhas). Placa ATQ | VIDA e barra de vida continuam legíveis.

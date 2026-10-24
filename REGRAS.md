@@ -193,11 +193,12 @@ O jogo mira **60 quadros por segundo** em todas as telas. Para isso, os efeitos 
 Cada **mudança de cor** muda o visual do personagem tanto na carta quanto no lutador de corpo inteiro na arena (o degrau "+" não muda o visual):
 - **Comum:** roupa simples de aprendiz/recruta, arma/postura inicial, sem aura.
 - **Incomum:** aura fraca, faixa de batalha cruzada e acabamento no traje.
-- **Raro:** ombreiras metálicas, manoplas, aura mais forte, cabelo e golpe de Ki maiores.
+- **Raro:** ombreiras metálicas, manoplas, aura mais forte e golpe de Ki maior.
 - **Épico:** peitoral com gema de poder, capa esvoaçante, olhos brilhando na cor da aura.
 - **Lendário:** armadura e espinhos dourados, diadema/coroa real, cabelo energizado com brilho, partículas de Ki.
 - **Mítico:** forma suprema — cabelo radiante, halo dourado, raios e aura dupla.
-- O físico cresce a cada cor (ombros mais largos e cabelo maior).
+- O físico cresce a cada cor (ombros mais largos).
+- **Cabelo preso à cabeça (v0.11.2):** o cabelo tem o **mesmo tamanho em todas as cores** e é desenhado sobre o crânio: cobre o alto da cabeça, a franja fica na testa e as mechas descem rente às têmporas, sem vão nem "peruca" de cabeça maior. A cor mostra a evolução pelo brilho (Lendário) e pelo cabelo radiante (Mítico), não pelo tamanho. Vale para a carta, o lutador da arena, os Líderes, a Base e a janela de detalhes. Na arena o cabelo faz parte do grupo da cabeça e se move junto com ela.
 - Ao Despertar, uma animação mostra o visual antigo virando o novo (**DESPERTAR!**).
 
 ### Cenário de fundo de cada personagem
