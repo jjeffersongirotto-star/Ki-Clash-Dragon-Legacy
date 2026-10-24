@@ -199,6 +199,7 @@ Cada **mudança de cor** muda o visual do personagem tanto na carta quanto no lu
 - **Mítico:** forma suprema — cabelo radiante, halo dourado, raios e aura dupla.
 - O físico cresce a cada cor (ombros mais largos).
 - **Cabelo preso à cabeça (v0.11.2):** o cabelo tem o **mesmo tamanho em todas as cores** e é desenhado sobre o crânio: cobre o alto da cabeça, a franja fica na testa e as mechas descem rente às têmporas, sem vão nem "peruca" de cabeça maior. A cor mostra a evolução pelo brilho (Lendário) e pelo cabelo radiante (Mítico), não pelo tamanho. Vale para a carta, o lutador da arena, os Líderes, a Base e a janela de detalhes. Na arena o cabelo faz parte do grupo da cabeça e se move junto com ela.
+- **Mesmo rosto na carta e na arena (v0.11.3):** cada personagem tem **um rosto só**, usado pela carta e pelo lutador da arena: mesmo formato de olho, cor da íris (que muda em Épico+), sobrancelhas, boca/presas, barba, marcas da raça e do personagem (pintura, cicatrizes, tiara, óculos, lenço, orelhas, chama na testa) e acessórios do rosto (máscara do Toru a partir de Incomum, visor do Zarek). Na arena só a íris fica um pouco maior para ler no tamanho pequeno, e o visor da Nyx não pisca (sem animação nova). Vale para todas as cores e para a Cria Sombria. Os Líderes não têm carta e seguem com o próprio rosto.
 - Ao Despertar, uma animação mostra o visual antigo virando o novo (**DESPERTAR!**).
 
 ### Cenário de fundo de cada personagem

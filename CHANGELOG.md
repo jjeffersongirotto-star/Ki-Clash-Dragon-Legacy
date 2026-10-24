@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.11.3] — 24/10/2026 · PR #17 — Mesmo rosto na carta e na arena
+- **Os lutadores da arena agora têm o rosto da própria carta.** Antes todos usavam o mesmo olho redondo genérico, a mesma boca e sobrancelhas simples; as cartas tinham olhos anime puxados, cor de íris, presas, barba, marcas e acessórios próprios.
+- Agora existe **uma definição de rosto por personagem** (`faceParts`), usada pela carta e pela arena — não dá mais para um ficar diferente do outro: formato do olho, íris (inclusive a cor de Épico+ e os olhos escuros dos Necromantes), sobrancelhas, boca/presas, barba (Gorath, Daichi), marcas de raça e de personagem (pintura do Tobi, chama do Kael, tiara da Suri, óculos do Jin, lenço do Ren, orelhas do Kuro, pena da Hana, faixa do Daichi, faixas de Riku/Kenji/Toru/Tobi), máscara do Toru (Incomum+) e visor do Zarek.
+- Na arena a íris fica um pouco maior para ler no tamanho pequeno; o visor da Nyx não pisca na arena (nenhuma animação nova).
+- **As cartas não mudaram:** comparamos o desenho das 396 combinações (personagem × cor × camada) antes e depois — idênticas.
+- Novo teste: para cada personagem e cor, o rosto da arena tem que ser o rosto da carta (mesmos traços; só a íris maior).
+
 ## [0.11.2] — 24/10/2026 · PR #16 — Cabelos presos à cabeça
 - **Cabelos que pareciam perucas flutuando corrigidos em todos os personagens** (carta, lutador da arena, Líderes, Base e janela de detalhes).
 - **Causas:**
