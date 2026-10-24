@@ -5,10 +5,10 @@ Jogo de estratégia com cartas e **batalha automática em grade**, com personage
 🎮 **Jogar:** https://jjeffersongirotto-star.github.io/Ki-Clash-Dragon-Legacy/
 
 ## Regras e novidades
-- 📖 **[REGRAS.md](REGRAS.md)**: todas as regras do jogo (arena, alcance, categorias, estrelas, evolução, personagens).
+- 📖 **[REGRAS.md](REGRAS.md)**: todas as regras do jogo (arena, alcance, categorias, cores com "+", evolução, personagens).
 - 📝 **[CHANGELOG.md](CHANGELOG.md)**: histórico de atualizações.
 
-Resumo: baralho de 40 cartas (equipe de 10 × 4 cópias) com mão de 6 e compra semi-aleatória, arena 2×7 com heróis nas pontas, invocação nas 3 primeiras colunas, unidades andam e atacam sozinhas, corpo a corpo com alcance 1 e longo alcance com 3 (sempre na própria fileira, exceto as diagonais), passo à frente ao derrotar, cartas coloridas por estrela e 6 categorias (🛡️ ➕ ⚔️ 🪄 🏹 💀). Cada personagem tem uma faixa de estrelas (1–2★ → 4★, 3★ → 5★, 4–5★ → 6★; únicos de 5★ a 6★) e o visual (roupa, cenário de fundo próprio e moldura da carta) evolui a cada estrela.
+Resumo: baralho de 40 cartas (equipe de 10 × 4 cópias) com mão de 6 e compra semi-aleatória, arena 2×7 com heróis nas pontas, invocação nas 3 primeiras colunas, unidades andam e atacam sozinhas, corpo a corpo com alcance 1 e longo alcance com 3 (sempre na própria fileira, exceto as diagonais), passo à frente ao derrotar, cartas por cor/raridade (Comum cinza, Incomum verde, Raro azul, Épico roxo, Lendário laranja, Mítico vermelho), cada cor com um degrau "+", e 6 categorias (🛡️ ➕ ⚔️ 🪄 🏹 💀). Cada personagem tem uma faixa de cores (Comum/Incomum → Épico+, Raro → Lendário+, Épico/Lendário → Mítico+) e o visual (roupa, cenário de fundo próprio e moldura da carta) evolui a cada cor; o "+" dá só um pequeno bônus de status.
 
 ## Desenvolvimento
 ```bash

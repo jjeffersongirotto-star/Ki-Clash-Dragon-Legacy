@@ -40,14 +40,14 @@ const POOLS: string[][] = [
 ];
 
 /**
- * Desbloqueio pela progressão normal (primeira vitória na fase): 2★, 3★ e 4★.
- * Quem começa em 5★/6★ (Kenji, Vorax) fica bloqueado — "em breve".
+ * Desbloqueio pela progressão normal (primeira vitória na fase): Incomum, Raro e Épico.
+ * Quem começa em Lendário/Mítico (Kenji, Vorax) fica bloqueado — "em breve".
  */
 export const UNLOCKS: Record<number, string> = { 1: 'aiko', 2: 'mei', 3: 'lyra', 4: 'gorath', 5: 'yume', 6: 'zarek', 8: 'nyx' };
 
 export const STAGES: Stage[] = NAMES.map((name, i) => {
   const id = i + 1;
-  // fases 1 e 2 mais leves para a equipe inicial de 1★ (nível 1 e 2); depois, como antes
+  // fases 1 e 2 mais leves para a equipe inicial de Comum (nível 1 e 2); depois, como antes
   const level = i <= 1 ? 1 + i : 1 + Math.round(i * 1.5);
   // baralho da IA: 10 personagens diferentes, 4 cópias cada
   if (new Set(POOLS[i]).size !== DECK_SLOTS) throw new Error(`Fase ${id}: a IA precisa de ${DECK_SLOTS} personagens diferentes`);

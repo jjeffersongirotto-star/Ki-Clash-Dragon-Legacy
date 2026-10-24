@@ -27,7 +27,7 @@ export const RACE_INFO: Record<Race, { label: string; icon: string; color: strin
   necromante: { label: 'Necromante', icon: '☠️', color: '#a3e635', desc: 'Senhores abissais que manipulam sombras, almas e proles.' },
 };
 
-/** Cor da carta pelas estrelas */
+/** Cor da carta pelo TIER (campo `stars`, 1..6). v0.10: não há mais estrelas — o nome do tier é TIER_NAMES em progression.ts */
 export const STAR_COLORS: Record<number, { color: string; glow: string; label: string }> = {
   1: { color: '#9aa3ad', glow: '#d0d6dd', label: 'cinza' },
   2: { color: '#3fbf5f', glow: '#8dffab', label: 'verde' },
@@ -45,8 +45,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'riku',
     name: 'Riku Vendaval',
     title: 'O Saltador das Nuvens',
-    rarity: 'comum',
     category: 'dps',
+    plusStat: 'atk',
     race: 'humano',
     minStars: 1,
     maxStars: 4,
@@ -66,8 +66,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'nara',
     name: 'Nara Lâmina-Lunar',
     title: 'Espadachim do Crescente',
-    rarity: 'incomum',
     category: 'dps',
+    plusStat: 'atk',
     race: 'extraterrestre',
     minStars: 1,
     maxStars: 4,
@@ -87,8 +87,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'toru',
     name: 'Toru Sombra-Reversa',
     title: 'O Guardião Blindado',
-    rarity: 'incomum',
     category: 'tanque',
+    plusStat: 'hp',
     race: 'androide',
     minStars: 1,
     maxStars: 4,
@@ -108,8 +108,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'aiko',
     name: 'Aiko Flecha-Celeste',
     title: 'Arqueira do Horizonte',
-    rarity: 'raro',
     category: 'arqueiro',
+    plusStat: 'atk',
     race: 'extraterrestre',
     minStars: 2,
     maxStars: 4,
@@ -129,8 +129,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'lyra',
     name: 'Lyra Olho-de-Falcão',
     title: 'Feiticeira Perfurante',
-    rarity: 'raro',
     category: 'mago',
+    plusStat: 'atk',
     race: 'mago',
     minStars: 2,
     maxStars: 4,
@@ -150,8 +150,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'gorath',
     name: 'Gorath Muralha-de-Ferro',
     title: 'O Colosso Blindado',
-    rarity: 'raro',
     category: 'tanque',
+    plusStat: 'hp',
     race: 'monstro',
     minStars: 2,
     maxStars: 4,
@@ -171,8 +171,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'mei',
     name: 'Mei Lótus-Celeste',
     title: 'Curandeira do Templo',
-    rarity: 'raro',
     category: 'suporte',
+    plusStat: 'hp',
     race: 'mago',
     minStars: 2,
     maxStars: 4,
@@ -192,8 +192,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'yume',
     name: 'Yume Caçadora',
     title: 'A Ceifadora Carmesim',
-    rarity: 'epico',
     category: 'assassino',
+    plusStat: 'atk',
     race: 'necromante',
     minStars: 3,
     maxStars: 5,
@@ -213,8 +213,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'zarek',
     name: 'Zarek do Eclipse',
     title: 'Assassino da Retaguarda',
-    rarity: 'epico',
     category: 'assassino',
+    plusStat: 'atk',
     race: 'extraterrestre',
     minStars: 3,
     maxStars: 5,
@@ -234,8 +234,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'kenji',
     name: 'Kenji Punho-Espelhado',
     title: 'Mestre do Contra-Golpe',
-    rarity: 'lendario',
     category: 'dps',
+    plusStat: 'atk',
     race: 'humano',
     minStars: 5,
     maxStars: 6,
@@ -255,8 +255,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'nyx',
     name: 'Nyx-07',
     title: 'Androide Sifão',
-    rarity: 'lendario',
     category: 'suporte',
+    plusStat: 'hp',
     race: 'androide',
     minStars: 4,
     maxStars: 6,
@@ -276,8 +276,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'vorax',
     name: 'Vorax',
     title: 'O Rei-Parasita Necromante',
-    rarity: 'mitico',
     category: 'mago',
+    plusStat: 'atk',
     race: 'necromante',
     minStars: 5,
     maxStars: 6,
@@ -292,14 +292,14 @@ export const CHARACTERS: CharacterDef[] = [
     hairStyle: 4,
     lore: 'Soberano necromante do abismo: cada vítima derrotada ergue-se como um ninho de onde brotam Crias Sombrias famintas.',
   },
-  // ---------- v0.8: novos personagens iniciais (1★ → 4★) ----------
+  // ---------- v0.8: novos personagens iniciais (Comum → Épico) ----------
   {
     ...base,
     id: 'daichi',
     name: 'Daichi Punho-de-Rocha',
     title: 'O Golem da Montanha',
-    rarity: 'comum',
     category: 'tanque',
+    plusStat: 'hp',
     race: 'monstro',
     minStars: 1,
     maxStars: 4,
@@ -319,8 +319,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'sora',
     name: 'Sora Brisa-Serena',
     title: 'Monja do Vento Curativo',
-    rarity: 'comum',
     category: 'suporte',
+    plusStat: 'hp',
     race: 'mago',
     minStars: 1,
     maxStars: 4,
@@ -340,8 +340,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'tobi',
     name: 'Tobi Tambor-de-Guerra',
     title: 'O Oni dos Tambores',
-    rarity: 'incomum',
     category: 'suporte',
+    plusStat: 'hp',
     race: 'monstro',
     minStars: 1,
     maxStars: 4,
@@ -361,8 +361,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'kael',
     name: 'Kael Chama-Rubra',
     title: 'Piromante das Brasas',
-    rarity: 'incomum',
     category: 'mago',
+    plusStat: 'atk',
     race: 'mago',
     minStars: 1,
     maxStars: 4,
@@ -382,8 +382,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'suri',
     name: 'Suri Maré-Gélida',
     title: 'Sereia Astral da Maré',
-    rarity: 'comum',
     category: 'mago',
+    plusStat: 'hp',
     race: 'extraterrestre',
     minStars: 1,
     maxStars: 4,
@@ -403,8 +403,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'hana',
     name: 'Hana Pena-Veloz',
     title: 'Batedora da Floresta',
-    rarity: 'comum',
     category: 'arqueiro',
+    plusStat: 'atk',
     race: 'humano',
     minStars: 1,
     maxStars: 4,
@@ -424,8 +424,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'jin',
     name: 'Jin Arco-Trovão',
     title: 'Ciborgue da Tempestade',
-    rarity: 'incomum',
     category: 'arqueiro',
+    plusStat: 'atk',
     race: 'androide',
     minStars: 1,
     maxStars: 4,
@@ -445,8 +445,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'ren',
     name: 'Ren Presa-Oculta',
     title: 'Shinobi das Vielas',
-    rarity: 'comum',
     category: 'assassino',
+    plusStat: 'atk',
     race: 'humano',
     minStars: 1,
     maxStars: 4,
@@ -466,8 +466,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'kuro',
     name: 'Kuro Garra-Noturna',
     title: 'A Fera das Sombras',
-    rarity: 'incomum',
     category: 'assassino',
+    plusStat: 'atk',
     race: 'monstro',
     minStars: 1,
     maxStars: 4,
@@ -487,8 +487,8 @@ export const CHARACTERS: CharacterDef[] = [
     id: 'cria',
     name: 'Cria Sombria',
     title: 'Prole de Vorax',
-    rarity: 'comum',
     category: 'mago',
+    plusStat: 'atk',
     race: 'necromante',
     minStars: 1,
     maxStars: 1,
@@ -517,16 +517,16 @@ export function getChar(id: string): CharacterDef {
 export const PLAYABLE = CHARACTERS.filter((c) => !c.summonOnly);
 
 /**
- * Faixas de estrelas: começa em 1★/2★ → máx. 4★; 3★ → máx. 5★; 4★/5★ → máx. 6★.
- * "Únicos" (habilidade muito forte) começam em 5★.
+ * Faixas de cor (antigas faixas de estrelas): começa em Comum/Incomum → máx. Épico; Raro → máx. Lendário; Épico/Lendário → máx. Mítico.
+ * "Únicos" (habilidade muito forte) começam em Lendário.
  */
 export const UNIQUE_5STAR = ['kenji', 'vorax'];
 
-/** Personagens iniciais (v0.8): todo jogador novo começa com todos os de 1★, e só com eles. */
+/** Personagens iniciais (v0.8): todo jogador novo começa com todos os de Comum, e só com eles. */
 export const STARTER_IDS = PLAYABLE.filter((c) => c.minStars === 1).map((c) => c.id);
 
 /**
- * Bloqueados por enquanto (v0.8): quem começa em 5★ ou 6★ não pode ser obtido no jogo.
+ * Bloqueados por enquanto (v0.8): quem começa em Lendário ou Mítico não pode ser obtido no jogo.
  * A forma de desbloquear será decidida numa atualização futura ("em breve").
  */
 export function isComingSoon(def: CharacterDef): boolean {

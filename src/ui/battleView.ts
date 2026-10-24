@@ -1,13 +1,13 @@
 import { aiDeploy } from '../core/ai';
 import { createBattle, deploy, deployCells, endPlayerTurn, effectiveAtk, unitAt, DEPLOY_DEPTH, Ctx } from '../core/battle';
-import { RACE_INFO, RARITY_INFO, getChar } from '../core/characters';
+import { RACE_INFO, getChar } from '../core/characters';
 import { pileCount } from '../core/deck';
 import type { BattleState, CardInstance, RecordedEvent, Side, Snapshot, Unit } from '../core/types';
 import type { Stage } from '../core/campaign';
 import { PLAYER_HERO_HP } from '../core/campaign';
 import { heroSVG, unitSpriteSVG } from './art';
 import { gameConfirm } from './dialog';
-import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, starStyle, starsHTML } from './components';
+import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, starStyle, tierHTML } from './components';
 
 export interface BattleCallbacks {
   speed: () => number;
@@ -15,6 +15,8 @@ export interface BattleCallbacks {
   onFinish: (winner: Side | 'empate') => void;
   onExit: () => void;
 }
+
+const INFO_DEFAULT = 'Toque numa carta e depois numa casa brilhante para invocar. Segure a carta (ou use 🔍 Detalhes) para ver os detalhes.';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -28,10 +30,14 @@ export class BattleView {
   mine = new Set<number>();
   deadShown = 0;
   tokens = new Map<number, HTMLElement>();
+  /** unidade mostrada no painel de informações (limpa quando ela é derrotada) */
+  infoUid: number | null = null;
+  /** long-press abriu os detalhes: ignora o clique que vem logo depois */
+  suppressClick = false;
   cb: BattleCallbacks;
   stage: Stage;
 
-  constructor(root: HTMLElement, stage: Stage, playerDeck: { charId: string; level: number; stars: number }[], cb: BattleCallbacks) {
+  constructor(root: HTMLElement, stage: Stage, playerDeck: CardInstance[], cb: BattleCallbacks) {
     this.root = root;
     this.cb = cb;
     this.stage = stage;
@@ -101,7 +107,7 @@ export class BattleView {
         </div>
       </div>
       <div class="tactical-tabs">
-        <div class="info" id="info">Toque numa carta e depois numa casa brilhante para invocar.</div>
+        <div class="info" id="info">${INFO_DEFAULT}</div>
         <div class="tactical-right">
           <button class="tab-btn" id="autoBtn" data-act="auto" title="Invocar e lutar automaticamente">Auto: OFF</button>
           <div class="deployed-pill" title="Unidades aliadas em campo">Em campo (<b id="deployedCount">0</b>)</div>
@@ -110,9 +116,9 @@ export class BattleView {
       <div class="bottom">
         <div class="energy" id="energy"></div>
         <div class="hand-row">
-          <div class="pile pile-draw" id="pileDraw" title="Baralho: cartas que ainda podem ser compradas"><div class="pile-stack"><span class="pile-ico">★</span><b class="pile-count">0</b></div><div class="pile-label">Baralho</div></div>
+          <div class="pile pile-draw" id="pileDraw" title="Baralho: cartas que ainda podem ser compradas"><div class="pile-stack"><span class="pile-ico">🂠</span><b class="pile-count">0</b></div><div class="pile-label">Baralho</div></div>
           <div class="hand" id="hand"></div>
-          <div class="pile pile-dead" id="pileDead" title="Necropolis (Derrotadas): cópias cujas unidades caíram"><div class="pile-stack"><span class="pile-ico">★</span><b class="pile-count">0</b></div><div class="pile-label">Necropolis</div></div>
+          <div class="pile pile-dead" id="pileDead" title="Necropolis (Derrotadas): cópias cujas unidades caíram"><div class="pile-stack"><span class="pile-ico">☠</span><b class="pile-count">0</b></div><div class="pile-label">Necropolis</div></div>
         </div>
         <button class="btn fight" data-act="fight" id="fightBtn">LUTAR ⚔</button>
       </div>
@@ -174,20 +180,40 @@ export class BattleView {
         return cardHTML(c, { extraClass: `hand-card ${afford ? '' : 'cant'} ${this.selected === i ? 'sel' : ''}`, attrs: `data-i="${i}"` });
       })
       .join('') || '<div class="empty-hand">Sem cartas na mão</div>';
-    hand.querySelectorAll<HTMLElement>('.hand-card').forEach((el) =>
-      el.addEventListener('click', () => {
-        const i = +el.dataset.i!;
-        if (this.selected === i) {
+    hand.querySelectorAll<HTMLElement>('.hand-card').forEach((el) => {
+      const i = +el.dataset.i!;
+      // segurar a carta (~0,5 s) abre os detalhes; tocar seleciona; tocar de novo tira a seleção
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const cancel = () => clearTimeout(timer);
+      el.addEventListener('pointerdown', () => {
+        cancel();
+        this.suppressClick = false;
+        timer = setTimeout(() => {
           const c = s.decks.player.hand[i];
-          if (c) this.openCardModal(c, 'player');
+          if (!c) return;
+          this.suppressClick = true;
+          this.openCardModal(c, 'player');
+        }, 500);
+      });
+      el.addEventListener('pointerup', cancel);
+      el.addEventListener('pointerleave', cancel);
+      el.addEventListener('pointercancel', cancel);
+      el.addEventListener('contextmenu', (e) => e.preventDefault());
+      el.addEventListener('click', () => {
+        if (this.suppressClick) {
+          this.suppressClick = false;
+          return;
+        }
+        if (this.selected === i) {
+          this.clearSelection();
           return;
         }
         this.selected = i;
         this.showCardInfo(i);
         this.renderHand();
         this.highlight();
-      }),
-    );
+      });
+    });
     const e = this.root.querySelector('#energy')!;
     const max = s.active === 'player' ? Math.min(10, 2 + s.turn) : s.energy.player;
     e.innerHTML = `<div class="energy-orb">⚡<b>${s.energy.player}</b></div><div class="energy-pips">${Array.from({ length: max }, (_, i) => `<i class="${i < s.energy.player ? 'on' : ''}"></i>`).join('')}</div>`;
@@ -212,24 +238,35 @@ export class BattleView {
     if (sel === '#pileDead') el.classList.toggle('empty', n === 0);
   }
 
+  /** Tira a seleção da carta da mão e volta o painel de informações ao texto inicial. */
+  clearSelection() {
+    this.selected = null;
+    this.infoUid = null;
+    this.setInfo(INFO_DEFAULT);
+    this.renderHand();
+    this.highlight();
+  }
+
   showCardInfo(i: number) {
     const c = this.state.decks.player.hand[i];
     if (!c) return;
     const def = getChar(c.charId);
     this.setInfo(
-      `<div class="info-head"><span><b>${esc(def.name)}</b> ${starsHTML(c.stars)} · ${raceHTML(def)} · custo ${def.cost} · ${dmgLabel(def)} · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-hand="${i}">🔍 Detalhes</button></div>${abilityListHTML(def, c.stars, c.level)}`,
+      `<div class="info-head"><span><b>${esc(def.name)}</b> ${tierHTML(c.stars, !!c.plus)} · ${raceHTML(def)} · custo ${def.cost} · ${dmgLabel(def)} · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-hand="${i}">🔍 Detalhes</button></div>${abilityListHTML(def, c.stars, c.level)}`,
     );
     this.root.querySelector('[data-inspect-hand]')?.addEventListener('click', () => this.openCardModal(c, 'player'));
+    this.infoUid = null;
   }
 
   showUnitInfo(u: Unit) {
     const def = getChar(u.charId);
     this.setInfo(
-      `<div class="info-head"><span><b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${starsHTML(u.stars)} Nv.${u.level} · ${raceHTML(def)} · ❤ ${u.hp}/${u.maxHp} · ATQ ${effectiveAtk(this.state, u)} (${dmgLabel(def)}) · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-unit="${u.uid}">🔍 Ver Carta</button></div>${abilityListHTML(def, u.stars, u.level)}`,
+      `<div class="info-head"><span><b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${tierHTML(u.stars, !!u.plus)} Nv.${u.level} · ${raceHTML(def)} · ❤ ${u.hp}/${u.maxHp} · ATQ ${effectiveAtk(this.state, u)} (${dmgLabel(def)}) · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-unit="${u.uid}">🔍 Ver Carta</button></div>${abilityListHTML(def, u.stars, u.level)}`,
     );
     this.root.querySelector('[data-inspect-unit]')?.addEventListener('click', () =>
-      this.openCardModal({ charId: u.charId, level: u.level, stars: u.stars }, u.side),
+      this.openCardModal({ charId: u.charId, level: u.level, stars: u.stars, plus: !!u.plus }, u.side),
     );
+    this.infoUid = u.uid;
   }
 
   /** Modal de detalhes da carta em batalha (idêntico à referência Legend of Dragon) */
@@ -237,12 +274,12 @@ export class BattleView {
     document.querySelector('.battle-card-modal-bg')?.remove();
     const def = getChar(card.charId);
     const race = RACE_INFO[def.race];
-    const rar = RARITY_INFO[def.rarity];
     const bg = document.createElement('div');
     bg.className = 'battle-card-modal-bg';
     bg.innerHTML = `
       <div class="battle-card-modal" style="${starStyle(card.stars)}">
         <button class="bcm-close" aria-label="Fechar">✕</button>
+        <div class="bcm-body">
         <div class="bcm-left">
           ${cardHTML(card)}
         </div>
@@ -250,17 +287,22 @@ export class BattleView {
           <div class="bcm-leader">Líder: ${side === 'player' ? 'Você' : esc(this.stage.name)}</div>
           <h3 class="bcm-title">${esc(def.name)}</h3>
           <div class="bcm-sub">${esc(def.title)} · ${race.icon} ${race.label}</div>
-          <div class="bcm-tags">${categoryHTML(def, true)} <span class="rarity-tag">${rar.label}</span></div>
+          <div class="bcm-tags">${categoryHTML(def, true)} ${tierHTML(card.stars, !!card.plus)}</div>
           <div class="bcm-sec">Habilidades & Atributos</div>
           <div class="bcm-stats">Alcance: <b>${reachLabel(def)}</b> · Movimento: <b>${def.move} casas</b> · Dano: <b>${dmgLabel(def)}</b></div>
           ${abilityListHTML(def, card.stars, card.level)}
           <p class="bcm-lore">${esc(def.lore)}</p>
         </div>
+        </div>
       </div>
       <div class="bcm-hint">Toque no botão '✕' ou fora da janela para fechar os detalhes da carta.</div>
     `;
     document.body.appendChild(bg);
-    const close = () => bg.remove();
+    // ao fechar, a carta não fica selecionada
+    const close = () => {
+      bg.remove();
+      if (this.selected != null) this.clearSelection();
+    };
     bg.querySelector('.bcm-close')!.addEventListener('click', close);
     bg.addEventListener('click', (e) => {
       if (e.target === bg) close();
@@ -386,6 +428,10 @@ export class BattleView {
       atkEl.classList.toggle('debuff', atk < u.atk);
       atkEl.classList.toggle('buff', atk > u.atk);
       (el.querySelector('.u-hpn') as HTMLElement).textContent = String(Math.max(0, u.hp));
+    }
+    if (this.infoUid != null && !seen.has(this.infoUid)) {
+      this.infoUid = null;
+      if (this.selected == null) this.setInfo(INFO_DEFAULT);
     }
     for (const [uid, el] of this.tokens) {
       if (!seen.has(uid)) {
