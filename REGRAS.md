@@ -44,6 +44,7 @@ Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói do jog
 - **Celular em pé na batalha:** aparece o aviso do jogo **"Gire o celular para jogar deitado"** (ícone de girar). **⟳ Tela cheia deitada** tenta entrar em tela cheia e travar a tela deitada; **Jogar em pé** fecha o aviso (até fechar o jogo) e usa o layout em pé de sempre. Girar o celular também resolve.
 - **Tela cheia e trava de orientação:** ao entrar numa batalha pelo toque, no celular (tela de toque) o jogo **tenta** abrir em tela cheia e travar deitado (`screen.orientation.lock`). Se o navegador não permitir, nada quebra e o jogo segue normal. Ao sair da batalha (vitória, derrota ou Sair), a tela é destravada e sai da tela cheia (se foi o jogo que entrou). No computador não entra em tela cheia.
 - **App na tela inicial:** o jogo tem um manifesto (nome, ícones, `display: fullscreen`) para **"Adicionar à tela inicial"** abrir como app em tela cheia. A orientação **não** é forçada no manifesto (menus em pé continuam valendo).
+- **Proporção na arena (v0.11.1, como na referência):** os **Líderes são as maiores figuras da arena** — corpo inteiro com cerca de **2 fileiras de altura**, em pé na sua ponta, com a barra de vida logo abaixo. As **unidades invocadas cabem dentro da própria casa** (não invadem as casas vizinhas), com a placa ATQ | VIDA e a barra de vida legíveis. No celular em pé a coluna do Líder também ficou maior.
 - **Desempenho:** o layout deitado não adiciona animações contínuas; a batalha continua a 60 FPS.
 
 ## 4. Mão e baralho

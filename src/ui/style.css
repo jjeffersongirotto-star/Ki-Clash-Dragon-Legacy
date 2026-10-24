@@ -841,3 +841,37 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
   .home-hero { width: clamp(64px, 26dvh, 130px); }
   .logo-ki { font-size: clamp(36px, 14dvh, 72px); }
 }
+
+/* =====================================================================
+   v0.11.1 — Proporção da referência: Líderes GRANDES nas pontas,
+   unidades invocadas cabem dentro da própria casa
+   ===================================================================== */
+/* unidades: o lutador fica dentro da casa (antes saía 24% para cima e 8% para os lados) */
+.u-portrait { left: 9%; right: 9%; top: 3%; bottom: 21%; }
+.unit.minion .u-portrait { inset: 6% 12% 22% 12%; }
+.u-stat-plate { bottom: 4px; }
+
+/* Líder: figura de corpo inteiro com ~2 fileiras de altura, em pé sobre um piso na ponta da arena */
+.hero { background: radial-gradient(ellipse 90% 34% at 50% 100%, color-mix(in srgb, var(--hc) 30%, transparent), transparent 75%), linear-gradient(180deg, transparent 0%, rgba(8,11,26,.55) 100%); border-color: color-mix(in srgb, var(--hc) 40%, transparent); }
+.hero-fig { align-items: flex-end; min-height: 0; }
+.hero-hp .bar { height: 8px; }
+
+/* celular em pé (fallback): coluna do Líder um pouco mais larga e figura pela altura da arena */
+@media (max-width: 640px) {
+  :root { --cell: clamp(34px, calc((100vw - 108px) / 7), 64px); }
+  .hero { width: 49px; flex-basis: 49px; padding: 2px 1px 3px; }
+  .hero-svg { height: max(44px, calc(var(--cell) * 2 - 30px)); width: calc(max(44px, calc(var(--cell) * 2 - 30px)) / 1.2); }
+  .hero-name { font-size: 8px; line-height: 1.05; }
+}
+
+@media (orientation: landscape) {
+  .battle-screen {
+    /* coluna do Líder mais larga (antes 7vw) */
+    --hero-w: clamp(64px, 13.5vw, 210px);
+    /* altura da figura do Líder: até 2 fileiras da arena (menos a placa de vida) */
+    --lead-h: min(calc(var(--hero-w) * 1.2), calc(var(--cell) * 2 - 26px));
+  }
+  .battle .hero { min-height: calc(var(--cell) * 2 + 16px); padding: 0 2px 3px; justify-content: flex-end; }
+  .battle .hero-svg { height: var(--lead-h); width: calc(var(--lead-h) / 1.2); }
+  .battle .hero-hp span { font-size: 12px; }
+}
