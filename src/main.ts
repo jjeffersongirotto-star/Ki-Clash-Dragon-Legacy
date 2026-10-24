@@ -270,9 +270,10 @@ function help() {
       <li>Toda carta usada <b>volta para o fim do baralho</b> e pode ser comprada de novo depois de algumas rodadas — mesmo que o personagem ainda esteja em campo. Assim o mesmo personagem pode aparecer mais de uma vez.</li></ul>
     <h3>Como as unidades agem</h3><ul>
       <li>Se houver alvo no alcance, atacam. Senão, <b>andam até 2 casas</b> e tentam atacar.</li>
-      <li><b>Corpo a corpo:</b> só atinge o inimigo na casa <b>logo à frente</b>. Para bater no herói, precisa estar na última coluna, de frente para ele.</li>
-      <li><b>Longo alcance 🏹:</b> atinge até <b>2 casas à frente</b> na mesma fileira (o herói também, a partir da penúltima coluna) e não avança se puder atacar.</li>
-      <li><b>Miras especiais</b> nunca atacam de qualquer lugar: <b>Tiro Perfurante</b> pega o inimigo mais distante da sua fileira até 2 casas; <b>Emboscada</b> pega o mais recuado e <b>Instinto Predador</b> o de menos vida, entre os inimigos até 2 colunas à frente (nas duas fileiras). Se não houver ninguém assim, atacam normalmente.</li>
+      <li><b>Corpo a corpo:</b> só atinge o inimigo na casa <b>logo à frente</b>.</li>
+      <li><b>Longo alcance 🏹:</b> atinge até <b>2 casas à frente</b> na mesma fileira e não avança se puder atacar.</li>
+      <li><b>O herói inimigo</b> conta como uma unidade parada logo depois da última coluna, alcançável pelas duas fileiras. Quem não tem unidade inimiga para enfrentar ataca o herói com o próprio alcance: corpo a corpo (inclusive Nara e Toru) da <b>última coluna</b>; longo alcance, Lyra, Zarek e Yume já da <b>penúltima</b>, sem precisar ir até o fim.</li>
+      <li><b>Miras especiais</b> nunca atacam de qualquer lugar: <b>Tiro Perfurante</b> pega o inimigo mais distante da sua fileira até 2 casas; <b>Emboscada</b> pega o mais recuado e <b>Instinto Predador</b> o de menos vida, entre os inimigos até 2 colunas à frente (nas duas fileiras). Se não houver ninguém assim, atacam normalmente — ou o herói, se ele estiver a até 2 casas.</li>
       <li><b>Diagonais:</b> Corte Diagonal atinge a casa diagonal logo à frente; Golpe Reverso, a casa diagonal logo atrás.</li>
       <li>Ninguém atravessa um inimigo sem derrotá-lo — exceto quem tem <b>Salto</b> (pula 1 unidade, 2 casas).</li></ul>
     <h3>Fúria de batalha 🔥</h3><p>A partir do <b>turno 8</b>, todas as unidades dos dois lados ganham <b>+1 de ataque a cada 3 turnos</b>, para a luta não travar. Se chegar ao turno 40, vence quem tiver mais vida (em %) no herói.</p>

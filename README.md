@@ -9,8 +9,8 @@ Jogo de estratégia com cartas e **batalha automática em grade**, com personage
 - A cada turno você ganha energia (3 no início, +1 por turno, máx. 10), compra **exatamente 1 carta** e invoca nas **3 primeiras colunas** do seu lado (a IA usa as 3 do lado dela).
 - Cartas não usadas ficam na mão (até 6). Carta usada volta na hora ao fim do baralho e pode ser comprada de novo — o mesmo personagem pode estar em campo mais de uma vez.
 - Ao tocar em **LUTAR**, as unidades agem sozinhas: atacam se houver alvo, senão andam 2 casas e tentam atacar.
-- **Corpo a corpo:** só a casa logo à frente (alcance 1); bate no herói apenas na última coluna.
-- **Longo alcance:** até 2 casas à frente na fileira (herói a partir da penúltima coluna); não avança se puder atacar.
+- **Corpo a corpo:** só a casa logo à frente (alcance 1). **Longo alcance:** até 2 casas à frente; não avança se puder atacar.
+- **Herói = unidade numa coluna virtual** logo após a arena, alcançável pelas duas fileiras. Sem unidade inimiga para enfrentar, todos atacam o herói com o próprio alcance: corpo a corpo da última coluna; alcance 2 (Aiko, Nyx, Crias, Lyra, Zarek, Yume) da penúltima.
 - **Miras especiais** só enxergam até 2 colunas à frente; **diagonais** só a casa diagonal adjacente.
 - Ninguém atravessa inimigos, exceto quem tem Salto.
 - Dano físico/mágico com resistências (ex.: resistência física 1 transforma 3 de dano físico em 2).

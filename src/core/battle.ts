@@ -28,6 +28,8 @@ export interface BattleSetup {
   rows?: number;
   cols?: number;
   maxTurns?: number;
+  /** Fúria de batalha ligada (padrão: sim) */
+  fury?: boolean;
 }
 
 /** Coletor de eventos: cada evento leva um retrato do estado para a UI animar. */
@@ -70,6 +72,7 @@ export function createBattle(setup: BattleSetup): BattleState {
     nextUid: 1,
     seed: setup.seed ?? Math.floor(Math.random() * 1e9),
     maxTurns: setup.maxTurns ?? 40,
+    fury: setup.fury ?? true,
     log: [],
   };
   state.decks.player.draw = shuffle(setup.playerDeck.map((c) => ({ ...c })), state);
@@ -93,7 +96,7 @@ export function startTurn(state: BattleState, ctx: Ctx, side: Side) {
   state.active = side;
   state.energy[side] = energyFor(state.turn);
   drawCard(state, side);
-  if (side === 'player' && furyBonus(state.turn) > furyBonus(state.turn - 1))
+  if (side === 'player' && state.fury && furyBonus(state.turn) > furyBonus(state.turn - 1))
     ctx.emit(state, { type: 'aura', uid: 0, text: `🔥 Fúria de batalha! Todas as unidades ganham +${furyBonus(state.turn)} de ataque.` });
   ctx.emit(state, {
     type: 'turn',
@@ -196,7 +199,7 @@ export function furyBonus(turn: number): number {
 }
 
 export function effectiveAtk(state: BattleState, u: Unit): number {
-  return Math.max(1, u.atk - auraPenalty(state, u)) + furyBonus(state.turn);
+  return Math.max(1, u.atk - auraPenalty(state, u)) + (state.fury ? furyBonus(state.turn) : 0);
 }
 
 /** Dano após resistência. Resistência física 1 contra 3 de dano físico = 2. Mínimo 1. */
@@ -212,7 +215,9 @@ export function distanceToEnemyHero(state: BattleState, u: Unit): number {
 /**
  * Mira. Regras (arena 2x7):
  * - Básico: inimigo na casa logo à frente (alcance 1). Longo alcance: até 2 casas à frente na fileira.
- * - Herói: atingido quando o herói está dentro do alcance (corpo a corpo: na última coluna).
+ * - Herói: funciona como uma unidade inimiga numa coluna virtual logo após o fim da arena, alcançável das
+ *   duas fileiras. Se não houver unidade inimiga válida, qualquer unidade ataca o herói com seu alcance
+ *   normal (corpo a corpo: na última coluna; alcance 2 / miras especiais: a partir da penúltima).
  * - Miras especiais (último da fila, retaguarda, menor vida) só enxergam até `reach` colunas à frente.
  * - Diagonais: apenas a casa diagonal adjacente (à frente ou atrás).
  */
@@ -250,7 +255,7 @@ export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
   if (diagB.length) return diagB.sort((a, b) => a.hp - b.hp)[0];
   if (straight.length) return straight.sort((a, b) => fwd(a) - fwd(b))[0];
   if (diagF.length) return diagF.sort((a, b) => a.hp - b.hp)[0];
-  if (distanceToEnemyHero(state, u) <= r) return 'hero';
+  if (distanceToEnemyHero(state, u) <= reach) return 'hero';
   return null;
 }
 
