@@ -642,3 +642,39 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* v0.10 B5: nome completo nas cartas grandes (detalhes, treino e inspeção); só a mão/cartas pequenas abreviam */
 .detail-card .card-name, .train-art .card-name, .bcm-left .card-name { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.05; font-size: max(8px, 8.6cqw); }
+
+/* =====================================================================
+   v0.10.1 — Desempenho (o visual parado é o mesmo; só muda o custo por quadro)
+   ===================================================================== */
+/* retratos das cartas agora são <img> (SVG em cache) — mesmas regras do SVG em linha */
+.card-bg img, .card-fig img { width: 100%; height: 100%; display: block; -webkit-user-drag: none; pointer-events: none; }
+/* tudo atrás de uma janela aberta, e cartas fora da tela, ficam com as animações pausadas */
+.is-under *, .is-under *::before, .is-under *::after,
+.card.offscreen, .card.offscreen *, .card.offscreen *::before, .card.offscreen *::after { animation-play-state: paused !important; }
+/* nas grades (Coleção, Equipe, Treinar, Troca) e nas cartas apagadas da mão, os efeitos que
+   redesenham a carta inteira a cada quadro (filtro de brilho e metal que flui) ficam no quadro
+   inicial; aura, reflexo e faíscas (só transform/opacity) continuam. Na carta em foco
+   (detalhes, Treinar, mão, janela da batalha) tudo continua animado. */
+.card-grid .card-metal, .deck-slots .card-metal, .train-list .card-metal, .swap-grid .card-metal,
+.swap-in .card-metal, .hand .card.cant .card-metal { animation: none !important; }
+.hand .card.cant *, .hand .card.cant *::before { animation-play-state: paused !important; }
+/* camadas animadas promovidas para a GPU (só transform/opacity) */
+.card-shine, .spk, .card.s4 .card-aura, .card.s5 .card-aura, .card.s6 .card-aura { will-change: transform, opacity; }
+/* brilho premium (Lendário/Mítico): em vez de animar `filter` na moldura inteira (redesenha
+   toda a carta), anima só a opacidade de um véu luminoso por cima — mesmo efeito de pulso */
+.card.s5 .card-metal, .card.s6 .card-metal { animation-name: none; }
+.card.s6 .card-metal { animation: metalFlow 5s linear infinite; }
+.card.s5 .card-metal::after, .card.s6 .card-metal::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 9;
+  background: radial-gradient(ellipse at 50% 45%, rgba(255,246,214,.16), rgba(255,226,160,.08) 70%); mix-blend-mode: screen; opacity: 0; will-change: opacity;
+  animation: premiumVeil 2.4s ease-in-out infinite; }
+.card.s6 .card-metal::after { animation-duration: 2s; }
+@keyframes premiumVeil { 50% { opacity: 1; } }
+.card-grid .card-metal::after, .deck-slots .card-metal::after, .train-list .card-metal::after, .swap-grid .card-metal::after { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .card-metal::after, .home-hero, .spr-figure, .hero-svg, .cell.can, .evo-rays { animation: none !important; }
+}
+/* o desfoque de fundo (backdrop-filter) era refeito a cada quadro por baixo de qualquer janela
+   (detalhes, troca, fim de luta, carta na batalha) e derrubava o FPS pela metade; o fundo já
+   fica escurecido a ~80%, então o desfoque sai e a cor da camada fica igual */
+.modal-bg, .dialog-bg, .battle-card-modal-bg { backdrop-filter: none; -webkit-backdrop-filter: none; }
+.home-hero img { height: 100%; width: auto; margin-left: -12%; min-width: 125%; display: block; }

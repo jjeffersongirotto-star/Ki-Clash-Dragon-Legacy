@@ -23,13 +23,14 @@ Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói do jog
 
 ### Tela de batalha
 - **HUD superior VS:** no topo da tela, as barras de vida do seu Líder (**Você**) e do Líder inimigo (com o nome da fase), frente a frente, e o **turno atual** (T) no centro.
-- **Botão Auto (`Auto: OFF` / `Auto: ON`):** com o Auto ligado, o jogo **invoca suas cartas sozinho** (com a mesma lógica de invocação da IA) e toca **LUTAR** a cada turno, até a batalha acabar ou você desligar. Ele desliga sozinho ao fim da batalha ou ao sair.
+- **Botão Auto (`Auto: OFF` / `Auto: ON`):** com o Auto ligado, o jogo **invoca suas cartas sozinho** (com a mesma lógica de invocação da IA) e toca **LUTAR** a cada turno, até a batalha acabar ou você desligar. Ele desliga sozinho ao fim da batalha ou ao sair (cancelar a saída não desliga).
 - **Contador `Em campo (N)`:** mostra quantas unidades suas estão vivas na arena.
 - **Selecionar carta da mão:** tocar seleciona (e mostra as informações no painel); **tocar de novo na mesma carta tira a seleção**.
 - **Inspecionar carta em batalha:** **segurar** a carta da mão (~0,5 s), ou tocar em **🔍 Detalhes** / **🔍 Ver Carta** (no painel de informações de uma carta da mão ou de uma unidade, aliada ou inimiga), abre a janela de detalhes da carta, no estilo do jogo. Ao fechar a janela, a carta **não fica selecionada**.
 - **Janela de detalhes no celular:** cabe na tela e **rola por dentro**; o **✕** fica sempre visível no canto. Tocar fora da janela também fecha.
 - **Painel de informações:** quando a unidade mostrada no painel é **derrotada**, o painel volta ao texto inicial.
 - **HUD no celular:** o nome do inimigo diminui e quebra em 2 linhas em vez de ser cortado.
+- **Sair (✕):** abre a confirmação do jogo. **Cancelar** volta à luta sem mudar nada (o **Auto continua** como estava). **Sair** interrompe na hora as animações e turnos em andamento; a luta abandonada não dá recompensa nem derrota.
 
 ## 4. Mão e baralho
 ### Baralho de 40 cartas
@@ -161,6 +162,15 @@ Todas as cartas (mão, coleção, equipe, treino, troca de equipe, detalhes e re
 - **Nomes:** cartas grandes (detalhes da coleção, treino e janela de inspeção em batalha) mostram o **nome completo**, quebrando em 2 linhas se precisar. Só as cartas pequenas (mão no celular, equipe) mostram o primeiro nome. Cartas bloqueadas ficam cinza e sem animação.
 - **Detalhes da carta (Coleção):** mostra a carta, o **visual do lutador na arena** e um **seletor de cor** com as cores da faixa do personagem (da inicial à máxima), para ver a evolução de roupa, armadura, armas e poder em cada cor. A cor atual fica marcada como "(atual)" (com "+" se você já tiver). Só visualiza — não muda a carta. (Antes era o seletor de estrelas da v0.9.)
 - **Filtro por raça (Coleção & Equipe):** botões **🌟 Todos** e um por raça; filtra tanto os personagens obtidos quanto os "Ainda não obtidos".
+
+### Desempenho e efeitos por cor (v0.10.1)
+O jogo mira **60 quadros por segundo** em todas as telas. Para isso, os efeitos das cores têm regras de onde animam — **a carta parada é idêntica** em qualquer lugar:
+- **Carta em foco** (detalhes da Coleção, carta grande do Treinar, mão da batalha, janela de inspeção e Despertar): **todos os efeitos** da cor — reflexo (Raro+), aura pulsando com raios girando (Épico+), brilho premium pulsante e faíscas (Lendário/Mítico) e metal em movimento (Mítico).
+- **Cartas em grade** (Coleção, Equipe, lista do Treinar, janela de troca): aura, raios, reflexo e faíscas continuam; o brilho premium pulsante e o metal em movimento ficam **parados no quadro inicial** (eram os efeitos que redesenhavam a carta inteira a cada quadro).
+- **Cartas apagadas da mão** (sem energia para invocar) ficam com os efeitos parados até voltarem a ficar disponíveis.
+- **Atrás de janelas** (detalhes, troca, avisos, fim de luta, inspeção, Despertar) e **fora da tela** (rolagem), as animações ficam pausadas; voltam ao fechar a janela ou ao rolar até a carta.
+- O fundo atrás das janelas fica **escurecido, sem desfoque** (o desfoque era refeito a cada quadro e derrubava o FPS pela metade).
+- Com **"reduzir movimento"** ativado no aparelho, as cartas e os lutadores ficam sem animações decorativas.
 
 ### Evolução visual por cor (Carta e Lutador na Arena)
 Cada **mudança de cor** muda o visual do personagem tanto na carta quanto no lutador de corpo inteiro na arena (o degrau "+" não muda o visual):

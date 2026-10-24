@@ -34,6 +34,8 @@ export class BattleView {
   infoUid: number | null = null;
   /** long-press abriu os detalhes: ignora o clique que vem logo depois */
   suppressClick = false;
+  /** v0.10.1: saiu da batalha — animações/turnos pendentes param e o fim da luta não é mais anunciado */
+  disposed = false;
   cb: BattleCallbacks;
   stage: Stage;
 
@@ -125,8 +127,12 @@ export class BattleView {
       <details class="log-panel" open><summary>📜 Registro da batalha</summary><ol class="log" id="log"></ol></details>
     </div>`;
     this.root.querySelector('[data-act=exit]')!.addEventListener('click', async () => {
-      this.autoMode = false;
-      if (this.state.winner || (await gameConfirm('Sair da batalha?', 'O progresso desta luta será perdido.', 'Sair', true))) this.cb.onExit();
+      if (this.disposed) return;
+      if (this.state.winner || (await gameConfirm('Sair da batalha?', 'O progresso desta luta será perdido.', 'Sair', true))) {
+        if (this.disposed) return;
+        this.dispose();
+        this.cb.onExit();
+      }
     });
     this.root.querySelector('[data-act=speed]')!.addEventListener('click', (e) => {
       const n = this.cb.speed() >= 3 ? 1 : this.cb.speed() + 1;
@@ -146,17 +152,25 @@ export class BattleView {
     );
   }
 
+  /** Para tudo ao sair da batalha (Auto, turnos em andamento, janelas da batalha). */
+  dispose() {
+    this.disposed = true;
+    this.autoMode = false;
+    document.querySelectorAll('.battle-card-modal-bg').forEach((el) => el.remove());
+  }
+
   async runAutoTurn() {
-    while (this.autoMode && !this.busy && !this.state.winner && this.state.active === 'player') {
+    while (this.autoMode && !this.disposed && !this.busy && !this.state.winner && this.state.active === 'player') {
       const ctx = new Ctx();
       aiDeploy(this.state, ctx, 'player');
       if (ctx.events.length) {
         this.busy = true;
         await this.play(ctx.events);
         this.busy = false;
+        if (this.disposed) return;
         this.renderHand();
       }
-      if (!this.autoMode || this.state.winner) break;
+      if (!this.autoMode || this.disposed || this.state.winner) break;
       await this.fight();
     }
   }
@@ -356,11 +370,13 @@ export class BattleView {
     const events = endPlayerTurn(this.state, aiDeploy);
     await this.play(events);
     this.busy = false;
+    if (this.disposed) return;
     this.renderHand();
     this.renderSnapshot(this.snap());
     if (this.state.winner) {
       this.autoMode = false;
       await sleep(600);
+      if (this.disposed) return;
       this.cb.onFinish(this.state.winner);
     }
   }
@@ -371,6 +387,7 @@ export class BattleView {
 
   async play(events: RecordedEvent[]) {
     for (const ev of events) {
+      if (this.disposed) return;
       this.renderSnapshot(ev.snap, ev);
       this.log(ev.text, ev.type === 'turn' || ev.type === 'end' ? 'sys' : this.sideOfEvent(ev));
       await this.effect(ev);

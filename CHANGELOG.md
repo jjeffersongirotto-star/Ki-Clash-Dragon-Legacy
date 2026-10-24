@@ -2,6 +2,22 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.10.1] — 24/10/2026 · PR #11 — Desempenho (60 FPS) e correções
+- **Queda de FPS na Coleção & Equipe corrigida.** Medido antes e depois em Chromium (desktop e celular, CPU normal e 4× mais lenta), quadro a quadro:
+  - Detalhes da carta: **31 → 60 FPS** (desktop) e **27 → 60 FPS** (CPU 4×). Janela de troca da equipe: **26 → 60 FPS**. Tela de fim de luta: **38 → 60 FPS**. Janela de carta na batalha: **48 → 60 FPS**.
+  - Coleção parada/rolando com CPU 4×: **54–56 → 60 FPS**.
+- **Causas e correções:**
+  - O **desfoque do fundo** (backdrop-filter) de todas as janelas era refeito a cada quadro, por baixo de cartas animadas → removido; o fundo continua escurecido.
+  - Cada carta tinha **2 retratos SVG em linha** (centenas de nós, ids de gradiente repetidos): agora os retratos são gerados **uma vez por personagem/cor** e reaproveitados como imagem. A Coleção caiu de **4.880 para 956 elementos**; o visual é o mesmo desenho.
+  - Atrás de janelas e fora da tela, as **animações das cartas pausam**. Nas grades, o brilho premium pulsante e o metal em movimento (que redesenhavam a carta inteira a cada quadro) ficam no quadro inicial; aura, raios, reflexo e faíscas continuam. A carta em foco (detalhes, Treinar, mão, inspeção, Despertar) mantém todos os efeitos.
+  - O brilho pulsante Lendário/Mítico agora anima só a opacidade de um véu luminoso (antes animava um filtro na carta toda).
+  - Retratos pré-carregados em tempo ocioso ao abrir o jogo.
+- **Correções:**
+  - **Sair → Cancelar** na batalha desligava o Auto em silêncio (o botão continuava "Auto: ON" e a luta parava). Agora cancelar não muda nada.
+  - **Sair** no meio de uma luta interrompe na hora as animações e turnos pendentes (antes continuavam rodando em segundo plano e podiam anunciar o fim da luta em outra tela).
+- Sem vazamento: memória e número de elementos estáveis depois de 4 lutas seguidas; sem erros no console.
+- Regras e equilíbrio não mudaram.
+
 ## [0.10.0] — 24/10/2026 · PR #10 — Cores com "+" no lugar das estrelas e correções da v0.9
 - **Fim das estrelas:** a carta não mostra mais estrelas (nem na barra do topo, nem nos detalhes, nem nos textos). As cores continuam **exatamente as mesmas** (cinza, verde, azul, roxo, laranja, vermelho); agora cada cor tem nome de raridade: **Comum, Incomum, Raro, Épico, Lendário, Mítico**. O topo da carta mostra o nome (ex.: **RARO+**).
   - A raridade fixa antiga de cada personagem saiu: o nome sempre bate com a cor da carta.
