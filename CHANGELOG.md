@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.11.1] — 24/10/2026 · PR #15 — Líderes grandes, unidades dentro das casas
+- **Proporção corrigida (estava ao contrário da referência):** os **Líderes** agora são as maiores figuras da arena, de corpo inteiro com ~2 fileiras de altura, em pé sobre um piso na sua ponta e com a barra de vida perto. Coluna do Líder deitada: de 7% para 13,5% da largura.
+- **Unidades invocadas menores:** o lutador fica **inteiro dentro da sua casa** (antes passava ~24% para cima e 8% para os lados, invadindo as casas vizinhas). Placa ATQ | VIDA e barra de vida continuam legíveis.
+- Medido: Líder ≈ 2,2× a altura de uma unidade (915×412: Líder 148 px, unidade 68 px numa casa de 90 px); nenhuma unidade sai da casa em 915×412, 844×390 e 1366×768.
+- Celular em pé: coluna do Líder um pouco mais larga e figura maior (≈ 50 px contra 31 px das unidades).
+- Sem animações novas; batalha Auto a ~60 FPS. Nenhuma regra mudou.
+
 ## [0.11.0] — 24/10/2026 · PR #14 — Batalha deitada (paisagem)
 - **Novo layout de batalha para tela deitada** (celular girado, tablet e computador): HUD VS fino no topo, **arena 2×7 bem maior** ocupando a largura com os Líderes visíveis, e embaixo **uma linha só**: Baralho à esquerda, **as 6 cartas da mão inteiras** (sem apertar e sem barra de rolagem), Necropolis, energia e **LUTAR** na ponta direita.
 - **Sem rolagem nenhuma** na batalha deitada: altura em `100dvh` (acompanha a barra do Chrome) e respeito aos recortes da tela.

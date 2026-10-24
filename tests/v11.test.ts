@@ -26,3 +26,11 @@ describe('v0.11.0 — batalha deitada', () => {
     expect(battleSrc).not.toMatch(/\balert\(|\bconfirm\(/);
   });
 });
+
+describe('v0.11.1 — proporção Líder × unidades', () => {
+  it('Líder continua na ponta com a figura de corpo inteiro', () => {
+    expect(battleSrc).toContain('id="hero-player"');
+    expect(battleSrc).toContain('id="hero-enemy"');
+    expect(battleSrc).toContain("heroSVG('player')");
+  });
+});
