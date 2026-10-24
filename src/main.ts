@@ -5,6 +5,7 @@ import { XP_ITEMS, ascend, ascendCost, canAscend, feedXp, maxLevel, newOwned, st
 import { portraitSVG } from './ui/art';
 import { BattleView } from './ui/battleView';
 import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, reachLabel, starStyle, starsHTML } from './ui/components';
+import { gameAlert, gameConfirm, showDialog } from './ui/dialog';
 import { DECK_MAX, DECK_MIN, loadSave, resetSave, writeSave, type SaveData } from './ui/save';
 
 const app = document.getElementById('app')!;
@@ -43,7 +44,7 @@ function home() {
       <div class="logo-ki">KI-CLASH</div>
       <div class="logo-sub">DRAGON LEGACY</div>
     </div>
-    <div class="home-heroes">${['kenji', 'vorax', 'nyx'].map((id) => `<div class="home-hero" style="${starStyle(getChar(id).maxStars)}">${portraitSVG(getChar(id))}</div>`).join('')}</div>
+    <div class="home-heroes">${['kenji', 'vorax', 'nyx'].map((id) => `<div class="home-hero" style="${starStyle(getChar(id).maxStars)}">${portraitSVG(getChar(id), { stars: getChar(id).maxStars })}</div>`).join('')}</div>
     <div class="res big"><span>✴ ${save.essencias} Essências</span>${XP_ITEMS.map((i) => `<span>${i.icon} ${save.items[i.id]}</span>`).join('')}</div>
     <nav class="menu">
       <button class="btn primary" data-nav="adventure">⚔ Aventura <small>${next ? `Fase ${next.id}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
@@ -54,8 +55,8 @@ function home() {
     <button class="link-btn" id="reset">Apagar progresso</button>
   </div>`;
   bindNav();
-  app.querySelector('#reset')!.addEventListener('click', () => {
-    if (confirm('Apagar todo o progresso salvo?')) {
+  app.querySelector('#reset')!.addEventListener('click', async () => {
+    if (await gameConfirm('Apagar progresso?', 'Todo o progresso salvo (personagens, níveis, itens e fases) será apagado. Isso não pode ser desfeito.', 'Apagar tudo', true)) {
       save = resetSave();
       home();
     }
@@ -75,7 +76,7 @@ function adventure() {
           <small>Herói inimigo ❤${s.enemyHeroHp} · Nível inimigo ~${s.enemyDeck[0].level}</small>
           <small>Recompensa: ✴${s.rewards.essencias} 📜${s.rewards.pergaminho}${s.rewards.cristal ? ` 💎${s.rewards.cristal}` : ''}${s.rewards.orbe ? ` 🔮${s.rewards.orbe}` : ''}${s.unlock && !save.cards[s.unlock] ? ` · desbloqueia <b>${esc(getChar(s.unlock).name)}</b>` : ''}</small>
         </div>
-        <div class="stage-enemies">${s.enemyDeck.slice(0, 4).map((c) => `<span class="mini" style="${starStyle(c.stars)}">${portraitSVG(getChar(c.charId))}</span>`).join('')}</div>
+        <div class="stage-enemies">${s.enemyDeck.slice(0, 4).map((c) => `<span class="mini" style="${starStyle(c.stars)}">${portraitSVG(getChar(c.charId), { stars: c.stars })}</span>`).join('')}</div>
         <button class="btn small ${unlocked ? 'primary' : ''}" data-stage="${s.id}" ${unlocked ? '' : 'disabled'}>${done ? 'Repetir' : unlocked ? 'Lutar' : '🔒'}</button>
       </div>`;
     }).join('')}</div></div>`;
@@ -115,7 +116,7 @@ function finishBattle(stageId: number, winner: string) {
     if (stage.unlock && !save.cards[stage.unlock]) {
       save.cards[stage.unlock] = newOwned(stage.unlock);
       const def = getChar(stage.unlock);
-      unlocked = `<div class="unlock" style="${starStyle(def.minStars)}">${portraitSVG(def)}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${categoryHTML(def, true)} · ${RARITY_INFO[def.rarity].label} ${starsHTML(def.minStars)}</div></div>`;
+      unlocked = `<div class="unlock" style="${starStyle(def.minStars)}">${portraitSVG(def, { stars: def.minStars })}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${categoryHTML(def, true)} · ${RARITY_INFO[def.rarity].label} ${starsHTML(def.minStars)}</div></div>`;
     }
     html = `<h2 class="win">🏆 Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : 'Recompensa de repetição (50%).'}</p>
       <div class="res big"><span>✴ +${got.essencias}</span><span>📜 +${got.pergaminho}</span>${got.cristal ? `<span>💎 +${got.cristal}</span>` : ''}${got.orbe ? `<span>🔮 +${got.orbe}</span>` : ''}</div>${unlocked}`;
@@ -149,7 +150,7 @@ function collection() {
       <div class="deck-title">Equipe de batalha <b>${save.deck.length}/${DECK_MAX}</b> <small>(mínimo ${DECK_MIN})</small></div>
       <div class="deck-slots">${Array.from({ length: DECK_MAX }, (_, i) => {
         const id = save.deck[i];
-        return id ? `<div class="slot filled" data-card="${id}" style="${starStyle(save.cards[id].stars)}">${portraitSVG(getChar(id))}<span>${getChar(id).cost}</span><em>${CATEGORY_INFO[getChar(id).category].icon}</em></div>` : '<div class="slot">+</div>';
+        return id ? `<div class="slot filled" data-card="${id}" style="${starStyle(save.cards[id].stars)}">${portraitSVG(getChar(id), { stars: save.cards[id].stars })}<span>${getChar(id).cost}</span><em>${CATEGORY_INFO[getChar(id).category].icon}</em></div>` : '<div class="slot">+</div>';
       }).join('')}</div>
     </section>
     <p class="hint">Toque numa carta para ver detalhes e colocar/tirar da equipe. A cor da carta mostra as estrelas.</p>
@@ -170,7 +171,7 @@ function cardDetail(id: string) {
   const st = statsFor(def, lvl, stars);
   const inDeck = save.deck.includes(id);
   modal(`<div class="detail" style="${starStyle(stars)}">
-    <div class="detail-art">${portraitSVG(def)}</div>
+    <div class="detail-art">${portraitSVG(def, { stars })}</div>
     <div class="detail-info">
       <div class="rarity-tag">${RARITY_INFO[def.rarity].label}</div> ${categoryHTML(def, true)}
       <h2>${esc(def.name)}</h2><div class="subtitle">${esc(def.title)}</div>
@@ -187,12 +188,16 @@ function cardDetail(id: string) {
         closeModal();
         train();
       });
-      m.querySelector('[data-m=deck]')?.addEventListener('click', () => {
+      m.querySelector('[data-m=deck]')?.addEventListener('click', async () => {
         if (inDeck) {
-          if (save.deck.length <= DECK_MIN) return alert(`A equipe precisa de pelo menos ${DECK_MIN} personagens.`);
+          if (save.deck.length <= DECK_MIN) return gameAlert('Equipe mínima', `A equipe precisa de pelo menos ${DECK_MIN} personagens. Coloque outro antes de tirar este.`, '🛡️');
           save.deck = save.deck.filter((x) => x !== id);
+        } else if (save.deck.length >= DECK_MAX) {
+          const removed = await swapDialog(id);
+          if (!removed) return;
+          save.deck = save.deck.filter((x) => !removed.includes(x));
+          save.deck.push(id);
         } else {
-          if (save.deck.length >= DECK_MAX) return alert(`A equipe já tem ${DECK_MAX} personagens. Tire alguém primeiro.`);
           save.deck.push(id);
         }
         persist();
@@ -200,6 +205,57 @@ function cardDetail(id: string) {
         collection();
       });
     });
+}
+
+/**
+ * Troca de equipe: mostra a equipe atual toda selecionada; o jogador toca nas
+ * cartas que quer TIRAR (ficam desmarcadas) e confirma em "Trocar".
+ * Retorna os ids removidos, ou null se cancelar.
+ */
+export async function swapDialog(newId: string): Promise<string[] | null> {
+  const need = save.deck.length + 1 - DECK_MAX;
+  const out = new Set<string>();
+  const def = getChar(newId);
+  const v = await showDialog({
+    title: 'Equipe cheia',
+    icon: '🔄',
+    html: `<p class="dialog-msg">Para colocar <b>${esc(def.name)}</b>, toque em ${need === 1 ? '<b>1 personagem</b>' : `<b>${need} personagens</b>`} para tirar da equipe.</p>
+      <div class="swap-in">${cardHTML(save.cards[newId], { extraClass: 'swap-new' })}<span class="swap-arrow">⇄</span><div class="swap-hint" id="swapHint"></div></div>
+      <div class="swap-grid">${save.deck.map((id) => cardHTML(save.cards[id], { extraClass: 'swap-card sel-on', attrs: `data-swap="${id}"`, badge: '✔' })).join('')}</div>`,
+    buttons: [
+      { label: 'Cancelar', value: 'cancel', kind: 'ghost' },
+      { label: 'Trocar', value: 'ok', kind: 'primary' },
+    ],
+    onMount: (root) => {
+      const ok = root.querySelector<HTMLButtonElement>('[data-v=ok]')!;
+      const hint = root.querySelector('#swapHint')!;
+      const refresh = () => {
+        ok.disabled = out.size !== need;
+        hint.textContent = out.size === need ? `Sai: ${[...out].map((x) => getChar(x).name).join(', ')}` : `Desmarque ${need - out.size > 0 ? need - out.size : 0} carta(s)`;
+        root.querySelectorAll<HTMLElement>('[data-swap]').forEach((el) => {
+          const off = out.has(el.dataset.swap!);
+          el.classList.toggle('sel-on', !off);
+          el.classList.toggle('sel-off', off);
+          const b = el.querySelector('.card-badge');
+          if (b) b.textContent = off ? '✖ Sai' : '✔';
+        });
+      };
+      root.querySelectorAll<HTMLElement>('[data-swap]').forEach((el) =>
+        el.addEventListener('click', () => {
+          const id = el.dataset.swap!;
+          if (out.has(id)) out.delete(id);
+          else if (out.size < need) out.add(id);
+          else if (need === 1) {
+            out.clear();
+            out.add(id);
+          }
+          refresh();
+        }),
+      );
+      refresh();
+    },
+  });
+  return v === 'ok' && out.size === need ? [...out] : null;
 }
 
 // ---------------- TREINO ----------------
@@ -213,10 +269,10 @@ function train() {
   const pct = Math.round(xpProgress(card) * 100);
   app.innerHTML = `<div class="screen">${topbar('Treinar')}
     <div class="train-list">${Object.values(save.cards)
-      .map((c) => `<button class="mini-card ${c.charId === trainSel ? 'sel' : ''}" data-sel="${c.charId}" style="${starStyle(c.stars)}">${portraitSVG(getChar(c.charId))}<i class="mc-cat">${CATEGORY_INFO[getChar(c.charId).category].icon}</i><span>Nv.${c.level}</span></button>`)
+      .map((c) => `<button class="mini-card ${c.charId === trainSel ? 'sel' : ''}" data-sel="${c.charId}" style="${starStyle(c.stars)}">${portraitSVG(getChar(c.charId), { stars: c.stars })}<i class="mc-cat">${CATEGORY_INFO[getChar(c.charId).category].icon}</i><span>Nv.${c.level}</span></button>`)
       .join('')}</div>
     <div class="train-main" style="${starStyle(card.stars)}">
-      <div class="train-art">${portraitSVG(def)}</div>
+      <div class="train-art">${portraitSVG(def, { stars: card.stars })}</div>
       <div class="train-info">
         <div class="rarity-tag">${RARITY_INFO[def.rarity].label}</div> ${categoryHTML(def, true)}
         <h2>${esc(def.name)}</h2>
@@ -253,13 +309,39 @@ function train() {
     }),
   );
   app.querySelector('#ascend')?.addEventListener('click', () => {
+    const from = card.stars;
     const r = ascend(card, save.essencias);
     if (r.ok) {
       save.essencias -= r.cost;
       persist();
       train();
+      evolutionReveal(card.charId, from, card.stars);
     }
   });
+}
+
+/** Animação de evolução ao Despertar: visual antigo → clarão → novo visual. */
+function evolutionReveal(charId: string, from: number, to: number) {
+  const def = getChar(charId);
+  const st = statsFor(def, save.cards[charId].level, to);
+  const bg = document.createElement('div');
+  bg.className = 'evo-bg';
+  bg.innerHTML = `<div class="evo">
+    <div class="evo-title">DESPERTAR!</div>
+    <div class="evo-stage" style="${starStyle(to)}">
+      <div class="evo-old" style="${starStyle(from)}">${portraitSVG(def, { stars: from })}</div>
+      <div class="evo-flash"></div>
+      <div class="evo-new">${portraitSVG(def, { stars: to })}</div>
+      <div class="evo-rays"></div>
+    </div>
+    <div class="evo-name">${esc(def.name)}</div>
+    <div class="evo-stars">${starsHTML(from)} <span>➜</span> ${starsHTML(to)}</div>
+    <div class="evo-stats">Ataque <b>${st.atk}</b> · Vida <b>${st.hp}</b> · Nível máx. <b>${maxLevel(to)}</b></div>
+    <button class="btn primary">Continuar</button>
+  </div>`;
+  document.body.appendChild(bg);
+  bg.querySelector('button')!.addEventListener('click', () => bg.remove());
+  bg.addEventListener('keydown', (e) => e.key === 'Escape' && bg.remove());
 }
 
 // ---------------- AJUDA ----------------
@@ -287,7 +369,7 @@ function help() {
     <h3>Fúria de batalha 🔥</h3><p>A partir do <b>turno 8</b>, todas as unidades dos dois lados ganham <b>+1 de ataque a cada 3 turnos</b>, para a luta não travar. Se chegar ao turno 40, vence quem tiver mais vida (em %) no herói.</p>
     <h3>Dano</h3><p><b>Físico 👊</b> é reduzido pela resistência física; <b>Mágico ✨</b> pela resistência mágica. Ex.: 3 de dano físico contra resistência 1 = 2 de dano.</p>
     <h3>Estrelas e cores das cartas</h3><p>${[1, 2, 3, 4, 5, 6].map((n) => `<span class="rar-chip" style="--rc:${STAR_COLORS[n].color}">${n}★ ${STAR_COLORS[n].label}</span>`).join(' ')}</p>
-    <p>A <b>cor da carta mostra as estrelas</b>. A raridade (${Object.values(RARITY_INFO).map((r) => r.label).join(', ')}) aparece como texto. Personagens fracos chegam a 4★ (alguns 5★); Lendários e Míticos começam em 4★ e alguns chegam a 6★. Cada estrela libera +10 níveis.</p>
+    <p>A <b>cor da carta mostra as estrelas</b>. A raridade (${Object.values(RARITY_INFO).map((r) => r.label).join(', ')}) aparece como texto. Quem começa em 1★ ou 2★ vai até 4★; em 3★ vai até 5★; em 4★ ou 5★ vai até 6★. Os <b>únicos</b> (Kenji e Vorax) já nascem em 5★. Cada estrela libera +10 níveis e deixa o visual mais imponente.</p>
     <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.values(CATEGORY_INFO).map((c) => `<li><b>${c.icon} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
     <h3>Habilidades evoluem</h3><p>As habilidades ficam mais fortes com <b>estrelas</b> (e algumas com <b>nível</b>) — veja "⭐" nos detalhes da carta. Todas têm teto: resistência máxima 3, redução de ataque máxima 2, no máximo 3 Crias por lado e dano mínimo sempre 1. Ninguém fica invencível.</p>
     <h3>Treino</h3><p>Use Pergaminhos, Cristais e Orbes de Ki para encher a barra de XP. Em 100% o nível sobe e a próxima barra é maior. No nível máximo, gaste Essências ✴ para <b>Despertar</b> (+1★).</p>

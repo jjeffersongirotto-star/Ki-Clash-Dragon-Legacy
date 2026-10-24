@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ascend, feedXp, maxLevel, newOwned, statsFor, xpProgress, xpToNext } from '../src/core/progression';
-import { getChar, PLAYABLE } from '../src/core/characters';
+import { expectedMaxStars, getChar, PLAYABLE, UNIQUE_5STAR } from '../src/core/characters';
 
 describe('progressão por XP', () => {
   it('cada nível exige mais XP', () => {
@@ -37,11 +37,16 @@ describe('progressão por XP', () => {
     feedXp(card, 1e7);
     expect(ascend(card, 999).ok).toBe(false);
   });
-  it('fracos vão até 4-5★, fortes começam em 4★', () => {
+  it('faixa de estrelas: 1-2★→4★, 3★→5★, 4-5★→6★; únicos começam em 5★', () => {
     for (const d of PLAYABLE) {
-      if (d.rarity === 'lendario' || d.rarity === 'mitico') expect(d.minStars).toBe(4);
-      else expect(d.maxStars).toBeLessThanOrEqual(5);
-      expect(d.maxStars).toBeLessThanOrEqual(6);
+      expect(d.maxStars).toBe(expectedMaxStars(d.minStars));
+      if (UNIQUE_5STAR.includes(d.id)) expect(d.minStars).toBe(5);
     }
+    expect(expectedMaxStars(1)).toBe(4);
+    expect(expectedMaxStars(2)).toBe(4);
+    expect(expectedMaxStars(3)).toBe(5);
+    expect(expectedMaxStars(4)).toBe(6);
+    expect(expectedMaxStars(5)).toBe(6);
+    expect(UNIQUE_5STAR.sort()).toEqual(['kenji', 'vorax']);
   });
 });

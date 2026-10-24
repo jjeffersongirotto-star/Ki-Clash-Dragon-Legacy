@@ -178,13 +178,16 @@ describe('habilidades por estrela/nível (com teto)', () => {
     placeUnit(s, c('nyx', 1, 5), 'enemy', 1, 5);
     expect(effectiveAtk(s, a)).toBe(4);
   });
-  it('Flecha Dupla: 2ª flecha a partir de 3★', () => {
+  it('Flecha Dupla: 2ª flecha a partir de 3★ (escala com estrelas)', () => {
     const s = empty();
     const a = placeUnit(s, c('aiko', 1, 4), 'player', 0, 1, { atk: 3 });
     const e = placeUnit(s, c('gorath'), 'enemy', 0, 3, { hp: 50 });
     e.physRes = 0;
     act(s, new Ctx(), a);
-    expect(e.hp).toBe(50 - 3 - 2);
+    expect(e.hp).toBe(50 - 3 - abilityPower('flechaDupla', 4, 1));
+    expect(abilityPower('flechaDupla', 2, 1)).toBe(1);
+    expect(abilityPower('flechaDupla', 3, 1)).toBe(2);
+    expect(abilityPower('flechaDupla', 4, 1)).toBe(3);
   });
   it('Salto: bônus de investida no turno em que salta', () => {
     const s = empty();
@@ -221,7 +224,7 @@ describe('habilidades por estrela/nível (com teto)', () => {
     placeUnit(s, c('riku'), 'enemy', 1, 3, { hp: 1 });
     act(s, new Ctx(), v);
     const cria = s.units.find((u) => u.charId === 'cria')!;
-    expect(cria.hp).toBe(2);
+    expect(cria.hp).toBe(1);
     expect(cria.damageType).toBe('magico');
     expect(rangeOf(cria)).toBe(3);
     for (let i = 0; i < 5; i++) {

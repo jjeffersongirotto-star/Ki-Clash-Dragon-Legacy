@@ -5,6 +5,7 @@ import type { BattleState, RecordedEvent, Side, Snapshot, Unit } from '../core/t
 import type { Stage } from '../core/campaign';
 import { PLAYER_HERO_HP } from '../core/campaign';
 import { heroSVG, portraitSVG } from './art';
+import { gameConfirm } from './dialog';
 import { abilityListHTML, cardHTML, dmgLabel, esc, reachLabel, starStyle, starsHTML } from './components';
 
 export interface BattleCallbacks {
@@ -75,8 +76,8 @@ export class BattleView {
       </div>
       <details class="log-panel" open><summary>📜 Registro da batalha</summary><ol class="log" id="log"></ol></details>
     </div>`;
-    this.root.querySelector('[data-act=exit]')!.addEventListener('click', () => {
-      if (this.state.winner || confirm('Sair da batalha? O progresso desta luta será perdido.')) this.cb.onExit();
+    this.root.querySelector('[data-act=exit]')!.addEventListener('click', async () => {
+      if (this.state.winner || (await gameConfirm('Sair da batalha?', 'O progresso desta luta será perdido.', 'Sair', true))) this.cb.onExit();
     });
     this.root.querySelector('[data-act=speed]')!.addEventListener('click', (e) => {
       const n = this.cb.speed() >= 3 ? 1 : this.cb.speed() + 1;
@@ -222,7 +223,7 @@ export class BattleView {
         el = document.createElement('div');
         el.className = `unit side-${u.side} ${u.isMinion ? 'minion' : ''} appear`;
         el.setAttribute('style', starStyle(u.stars));
-        el.innerHTML = `<div class="u-portrait">${portraitSVG(getChar(u.charId), { flip: u.side === 'enemy' })}</div><div class="u-hp"><i></i></div><div class="u-atk"></div><div class="u-hpn"></div>`;
+        el.innerHTML = `<div class="u-portrait">${portraitSVG(getChar(u.charId), { flip: u.side === 'enemy', stars: u.stars })}</div><div class="u-hp"><i></i></div><div class="u-atk"></div><div class="u-hpn"></div>`;
         el.addEventListener('click', (e) => {
           e.stopPropagation();
           const cur = this.state.units.find((x) => x.uid === u.uid);
