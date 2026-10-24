@@ -96,9 +96,9 @@ Cada retrato tem um cenário próprio, que também fica mais rico a cada estrela
 
 | Personagem | Cenário | O que aparece nas estrelas mais altas |
 |---|---|---|
-| Riku | Vento e céu aberto | nuvens (3★), folhas ao vento (4★), redemoinhos (5★), sol brilhante (6★) |
+| Riku | Vento e céu aberto | mais rajadas de vento a cada ★, colinas (2★), nuvens (3★), folhas ao vento (4★) |
 | Nara | Noite de luar | lua maior e mais estrelas a cada ★, montanhas (3★), halo da lua (5★), estrelas cadentes (6★) |
-| Toru | Templo das sombras | lanterna (2★), portão do templo (3★), névoa e 2 lanternas (4★), brasas (5★), fogo roxo (6★) |
+| Toru | Templo das sombras (portal) | lanterna (2★), santuário (3★), névoa e 2 lanternas (4★), brasas (5★), fogo roxo (6★) |
 | Aiko | Acima das nuvens | mais nuvens a cada ★, céu lilás (3★), arco-íris (4★), pôr do sol (5★), raios de sol (6★) |
 | Lyra | Campo de estrelas | nebulosa (3★), constelações (4★), segunda nebulosa (5★), galáxia (6★) |
 | Gorath | Fortaleza de ferro | muralha mais alta a cada ★, ameias (3★), tochas (4★), céu em brasa (6★) |
