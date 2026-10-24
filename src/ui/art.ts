@@ -1,4 +1,5 @@
 import type { CharacterDef } from '../core/types';
+import { sceneSVG } from './scenes';
 
 /**
  * Retratos originais gerados proceduralmente em SVG (sem assets externos).
@@ -83,13 +84,16 @@ export function portraitSVG(def: CharacterDef, opts: { flip?: boolean; className
   const hairGlow = t >= 5 ? `<path d="${hairPath(def.hairStyle)}" fill="none" stroke="${p.aura}" stroke-width="${t >= 6 ? 4 : 2.5}" opacity=".55" transform="translate(50 34) scale(${hs}) translate(-50 -34)"/>` : '';
   return `<svg class="portrait tier-${t} ${opts.className ?? ''}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ${opts.flip ? 'style="transform:scaleX(-1)"' : ''} aria-hidden="true">
   <defs>
-    <radialGradient id="${id}-bg" cx="50%" cy="55%" r="65%"><stop offset="0%" stop-color="${p.aura}" stop-opacity="${(0.25 + t * 0.12).toFixed(2)}"/><stop offset="55%" stop-color="${p.primary}" stop-opacity="${(0.55 + t * 0.06).toFixed(2)}"/><stop offset="100%" stop-color="#05060d"/></radialGradient>
+    <radialGradient id="${id}-bg" cx="50%" cy="58%" r="55%"><stop offset="0%" stop-color="${p.aura}" stop-opacity="${(0.12 + t * 0.07).toFixed(2)}"/><stop offset="100%" stop-color="${p.aura}" stop-opacity="0"/></radialGradient>
+    <radialGradient id="${id}-vig" cx="50%" cy="50%" r="72%"><stop offset="70%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity=".45"/></radialGradient>
     <linearGradient id="${id}-fl" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="${p.aura}" stop-opacity="0.9"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient>
     <linearGradient id="${id}-body" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${p.primary}"/><stop offset="100%" stop-color="#000"/></linearGradient>
     <linearGradient id="${id}-metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff"/><stop offset="45%" stop-color="${metal}"/><stop offset="100%" stop-color="#4a4e69"/></linearGradient>
     <linearGradient id="${id}-hair" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="${t >= 6 ? p.aura : p.hair}"/><stop offset="100%" stop-color="${t >= 6 ? '#fff' : p.aura}"/></linearGradient>
   </defs>
+  ${sceneSVG(def.id, t, id + "-sc", p.primary)}
   <rect width="100" height="100" fill="url(#${id}-bg)"/>
+  <rect width="100" height="100" fill="url(#${id}-vig)"/>
   ${outerAura}
   ${halo}
   ${flames}

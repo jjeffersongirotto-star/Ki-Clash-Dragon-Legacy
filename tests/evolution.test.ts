@@ -43,3 +43,26 @@ describe('habilidades escalam dentro da faixa de estrelas de cada personagem', (
     }
   });
 });
+
+describe('fundos temáticos dos retratos', () => {
+  it('cada personagem tem cena própria (Cria usa a do Vorax)', async () => {
+    const { SCENE_IDS, sceneSVG } = await import('../src/ui/scenes');
+    for (const d of PLAYABLE) expect(SCENE_IDS).toContain(d.id);
+    const scenes = PLAYABLE.map((d) => sceneSVG(d.id, d.minStars, 'x', '#000'));
+    expect(new Set(scenes).size).toBe(PLAYABLE.length);
+    expect(sceneSVG('cria', 5, 'x', '#000')).toBe(sceneSVG('vorax', 5, 'x', '#000'));
+  });
+  it('a cena fica mais rica a cada estrela e continua leve', async () => {
+    const { sceneSVG } = await import('../src/ui/scenes');
+    for (const d of PLAYABLE) {
+      let prev = -1;
+      for (let s = d.minStars; s <= d.maxStars; s++) {
+        const svg = sceneSVG(d.id, s, 'x', '#000');
+        const n = (svg.match(/<(circle|ellipse|rect|path|polyline)/g) ?? []).length;
+        expect(n).toBeGreaterThan(prev);
+        expect(svg.length).toBeLessThan(9000);
+        prev = n;
+      }
+    }
+  });
+});
