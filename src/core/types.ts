@@ -7,6 +7,8 @@ export type Rarity = 'comum' | 'incomum' | 'raro' | 'epico' | 'lendario' | 'miti
 
 export type Category = 'tanque' | 'suporte' | 'dps' | 'mago' | 'arqueiro' | 'assassino';
 
+export type Race = 'humano' | 'extraterrestre' | 'monstro' | 'mago' | 'androide' | 'necromante';
+
 export type AbilityId =
   | 'diagFrente'
   | 'diagTras'
@@ -48,6 +50,7 @@ export interface CharacterDef {
   title: string;
   rarity: Rarity;
   category: Category;
+  race: Race;
   minStars: number;
   maxStars: number;
   cost: number;
@@ -60,7 +63,7 @@ export interface CharacterDef {
   range: number;
   abilities: AbilityId[];
   palette: Palette;
-  /** variação visual do cabelo (0..5) */
+  /** variação visual do cabelo (0..7) */
   hairStyle: number;
   lore: string;
   /** unidades invocadas (não aparecem na coleção) */

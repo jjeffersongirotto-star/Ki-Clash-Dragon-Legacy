@@ -5,23 +5,34 @@
 ## 1. Objetivo
 Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói do jogador: **20** de vida. Herói inimigo: de 12 (fase 1) a 30 (fase 10).
 
-## 2. Arena
+## 2. Arena e Lutadores Interativos
 - **2 fileiras × 7 colunas.** Você fica à esquerda, o inimigo à direita.
-- Cada herói fica logo **depois da última coluna** do seu lado. Ele conta como uma unidade parada numa **coluna virtual** após o fim da arena, alcançável pelas **duas fileiras**.
+- Cada Líder (Herói) aparece em **corpo inteiro** logo **depois da última coluna** do seu lado (com barra de vida no topo da tela e nos pés). Ele conta como uma unidade parada numa **coluna virtual** após o fim da arena, alcançável pelas **duas fileiras**.
 - **Zona de invocação:** as **3 primeiras colunas** do seu lado (colunas 1–3). A IA usa as 3 do lado dela (colunas 5–7).
+- **Unidades na Arena:** cada carta invocada entra em campo como um **lutador anime de corpo inteiro** sobre um círculo tático de invocação, exibindo `ATQ | VIDA` nos pés e animando cada ação:
+  - **Caminhada (`MOVE` / `JUMP`):** pernas articuladas andando/correndo pelas casas com nuvens de poeira e seta indicadora `MOVE`.
+  - **Ataque corpo a corpo (`HIT!`):** investida com golpe de arma/punho, onda de corte crescente e impacto `HIT!`.
+  - **Ataque à distância / Feixe de Ki:** postura de disparo com **feixe de Ki contínuo** (estilo Kamehameha) para ataques mágicos ou projéteis velozes para arqueiros.
+  - **Dano e Derrota (`Necropolis`):** animação de recuo ao sofrer dano com números flutuantes e ida para a **Necropolis (Derrotadas)** ao cair.
 
-## 3. Turnos e energia
+## 3. Turnos, energia e modo Auto
 1. No início do seu turno você recebe **energia ⚡** = 2 + número do turno (3 no 1º turno), máximo **10**. A energia não acumula.
 2. Você compra **as cartas que faltarem para a mão voltar a ter 6** (jogou 3, compra 3; com a mão cheia, não compra — ver seção 4).
 3. Invoca quantas cartas a energia permitir (cada carta tem um custo), em casas livres da sua zona.
-4. Ao tocar **LUTAR**, suas unidades agem sozinhas, da mais avançada para a mais recuada. Depois o inimigo compra, invoca e age.
+4. Ao tocar **LUTAR** (ou ativar o botão **Auto**), suas unidades agem sozinhas, da mais avançada para a mais recuada. Depois o inimigo compra, invoca e age.
+
+### Tela de batalha
+- **HUD superior VS:** no topo da tela, as barras de vida do seu Líder (**Você**) e do Líder inimigo (com o nome da fase), frente a frente, e o **turno atual** (T) no centro.
+- **Botão Auto (`Auto: OFF` / `Auto: ON`):** com o Auto ligado, o jogo **invoca suas cartas sozinho** (com a mesma lógica de invocação da IA) e toca **LUTAR** a cada turno, até a batalha acabar ou você desligar. Ele desliga sozinho ao fim da batalha ou ao sair.
+- **Contador `Em campo (N)`:** mostra quantas unidades suas estão vivas na arena.
+- **Inspecionar carta em batalha:** tocar de novo numa carta já selecionada da mão, ou em **🔍 Detalhes** / **🔍 Ver Carta** (no painel de informações de uma carta da mão ou de uma unidade, aliada ou inimiga), abre a janela de detalhes da carta, no estilo do jogo.
 
 ## 4. Mão e baralho
 ### Baralho de 40 cartas
 - A **equipe é o baralho**: **10 cartas diferentes × 4 cópias = 40 cartas**. A IA também joga com 10 cartas × 4.
 - **Mínimo obrigatório:** só dá para entrar na batalha com **exatamente 10 personagens diferentes** na equipe. Não há mais preenchimento com cartas repetidas. Com menos de 10, tocar em **Lutar** abre a janela do jogo **Equipe incompleta**, que mostra quantos faltam e oferece **Ir para a equipe** (nunca um alerta do navegador).
 - **Equipe da IA:** cada fase tem **10 personagens diferentes** (ver seção 14).
-- Na batalha, o **Baralho** fica à esquerda da mão (com quantas cartas ainda podem ser compradas) e as **Derrotadas** à direita (com quantas cópias já caíram).
+- Na batalha, o **Baralho** fica à esquerda da mão (com quantas cartas ainda podem ser compradas) e a **Necropolis (Derrotadas)** à direita (com quantas cópias já caíram).
 
 ### Mão
 - A **mão tem 6 cartas**. A partida começa com **6 cartas diferentes** sorteadas.
@@ -30,9 +41,9 @@ Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói do jog
 - Cartas não usadas **ficam na mão**.
 - A mão pode ficar vazia se você jogar tudo, mas no turno seguinte ela volta a 6 enquanto houver cartas no Baralho (se o Baralho tiver menos cartas que o necessário, vem o que houver).
 
-### Cópias em campo e derrotadas
+### Cópias em campo e derrotadas (Necropolis)
 - A carta jogada sai da mão e vira **unidade em campo**. Enquanto a unidade está viva, aquela cópia não está no Baralho.
-- Quando a unidade **morre**, aquela cópia vai para as **Derrotadas e nunca volta**. A carta fica com 3 cópias no ciclo, depois 2, e assim por diante.
+- Quando a unidade **morre**, aquela cópia vai para a **Necropolis (Derrotadas) e nunca volta**. A carta fica com 3 cópias no ciclo, depois 2, e assim por diante.
 - Uma carta com as **4 cópias derrotadas sai do rodízio**. Crias Sombrias não vêm de cartas e não vão para as Derrotadas.
 
 ### Compra semi-aleatória (fila de cada carta)
@@ -79,7 +90,8 @@ Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói do jog
 ## 8. Fúria de batalha 🔥
 A partir do **turno 8**, todas as unidades dos dois lados ganham **+1 de ataque**, e mais +1 a cada **3 turnos** (turno 8: +1, 11: +2, 14: +3…). Isso evita lutas travadas. No **turno 40**, vence quem tiver mais vida (em %) no herói; se for igual, empate.
 
-## 9. Categorias (ícone no canto da carta)
+## 9. Categorias e Raças/Origens
+### Categorias de combate (ícone no canto superior direito da carta)
 | Ícone | Categoria | Papel |
 |---|---|---|
 | 🛡️ | Tanque | Muita vida e resistência, pouco ataque. Segura a linha. |
@@ -89,9 +101,19 @@ A partir do **turno 8**, todas as unidades dos dois lados ganham **+1 de ataque*
 | 🏹 | Arqueiro | Dano físico à distância (alcance 3), pouca vida. |
 | 💀 | Assassino | Frágil, mas escolhe o alvo dentro da fileira. |
 
+### Raças e Origens Anime
+| Ícone | Raça / Origem | Personagens |
+|---|---|---|
+| 🌍 | Humano | Riku Vendaval, Kenji Punho-Espelhado, Hana Pena-Veloz, Ren Presa-Oculta |
+| 🪐 | Extraterrestre | Nara Lâmina-Lunar, Aiko Flecha-Celeste, Zarek do Eclipse, Suri Maré-Gélida |
+| 👹 | Monstro | Gorath Muralha-de-Ferro, Daichi Punho-de-Rocha, Tobi Tambor-de-Guerra, Kuro Garra-Noturna |
+| 🔮 | Mago Arcano | Lyra Olho-de-Falcão, Mei Lótus-Celeste, Kael Chama-Rubra, Sora Brisa-Serena |
+| 🤖 | Androide | Nyx-07, Jin Arco-Trovão, Toru Sombra-Reversa |
+| ☠️ | Necromante | Vorax, Yume Caçadora, Cria Sombria |
+
 ## 10. Estrelas, cores e raridade
 - Estrelas de **1★ a 6★**. A **cor da carta segue as estrelas**: 1★ cinza · 2★ verde · 3★ azul · 4★ roxo · 5★ laranja · 6★ vermelho.
-- A raridade (Comum, Incomum, Raro, Épico, Lendário, Mítico) aparece como texto na carta.
+- A raridade (Comum, Incomum, Raro, Épico, Lendário, Mítico) e a Raça aparecem como texto na carta.
 - **Faixa de estrelas** (estrela inicial → máxima):
   - começa em **1★ ou 2★** → vai até **4★**;
   - começa em **3★** → vai até **5★**;
@@ -106,23 +128,26 @@ A partir do **turno 8**, todas as unidades dos dois lados ganham **+1 de ataque*
 | 4★ | 6★ | Nyx-07 |
 | 5★ (único) | 6★ | Kenji, Vorax — **bloqueados por enquanto** ("em breve") |
 
-### Visual das cartas
-Todas as cartas (mão, coleção, equipe, treino, troca de equipe, detalhes e recompensas) seguem o mesmo padrão:
+### Visual das cartas (estilo Anime TCG)
+Todas as cartas (mão, coleção, equipe, treino, troca de equipe, detalhes e recompensas) seguem o padrão Anime TCG:
 - **Moldura metálica chanfrada** na cor das estrelas.
-- **Cenário** do personagem ao fundo, com uma **aura de energia** na cor do personagem.
-- O **personagem grande**, saindo um pouco pela borda de cima da moldura.
-- **Medalhões em relevo:** custo de energia (azul, canto superior esquerdo), categoria (canto superior direito) e nível (dourado, à esquerda).
-- **Estrelas** no topo e **faixa com o nome** embaixo; abaixo dela, ataque, vida, ícones das habilidades e raridade · categoria.
+- **Topo:** medalhão de **Custo** de energia à esquerda, barra escura chanfrada com as **Estrelas** ao centro e orbe da **Categoria** à direita (a raça aparece ao passar o mouse e no texto da carta).
+- **Medalhão de nível** (dourado, à esquerda da arte).
+- **Arte vertical anime:** cenário evolutivo do personagem ao fundo, com raios de velocidade e esferas estelares, **aura de Ki** na cor do personagem e o personagem em **pose de ação com sua arma/poder**.
+- **Barra inferior:** emblema explosivo de **Ataque** à esquerda, **placa metálica chanfrada com o Nome** no centro e **gota rubra de Vida** à direita — visíveis inclusive na mão de batalha.
+- Nas cartas grandes, abaixo da barra: ataque (👊 físico / ✨ mágico), vida, ícones das habilidades e a linha **raça · raridade · categoria**.
 - Quanto mais estrelas, mais brilho: 3★ reflexo de luz passando; 4★ aura pulsando com raios girando; **5★ e 6★ premium** com borda dourada, brilho pulsante e faíscas; 6★ ainda com metal em movimento e raios mais rápidos.
 - Cartas pequenas (mão no celular) mostram só o primeiro nome; cartas bloqueadas ficam cinza e sem animação.
+- **Detalhes da carta (Coleção):** mostra a carta, o **visual do lutador na arena** e um **seletor de estrelas** com as estrelas da faixa do personagem (da mínima à máxima), para ver a evolução de roupa, armadura, armas e poder em cada estrela. A estrela atual fica marcada como "(atual)". Só visualiza — não muda a carta.
+- **Filtro por raça (Coleção & Equipe):** botões **🌟 Todos** e um por raça; filtra tanto os personagens obtidos quanto os "Ainda não obtidos".
 
-### Evolução visual por estrela
-Cada Despertar muda o visual do personagem em todas as telas (coleção, treino, mão e batalha). Os efeitos se acumulam:
-- **1★:** roupa simples, sem aura.
-- **2★:** aura fraca, acabamento e faixa no peito.
-- **3★:** ombreiras de metal, aura mais forte, cabelo maior.
-- **4★:** peitoral com gema, capa, olhos brilhando na cor da aura.
-- **5★:** tudo em ouro, diadema/coroa, ombreiras com espinhos, cabelo energizado com brilho, partículas de ki.
+### Evolução visual por estrela (Carta e Lutador na Arena)
+Cada Despertar muda o visual do personagem tanto na carta quanto no lutador de corpo inteiro na arena:
+- **1★:** roupa simples de aprendiz/recruta, arma/postura inicial, sem aura.
+- **2★:** aura fraca, faixa de batalha cruzada e acabamento no traje.
+- **3★:** ombreiras metálicas, manoplas, aura mais forte, cabelo e golpe de Ki maiores.
+- **4★:** peitoral com gema de poder, capa esvoaçante, olhos brilhando na cor da aura.
+- **5★:** armadura e espinhos dourados, diadema/coroa real, cabelo energizado com brilho, partículas de Ki.
 - **6★:** forma suprema — cabelo radiante, halo dourado, raios e aura dupla.
 - O físico cresce a cada estrela (ombros mais largos e cabelo maior).
 - Ao Despertar, uma animação mostra o visual antigo virando o novo (**DESPERTAR!**).
@@ -171,30 +196,30 @@ Cada um dos 9 novos tem um detalhe que o identifica desde 1★, além da evoluç
 ## 12. Personagens
 Ataque/vida mostrados em 1★ nível 1 (base) e, entre parênteses, na estrela mínima do personagem.
 
-| Personagem | Categoria | Raridade | Estrelas | Custo | Ataque / Vida | Dano | Alcance | Resist. fís./mág. | Habilidade e evolução |
-|---|---|---|---|---|---|---|---|---|---|
-| Riku Vendaval | ⚔️ DPS | Comum | 1–4★ | 2 | 3 / 6 (3 / 6 em 1★) | Físico | 1 | 0/0 | Salto Vendaval — Bônus de investida: +1 em 3★, +2 em 4★, +1 extra no nível 30 (máx. +3). |
-| Nara Lâmina-Lunar | ⚔️ DPS | Incomum | 1–4★ | 2 | 3 / 6 (3 / 6 em 1★) | Físico | 1 | 0/0 | Corte Diagonal — 3★: ao bater em frente, também corta a diagonal com 50% do dano · 4★: 100%. |
-| Toru Sombra-Reversa | 🛡️ Tanque | Incomum | 1–4★ | 3 | 2 / 11 (2 / 11 em 1★) | Físico | 1 | 1/0 | Golpe Reverso<br>Postura de Guarda — 3★: +1 de resistência física · 4★: +2 (máx.). |
-| Aiko Flecha-Celeste | 🏹 Arqueiro | Raro | 2–4★ | 3 | 3 / 5 (3 / 6 em 2★) | Físico | 3 | 0/0 | Flecha Dupla — 2★: 2ª flecha de 1 · 3★: 2 · 4★: 3 (máx. 3); +1 no nível 25. |
-| Lyra Olho-de-Falcão | 🪄 Mago | Raro | 2–4★ | 3 | 3 / 4 (3 / 5 em 2★) | Mágico | 3 | 0/1 | Feixe Perfurante — Dano nos de trás: 50% (2★) · 75% (3★) · 100% (4★). |
-| Gorath Muralha-de-Ferro | 🛡️ Tanque | Raro | 2–4★ | 4 | 2 / 12 (2 / 14 em 2★) | Físico | 1 | 2/0 | Inabalável — 3★: +1 de resistência física · 4★: também +1 de resistência mágica. |
-| Mei Lótus-Celeste | ➕ Suporte | Raro | 2–4★ | 3 | 2 / 5 (2 / 6 em 2★) | Mágico | 3 | 0/1 | Bênção do Lótus — Cura 2 (2–3★) · 3 (4★); +1 no nível 20 (máx. 4). |
-| Yume Caçadora | 💀 Assassino | Épico | 3–5★ | 3 | 4 / 4 (5 / 5 em 3★) | Físico | 1 | 0/0 | Instinto Predador — Execução: +1 em 3★, +2 em 4★, +3 em 5★; +1 no nível 25 (máx. +3). |
-| Zarek do Eclipse | 💀 Assassino | Épico | 3–5★ | 4 | 4 / 5 (5 / 7 em 3★) | Físico | 1 | 0/0 | Emboscada — Perfura 1 de resistência em 3★, 2 em 4★, 3 em 5★; +1 no nível 25 (máx. 3). |
-| Kenji Punho-Espelhado ✦ | ⚔️ DPS | Lendário | 5–6★ | 5 | 3 / 7 (5 / 11 em 5★) | Físico | 1 | 1/0 | Punho Espelhado — Multiplicador: ×2 (5★) · ×2,25 (6★, máx.). |
-| Nyx-07 | ➕ Suporte | Lendário | 4–6★ | 5 | 2 / 6 (3 / 9 em 4★) | Mágico | 3 | 0/1 | Sifão de Energia — −1 de ataque (4–5★) · −2 (6★). |
-| Vorax ✦ | 🪄 Mago | Mítico | 5–6★ | 6 | 3 / 6 (5 / 10 em 5★) | Mágico | 3 | 0/1 | Prole Sombria — Cria: ataque 2 e vida 1 (5★) · ataque 3 e vida 2 (6★). |
-| Daichi Punho-de-Rocha | 🛡️ Tanque | Comum | 1–4★ | 3 | 2 / 9 | Físico | 1 | 1/0 | Couraça de Espinhos — devolve 1 (1–2★) · 2 (3★) · 3 (4★). |
-| Sora Brisa-Serena | ➕ Suporte | Comum | 1–4★ | 2 | 1 / 5 | Mágico | 3 | 0/1 | Sopro Restaurador — cura 1 (1–2★) · 2 (3★) · 3 (4★). |
-| Tobi Tambor-de-Guerra | ➕ Suporte | Incomum | 1–4★ | 3 | 2 / 7 | Físico | 1 | 0/0 | Tambor de Guerra — vizinhos +1 de ataque (1–3★) · +2 (4★). |
-| Kael Chama-Rubra | 🪄 Mago | Incomum | 1–4★ | 3 | 3 / 4 | Mágico | 3 | 0/1 | Explosão de Brasas — explosão de 1 (1–2★) · 2 (3–4★). |
-| Suri Maré-Gélida | 🪄 Mago | Comum | 1–4★ | 2 | 2 / 5 | Mágico | 3 | 0/1 | Maré Implacável — +1 no herói (1–2★) · +2 (3★) · +3 (4★). |
-| Hana Pena-Veloz | 🏹 Arqueiro | Comum | 1–4★ | 2 | 2 / 5 | Físico | 3 | 0/0 | Tiro Certeiro — ignora 1 de resistência física (1–2★) · 2 (3–4★). |
-| Jin Arco-Trovão | 🏹 Arqueiro | Incomum | 1–4★ | 3 | 3 / 5 | Físico | 3 | 0/0 | Olho de Águia — +1 de dano a 2–3 casas (1–2★) · +2 (3–4★). |
-| Ren Presa-Oculta | 💀 Assassino | Comum | 1–4★ | 2 | 3 / 5 | Físico | 1 (mira 2) | 0/0 | Caça-Conjuradores — +1 de dano em quem ataca de longe (1–2★) · +2 (3–4★). |
-| Kuro Garra-Noturna | 💀 Assassino | Incomum | 1–4★ | 3 | 3 / 5 | Físico | 1 (mira 2) | 0/0 | Ataque Surpresa — +1 em alvo com vida cheia (1–2★) · +2 (3–4★). |
-| *Cria Sombria* (invocada) | 🪄 Mago | — | — | — | 2 ou 3 / 1 ou 2 | Mágico | 2 | 0/0 | Disparo Sombrio (alcance 2) e Prole Sombria. |
+| Personagem | Raça | Categoria | Raridade | Estrelas | Custo | Ataque / Vida | Dano | Alcance | Resist. fís./mág. | Habilidade e evolução |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Riku Vendaval | 🌍 Humano | ⚔️ DPS | Comum | 1–4★ | 2 | 3 / 6 (3 / 6 em 1★) | Físico | 1 | 0/0 | Salto Vendaval — Bônus de investida: +1 em 3★, +2 em 4★, +1 extra no nível 30 (máx. +3). |
+| Nara Lâmina-Lunar | 🪐 Extraterrestre | ⚔️ DPS | Incomum | 1–4★ | 2 | 3 / 6 (3 / 6 em 1★) | Físico | 1 | 0/0 | Corte Diagonal — 3★: ao bater em frente, também corta a diagonal com 50% do dano · 4★: 100%. |
+| Toru Sombra-Reversa | 🤖 Androide | 🛡️ Tanque | Incomum | 1–4★ | 3 | 2 / 11 (2 / 11 em 1★) | Físico | 1 | 1/0 | Golpe Reverso<br>Postura de Guarda — 3★: +1 de resistência física · 4★: +2 (máx.). |
+| Aiko Flecha-Celeste | 🪐 Extraterrestre | 🏹 Arqueiro | Raro | 2–4★ | 3 | 3 / 5 (3 / 6 em 2★) | Físico | 3 | 0/0 | Flecha Dupla — 2★: 2ª flecha de 1 · 3★: 2 · 4★: 3 (máx. 3); +1 no nível 25. |
+| Lyra Olho-de-Falcão | 🔮 Mago Arcano | 🪄 Mago | Raro | 2–4★ | 3 | 3 / 4 (3 / 5 em 2★) | Mágico | 3 | 0/1 | Feixe Perfurante — Dano nos de trás: 50% (2★) · 75% (3★) · 100% (4★). |
+| Gorath Muralha-de-Ferro | 👹 Monstro | 🛡️ Tanque | Raro | 2–4★ | 4 | 2 / 12 (2 / 14 em 2★) | Físico | 1 | 2/0 | Inabalável — 3★: +1 de resistência física · 4★: também +1 de resistência mágica. |
+| Mei Lótus-Celeste | 🔮 Mago Arcano | ➕ Suporte | Raro | 2–4★ | 3 | 2 / 5 (2 / 6 em 2★) | Mágico | 3 | 0/1 | Bênção do Lótus — Cura 2 (2–3★) · 3 (4★); +1 no nível 20 (máx. 4). |
+| Yume Caçadora | ☠️ Necromante | 💀 Assassino | Épico | 3–5★ | 3 | 4 / 4 (5 / 5 em 3★) | Físico | 1 | 0/0 | Instinto Predador — Execução: +1 em 3★, +2 em 4★, +3 em 5★; +1 no nível 25 (máx. +3). |
+| Zarek do Eclipse | 🪐 Extraterrestre | 💀 Assassino | Épico | 3–5★ | 4 | 4 / 5 (5 / 7 em 3★) | Físico | 1 | 0/0 | Emboscada — Perfura 1 de resistência em 3★, 2 em 4★, 3 em 5★; +1 no nível 25 (máx. 3). |
+| Kenji Punho-Espelhado ✦ | 🌍 Humano | ⚔️ DPS | Lendário | 5–6★ | 5 | 3 / 7 (5 / 11 em 5★) | Físico | 1 | 1/0 | Punho Espelhado — Multiplicador: ×2 (5★) · ×2,25 (6★, máx.). |
+| Nyx-07 | 🤖 Androide | ➕ Suporte | Lendário | 4–6★ | 5 | 2 / 6 (3 / 9 em 4★) | Mágico | 3 | 0/1 | Sifão de Energia — −1 de ataque (4–5★) · −2 (6★). |
+| Vorax ✦ | ☠️ Necromante | 🪄 Mago | Mítico | 5–6★ | 6 | 3 / 6 (5 / 10 em 5★) | Mágico | 3 | 0/1 | Prole Sombria — Cria: ataque 2 e vida 1 (5★) · ataque 3 e vida 2 (6★). |
+| Daichi Punho-de-Rocha | 👹 Monstro | 🛡️ Tanque | Comum | 1–4★ | 3 | 2 / 9 | Físico | 1 | 1/0 | Couraça de Espinhos — devolve 1 (1–2★) · 2 (3★) · 3 (4★). |
+| Sora Brisa-Serena | 🔮 Mago Arcano | ➕ Suporte | Comum | 1–4★ | 2 | 1 / 5 | Mágico | 3 | 0/1 | Sopro Restaurador — cura 1 (1–2★) · 2 (3★) · 3 (4★). |
+| Tobi Tambor-de-Guerra | 👹 Monstro | ➕ Suporte | Incomum | 1–4★ | 3 | 2 / 7 | Físico | 1 | 0/0 | Tambor de Guerra — vizinhos +1 de ataque (1–3★) · +2 (4★). |
+| Kael Chama-Rubra | 🔮 Mago Arcano | 🪄 Mago | Incomum | 1–4★ | 3 | 3 / 4 | Mágico | 3 | 0/1 | Explosão de Brasas — explosão de 1 (1–2★) · 2 (3–4★). |
+| Suri Maré-Gélida | 🪐 Extraterrestre | 🪄 Mago | Comum | 1–4★ | 2 | 2 / 5 | Mágico | 3 | 0/1 | Maré Implacável — +1 no herói (1–2★) · +2 (3★) · +3 (4★). |
+| Hana Pena-Veloz | 🌍 Humano | 🏹 Arqueiro | Comum | 1–4★ | 2 | 2 / 5 | Físico | 3 | 0/0 | Tiro Certeiro — ignora 1 de resistência física (1–2★) · 2 (3–4★). |
+| Jin Arco-Trovão | 🤖 Androide | 🏹 Arqueiro | Incomum | 1–4★ | 3 | 3 / 5 | Físico | 3 | 0/0 | Olho de Águia — +1 de dano a 2–3 casas (1–2★) · +2 (3–4★). |
+| Ren Presa-Oculta | 🌍 Humano | 💀 Assassino | Comum | 1–4★ | 2 | 3 / 5 | Físico | 1 (mira 2) | 0/0 | Caça-Conjuradores — +1 de dano em quem ataca de longe (1–2★) · +2 (3–4★). |
+| Kuro Garra-Noturna | 👹 Monstro | 💀 Assassino | Incomum | 1–4★ | 3 | 3 / 5 | Físico | 1 (mira 2) | 0/0 | Ataque Surpresa — +1 em alvo com vida cheia (1–2★) · +2 (3–4★). |
+| *Cria Sombria* (invocada) | ☠️ Necromante | 🪄 Mago | — | — | — | 2 ou 3 / 1 ou 2 | Mágico | 2 | 0/0 | Disparo Sombrio (alcance 2) e Prole Sombria. |
 
 ✦ = **personagem único**: muito forte, já nasce em 5★ e só chega a 6★.
 

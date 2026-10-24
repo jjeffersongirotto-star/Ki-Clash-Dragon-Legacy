@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { cardHTML } from '../src/ui/components';
-import { portraitSVG } from '../src/ui/art';
-import { getChar } from '../src/core/characters';
+import { cardHTML, raceHTML } from '../src/ui/components';
+import { portraitSVG, unitSpriteSVG } from '../src/ui/art';
+import { PLAYABLE, RACE_INFO, getChar } from '../src/core/characters';
 
 describe('visual das cartas', () => {
   it('tem moldura, cenário, personagem separado, medalhões, estrelas e faixa com o nome', () => {
     const h = cardHTML({ charId: 'riku', level: 7, stars: 2 });
-    for (const cls of ['card-metal', 'card-frame', 'card-bg', 'card-aura', 'card-fig', 'card-cost', 'card-cat', 'card-lvl', 'card-ribbon', 'card-top']) expect(h).toContain(cls);
+    for (const cls of ['card-metal', 'card-frame', 'card-bg', 'card-aura', 'card-fig', 'card-cost', 'card-cat', 'card-lvl', 'card-ribbon', 'card-top', 'card-orb-atk', 'card-orb-hp']) expect(h).toContain(cls);
     expect(h).toContain('Riku Vendaval');
     expect(h).toMatch(/class="card s2/);
   });
@@ -32,5 +32,18 @@ describe('visual das cartas', () => {
     expect(fg).not.toContain('-vig)"/>');
     expect(all).toContain('Q30 70 50 72');
     for (const svg of [bg, fg, all]) expect((svg.match(/<svg/g) ?? []).length).toBe((svg.match(/<\/svg>/g) ?? []).length);
+  });
+  it('todos os personagens possuem raça válida (humano, extraterrestre, monstro, mago, androide, necromante) e sprite de arena', () => {
+    const races = new Set<string>();
+    for (const d of PLAYABLE) {
+      expect(RACE_INFO[d.race]).toBeTruthy();
+      races.add(d.race);
+      expect(raceHTML(d)).toContain(RACE_INFO[d.race].label);
+      const spr = unitSpriteSVG(d, { stars: d.minStars, side: 'player' });
+      expect(spr).toContain('unit-sprite');
+      expect(spr).toContain('spr-legs');
+      expect(spr).toContain('spr-arm-f');
+    }
+    expect(races.size).toBe(6);
   });
 });
