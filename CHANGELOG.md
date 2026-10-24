@@ -2,6 +2,16 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.11.0] — 24/10/2026 · PR #14 — Batalha deitada (paisagem)
+- **Novo layout de batalha para tela deitada** (celular girado, tablet e computador): HUD VS fino no topo, **arena 2×7 bem maior** ocupando a largura com os Líderes visíveis, e embaixo **uma linha só**: Baralho à esquerda, **as 6 cartas da mão inteiras** (sem apertar e sem barra de rolagem), Necropolis, energia e **LUTAR** na ponta direita.
+- **Sem rolagem nenhuma** na batalha deitada: altura em `100dvh` (acompanha a barra do Chrome) e respeito aos recortes da tela.
+- **Painel de informações** virou janela sobreposta (✕ para fechar) sobre a metade inimiga; fecha sozinho ao tocar LUTAR. **Registro da batalha** virou gaveta lateral (botão 📜).
+- **Celular em pé:** aviso do jogo "Gire o celular para jogar deitado" com botões **⟳ Tela cheia deitada** e **Jogar em pé** (mantém o layout em pé de antes).
+- **Tela cheia + trava deitada** ao entrar na batalha no celular (quando o navegador permite; falha sem quebrar). Ao sair da batalha, destrava e sai da tela cheia.
+- **Manifesto do app** (`manifest.webmanifest`) com nome, ícones (192/512/maskable) e `display: fullscreen` para "Adicionar à tela inicial". Sem orientação forçada.
+- Menus deitados no celular: heróis da Base menores para caber pela altura.
+- Verificado em 915×412, 844×390 e 1366×768 (batalha manual + Auto até o fim: 6/6 cartas visíveis, nenhuma rolagem, ~60 FPS) e 390×844 em pé (aviso + layout em pé).
+
 ## [0.10.3] — 24/10/2026 · PR #13 — Cartas "Ainda não obtidos" sem travadas ao rolar
 - **Travadas fortes quando o "Ainda não obtidos" entrava na tela (descendo e subindo) corrigidas.** As cartas bloqueadas usavam `filter: grayscale(1)` + `opacity: .55` na carta inteira e `brightness(.45)` na arte: no celular, essa camada cinza era recalculada pela GPU toda vez que as cartas entravam na tela.
   - Agora a arte cinza escurecida vem **pronta no bitmap** e a moldura, os medalhões e a placa do nome usam **tons cinza diretos** (os mesmos que o filtro produzia). Nenhum filtro e nenhuma opacidade de grupo na grade. Os ícones coloridos (emoji) ficam só apagados.

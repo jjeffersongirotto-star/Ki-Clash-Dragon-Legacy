@@ -32,6 +32,20 @@ Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói do jog
 - **HUD no celular:** o nome do inimigo diminui e quebra em 2 linhas em vez de ser cortado.
 - **Sair (✕):** abre a confirmação do jogo. **Cancelar** volta à luta sem mudar nada (o **Auto continua** como estava). **Sair** interrompe na hora as animações e turnos em andamento; a luta abandonada não dá recompensa nem derrota.
 
+### Layout da batalha deitada (paisagem) — v0.11.0
+- **Quando:** sempre que a tela está **mais larga que alta** (celular deitado, tablet ou computador). Só a tela de batalha muda; os menus continuam pensados para o celular em pé e também funcionam deitados.
+- **Sem rolagem:** a batalha ocupa exatamente a altura visível (`100dvh`, acompanha a barra de endereço do Chrome) e respeita os recortes da tela (safe-area). Nenhuma parte da tela rola.
+- **Topo:** HUD VS fino (vida dos dois Líderes, turno), com **Sair**, **Auto**, velocidade, **Em campo (N)** e **📜** (registro) à direita.
+- **Centro:** a arena 2×7 fica **o maior possível**, com as colunas dos Líderes visíveis nas pontas.
+- **Embaixo, numa linha só:** **Baralho** à esquerda, as **6 cartas da mão inteiras** no meio, **Necropolis (Derrotadas)**, a **energia ⚡** e o botão **LUTAR** na ponta direita.
+- **Painel de informações:** vira uma **janela sobreposta** sobre a metade inimiga da arena (com **✕** para fechar). Ela abre ao selecionar uma carta/unidade e **fecha sozinha ao tocar LUTAR** (não cobre a luta). Se o texto for longo, rola só por dentro da janela.
+- **Registro da batalha:** fica escondido; o botão **📜** abre/fecha uma gaveta lateral.
+- **Janela de detalhes da carta:** cabe na altura da tela deitada, rola por dentro, ✕ sempre visível.
+- **Celular em pé na batalha:** aparece o aviso do jogo **"Gire o celular para jogar deitado"** (ícone de girar). **⟳ Tela cheia deitada** tenta entrar em tela cheia e travar a tela deitada; **Jogar em pé** fecha o aviso (até fechar o jogo) e usa o layout em pé de sempre. Girar o celular também resolve.
+- **Tela cheia e trava de orientação:** ao entrar numa batalha pelo toque, no celular (tela de toque) o jogo **tenta** abrir em tela cheia e travar deitado (`screen.orientation.lock`). Se o navegador não permitir, nada quebra e o jogo segue normal. Ao sair da batalha (vitória, derrota ou Sair), a tela é destravada e sai da tela cheia (se foi o jogo que entrou). No computador não entra em tela cheia.
+- **App na tela inicial:** o jogo tem um manifesto (nome, ícones, `display: fullscreen`) para **"Adicionar à tela inicial"** abrir como app em tela cheia. A orientação **não** é forçada no manifesto (menus em pé continuam valendo).
+- **Desempenho:** o layout deitado não adiciona animações contínuas; a batalha continua a 60 FPS.
+
 ## 4. Mão e baralho
 ### Baralho de 40 cartas
 - A **equipe é o baralho**: **10 cartas diferentes × 4 cópias = 40 cartas**. A IA também joga com 10 cartas × 4.

@@ -7,6 +7,7 @@ import type { Stage } from '../core/campaign';
 import { PLAYER_HERO_HP } from '../core/campaign';
 import { heroSVG, unitSpriteSVG } from './art';
 import { gameConfirm } from './dialog';
+import { requestLandscape } from './orientation';
 import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, starStyle, tierHTML } from './components';
 
 export interface BattleCallbacks {
@@ -86,6 +87,7 @@ export class BattleView {
           </div>
         </div>
         <button class="btn small ghost" data-act="speed" id="speedBtn">${this.cb.speed()}x</button>
+        <button class="btn small ghost log-toggle" data-act="log" title="Registro da batalha">📜</button>
       </div>
       <div class="field">
         <div class="hero hero-p" id="hero-player">
@@ -109,7 +111,7 @@ export class BattleView {
         </div>
       </div>
       <div class="tactical-tabs">
-        <div class="info" id="info">${INFO_DEFAULT}</div>
+        <div class="info-wrap"><div class="info" id="info">${INFO_DEFAULT}</div><button class="info-close" data-act="info-close" aria-label="Fechar informações">✕</button></div>
         <div class="tactical-right">
           <button class="tab-btn" id="autoBtn" data-act="auto" title="Invocar e lutar automaticamente">Auto: OFF</button>
           <div class="deployed-pill" title="Unidades aliadas em campo">Em campo (<b id="deployedCount">0</b>)</div>
@@ -125,7 +127,34 @@ export class BattleView {
         <button class="btn fight" data-act="fight" id="fightBtn">LUTAR ⚔</button>
       </div>
       <details class="log-panel" open><summary>📜 Registro da batalha</summary><ol class="log" id="log"></ol></details>
+      <div class="rotate-prompt" role="dialog" aria-label="Gire o celular">
+        <div class="rp-box">
+          <div class="rp-icon" aria-hidden="true">📱</div>
+          <div class="rp-title">Gire o celular para jogar deitado</div>
+          <p class="rp-msg">A arena fica maior e as 6 cartas da mão cabem inteiras numa linha.</p>
+          <div class="rp-btns"><button class="btn primary" data-act="rotate">⟳ Tela cheia deitada</button><button class="btn ghost" data-act="rotate-dismiss">Jogar em pé</button></div>
+        </div>
+      </div>
     </div>`;
+    const battleEl = this.root.querySelector('.battle') as HTMLElement;
+    if (sessionStorage.getItem('kicdl-rotate-dismissed')) battleEl.classList.add('rotate-dismissed');
+    this.root.querySelector('[data-act=rotate]')!.addEventListener('click', () => void requestLandscape());
+    this.root.querySelector('[data-act=rotate-dismiss]')!.addEventListener('click', () => {
+      battleEl.classList.add('rotate-dismissed');
+      try {
+        sessionStorage.setItem('kicdl-rotate-dismissed', '1');
+      } catch {
+        /* ok */
+      }
+    });
+    this.root.querySelector('[data-act=log]')!.addEventListener('click', () => battleEl.classList.toggle('log-open'));
+    this.root.querySelector('[data-act=info-close]')!.addEventListener('click', () => {
+      if (this.selected != null) this.clearSelection();
+      else {
+        this.infoUid = null;
+        this.setInfo(INFO_DEFAULT);
+      }
+    });
     this.root.querySelector('[data-act=exit]')!.addEventListener('click', async () => {
       if (this.disposed) return;
       if (this.state.winner || (await gameConfirm('Sair da batalha?', 'O progresso desta luta será perdido.', 'Sair', true))) {
@@ -325,6 +354,8 @@ export class BattleView {
 
   setInfo(html: string) {
     this.root.querySelector('#info')!.innerHTML = html;
+    // no layout deitado o painel vira uma janela por cima da arena: só aparece com conteúdo
+    this.root.querySelector('.battle')?.classList.toggle('has-info', html !== INFO_DEFAULT);
   }
 
   highlight() {
@@ -363,6 +394,9 @@ export class BattleView {
     if (this.busy || this.state.winner) return;
     this.busy = true;
     this.selected = null;
+    // a luta começa: o painel/janela de informações fecha (no layout deitado ele cobre a arena)
+    this.infoUid = null;
+    this.setInfo(INFO_DEFAULT);
     this.highlight();
     this.renderHand();
     this.mine = new Set(this.state.units.filter((u) => u.side === 'player' && u.slot != null).map((u) => u.uid));

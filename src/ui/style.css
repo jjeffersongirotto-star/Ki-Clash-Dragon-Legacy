@@ -746,3 +746,98 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .card.grid-card.locked .card-stats, .card.grid-card.locked .card-rarity, .card.grid-card.locked .card-cat, .card.grid-card.locked .card-badge { opacity: .55; }
 .card.grid-card.locked.soon::after { opacity: .6; }
 .card.grid-card.locked .card-stats span { color: #8a8c8f; }
+
+/* =====================================================================
+   v0.11.0 — Batalha DEITADA (paisagem): celular deitado e computador
+   HUD fino no topo · arena 2×7 ocupando a largura (com os líderes nas pontas) ·
+   faixa de baixo numa linha só: Baralho | 6 cartas | Derrotadas | energia + LUTAR.
+   Sem rolagem: tudo cabe em 100dvh (a barra do Chrome não quebra o layout).
+   ===================================================================== */
+/* elementos novos — escondidos fora do layout deitado */
+.log-toggle, .info-close { display: none; }
+.rotate-prompt { display: none; }
+.info-wrap { flex: 1; display: flex; min-width: 0; }
+.info-wrap .info { flex: 1; }
+
+@media (orientation: landscape) {
+  body.in-battle { overflow: hidden; overscroll-behavior: none; }
+  .battle-screen { max-width: none; width: 100%; height: 100dvh; padding: 4px max(6px, env(safe-area-inset-right)) 4px max(6px, env(safe-area-inset-left)); overflow: hidden; }
+  .battle-screen {
+    --hud-h: 38px;
+    /* largura de cada carta da mão: pela altura da tela e pela largura (6 cartas + montes + LUTAR) */
+    --hand-w: clamp(52px, min(calc((100dvh - var(--hud-h)) * .2), calc((100vw - 330px) / 6 - 6px)), 104px);
+    --bottom-h: calc(var(--hand-w) * 1.42 + 12px);
+    --hero-w: clamp(44px, 7vw, 92px);
+    --cell: clamp(30px, min(calc((100vw - 2 * var(--hero-w) - 40px) / 7), calc((100dvh - var(--hud-h) - var(--bottom-h) - 44px) / 2)), 170px);
+  }
+  .battle { height: 100%; display: grid !important; grid-template-columns: minmax(0, 1fr) auto !important; grid-template-rows: var(--hud-h) minmax(0, 1fr) auto; grid-template-areas: "hud tools" "field field" "bottom bottom"; gap: 4px; }
+  .battle > .bhud { grid-area: hud; padding: 2px 6px; border-radius: 10px; min-width: 0; }
+  .battle .bhud .btn.small { padding: 4px 9px; font-size: 12px; }
+  .battle .log-toggle { display: inline-flex; }
+  .battle .vs-label { font-size: 11px; white-space: nowrap; margin-bottom: 1px; }
+  .battle .vs-bar { height: 8px; }
+  .battle .vs-badge { width: 22px; height: 22px; font-size: 11px; }
+  .battle .vs-center { padding: 0 8px; }
+  .battle .vs-inf { font-size: 13px; }
+  /* Auto + "Em campo" sobem para o lado do HUD */
+  .battle > .tactical-tabs { display: contents; }
+  .battle .tactical-right { grid-area: tools; flex-direction: row; align-items: center; gap: 4px; }
+  .battle .tactical-right .tab-btn { padding: 5px 9px; font-size: 12px; }
+  .battle .deployed-pill { font-size: 11px; padding: 4px 7px; white-space: nowrap; }
+  /* arena */
+  .battle > .field { grid-area: field; min-height: 0; padding-top: 0; align-items: center; gap: 4px; }
+  .battle .hero { width: var(--hero-w); flex: 0 0 var(--hero-w); min-height: calc(var(--cell) * 2); align-self: center; padding: 3px 2px; }
+  .battle .hero-svg { width: calc(var(--hero-w) * .85); height: calc(var(--hero-w) * 1.02); }
+  .battle .hero-name { font-size: 9px; }
+  .battle .board-wrap { padding-top: 16px; }
+  .battle .arena-scenery { height: 18px; }
+  /* faixa de baixo: tudo numa linha */
+  .battle > .bottom { grid-area: bottom; display: flex !important; align-items: center; gap: 6px; padding: 3px 6px; border-radius: 12px; height: var(--bottom-h); }
+  .battle .bottom .hand-row { flex: 1; min-width: 0; order: 1; justify-content: center; gap: 6px; }
+  .battle .bottom .energy { order: 2; flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .battle .bottom .energy-orb { width: calc(var(--hand-w) * .62); height: calc(var(--hand-w) * .62); font-size: 10px; }
+  .battle .bottom .energy-orb b { font-size: calc(var(--hand-w) * .24); margin-top: -6px; }
+  .battle .bottom .energy-pips { margin-top: 2px; max-width: 56px; }
+  .battle .bottom .energy-pips i { width: 4px; height: 6px; }
+  .battle .bottom .btn.fight { order: 3; flex: none; padding: 10px 12px; font-size: 15px; align-self: center; }
+  .battle .hand { flex: 0 1 auto; overflow: visible; padding: 8px 2px 2px; gap: 6px; scroll-snap-type: none; justify-content: center; }
+  .battle .hand .card { flex: 0 0 var(--hand-w); width: var(--hand-w); }
+  .battle .hand .card.sel { transform: translateY(-6px); }
+  .battle .pile, .battle .pile-stack { width: calc(var(--hand-w) * .66); }
+  .battle .pile-ico { width: 22px; height: 22px; font-size: 13px; }
+  .battle .pile-count { font-size: 10px; min-width: 20px; padding: 0 4px; }
+  .battle .pile-label { font-size: 8px; letter-spacing: 0; margin-top: 4px; }
+  /* painel de informações = janela por cima da metade INIMIGA da arena (só com conteúdo),
+     para nunca cobrir as 3 colunas onde você invoca */
+  .battle .info-wrap { display: none; }
+  .battle.has-info .info-wrap { display: flex; position: absolute; z-index: 40; left: auto; right: max(6px, env(safe-area-inset-right)); top: calc(var(--hud-h) + 8px); transform: none; width: min(560px, calc(4 * var(--cell) + var(--hero-w) + 6px)); max-height: calc(100dvh - var(--hud-h) - var(--bottom-h) - 24px); overflow: auto; overscroll-behavior: contain;
+    background: rgba(12,16,38,.96); border: 1px solid #5fd8ff; border-radius: 12px; box-shadow: 0 8px 28px rgba(0,0,0,.7); }
+  .battle.has-info .info-wrap .info { background: none; border: 0; font-size: 12px; padding: 6px 10px; }
+  .battle .info-close { display: block; flex: none; align-self: flex-start; margin: 4px; width: 28px; height: 28px; border-radius: 50%; border: 1px solid #5fd8ff; background: #0d1630; color: #8fe3ff; font-weight: 900; }
+  /* registro = gaveta lateral (botão 📜 no HUD) */
+  .battle > .log-panel { display: none; }
+  .battle.log-open > .log-panel { display: block; position: absolute; z-index: 45; right: 0; top: calc(var(--hud-h) + 6px); width: min(340px, 46vw); max-height: calc(100dvh - var(--hud-h) - var(--bottom-h) - 20px); overflow: auto; overscroll-behavior: contain; box-shadow: -8px 0 24px rgba(0,0,0,.6); }
+  .battle.log-open > .log-panel .log { max-height: none; }
+  .battle .banner.big { font-size: 36px; }
+}
+/* telas deitadas muito baixas (celular deitado com barra do navegador) */
+@media (orientation: landscape) and (max-height: 360px) {
+  .battle-screen { --hud-h: 32px; }
+  .battle .vs-label { font-size: 10px; }
+  .battle .bottom .btn.fight { padding: 8px 10px; font-size: 13px; }
+}
+
+/* celular EM PÉ na batalha: aviso para girar (some se o jogador escolher "Jogar em pé") */
+@media (orientation: portrait) and (max-width: 700px) {
+  body.in-battle .battle:not(.rotate-dismissed) .rotate-prompt { display: grid; position: fixed; inset: 0; z-index: 70; place-items: center; padding: 18px; background: rgba(3,4,12,.9); }
+  .rp-box { width: min(340px, 100%); text-align: center; padding: 22px 18px 18px; border-radius: 18px; background: linear-gradient(180deg, #1f2650, #10142c); border: 2px solid #ffcf4a; box-shadow: 0 0 0 1px #000, 0 0 28px rgba(255,207,74,.25); }
+  .rp-icon { font-size: 54px; line-height: 1; display: inline-block; transform: rotate(90deg); margin-bottom: 8px; }
+  .rp-title { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 6px; }
+  .rp-msg { color: #c9d1f5; font-size: 14px; margin: 0 0 14px; }
+  .rp-btns { display: grid; gap: 8px; }
+}
+/* menus deitados (celular): heróis da Base cabem pela altura, o menu aparece sem rolar tanto */
+@media (orientation: landscape) and (max-height: 500px) {
+  .home-hero { width: clamp(64px, 26dvh, 130px); }
+  .logo-ki { font-size: clamp(36px, 14dvh, 72px); }
+}
