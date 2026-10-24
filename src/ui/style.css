@@ -707,3 +707,42 @@ body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-even
 .card.grid-card .spk:nth-of-type(3n) { opacity: .95; transform: scale(.85) rotate(45deg); }
 /* no toque não existe "passar o mouse": nada de levantar a carta durante a rolagem */
 @media (hover: none) { .card:hover { transform: none; } }
+
+/* =====================================================================
+   v0.10.3 — Cartas "Ainda não obtidos" sem filtro (travavam ao entrar na tela)
+   Antes: filter: grayscale(1) + opacity: .55 na carta inteira e brightness(.45) na arte —
+   o celular precisava recalcular essa camada cinza toda vez que as cartas entravam na tela.
+   Agora a arte cinza vem pronta no bitmap e a moldura/medalhões usam cores cinza diretas
+   (os mesmos tons que o filtro produzia), sem filtro, sem opacidade de grupo.
+   ===================================================================== */
+.card.grid-card.locked { filter: none; opacity: 1;
+  --rc: #535559; --rg: #7b7d80; --ac: #55575a; --race-c: #55575a; --metal-l: #7d7f82; --metal-d: #1b1c20; color: #8f9194; }
+.card.grid-card.locked:not(.baked) .card-art, .card.grid-card.locked:not(.baked) .card-fig { filter: grayscale(1) brightness(.3); }
+.card.grid-card.locked .card-metal { box-shadow: 0 0 0 1px rgba(0,0,0,.6); }
+.card.grid-card.locked .card-frame { background: linear-gradient(180deg, #0f1018, #0a0b12); }
+.card.grid-card.locked .card-cost { background: radial-gradient(circle at 35% 30%, #858585 0%, #5a5a5a 30%, #262628 78%, #0d0e12 100%);
+  box-shadow: 0 0 0 1.3cqw #828283, 0 0 0 2.3cqw #262628, inset 0 -2cqw 2.5cqw rgba(0,0,0,.5); }
+.card.grid-card.locked .card-cat { background: radial-gradient(circle at 35% 28%, #888a8c 0%, #4c4e52 48%, #121318 100%);
+  box-shadow: 0 0 0 1.3cqw #85878a, 0 0 0 2.2cqw #17181d, inset 0 -2cqw 2.5cqw rgba(0,0,0,.45); }
+.card.grid-card.locked .card-lvl { background: radial-gradient(circle at 35% 28%, #8d8d8b, #626058 45%, #2a2622 100%);
+  box-shadow: 0 0 0 1cqw #1f1c18, 0 0 0 2cqw rgba(110,110,104,.6), inset 0 -1.5cqw 2cqw rgba(0,0,0,.4); color: #9a9a9a; }
+.card.grid-card.locked .card-orb-atk, .card.grid-card.locked .card-orb-atk.magico { background: radial-gradient(circle at 35% 30%, #878787 0%, #5e5c5c 40%, #232022 85%);
+  box-shadow: 0 0 0 1.2cqw #7d7c7b, 0 0 0 2.2cqw #141217; }
+.card.grid-card.locked .card-orb-hp { background: radial-gradient(circle at 35% 35%, #828083 0%, #575456 42%, #221c22 90%);
+  box-shadow: 0 0 0 1.2cqw #858385, 0 0 0 2.2cqw #131014; }
+.card.grid-card.locked .medal, .card.grid-card.locked .card-orb-atk, .card.grid-card.locked .card-orb-hp { color: #9b9b9b; }
+.card.grid-card.locked .card-ribbon { background: linear-gradient(180deg, #8c8c8e 0%, #7e8085 55%, #6c717c 100%); border-color: #17191f; box-shadow: none; }
+.card.grid-card.locked .card-name { color: #0d0f15; text-shadow: none; }
+.card.grid-card.locked .card-top { background: linear-gradient(180deg, rgba(12,13,20,.95), rgba(22,24,32,.92)); border-bottom-color: rgba(140,140,140,.25); }
+.card.grid-card.locked .card-top .card-tier, .card.grid-card.locked .card-rarity, .card.grid-card.locked .card-stats { color: #8a8c8f; text-shadow: none; }
+.card.grid-card.locked .card-badge { color: #a3a3a3; }
+.card.grid-card.locked.soon .card-badge { color: #9a8c66; border-color: #7a6a3a; background: linear-gradient(180deg, #24201a, #121110); }
+.card.grid-card.locked.soon::after { filter: none; text-shadow: 0 2px 4px #000; }
+/* fundo da página: altura fixa do maior viewport (não muda quando a barra de endereço do celular some/volta) */
+body::before { inset: 0 0 auto 0; height: 100lvh; }
+@supports not (height: 100lvh) { body::before { height: 100vh; } }
+.card.grid-card.locked .card-frame { box-shadow: inset 0 0 0 .9cqw rgba(0,0,0,.85), 0 0 0 .6cqw rgba(255,255,255,.12); }
+/* ícones coloridos (emoji) nas cartas bloqueadas: só apagados, sem filtro */
+.card.grid-card.locked .card-stats, .card.grid-card.locked .card-rarity, .card.grid-card.locked .card-cat, .card.grid-card.locked .card-badge { opacity: .55; }
+.card.grid-card.locked.soon::after { opacity: .6; }
+.card.grid-card.locked .card-stats span { color: #8a8c8f; }
