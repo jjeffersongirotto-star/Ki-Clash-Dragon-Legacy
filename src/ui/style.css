@@ -678,3 +678,32 @@ button { font: inherit; color: inherit; cursor: pointer; }
    fica escurecido a ~80%, então o desfoque sai e a cor da camada fica igual */
 .modal-bg, .dialog-bg, .battle-card-modal-bg { backdrop-filter: none; -webkit-backdrop-filter: none; }
 .home-hero img { height: 100%; width: auto; margin-left: -12%; min-width: 125%; display: block; }
+
+/* =====================================================================
+   v0.10.2 — Rolagem fluida no celular
+   ===================================================================== */
+/* fundo da página: antes era `background-attachment: fixed` no <body>, que obriga o navegador
+   a redesenhar a tela inteira a cada passo da rolagem. Agora é uma camada fixa própria
+   (pintada uma vez e só deslocada pela GPU) — mesma imagem. */
+html { background: var(--bg); }
+body { background: transparent; background-attachment: scroll; overscroll-behavior-y: none; }
+body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(circle at 50% -10%, #2a1d5c 0%, transparent 55%), radial-gradient(circle at 100% 100%, #3b0f2a 0%, transparent 45%), var(--bg); }
+/* sem camadas extras forçadas (no Android, camadas demais travam a rolagem) */
+.card-shine, .spk, .card-aura, .card-metal::after { will-change: auto !important; }
+
+/* Cartas de GRADE (Coleção, Equipe, lista do Treinar, troca): quadro congelado.
+   A arte (fundo + aura + raios e o personagem com sombra) já vem pronta em bitmap; na carta
+   não sobra nenhuma animação, filtro, mix-blend-mode nem transição. */
+.card.grid-card, .card.grid-card *, .card.grid-card *::before, .card.grid-card *::after { animation: none !important; transition: none !important; }
+.card.grid-card .card-metal::after { content: none; }
+.card.grid-card.baked .card-aura { display: none; }
+.card.grid-card.baked .card-fig { filter: none; }
+.card.grid-card.baked.locked .card-art, .card.grid-card.baked.locked .card-fig { filter: none; }
+.card.grid-card .card-aura::before { animation: none !important; }
+/* faíscas Lendário/Mítico congeladas acesas (como no meio do brilho) */
+.card.grid-card .spk { opacity: .85; transform: scale(.7) rotate(45deg); }
+.card.grid-card .spk:nth-of-type(2n) { opacity: .6; transform: scale(.5) rotate(45deg); }
+.card.grid-card .spk:nth-of-type(3n) { opacity: .95; transform: scale(.85) rotate(45deg); }
+/* no toque não existe "passar o mouse": nada de levantar a carta durante a rolagem */
+@media (hover: none) { .card:hover { transform: none; } }

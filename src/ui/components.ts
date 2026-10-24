@@ -3,6 +3,7 @@ import { CATEGORY_INFO, RACE_INFO, STAR_COLORS, getChar } from '../core/characte
 import { statsFor, tierLabel } from '../core/progression';
 import type { CardInstance, CharacterDef } from '../core/types';
 import { portraitImg } from './art';
+import { gridArtHTML } from './gridArt';
 
 export const esc = (s: string) => s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]!);
 
@@ -49,7 +50,7 @@ export function dmgLabel(def: CharacterDef) {
  */
 export function cardHTML(
   card: CardInstance,
-  opts: { extraClass?: string; attrs?: string; locked?: boolean; badge?: string; compact?: boolean } = {},
+  opts: { extraClass?: string; attrs?: string; locked?: boolean; badge?: string; compact?: boolean; grid?: boolean } = {},
 ): string {
   const def = getChar(card.charId);
   const st = statsFor(def, card.level, card.stars, !!card.plus);
@@ -57,19 +58,21 @@ export function cardHTML(
   const cat = CATEGORY_INFO[def.category];
   const race = RACE_INFO[def.race];
   const t = Math.max(1, Math.min(6, card.stars));
+  // v0.10.2: carta de grade = quadro congelado (bitmaps prontos, sem animação/filtro/blend)
+  const ga = opts.grid ? gridArtHTML(def, t, !!opts.locked) : null;
   const sparks = t >= 5 && !opts.locked ? Array.from({ length: t === 6 ? 7 : 4 }, (_, i) => `<i class="spk" style="--i:${i}"></i>`).join('') : '';
   const stats = opts.compact
     ? ''
     : `<div class="card-stats"><span class="atk ${def.damageType}" title="Ataque">${def.damageType === 'fisico' ? '👊' : '✨'}${st.atk}</span><span class="hp" title="Vida">❤${st.hp}</span><span class="ab">${def.abilities.map((a) => ABILITIES[a].icon).join('')}</span></div>
       <div class="card-rarity">${race.icon} ${race.label} · ${tier} · ${cat.label}</div>`;
-  return `<div class="card s${t} race-${def.race} ${opts.compact ? 'compact' : ''} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}" style="${starStyle(t)};--ac:${def.palette.aura};--race-c:${race.color}" ${opts.attrs ?? ''}>
+  return `<div class="card s${t} race-${def.race} ${opts.compact ? 'compact' : ''} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}${ga ? ` grid-card${ga.baked ? ' baked' : ''}` : ''}" style="${starStyle(t)};--ac:${def.palette.aura};--race-c:${race.color}" ${opts.attrs ?? ''}>
     <div class="card-metal"><div class="card-frame">
       <div class="card-art">
-        <div class="card-bg">${portraitImg(def, { stars: t, layer: 'bg' })}</div>
+        <div class="card-bg">${ga ? ga.bg : portraitImg(def, { stars: t, layer: 'bg' })}</div>
         <div class="card-aura"></div>
-        ${t >= 3 ? '<div class="card-shine"></div>' : ''}
+        ${t >= 3 && !ga ? '<div class="card-shine"></div>' : ''}
       </div>
-      <div class="card-fig">${portraitImg(def, { stars: t, layer: 'fg' })}</div>
+      <div class="card-fig">${ga ? ga.fg : portraitImg(def, { stars: t, layer: 'fg' })}</div>
       <div class="card-top"><span class="card-tier">${tier}</span></div>
       <div class="medal card-cost" title="Custo de energia">${def.cost}</div>
       <div class="medal card-cat" title="${race.label} · ${cat.label}">${cat.icon}</div>
