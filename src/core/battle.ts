@@ -1,6 +1,6 @@
 import { ABILITIES, AURA_CAP, BUFF_CAP, MINION_CAP, RES_CAP, abilityPower, has } from './abilities';
 import { getChar } from './characters';
-import { statsFor } from './progression';
+import { statsFor, tierLabel } from './progression';
 import { createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, HAND_SIZE } from './deck';
 import type {
   AbilityId,
@@ -150,7 +150,7 @@ export function makeUnit(
   opts: { minion?: boolean; atk?: number; hp?: number } = {},
 ): Unit {
   const def = getChar(card.charId);
-  const s = statsFor(def, card.level, card.stars);
+  const s = statsFor(def, card.level, card.stars, !opts.minion && !!card.plus);
   const hp = opts.hp ?? s.hp;
   let physRes = def.physRes;
   let magRes = def.magRes;
@@ -178,6 +178,7 @@ export function makeUnit(
     abilities: def.abilities.slice(),
     level: card.level,
     stars: card.stars,
+    plus: !opts.minion && !!card.plus,
     isMinion: !!opts.minion,
     card: opts.minion ? undefined : { ...card },
   };
@@ -421,7 +422,7 @@ function kill(state: BattleState, ctx: Ctx, victim: Unit, killer: Unit) {
   }
 }
 
-/** Ataque da Cria Sombria: 2 com o Vorax em 5★ (ou menos), 3 em 6★. */
+/** Ataque da Cria Sombria: 2 com o Vorax Lendário (ou menos), 3 com o Vorax Mítico (o "+" não muda a Cria). */
 export function criaAtk(stars: number): number {
   return stars >= 6 ? 3 : 2;
 }
@@ -563,9 +564,9 @@ export function deploy(state: BattleState, side: Side, handIndex: number, row: n
   if (unitAt(state, row, col)) return { ok: false, reason: 'Casa ocupada', events: [] };
   playFromHand(state.decks[side], handIndex);
   state.energy[side] -= def.cost;
-  const u = placeUnit(state, { charId: card.charId, level: card.level, stars: card.stars }, side, row, col);
+  const u = placeUnit(state, { charId: card.charId, level: card.level, stars: card.stars, plus: !!card.plus }, side, row, col);
   u.slot = card.slot;
-  ctx.emit(state, { type: 'deploy', uid: u.uid, text: `${side === 'player' ? 'Você invoca' : 'Inimigo invoca'} ${def.name} (${card.stars}★ Nv.${card.level}).` });
+  ctx.emit(state, { type: 'deploy', uid: u.uid, text: `${side === 'player' ? 'Você invoca' : 'Inimigo invoca'} ${def.name} (${tierLabel(card.stars, !!card.plus)} Nv.${card.level}).` });
   const aura = has(u.abilities, (a) => a.enemyAtkAura);
   if (aura) ctx.emit(state, { type: 'aura', uid: u.uid, text: `🌀 ${def.name} drena o ataque de todos os inimigos!` });
   return { ok: true, events: ctx.events };

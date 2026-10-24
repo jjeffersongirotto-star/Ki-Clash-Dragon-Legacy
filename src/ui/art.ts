@@ -4,7 +4,7 @@ import { sceneSVG } from './scenes';
 /**
  * Retratos e sprites de batalha em estilo anime gerados proceduralmente em SVG.
  * Cada personagem possui anatomia da sua raça (Humano, Extraterrestre, Monstro,
- * Mago, Androide, Necromante), pose de ação com arma/Ki e evolução visual de 1★ a 6★.
+ * Mago, Androide, Necromante), pose de ação com arma/Ki e evolução visual de Comum a Mítico.
  */
 function hairPath(style: number): string {
   switch (style) {
@@ -76,7 +76,7 @@ function raceTraitsSVG(def: CharacterDef, t: number): string {
 
 /**
  * Pose de ação, mãos, armas e efeitos de Ki em primeiro plano para cada personagem.
- * Evolui visivelmente a cada estrela (1★ → 6★).
+ * Evolui visivelmente a cada estrela (Comum → Mítico).
  */
 function actionPoseSVG(def: CharacterDef, t: number, gid: string): string {
   const p = def.palette;
@@ -223,7 +223,7 @@ function actionPoseSVG(def: CharacterDef, t: number, gid: string): string {
 
 /**
  * Marcas próprias dos personagens iniciais da v0.8 (desenhadas por cima do rosto/cabelo),
- * para cada um ter uma silhueta reconhecível mesmo em 1★.
+ * para cada um ter uma silhueta reconhecível mesmo em Comum.
  */
 function signature(def: CharacterDef, t: number): string {
   const p = def.palette;
@@ -258,10 +258,10 @@ function signature(def: CharacterDef, t: number): string {
 }
 
 /**
- * Evolução visual por estrela (1★ → 6★), cumulativa:
- * 1★ roupa simples, sem aura · 2★ aura fraca, faixa de batalha e acabamento · 3★ ombreiras metálicas, manoplas, cabelo maior
- * 4★ peitoral com gema, capa esvoaçante, olhos brilhando · 5★ coroa/diadema, ombreiras com espinhos dourados, cabelo
- * energizado, partículas · 6★ forma suprema: cabelo radiante, halo divino, raios e aura dupla.
+ * Evolução visual por estrela (Comum → Mítico), cumulativa:
+ * Comum roupa simples, sem aura · Incomum aura fraca, faixa de batalha e acabamento · Raro ombreiras metálicas, manoplas, cabelo maior
+ * Épico peitoral com gema, capa esvoaçante, olhos brilhando · Lendário coroa/diadema, ombreiras com espinhos dourados, cabelo
+ * energizado, partículas · Mítico forma suprema: cabelo radiante, halo divino, raios e aura dupla.
  * `layer`: 'all' (padrão) desenha cenário + personagem; 'bg' só o cenário (fundo da carta);
  * 'fg' só o personagem com aura e pose de ação, fundo transparente (para "sair" da moldura da carta).
  */
@@ -429,7 +429,7 @@ export function unitSpriteSVG(def: CharacterDef, opts: { flip?: boolean; stars?:
     ${t >= 5 ? `<ellipse cx="50" cy="58" rx="42" ry="48" fill="none" stroke="${gold}" stroke-width="1.4" stroke-dasharray="6 4" opacity=".75"/>` : ''}
   </g>
   <g class="spr-figure">
-    <!-- Capa (4★+) -->
+    <!-- Capa (Épico+) -->
     ${t >= 4 ? `<path class="spr-cape" d="M30 58 L14 98 L38 92 L62 92 L84 98 L68 58 Z" fill="${p.secondary}" opacity=".85" stroke="#000" stroke-width=".8"/>` : ''}
     <!-- Braço de trás -->
     <g class="spr-arm-b">

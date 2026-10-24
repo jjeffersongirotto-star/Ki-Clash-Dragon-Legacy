@@ -48,8 +48,9 @@ export interface CharacterDef {
   id: string;
   name: string;
   title: string;
-  rarity: Rarity;
   category: Category;
+  /** v0.10: status que o degrau "+" melhora (vida ou ataque) */
+  plusStat: 'atk' | 'hp';
   race: Race;
   minStars: number;
   maxStars: number;
@@ -74,7 +75,10 @@ export interface CharacterDef {
 export interface CardInstance {
   charId: string;
   level: number;
+  /** v0.10: cor/tier da carta (1 Comum … 6 Mítico); o nome "stars" ficou por compatibilidade */
   stars: number;
+  /** v0.10: degrau "+" da cor */
+  plus?: boolean;
 }
 
 export interface Unit {
@@ -94,6 +98,7 @@ export interface Unit {
   abilities: AbilityId[];
   level: number;
   stars: number;
+  plus?: boolean;
   isMinion: boolean;
   /** carta de origem */
   card?: CardInstance;

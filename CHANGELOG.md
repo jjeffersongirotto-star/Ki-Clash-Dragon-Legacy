@@ -2,6 +2,26 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.10.0] — 24/10/2026 · PR #10 — Cores com "+" no lugar das estrelas e correções da v0.9
+- **Fim das estrelas:** a carta não mostra mais estrelas (nem na barra do topo, nem nos detalhes, nem nos textos). As cores continuam **exatamente as mesmas** (cinza, verde, azul, roxo, laranja, vermelho); agora cada cor tem nome de raridade: **Comum, Incomum, Raro, Épico, Lendário, Mítico**. O topo da carta mostra o nome (ex.: **RARO+**).
+  - A raridade fixa antiga de cada personagem saiu: o nome sempre bate com a cor da carta.
+  - O seletor de estrelas dos detalhes virou **seletor de cor**.
+- **Degrau "+" entre as cores:** Comum → Comum+ → Incomum → Incomum+ → Raro → Raro+ → Épico → ... A cor máxima de cada personagem também tem o "+" final (ex.: Épico+, Mítico+).
+  - 1º Despertar no nível máximo: cor → "+". 2º Despertar: "+" → próxima cor.
+  - O "+" **não muda habilidades nem visual**; dá só **+10% (mín. +1)** de vida (tanques, suportes e Suri) ou de ataque (os demais) e **+5 níveis máximos**.
+  - Habilidades e visual (roupa, aura, físico e cenário) mudam só quando a **cor** muda. Todos os tetos continuam.
+- **Mais difícil:** do "+" para a próxima cor custa **50% a mais** que da cor para o "+", em **Essências** (4 × cor → 6 × cor) e em **XP** (a cor base custa o XP de uma cor inteira da v0.9; o "+" custa 1,5 × isso). Comum base continua igual. Cada cor completa custa 2,5 × o que custava antes.
+  - Nova **Escada de Despertar** na tela Treinar, com nível máximo, XP e Essências de cada degrau; o botão mostra o próximo degrau e o custo.
+  - Animação própria para o "+" ("DESPERTAR +"), sem trocar o visual.
+- **Saves antigos:** as estrelas viram a cor de mesmo número (1★ Comum … 6★ Mítico), na cor base, mantendo nível e XP.
+- **Equilíbrio (simulações IA × IA):** com todos no topo (cor máxima+), cada personagem comum vence de 46,8% a 52,1% (Kenji 59,6% e Vorax 55,5%, bloqueados para o jogador). Equipe inicial vence a fase 1 em 97%. Com o mesmo XP gasto, a fase 10 caiu de 95% (v0.9) para 47% (v0.10).
+- **Correções da v0.9:**
+  - Janela de detalhes da carta na batalha no celular: cabe na tela, rola por dentro e o ✕ fica sempre visível.
+  - Tocar de novo na carta selecionada da mão agora **tira a seleção**. Os detalhes abrem **segurando a carta** ou por **🔍 Detalhes**; ao fechar a janela, a carta não fica selecionada.
+  - O painel de informações volta ao texto inicial quando a unidade mostrada é derrotada.
+  - HUD do celular: o nome do inimigo diminui e quebra a linha em vez de ser cortado.
+  - Nome completo nas cartas grandes (detalhes, treino e inspeção); só as cartas pequenas abreviam.
+
 ## [0.9.0] — 24/10/2026 · PR #9 — Cartas estilo Anime TCG, 6 Raças/Origens e Lutadores Interativos na Arena
 - **Cartas redesenhadas no estilo Anime TCG (inspiradas em Legend of Dragon):**
   - Topo da carta com **medalhão verde de Custo** à esquerda, **barra chanfrada escura com Estrelas** no centro e **orbe de Facção/Categoria** à direita.

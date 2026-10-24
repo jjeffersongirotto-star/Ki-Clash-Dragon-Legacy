@@ -599,3 +599,46 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .card.locked.soon .card-badge { background: linear-gradient(180deg, #3a2a00, #1a1200); border-color: #ffcf4a; color: #ffcf4a; }
 .card.locked.soon::after { content: '🔒'; position: absolute; z-index: 8; left: 50%; top: 38%; transform: translate(-50%, -50%); font-size: max(18px, 22cqw); filter: drop-shadow(0 2px 4px #000); }
 .soon-note { border: 1px dashed rgba(255,207,74,.5); border-radius: 10px; padding: 8px 10px; color: #ffe6a6; }
+
+/* ================= v0.10: cores com "+" (sem estrelas) ================= */
+.tier-tag { display: inline-block; background: var(--rc); color: #000; font-weight: 900; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; box-shadow: 0 0 8px color-mix(in srgb, var(--rc) 60%, transparent); white-space: nowrap; }
+.card-top .card-tier { font-size: max(7px, 7.6cqw); font-weight: 900; letter-spacing: .4cqw; text-transform: uppercase; color: var(--rg); text-shadow: 0 .5cqw 0 #000, 0 0 2.5cqw var(--rc); white-space: nowrap; }
+.evo-new.static { opacity: 1; animation: evoPlus .9s cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes evoPlus { 0% { transform: scale(.85); filter: brightness(2); } 100% { transform: scale(1); filter: none; } }
+.evo-plus .evo-stars, .evo-plus .evo-stats, .evo-plus .evo-name { animation-delay: .3s; }
+.evo-stars .tier-tag { font-size: 16px; padding: 3px 12px; }
+.ess { color: var(--gold); font-weight: 800; }
+.ladder { margin-top: 10px; background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 6px 8px; }
+.ladder summary { cursor: pointer; font-weight: 900; color: var(--gold); }
+.ladder table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
+.ladder th { text-align: left; color: #9fb3d9; font-weight: 700; padding: 3px 4px; border-bottom: 1px solid rgba(255,255,255,.15); }
+.ladder td { padding: 4px; border-bottom: 1px solid rgba(255,255,255,.06); vertical-align: top; }
+.ladder td:first-child { color: var(--rc); font-weight: 900; white-space: nowrap; }
+.ladder small { color: #9fb3d9; font-weight: 600; }
+.ladder tr.cur { background: color-mix(in srgb, var(--rc) 22%, transparent); outline: 1px solid var(--rc); }
+.ladder tr.done { opacity: .5; }
+.tier-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--rc); margin-right: 5px; box-shadow: 0 0 6px var(--rc); }
+
+/* v0.10 B1: janela de inspeção em batalha cabe na tela, rola por dentro e o ✕ fica sempre visível */
+.battle-card-modal-bg { overflow: hidden; }
+.battle-card-modal { display: flex; flex-direction: column; max-height: calc(100dvh - 64px); padding: 0; overflow: hidden; }
+.bcm-body { display: grid; grid-template-columns: 210px 1fr; gap: 16px; padding: 16px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; min-height: 0; }
+.bcm-close { z-index: 5; }
+.bcm-hint { flex: none; }
+@media (max-width: 640px) {
+  .battle-card-modal-bg { padding: 8px; }
+  .bcm-body { grid-template-columns: 1fr; padding: 44px 12px 12px; gap: 10px; }
+  .bcm-left { width: 170px; max-width: 100%; margin: 0 auto; padding-top: 0; }
+  .bcm-hint { margin-top: 6px; font-size: 12px; text-align: center; }
+}
+
+/* v0.10 B4: nome do inimigo no HUD do celular quebra em 2 linhas e diminui em vez de ser cortado */
+@media (max-width: 640px) {
+  .vs-label { white-space: normal; align-items: flex-end; gap: 4px; font-size: 10px; line-height: 1.1; }
+  .vs-label b { overflow-wrap: anywhere; }
+  .vs-e .vs-label b { text-align: right; }
+  .vs-center { padding: 1px 6px; }
+}
+
+/* v0.10 B5: nome completo nas cartas grandes (detalhes, treino e inspeção); só a mão/cartas pequenas abreviam */
+.detail-card .card-name, .train-art .card-name, .bcm-left .card-name { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.05; font-size: max(8px, 8.6cqw); }
