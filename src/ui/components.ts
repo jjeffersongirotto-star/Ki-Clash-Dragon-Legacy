@@ -42,7 +42,7 @@ export function cardHTML(card: CardInstance, opts: { extraClass?: string; attrs?
   return `<div class="card s${card.stars} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}" style="${starStyle(card.stars)}" ${opts.attrs ?? ''}>
     <div class="card-cost" title="Custo">${def.cost}</div>
     <div class="card-cat" title="${cat.label}">${cat.icon}</div>
-    <div class="card-art">${portraitSVG(def)}${opts.badge ? `<div class="card-badge">${opts.badge}</div>` : ''}</div>
+    <div class="card-art">${portraitSVG(def, { stars: card.stars })}${opts.badge ? `<div class="card-badge">${opts.badge}</div>` : ''}</div>
     <div class="card-body">
       <div class="card-name">${esc(def.name)}</div>
       <div class="card-meta">${starsHTML(card.stars)} <span class="lvl">Nv.${card.level}</span></div>

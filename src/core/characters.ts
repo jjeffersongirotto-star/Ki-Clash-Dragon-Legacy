@@ -79,10 +79,10 @@ export const CHARACTERS: CharacterDef[] = [
     rarity: 'incomum',
     category: 'tanque',
     minStars: 1,
-    maxStars: 5,
+    maxStars: 4,
     cost: 3,
     atk: 2,
-    hp: 10,
+    hp: 11,
     physRes: 1,
     magRes: 0,
     damageType: 'fisico',
@@ -99,10 +99,10 @@ export const CHARACTERS: CharacterDef[] = [
     rarity: 'raro',
     category: 'arqueiro',
     minStars: 2,
-    maxStars: 5,
+    maxStars: 4,
     cost: 3,
     atk: 3,
-    hp: 4,
+    hp: 5,
     physRes: 0,
     magRes: 0,
     damageType: 'fisico',
@@ -119,7 +119,7 @@ export const CHARACTERS: CharacterDef[] = [
     rarity: 'raro',
     category: 'mago',
     minStars: 2,
-    maxStars: 5,
+    maxStars: 4,
     cost: 3,
     atk: 3,
     hp: 4,
@@ -139,7 +139,7 @@ export const CHARACTERS: CharacterDef[] = [
     rarity: 'raro',
     category: 'tanque',
     minStars: 2,
-    maxStars: 5,
+    maxStars: 4,
     cost: 4,
     atk: 2,
     hp: 12,
@@ -159,7 +159,7 @@ export const CHARACTERS: CharacterDef[] = [
     rarity: 'raro',
     category: 'suporte',
     minStars: 2,
-    maxStars: 5,
+    maxStars: 4,
     cost: 3,
     atk: 2,
     hp: 5,
@@ -218,11 +218,11 @@ export const CHARACTERS: CharacterDef[] = [
     title: 'Mestre do Contra-Golpe',
     rarity: 'lendario',
     category: 'dps',
-    minStars: 4,
+    minStars: 5,
     maxStars: 6,
     cost: 5,
-    atk: 4,
-    hp: 8,
+    atk: 3,
+    hp: 7,
     physRes: 1,
     magRes: 0,
     damageType: 'fisico',
@@ -239,10 +239,10 @@ export const CHARACTERS: CharacterDef[] = [
     rarity: 'lendario',
     category: 'suporte',
     minStars: 4,
-    maxStars: 5,
+    maxStars: 6,
     cost: 5,
     atk: 2,
-    hp: 7,
+    hp: 6,
     physRes: 0,
     magRes: 1,
     damageType: 'magico',
@@ -258,10 +258,10 @@ export const CHARACTERS: CharacterDef[] = [
     title: 'O Rei-Parasita',
     rarity: 'mitico',
     category: 'mago',
-    minStars: 4,
+    minStars: 5,
     maxStars: 6,
     cost: 6,
-    atk: 4,
+    atk: 3,
     hp: 6,
     physRes: 0,
     magRes: 1,
@@ -303,3 +303,12 @@ export function getChar(id: string): CharacterDef {
 }
 
 export const PLAYABLE = CHARACTERS.filter((c) => !c.summonOnly);
+
+/**
+ * Faixas de estrelas: começa em 1★/2★ → máx. 4★; 3★ → máx. 5★; 4★/5★ → máx. 6★.
+ * "Únicos" (habilidade muito forte) começam em 5★.
+ */
+export const UNIQUE_5STAR = ['kenji', 'vorax'];
+export function expectedMaxStars(minStars: number): number {
+  return minStars <= 2 ? 4 : minStars === 3 ? 5 : 6;
+}
