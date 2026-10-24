@@ -166,9 +166,10 @@ Todas as cartas (mão, coleção, equipe, treino, troca de equipe, detalhes e re
 ### Desempenho e efeitos por cor (v0.10.1)
 O jogo mira **60 quadros por segundo** em todas as telas. Para isso, os efeitos das cores têm regras de onde animam — **a carta parada é idêntica** em qualquer lugar:
 - **Carta em foco** (detalhes da Coleção, carta grande do Treinar, mão da batalha, janela de inspeção e Despertar): **todos os efeitos** da cor — reflexo (Raro+), aura pulsando com raios girando (Épico+), brilho premium pulsante e faíscas (Lendário/Mítico) e metal em movimento (Mítico).
-- **Cartas em grade** (Coleção, Equipe, lista do Treinar, janela de troca): aura, raios, reflexo e faíscas continuam; o brilho premium pulsante e o metal em movimento ficam **parados no quadro inicial** (eram os efeitos que redesenhavam a carta inteira a cada quadro).
+- **Cartas em grade** (Coleção, Equipe, lista do Treinar, janela de troca) — **v0.10.2:** são um **quadro congelado** do visual atual: fundo, aura de Ki, raios (Épico+) e personagem com sombra são desenhados **uma única vez** numa imagem pronta (por personagem, cor e bloqueado/obtido, no tamanho certo para a tela), e as faíscas Lendário/Mítico aparecem acesas e paradas. Nenhuma animação, filtro ou mistura de cores roda na grade, então **rolar a Coleção não redesenha nenhuma carta**. Toque na carta para ver tudo animado nos detalhes.
 - **Cartas apagadas da mão** (sem energia para invocar) ficam com os efeitos parados até voltarem a ficar disponíveis.
-- **Atrás de janelas** (detalhes, troca, avisos, fim de luta, inspeção, Despertar) e **fora da tela** (rolagem), as animações ficam pausadas; voltam ao fechar a janela ou ao rolar até a carta.
+- **Atrás de janelas** (detalhes, troca, avisos, fim de luta, inspeção, Despertar) as animações ficam pausadas; voltam ao fechar a janela.
+- **Fundo da página:** é uma camada fixa pintada uma vez (antes era redesenhado a cada passo da rolagem). No celular, a carta não "levanta" ao ser tocada durante a rolagem.
 - O fundo atrás das janelas fica **escurecido, sem desfoque** (o desfoque era refeito a cada quadro e derrubava o FPS pela metade).
 - Com **"reduzir movimento"** ativado no aparelho, as cartas e os lutadores ficam sem animações decorativas.
 

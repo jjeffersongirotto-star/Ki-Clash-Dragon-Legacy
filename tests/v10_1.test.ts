@@ -37,3 +37,27 @@ describe('v0.10.1 — retratos em cache (desempenho)', () => {
     expect(html).toContain('card-shine');
   });
 });
+
+describe('v0.10.2 — cartas de grade congeladas (rolagem fluida)', () => {
+  it('carta de grade: marcada como grid-card, sem reflexo animado e com imagens assíncronas/preguiçosas', () => {
+    const html = cardHTML({ charId: 'nyx', level: 65, stars: 6, plus: true }, { grid: true });
+    expect(html).toContain('grid-card');
+    expect(html).not.toContain('card-shine');
+    expect(html).not.toContain('<svg');
+    expect((html.match(/decoding="async" loading="lazy"/g) ?? []).length).toBe(2);
+    expect(html).toContain('data-gk="nyx|6||bg"');
+    expect(html).toContain('data-gk="nyx|6||fg"');
+  });
+
+  it('carta em foco (detalhes, mão) continua com todos os efeitos', () => {
+    const html = cardHTML({ charId: 'nyx', level: 65, stars: 6, plus: true });
+    expect(html).not.toContain('grid-card');
+    expect(html).toContain('card-shine');
+  });
+
+  it('carta bloqueada de grade usa chave própria (arte escurecida no bitmap)', () => {
+    const html = cardHTML({ charId: 'kenji', level: 1, stars: 5 }, { grid: true, locked: true });
+    expect(html).toContain('data-gk="kenji|5|L|bg"');
+    expect(html).toContain('locked');
+  });
+});

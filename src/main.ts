@@ -7,6 +7,7 @@ import { BattleView } from './ui/battleView';
 import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, starStyle, tierHTML } from './ui/components';
 import { gameAlert, gameConfirm, showDialog } from './ui/dialog';
 import { installPerfGuards } from './ui/perf';
+import { bakeGridArt } from './ui/gridArt';
 import { DECK_MAX, DECK_REQUIRED, loadSave, resetSave, teamReady, writeSave, type SaveData } from './ui/save';
 
 const app = document.getElementById('app')!;
@@ -165,6 +166,7 @@ function finishBattle(stageId: number, winner: string) {
 
 // ---------------- COLEÇÃO ----------------
 function collection() {
+  void bakeAllGrid();
   const byPower = (a: string, b: string) => {
     const A = save.cards[a], B = save.cards[b];
     return B.stars - A.stars || Number(!!B.plus) - Number(!!A.plus) || B.level - A.level || getChar(a).cost - getChar(b).cost;
@@ -180,7 +182,7 @@ function collection() {
       <div class="deck-title">Equipe = baralho <b>${save.deck.length}/${DECK_MAX}</b> <small>(cada carta vale 4 cópias · ${missing > 0 ? `<span class="warn">faltam ${missing}: sem ${DECK_REQUIRED} não dá para lutar</span>` : '40 cartas'})</small></div>
       <div class="deck-slots">${Array.from({ length: DECK_MAX }, (_, i) => {
         const id = save.deck[i];
-        return id ? cardHTML(save.cards[id], { compact: true, attrs: `data-card="${id}"` }) : '<div class="slot">+</div>';
+        return id ? cardHTML(save.cards[id], { compact: true, grid: true, attrs: `data-card="${id}"` }) : '<div class="slot">+</div>';
       }).join('')}</div>
     </section>
     <div class="race-filters">
@@ -189,9 +191,9 @@ function collection() {
     </div>
     <p class="hint">Toque numa carta para inspecionar a evolução visual de cor em cor (Comum → Mítico), ver o sprite de arena e editar a equipe.</p>
     <h3 class="sec-title">Seus personagens <small>(${owned.length})</small></h3>
-    <div class="card-grid">${owned.map((id) => cardHTML(save.cards[id], { attrs: `data-card="${id}"`, badge: save.deck.includes(id) ? '✔ Equipe' : undefined, extraClass: save.deck.includes(id) ? 'in-deck' : '' })).join('')}</div>
+    <div class="card-grid">${owned.map((id) => cardHTML(save.cards[id], { grid: true, attrs: `data-card="${id}"`, badge: save.deck.includes(id) ? '✔ Equipe' : undefined, extraClass: save.deck.includes(id) ? 'in-deck' : '' })).join('')}</div>
     ${locked.length ? `<div class="divider"><span>🔒 Ainda não obtidos (${locked.length})</span></div>
-    <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, level: 1, stars: def.minStars }, { locked: true, extraClass: isComingSoon(def) ? 'soon' : '', attrs: `data-card="${def.id}"`, badge: lockBadge(def.id) })).join('')}</div>
+    <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, level: 1, stars: def.minStars }, { locked: true, grid: true, extraClass: isComingSoon(def) ? 'soon' : '', attrs: `data-card="${def.id}"`, badge: lockBadge(def.id) })).join('')}</div>
     ${locked.some(isComingSoon) ? `<p class="hint soon-note">🔒 <b>Em breve:</b> ${locked.filter(isComingSoon).map((d) => esc(d.name)).join(' e ')} ${locked.filter(isComingSoon).length > 1 ? 'começam' : 'começa'} em Lendário e ainda não ${locked.filter(isComingSoon).length > 1 ? 'podem' : 'pode'} ser obtidos. A forma de conseguir será revelada numa atualização futura.</p>` : ''}` : ''}
   </div>`;
   bindNav();
@@ -283,7 +285,7 @@ export async function swapDialog(newId: string): Promise<string[] | null> {
     icon: '🔄',
     html: `<p class="dialog-msg">Para colocar <b>${esc(def.name)}</b>, toque em ${need === 1 ? '<b>1 personagem</b>' : `<b>${need} personagens</b>`} para tirar da equipe.</p>
       <div class="swap-in">${cardHTML(save.cards[newId], { extraClass: 'swap-new' })}<span class="swap-arrow">⇄</span><div class="swap-hint" id="swapHint"></div></div>
-      <div class="swap-grid">${save.deck.map((id) => cardHTML(save.cards[id], { extraClass: 'swap-card sel-on', attrs: `data-swap="${id}"`, badge: '✔' })).join('')}</div>`,
+      <div class="swap-grid">${save.deck.map((id) => cardHTML(save.cards[id], { grid: true, extraClass: 'swap-card sel-on', attrs: `data-swap="${id}"`, badge: '✔' })).join('')}</div>`,
     buttons: [
       { label: 'Cancelar', value: 'cancel', kind: 'ghost' },
       { label: 'Trocar', value: 'ok', kind: 'primary' },
@@ -340,6 +342,7 @@ function ladderHTML(card: { charId: string; stars: number; plus?: boolean; level
 }
 
 function train() {
+  void bakeAllGrid();
   if (!save.cards[trainSel]) trainSel = Object.keys(save.cards)[0];
   const card = save.cards[trainSel];
   const def = getChar(card.charId);
@@ -357,7 +360,7 @@ function train() {
     : '<p class="hint">Cor máxima com "+": este personagem chegou ao topo!</p>';
   app.innerHTML = `<div class="screen">${topbar('Treinar')}
     <div class="train-list">${Object.values(save.cards)
-      .map((c) => cardHTML(c, { compact: true, extraClass: `train-pick ${c.charId === trainSel ? 'sel' : ''}`, attrs: `data-sel="${c.charId}"` }))
+      .map((c) => cardHTML(c, { compact: true, grid: true, extraClass: `train-pick ${c.charId === trainSel ? 'sel' : ''}`, attrs: `data-sel="${c.charId}"` }))
       .join('')}</div>
     <div class="train-main" style="${starStyle(card.stars)}">
       <div class="train-visuals">
@@ -496,7 +499,12 @@ function closeModal() {
 // garante que o save tem todos os campos e personagens válidos
 save.deck = save.deck.filter((id) => CHAR_BY_ID[id] && save.cards[id]);
 installPerfGuards(app);
+/** v0.10.2: bitmaps das cartas de grade (Coleção, Equipe, Treinar, troca) para a cor atual de cada personagem */
+function bakeAllGrid() {
+  return bakeGridArt(PLAYABLE.map((def) => ({ def, stars: save.cards[def.id]?.stars ?? def.minStars, locked: !save.cards[def.id] })));
+}
 home();
+void bakeAllGrid();
 warmPortraits([
   ...PLAYABLE.map((def) => ({ def, stars: save.cards[def.id]?.stars ?? def.minStars })),
   // miniaturas dos inimigos da Aventura

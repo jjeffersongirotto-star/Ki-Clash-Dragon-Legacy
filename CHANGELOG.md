@@ -2,6 +2,20 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.10.2] — 24/10/2026 · PR #12 — Rolagem fluida na Coleção & Equipe (celular)
+- **Travadas ao rolar a Coleção no celular corrigidas.** Medido com rastreamento do Chrome durante um gesto real de rolagem por toque (390×844, CPU 4× e 6× mais lenta): a cada passo da rolagem a v0.10.1 ainda **redesenhava as cartas** (~1.200 pinturas, ~840 recálculos de estilo e ~190 camadas por quadro em 7 s de rolagem). Agora: **0 pinturas, 0 recálculos de estilo, 0 layouts** durante a rolagem, quadros sempre em 16,7 ms.
+- **Causas:**
+  - O fundo da página usava `background-attachment: fixed`, que obriga a redesenhar a tela inteira a cada passo da rolagem.
+  - As cartas da grade ainda tinham animações (aura, raios, reflexo, faíscas) e cada uma virava uma camada separada (camadas demais travam o Android).
+  - Filtros (sombra do personagem) e mistura de cores (aura) eram recalculados ao pintar cada carta.
+- **Correções:**
+  - Fundo da página virou uma camada fixa própria, pintada uma vez (mesma imagem).
+  - **Cartas de grade = quadro congelado:** fundo + aura + raios e o personagem com sombra são desenhados **uma vez** num bitmap (por personagem, cor e bloqueado), no tamanho certo para a densidade da tela, decodificado fora da tela antes de aparecer e carregado sob demanda. Na grade, cada carta é só imagens + textos, sem animação, filtro, mistura de cores ou transição. Faíscas Lendário/Mítico aparecem acesas e paradas.
+  - Cartas em foco (detalhes, Treinar, mão, inspeção, Despertar) continuam com **todos os efeitos animados**.
+  - Saiu o observador que marcava cartas fora da tela durante a rolagem e as camadas forçadas (`will-change`).
+  - No celular, tocar numa carta durante a rolagem não a "levanta" mais.
+- Regras e equilíbrio não mudaram.
+
 ## [0.10.1] — 24/10/2026 · PR #11 — Desempenho (60 FPS) e correções
 - **Queda de FPS na Coleção & Equipe corrigida.** Medido antes e depois em Chromium (desktop e celular, CPU normal e 4× mais lenta), quadro a quadro:
   - Detalhes da carta: **31 → 60 FPS** (desktop) e **27 → 60 FPS** (CPU 4×). Janela de troca da equipe: **26 → 60 FPS**. Tela de fim de luta: **38 → 60 FPS**. Janela de carta na batalha: **48 → 60 FPS**.
