@@ -497,4 +497,8 @@ function closeModal() {
 save.deck = save.deck.filter((id) => CHAR_BY_ID[id] && save.cards[id]);
 installPerfGuards(app);
 home();
-warmPortraits(PLAYABLE.map((def) => ({ def, stars: save.cards[def.id]?.stars ?? def.minStars })));
+warmPortraits([
+  ...PLAYABLE.map((def) => ({ def, stars: save.cards[def.id]?.stars ?? def.minStars })),
+  // miniaturas dos inimigos da Aventura
+  ...STAGES.flatMap((st) => st.enemyDeck.map((c) => ({ def: getChar(c.charId), stars: c.stars, layers: ['all' as const] }))).filter((x, i, a) => a.findIndex((y) => y.def.id === x.def.id && y.stars === x.stars) === i),
+]);

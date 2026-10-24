@@ -540,10 +540,10 @@ export function portraitImg(def: CharacterDef, opts: { stars?: number; layer?: '
  * Pré-aquece o cache de retratos (e a decodificação das imagens) em tempo ocioso, para que
  * abrir a Coleção / Treinar / Batalha não precise gerar tudo no mesmo quadro do toque.
  */
-export function warmPortraits(list: { def: CharacterDef; stars: number }[]): void {
+export function warmPortraits(list: { def: CharacterDef; stars: number; layers?: ('all' | 'bg' | 'fg')[] }[]): void {
   const queue: (() => void)[] = [];
-  for (const { def, stars } of list) {
-    for (const layer of ['bg', 'fg'] as const) {
+  for (const { def, stars, layers } of list) {
+    for (const layer of layers ?? (['bg', 'fg'] as const)) {
       queue.push(() => {
         const html = portraitImg(def, { stars, layer });
         const src = html.slice(html.indexOf('src="') + 5, html.indexOf('" alt'));
