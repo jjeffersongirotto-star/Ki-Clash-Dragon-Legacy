@@ -1,5 +1,5 @@
 import { ABILITIES } from '../core/abilities';
-import { CATEGORY_INFO, RARITY_INFO, STAR_COLORS, getChar } from '../core/characters';
+import { CATEGORY_INFO, RACE_INFO, RARITY_INFO, STAR_COLORS, getChar } from '../core/characters';
 import { statsFor } from '../core/progression';
 import type { CardInstance, CharacterDef } from '../core/types';
 import { portraitSVG } from './art';
@@ -23,6 +23,11 @@ export function categoryHTML(def: CharacterDef, withLabel = false): string {
   return `<span class="cat-tag" title="${c.label}">${c.icon}${withLabel ? ` ${c.label}` : ''}</span>`;
 }
 
+export function raceHTML(def: CharacterDef, withLabel = true): string {
+  const r = RACE_INFO[def.race];
+  return `<span class="race-tag" style="--race-c:${r.color}" title="${esc(r.desc)}">${r.icon}${withLabel ? ` ${r.label}` : ''}</span>`;
+}
+
 /** Alcance exibido: alcance básico + bônus; miras especiais mostram o alcance delas. */
 export function reachLabel(def: CharacterDef): string {
   const r = def.range + def.abilities.reduce((s, a) => s + (ABILITIES[a].rangeBonus ?? 0), 0);
@@ -35,11 +40,13 @@ export function dmgLabel(def: CharacterDef) {
 }
 
 /**
- * Carta estilizada (padrão visual v0.7): moldura metálica chanfrada na cor das estrelas,
- * cenário ao fundo, aura de energia, personagem grande saindo pela borda de cima,
- * medalhões de custo e nível, estrelas no topo, ícone da categoria no canto direito
- * e faixa com o nome embaixo. Quanto mais estrelas, mais brilho (5–6★ premium).
- * `compact`: só arte, medalhões, estrelas e nome (equipe, treino, telas pequenas).
+ * Carta estilo Anime TCG (inspirada em Legend of Dragon):
+ * - Moldura metálica chanfrada na cor das estrelas (1★ cinza, 2★ verde, 3★ azul, 4★ roxo, 5★ dourado/laranja, 6★ carmesim)
+ * - Topo: Medalhão espinhoso verde de custo à esquerda, barra escura chanfrada com estrelas no centro,
+ *   orbe de facção/raça e categoria à direita
+ * - Centro: Arte vertical anime com cenário evolutivo, raios de energia, aura e personagem em pose de ação
+ * - Base: Emblema explosivo de Ataque (punho) à esquerda, placa metálica chanfrada com o nome no centro,
+ *   e gota rubra de Vida à direita.
  */
 export function cardHTML(
   card: CardInstance,
@@ -49,13 +56,14 @@ export function cardHTML(
   const st = statsFor(def, card.level, card.stars);
   const r = RARITY_INFO[def.rarity];
   const cat = CATEGORY_INFO[def.category];
+  const race = RACE_INFO[def.race];
   const t = Math.max(1, Math.min(6, card.stars));
   const sparks = t >= 5 && !opts.locked ? Array.from({ length: t === 6 ? 7 : 4 }, (_, i) => `<i class="spk" style="--i:${i}"></i>`).join('') : '';
   const stats = opts.compact
     ? ''
     : `<div class="card-stats"><span class="atk ${def.damageType}" title="Ataque">${def.damageType === 'fisico' ? '👊' : '✨'}${st.atk}</span><span class="hp" title="Vida">❤${st.hp}</span><span class="ab">${def.abilities.map((a) => ABILITIES[a].icon).join('')}</span></div>
-      <div class="card-rarity">${r.label} · ${cat.label}</div>`;
-  return `<div class="card s${t} ${opts.compact ? 'compact' : ''} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}" style="${starStyle(t)};--ac:${def.palette.aura}" ${opts.attrs ?? ''}>
+      <div class="card-rarity">${race.icon} ${race.label} · ${r.label} · ${cat.label}</div>`;
+  return `<div class="card s${t} race-${def.race} ${opts.compact ? 'compact' : ''} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}" style="${starStyle(t)};--ac:${def.palette.aura};--race-c:${race.color}" ${opts.attrs ?? ''}>
     <div class="card-metal"><div class="card-frame">
       <div class="card-art">
         <div class="card-bg">${portraitSVG(def, { stars: t, layer: 'bg' })}</div>
@@ -65,10 +73,14 @@ export function cardHTML(
       <div class="card-fig">${portraitSVG(def, { stars: t, layer: 'fg' })}</div>
       <div class="card-top">${starsHTML(t)}</div>
       <div class="medal card-cost" title="Custo de energia">${def.cost}</div>
-      <div class="medal card-cat" title="${cat.label}">${cat.icon}</div>
+      <div class="medal card-cat" title="${race.label} · ${cat.label}">${cat.icon}</div>
       <div class="medal card-lvl" title="Nível"><small>Nv</small>${card.level}</div>
       ${opts.badge ? `<div class="card-badge">${opts.badge}</div>` : ''}
-      <div class="card-ribbon"><span class="card-name"><span class="full">${esc(def.name)}</span><span class="short">${esc(def.name.split(' ')[0])}</span></span></div>
+      <div class="card-bottom-bar">
+        <div class="card-orb-atk ${def.damageType}" title="Ataque: ${st.atk}"><span>${st.atk}</span></div>
+        <div class="card-ribbon"><span class="card-name"><span class="full">${esc(def.name)}</span><span class="short">${esc(def.name.split(' ')[0])}</span></span></div>
+        <div class="card-orb-hp" title="Vida: ${st.hp}"><span>${st.hp}</span></div>
+      </div>
       ${stats}
       ${sparks}
     </div></div>

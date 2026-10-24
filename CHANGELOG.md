@@ -2,6 +2,31 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.9.0] — 24/10/2026 · PR #9 — Cartas estilo Anime TCG, 6 Raças/Origens e Lutadores Interativos na Arena
+- **Cartas redesenhadas no estilo Anime TCG (inspiradas em Legend of Dragon):**
+  - Topo da carta com **medalhão verde de Custo** à esquerda, **barra chanfrada escura com Estrelas** no centro e **orbe de Facção/Categoria** à direita.
+  - Base da carta com **emblema explosivo de Ataque (punho/magia)** à esquerda, **placa metálica chanfrada com o Nome** no centro e **gota rubra de Vida** à direita — visíveis inclusive na mão de batalha.
+  - Fundo da arte com linhas de velocidade e esferas estelares de anime combinadas ao cenário próprio de cada personagem.
+- **6 Raças / Origens Anime (`Humano`, `Extraterrestre`, `Monstro`, `Mago Arcano`, `Androide`, `Necromante`):**
+  - Cada personagem agora possui anatomia, expressão, arma/Ki em primeiro plano e silhueta únicas da sua raça:
+    - 🌍 **Humanos:** Riku Vendaval, Kenji Punho-Espelhado, Hana Pena-Veloz, Ren Presa-Oculta.
+    - 🪐 **Extraterrestres:** Nara Lâmina-Lunar, Aiko Flecha-Celeste, Zarek do Eclipse, Suri Maré-Gélida.
+    - 👹 **Monstros:** Gorath Muralha-de-Ferro, Daichi Punho-de-Rocha, Tobi Tambor-de-Guerra, Kuro Garra-Noturna.
+    - 🔮 **Magos Arcanos:** Lyra Olho-de-Falcão, Mei Lótus-Celeste, Kael Chama-Rubra, Sora Brisa-Serena.
+    - 🤖 **Androides:** Nyx-07, Jin Arco-Trovão, Toru Sombra-Reversa.
+    - ☠️ **Necromantes:** Vorax, Yume Caçadora, Cria Sombria.
+  - Filtro por raça na tela de **Coleção & Equipe** e seletor interativo de estrelas (**1★ a 6★**) nos detalhes da carta para inspecionar a evolução de roupa, armadura, armas e poder.
+- **Lutadores de Corpo Inteiro Interativos na Arena (2×7):**
+  - As unidades invocadas na arena agora aparecem como **personagens de corpo inteiro** (com pernas, torso, armadura evolutiva por estrela, cabeça, cabelo e arma/Ki na mão) sobre um círculo tático de invocação, com a placa `ATQ | VIDA` nos pés.
+  - **Animações interativas de gameplay na arena:**
+    - **Andar (`MOVE`):** ciclo de caminhada/corrida nas pernas, nuvens de poeira e seta dourada `MOVE` / `JUMP` indicando o avanço pelas casas.
+    - **Atacar (`HIT` / Feixe de Ki):** investida corpo a corpo com golpe de braço, onda de corte crescente e selo `HIT!`, ou postura de disparo à distância com **feixe de Ki contínuo** (estilo Kamehameha) e projéteis energéticos.
+    - **Sofrer dano e Derrota (`Necropolis`):** reação de recuo e flash de impacto com números flutuantes de dano, e envio das cópias caídas para a **Necropolis**.
+  - **HUD Superior VS, Modo `Auto` e Modal de Inspeção de Carta em Batalha:** barra de vida dos Líderes no topo da tela, botão `Auto` para combate automático, contador `Em campo` e janela de detalhes da carta durante a luta.
+- **Correções da integração (feitas no PR):**
+  - O build (`tsc`) falhava por 3 variáveis declaradas e nunca usadas (`STARTER_IDS` em `main.ts`, `cat` e `y2` em `battleView.ts`); foram removidas sem mudar nenhum comportamento.
+  - O **REGRAS.md** recuperou as regras que tinham sumido nesta versão (coluna virtual do herói, ordem do LUTAR, Baralho/Derrotadas, ordem de compra e efeito prático da aleatoriedade, tabela de estrelas, evolução por estrela, cenários de fundo, marcas dos iniciais, limites das habilidades, tabela completa de personagens, equipe, progressão e aventura) e ganhou as novidades desta versão: raças, lutadores de corpo inteiro, tela de batalha (HUD, Auto, Em campo, inspeção de carta) e o visual Anime TCG.
+
 ## [0.8.0] — 24/10/2026 · PR #8 — Mão sempre cheia, equipe de 10 obrigatória e 9 novos personagens de 1★
 - **Compra até completar a mão:** a cada rodada você compra **quantas cartas faltarem para voltar a 6** (antes era 1 por rodada). Todas as cartas da rodada contam como **uma compra só** na fila.
   - A fila de cada carta continua igual: bloqueada nas 6 compras seguintes, sorteio na 7ª–9ª, garantida na 10ª, garantias em fila e exceção da mão inicial (volta na 5ª compra).
