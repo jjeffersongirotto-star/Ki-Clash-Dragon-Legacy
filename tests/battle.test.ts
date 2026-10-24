@@ -218,6 +218,77 @@ describe('alcance e mira', () => {
   });
 });
 
+describe('herói como alvo (coluna virtual após a arena)', () => {
+  it('corpo a corpo (incl. diagonais) só ataca o herói da última coluna, nas duas fileiras', () => {
+    for (const id of ['riku', 'nara', 'toru', 'gorath', 'kenji']) {
+      for (const row of [0, 1]) {
+        const s = emptyBattle();
+        const u = placeUnit(s, c(id, 1, 4), 'player', row, 5);
+        expect(findTarget(s, u)).toBeNull();
+        u.col = 6;
+        expect(findTarget(s, u)).toBe('hero');
+      }
+    }
+  });
+  it('Lyra, Zarek, Yume e longo alcance atacam o herói da penúltima coluna', () => {
+    for (const id of ['lyra', 'zarek', 'yume', 'aiko', 'nyx']) {
+      const s = emptyBattle();
+      const u = placeUnit(s, c(id, 1, 4), 'player', 1, 5);
+      expect(findTarget(s, u)).toBe('hero');
+      u.col = 4;
+      expect(findTarget(s, u)).toBeNull();
+    }
+  });
+  it('vale para o inimigo também (herói do jogador à esquerda)', () => {
+    const s = emptyBattle();
+    const z = placeUnit(s, c('zarek', 1, 3), 'enemy', 0, 1);
+    const n = placeUnit(s, c('nara'), 'enemy', 1, 1);
+    expect(findTarget(s, z)).toBe('hero');
+    expect(findTarget(s, n)).toBeNull();
+  });
+  it('unidade de alcance 2 para de avançar quando o herói entra no alcance e ataca', () => {
+    const s = emptyBattle();
+    const u = placeUnit(s, c('yume', 1, 3), 'player', 0, 3);
+    act(s, new Ctx(), u);
+    expect(u.col).toBe(5);
+    expect(s.heroes.enemy.hp).toBe(30 - u.atk);
+  });
+  it('unidade inimiga válida tem prioridade sobre o herói', () => {
+    const s = emptyBattle();
+    const u = placeUnit(s, c('lyra', 1, 2), 'player', 0, 5);
+    const e = placeUnit(s, c('riku'), 'enemy', 0, 6);
+    expect(findTarget(s, u)).toBe(e);
+    const y = placeUnit(s, c('yume', 1, 3), 'player', 1, 5);
+    expect(findTarget(s, y)).toBe(e);
+  });
+  it('mira especial sem alvo válido ataca o herói com o alcance normal', () => {
+    const s = emptyBattle();
+    const l = placeUnit(s, c('lyra', 1, 2), 'player', 1, 5);
+    placeUnit(s, c('riku'), 'enemy', 0, 2); // inimigo atrás, fora da mira
+    expect(findTarget(s, l)).toBe('hero');
+  });
+  it('não atravessa inimigo para chegar ao herói (exceto salto)', () => {
+    const s = emptyBattle();
+    const u = placeUnit(s, c('nara'), 'player', 0, 4, { atk: 1 });
+    placeUnit(s, c('gorath'), 'enemy', 0, 5, { hp: 99 });
+    act(s, new Ctx(), u);
+    expect(u.col).toBe(4);
+    expect(s.heroes.enemy.hp).toBe(30);
+    const s2 = emptyBattle();
+    const r = placeUnit(s2, c('riku'), 'player', 0, 4);
+    placeUnit(s2, c('gorath'), 'player', 0, 5);
+    act(s2, new Ctx(), r);
+    expect(r.col).toBe(6);
+    expect(s2.heroes.enemy.hp).toBe(30 - r.atk);
+  });
+  it('fúria pode ser desligada (para simulações)', () => {
+    const s = createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1, fury: false });
+    const a = placeUnit(s, c('riku'), 'player', 0, 0, { atk: 3 });
+    s.turn = 20;
+    expect(effectiveAtk(s, a)).toBe(3);
+  });
+});
+
 describe('habilidades únicas', () => {
   it('Prole Sombria: ao derrotar, surge uma cria (1 de vida, ataque mágico à distância)', () => {
     const s = emptyBattle();

@@ -103,6 +103,7 @@ export interface BattleState {
   nextUid: number;
   seed: number;
   maxTurns: number;
+  fury: boolean;
   log: string[];
 }
 
