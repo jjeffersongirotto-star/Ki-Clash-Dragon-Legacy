@@ -1,10 +1,10 @@
 import './ui/style.css';
-import { CHAR_BY_ID, PLAYABLE, RARITY_INFO, getChar } from './core/characters';
+import { CATEGORY_INFO, CHAR_BY_ID, PLAYABLE, RARITY_INFO, STAR_COLORS, getChar } from './core/characters';
 import { STAGES } from './core/campaign';
 import { XP_ITEMS, ascend, ascendCost, canAscend, feedXp, maxLevel, newOwned, statsFor, xpProgress, xpToNext, type XpItemId } from './core/progression';
 import { portraitSVG } from './ui/art';
 import { BattleView } from './ui/battleView';
-import { abilityListHTML, cardHTML, dmgLabel, esc, rarityStyle, reachLabel, starsHTML } from './ui/components';
+import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, reachLabel, starStyle, starsHTML } from './ui/components';
 import { DECK_MAX, DECK_MIN, loadSave, resetSave, writeSave, type SaveData } from './ui/save';
 
 const app = document.getElementById('app')!;
@@ -43,7 +43,7 @@ function home() {
       <div class="logo-ki">KI-CLASH</div>
       <div class="logo-sub">DRAGON LEGACY</div>
     </div>
-    <div class="home-heroes">${['kenji', 'vorax', 'nyx'].map((id) => `<div class="home-hero" style="${rarityStyle(getChar(id))}">${portraitSVG(getChar(id))}</div>`).join('')}</div>
+    <div class="home-heroes">${['kenji', 'vorax', 'nyx'].map((id) => `<div class="home-hero" style="${starStyle(getChar(id).maxStars)}">${portraitSVG(getChar(id))}</div>`).join('')}</div>
     <div class="res big"><span>✴ ${save.essencias} Essências</span>${XP_ITEMS.map((i) => `<span>${i.icon} ${save.items[i.id]}</span>`).join('')}</div>
     <nav class="menu">
       <button class="btn primary" data-nav="adventure">⚔ Aventura <small>${next ? `Fase ${next.id}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
@@ -75,7 +75,7 @@ function adventure() {
           <small>Herói inimigo ❤${s.enemyHeroHp} · Nível inimigo ~${s.enemyDeck[0].level}</small>
           <small>Recompensa: ✴${s.rewards.essencias} 📜${s.rewards.pergaminho}${s.rewards.cristal ? ` 💎${s.rewards.cristal}` : ''}${s.rewards.orbe ? ` 🔮${s.rewards.orbe}` : ''}${s.unlock && !save.cards[s.unlock] ? ` · desbloqueia <b>${esc(getChar(s.unlock).name)}</b>` : ''}</small>
         </div>
-        <div class="stage-enemies">${s.enemyDeck.slice(0, 4).map((c) => `<span class="mini" style="${rarityStyle(getChar(c.charId))}">${portraitSVG(getChar(c.charId))}</span>`).join('')}</div>
+        <div class="stage-enemies">${s.enemyDeck.slice(0, 4).map((c) => `<span class="mini" style="${starStyle(c.stars)}">${portraitSVG(getChar(c.charId))}</span>`).join('')}</div>
         <button class="btn small ${unlocked ? 'primary' : ''}" data-stage="${s.id}" ${unlocked ? '' : 'disabled'}>${done ? 'Repetir' : unlocked ? 'Lutar' : '🔒'}</button>
       </div>`;
     }).join('')}</div></div>`;
@@ -115,7 +115,7 @@ function finishBattle(stageId: number, winner: string) {
     if (stage.unlock && !save.cards[stage.unlock]) {
       save.cards[stage.unlock] = newOwned(stage.unlock);
       const def = getChar(stage.unlock);
-      unlocked = `<div class="unlock" style="${rarityStyle(def)}">${portraitSVG(def)}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${RARITY_INFO[def.rarity].label} ${starsHTML(def.minStars)}</div></div>`;
+      unlocked = `<div class="unlock" style="${starStyle(def.minStars)}">${portraitSVG(def)}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${categoryHTML(def, true)} · ${RARITY_INFO[def.rarity].label} ${starsHTML(def.minStars)}</div></div>`;
     }
     html = `<h2 class="win">🏆 Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : 'Recompensa de repetição (50%).'}</p>
       <div class="res big"><span>✴ +${got.essencias}</span><span>📜 +${got.pergaminho}</span>${got.cristal ? `<span>💎 +${got.cristal}</span>` : ''}${got.orbe ? `<span>🔮 +${got.orbe}</span>` : ''}</div>${unlocked}`;
@@ -138,21 +138,26 @@ function finishBattle(stageId: number, winner: string) {
 
 // ---------------- COLEÇÃO ----------------
 function collection() {
-  const sorted = PLAYABLE.slice().sort((a, b) => RARITY_INFO[b.rarity].order - RARITY_INFO[a.rarity].order || a.cost - b.cost);
+  const byPower = (a: string, b: string) => {
+    const A = save.cards[a], B = save.cards[b];
+    return B.stars - A.stars || B.level - A.level || getChar(a).cost - getChar(b).cost;
+  };
+  const owned = PLAYABLE.filter((d) => save.cards[d.id]).map((d) => d.id).sort(byPower);
+  const locked = PLAYABLE.filter((d) => !save.cards[d.id]).sort((a, b) => (unlockStage(a.id) ?? 99) - (unlockStage(b.id) ?? 99));
   app.innerHTML = `<div class="screen">${topbar('Coleção & Equipe')}
     <section class="deck-bar">
       <div class="deck-title">Equipe de batalha <b>${save.deck.length}/${DECK_MAX}</b> <small>(mínimo ${DECK_MIN})</small></div>
       <div class="deck-slots">${Array.from({ length: DECK_MAX }, (_, i) => {
         const id = save.deck[i];
-        return id ? `<div class="slot filled" data-card="${id}" style="${rarityStyle(getChar(id))}">${portraitSVG(getChar(id))}<span>${getChar(id).cost}</span></div>` : '<div class="slot">+</div>';
+        return id ? `<div class="slot filled" data-card="${id}" style="${starStyle(save.cards[id].stars)}">${portraitSVG(getChar(id))}<span>${getChar(id).cost}</span><em>${CATEGORY_INFO[getChar(id).category].icon}</em></div>` : '<div class="slot">+</div>';
       }).join('')}</div>
     </section>
-    <p class="hint">Toque numa carta para ver detalhes e colocar/tirar da equipe.</p>
-    <div class="card-grid">${sorted.map((def) => {
-      const owned = save.cards[def.id];
-      if (!owned) return cardHTML({ charId: def.id, level: 1, stars: def.minStars }, { locked: true, attrs: `data-card="${def.id}"`, badge: `🔒 Fase ${unlockStage(def.id) ?? '?'}` });
-      return cardHTML(owned, { attrs: `data-card="${def.id}"`, badge: save.deck.includes(def.id) ? '✔ Equipe' : undefined, extraClass: save.deck.includes(def.id) ? 'in-deck' : '' });
-    }).join('')}</div></div>`;
+    <p class="hint">Toque numa carta para ver detalhes e colocar/tirar da equipe. A cor da carta mostra as estrelas.</p>
+    <h3 class="sec-title">Seus personagens <small>(${owned.length})</small></h3>
+    <div class="card-grid">${owned.map((id) => cardHTML(save.cards[id], { attrs: `data-card="${id}"`, badge: save.deck.includes(id) ? '✔ Equipe' : undefined, extraClass: save.deck.includes(id) ? 'in-deck' : '' })).join('')}</div>
+    ${locked.length ? `<div class="divider"><span>🔒 Ainda não obtidos (${locked.length})</span></div>
+    <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, level: 1, stars: def.minStars }, { locked: true, attrs: `data-card="${def.id}"`, badge: `🔒 Fase ${unlockStage(def.id) ?? '?'}` })).join('')}</div>` : ''}
+  </div>`;
   bindNav();
   app.querySelectorAll<HTMLElement>('[data-card]').forEach((el) => el.addEventListener('click', () => cardDetail(el.dataset.card!)));
 }
@@ -164,14 +169,14 @@ function cardDetail(id: string) {
   const stars = owned?.stars ?? def.minStars;
   const st = statsFor(def, lvl, stars);
   const inDeck = save.deck.includes(id);
-  modal(`<div class="detail" style="${rarityStyle(def)}">
+  modal(`<div class="detail" style="${starStyle(stars)}">
     <div class="detail-art">${portraitSVG(def)}</div>
     <div class="detail-info">
-      <div class="rarity-tag">${RARITY_INFO[def.rarity].label}</div>
+      <div class="rarity-tag">${RARITY_INFO[def.rarity].label}</div> ${categoryHTML(def, true)}
       <h2>${esc(def.name)}</h2><div class="subtitle">${esc(def.title)}</div>
       <div>${starsHTML(stars, def.maxStars)} <small>(${def.minStars}★ a ${def.maxStars}★)</small> · Nv.${lvl}/${maxLevel(stars)}</div>
       <div class="stat-row"><span>Custo <b>${def.cost}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${reachLabel(def)}</b></span><span>Movimento <b>${def.move}</b></span></div>
-      ${abilityListHTML(def)}
+      ${abilityListHTML(def, stars, lvl)}
       <p class="lore">${esc(def.lore)}</p>
     </div></div>
     <div class="row">${owned ? `<button class="btn primary" data-m="deck">${inDeck ? 'Tirar da equipe' : 'Colocar na equipe'}</button><button class="btn" data-m="train">Treinar</button>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id) ?? '?'} para desbloquear.</p>`}<button class="btn ghost" data-m="close">Fechar</button></div>`,
@@ -208,16 +213,17 @@ function train() {
   const pct = Math.round(xpProgress(card) * 100);
   app.innerHTML = `<div class="screen">${topbar('Treinar')}
     <div class="train-list">${Object.values(save.cards)
-      .map((c) => `<button class="mini-card ${c.charId === trainSel ? 'sel' : ''}" data-sel="${c.charId}" style="${rarityStyle(getChar(c.charId))}">${portraitSVG(getChar(c.charId))}<span>Nv.${c.level}</span></button>`)
+      .map((c) => `<button class="mini-card ${c.charId === trainSel ? 'sel' : ''}" data-sel="${c.charId}" style="${starStyle(c.stars)}">${portraitSVG(getChar(c.charId))}<i class="mc-cat">${CATEGORY_INFO[getChar(c.charId).category].icon}</i><span>Nv.${c.level}</span></button>`)
       .join('')}</div>
-    <div class="train-main" style="${rarityStyle(def)}">
+    <div class="train-main" style="${starStyle(card.stars)}">
       <div class="train-art">${portraitSVG(def)}</div>
       <div class="train-info">
-        <div class="rarity-tag">${RARITY_INFO[def.rarity].label}</div>
+        <div class="rarity-tag">${RARITY_INFO[def.rarity].label}</div> ${categoryHTML(def, true)}
         <h2>${esc(def.name)}</h2>
         <div>${starsHTML(card.stars, def.maxStars)} · <b>Nível ${card.level}</b> / ${maxLevel(card.stars)}</div>
         <div class="xpbar"><i style="width:${pct}%"></i><span>${atCap ? 'NÍVEL MÁXIMO' : `${card.xp} / ${xpToNext(card.level)} XP (${pct}%)`}</span></div>
         <div class="stat-row"><span>Ataque <b>${st.atk}</b>${!atCap && nextSt.atk > st.atk ? ` <em>→ ${nextSt.atk}</em>` : ''}</span><span>Vida <b>${st.hp}</b>${!atCap && nextSt.hp > st.hp ? ` <em>→ ${nextSt.hp}</em>` : ''}</span></div>
+        ${abilityListHTML(def, card.stars, card.level)}
         <div class="items">${XP_ITEMS.map((it) => `<button class="item-btn" data-item="${it.id}" ${save.items[it.id] > 0 && !atCap ? '' : 'disabled'}><span class="ic">${it.icon}</span><b>${it.name}</b><small>+${it.xp} XP · você tem ${save.items[it.id]}</small></button>`).join('')}</div>
         ${atCap ? (card.stars < def.maxStars ? `<button class="btn primary" id="ascend" ${canAscend(card) && save.essencias >= ascendCost(card) ? '' : 'disabled'}>⭐ Despertar para ${card.stars + 1}★ (✴ ${ascendCost(card)})</button><p class="hint">Despertar aumenta os status e o nível máximo.</p>` : '<p class="hint">Estrelas no máximo para este personagem!</p>') : `<p class="hint">Alimente itens de XP: ao chegar a 100% da barra, o nível sobe — e a próxima barra fica maior.</p>`}
       </div>
@@ -270,16 +276,20 @@ function help() {
       <li>Toda carta usada <b>volta para o fim do baralho</b> e pode ser comprada de novo depois de algumas rodadas — mesmo que o personagem ainda esteja em campo. Assim o mesmo personagem pode aparecer mais de uma vez.</li></ul>
     <h3>Como as unidades agem</h3><ul>
       <li>Se houver alvo no alcance, atacam. Senão, <b>andam até 2 casas</b> e tentam atacar.</li>
+      <li><b>Só a própria fileira:</b> ninguém ataca a outra fileira, exceto Corte Diagonal (Nara) e Golpe Reverso (Toru). A cura de Mei também alcança vizinhos da outra fileira.</li>
       <li><b>Corpo a corpo:</b> só atinge o inimigo na casa <b>logo à frente</b>.</li>
-      <li><b>Longo alcance 🏹:</b> atinge até <b>2 casas à frente</b> na mesma fileira e não avança se puder atacar.</li>
-      <li><b>O herói inimigo</b> conta como uma unidade parada logo depois da última coluna, alcançável pelas duas fileiras. Quem não tem unidade inimiga para enfrentar ataca o herói com o próprio alcance: corpo a corpo (inclusive Nara e Toru) da <b>última coluna</b>; longo alcance, Lyra, Zarek e Yume já da <b>penúltima</b>, sem precisar ir até o fim.</li>
-      <li><b>Miras especiais</b> nunca atacam de qualquer lugar: <b>Tiro Perfurante</b> pega o inimigo mais distante da sua fileira até 2 casas; <b>Emboscada</b> pega o mais recuado e <b>Instinto Predador</b> o de menos vida, entre os inimigos até 2 colunas à frente (nas duas fileiras). Se não houver ninguém assim, atacam normalmente — ou o herói, se ele estiver a até 2 casas.</li>
+      <li><b>Longo alcance (Magos 🪄, Arqueiros 🏹 e Suportes à distância):</b> atinge o inimigo <b>mais próximo até 3 casas à frente</b> e não avança se puder atacar.</li>
+      <li><b>Ao derrotar um inimigo</b>, a unidade <b>avança 1 casa</b> se ela estiver livre.</li>
+      <li><b>O herói inimigo</b> conta como uma unidade parada logo depois da última coluna, alcançável pelas duas fileiras. Quem não tem unidade inimiga para enfrentar ataca o herói com o próprio alcance: corpo a corpo (inclusive Nara e Toru) da <b>última coluna</b>; Zarek e Yume (mira até 2) da <b>penúltima</b>; quem tem longo alcance já de <b>3 casas</b> antes do herói, sem precisar ir até o fim.</li>
+      <li><b>Miras especiais</b> (sempre na própria fileira): <b>Emboscada</b> (Zarek) pega o inimigo mais distante até 2 casas; <b>Instinto Predador</b> (Yume) o de menos vida até 2 casas; <b>Feixe Perfurante</b> (Lyra) acerta o mais próximo e atravessa os de trás no alcance. Sem alvo válido, atacam normalmente — ou o herói, se estiver no alcance.</li>
       <li><b>Diagonais:</b> Corte Diagonal atinge a casa diagonal logo à frente; Golpe Reverso, a casa diagonal logo atrás.</li>
       <li>Ninguém atravessa um inimigo sem derrotá-lo — exceto quem tem <b>Salto</b> (pula 1 unidade, 2 casas).</li></ul>
     <h3>Fúria de batalha 🔥</h3><p>A partir do <b>turno 8</b>, todas as unidades dos dois lados ganham <b>+1 de ataque a cada 3 turnos</b>, para a luta não travar. Se chegar ao turno 40, vence quem tiver mais vida (em %) no herói.</p>
     <h3>Dano</h3><p><b>Físico 👊</b> é reduzido pela resistência física; <b>Mágico ✨</b> pela resistência mágica. Ex.: 3 de dano físico contra resistência 1 = 2 de dano.</p>
-    <h3>Raridade e estrelas</h3><p>${Object.values(RARITY_INFO).map((r) => `<span class="rar-chip" style="--rc:${r.color}">${r.label}</span>`).join(' ')}</p>
-    <p>Cartas vão de 1★ a 6★. Personagens fracos chegam a 4★ (alguns 5★); os Lendários e Míticos começam em 4★ e alguns chegam a 6★. Cada estrela libera +10 níveis.</p>
+    <h3>Estrelas e cores das cartas</h3><p>${[1, 2, 3, 4, 5, 6].map((n) => `<span class="rar-chip" style="--rc:${STAR_COLORS[n].color}">${n}★ ${STAR_COLORS[n].label}</span>`).join(' ')}</p>
+    <p>A <b>cor da carta mostra as estrelas</b>. A raridade (${Object.values(RARITY_INFO).map((r) => r.label).join(', ')}) aparece como texto. Personagens fracos chegam a 4★ (alguns 5★); Lendários e Míticos começam em 4★ e alguns chegam a 6★. Cada estrela libera +10 níveis.</p>
+    <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.values(CATEGORY_INFO).map((c) => `<li><b>${c.icon} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
+    <h3>Habilidades evoluem</h3><p>As habilidades ficam mais fortes com <b>estrelas</b> (e algumas com <b>nível</b>) — veja "⭐" nos detalhes da carta. Todas têm teto: resistência máxima 3, redução de ataque máxima 2, no máximo 3 Crias por lado e dano mínimo sempre 1. Ninguém fica invencível.</p>
     <h3>Treino</h3><p>Use Pergaminhos, Cristais e Orbes de Ki para encher a barra de XP. Em 100% o nível sobe e a próxima barra é maior. No nível máximo, gaste Essências ✴ para <b>Despertar</b> (+1★).</p>
   </div></div>`;
   bindNav();

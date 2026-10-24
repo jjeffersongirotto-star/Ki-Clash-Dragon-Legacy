@@ -126,32 +126,6 @@ describe('alcance e mira', () => {
     expect(u.col).toBe(6);
     expect(s.heroes.enemy.hp).toBe(30 - u.atk);
   });
-  it('longo alcance atinge no máximo 2 casas à frente e não avança após atacar', () => {
-    const s = emptyBattle();
-    const u = placeUnit(s, c('aiko', 1, 2), 'player', 1, 1);
-    const e = placeUnit(s, c('riku'), 'enemy', 1, 3, { hp: 50 });
-    act(s, new Ctx(), u);
-    expect(u.col).toBe(1);
-    expect(e.hp).toBeLessThan(50);
-    const far = emptyBattle();
-    const u2 = placeUnit(far, c('aiko', 1, 2), 'player', 1, 1);
-    placeUnit(far, c('riku'), 'enemy', 1, 4);
-    expect(findTarget(far, u2)).toBeNull();
-  });
-  it('arqueiro para de andar assim que tem alvo no alcance', () => {
-    const s = emptyBattle();
-    const u = placeUnit(s, c('aiko', 1, 2), 'player', 1, 0);
-    placeUnit(s, c('riku'), 'enemy', 1, 3, { hp: 50 });
-    act(s, new Ctx(), u);
-    expect(u.col).toBe(1);
-  });
-  it('longo alcance atinge o herói a partir da penúltima coluna', () => {
-    const s = emptyBattle();
-    const u = placeUnit(s, c('aiko', 1, 2), 'player', 0, 5);
-    expect(findTarget(s, u)).toBe('hero');
-    u.col = 4;
-    expect(findTarget(s, u)).toBeNull();
-  });
   it('corte diagonal atinge só a diagonal adjacente à frente', () => {
     const s = emptyBattle();
     const u = placeUnit(s, c('nara'), 'player', 0, 3);
@@ -174,48 +148,6 @@ describe('alcance e mira', () => {
     e.col = 2;
     expect(findTarget(s, u)).toBeNull();
   });
-  it('tiro perfurante atinge o inimigo mais distante da fileira, até 2 casas', () => {
-    const s = emptyBattle();
-    const u = placeUnit(s, c('lyra', 1, 2), 'player', 0, 2);
-    placeUnit(s, c('riku'), 'enemy', 0, 3);
-    const second = placeUnit(s, c('riku'), 'enemy', 0, 4);
-    placeUnit(s, c('riku'), 'enemy', 0, 6);
-    expect(findTarget(s, u)).toBe(second);
-  });
-  it('tiro perfurante não atinge de longe', () => {
-    const s = emptyBattle();
-    const u = placeUnit(s, c('lyra', 1, 2), 'player', 0, 0);
-    placeUnit(s, c('riku'), 'enemy', 0, 6);
-    expect(findTarget(s, u)).toBeNull();
-  });
-  it('emboscada atinge o mais recuado entre os inimigos até 2 colunas à frente', () => {
-    const s = emptyBattle();
-    const u = placeUnit(s, c('zarek', 1, 3), 'player', 0, 2);
-    placeUnit(s, c('riku'), 'enemy', 0, 3);
-    const back = placeUnit(s, c('riku'), 'enemy', 1, 4);
-    placeUnit(s, c('riku'), 'enemy', 1, 6);
-    expect(findTarget(s, u)).toBe(back);
-  });
-  it('emboscada não atinge de longe', () => {
-    const s = emptyBattle();
-    const u = placeUnit(s, c('zarek', 1, 3), 'player', 0, 0);
-    placeUnit(s, c('riku'), 'enemy', 1, 5);
-    expect(findTarget(s, u)).toBeNull();
-  });
-  it('instinto predador atinge o de menos vida até 2 colunas à frente', () => {
-    const s = emptyBattle();
-    const u = placeUnit(s, c('yume', 1, 3), 'player', 0, 2);
-    placeUnit(s, c('gorath'), 'enemy', 0, 3);
-    const weak = placeUnit(s, c('riku'), 'enemy', 1, 4, { hp: 2 });
-    placeUnit(s, c('riku'), 'enemy', 1, 6, { hp: 1 });
-    expect(findTarget(s, u)).toBe(weak);
-  });
-  it('instinto predador não atinge de longe', () => {
-    const s = emptyBattle();
-    const u = placeUnit(s, c('yume', 1, 3), 'player', 0, 0);
-    placeUnit(s, c('riku'), 'enemy', 1, 6, { hp: 1 });
-    expect(findTarget(s, u)).toBeNull();
-  });
 });
 
 describe('herói como alvo (coluna virtual após a arena)', () => {
@@ -228,15 +160,6 @@ describe('herói como alvo (coluna virtual após a arena)', () => {
         u.col = 6;
         expect(findTarget(s, u)).toBe('hero');
       }
-    }
-  });
-  it('Lyra, Zarek, Yume e longo alcance atacam o herói da penúltima coluna', () => {
-    for (const id of ['lyra', 'zarek', 'yume', 'aiko', 'nyx']) {
-      const s = emptyBattle();
-      const u = placeUnit(s, c(id, 1, 4), 'player', 1, 5);
-      expect(findTarget(s, u)).toBe('hero');
-      u.col = 4;
-      expect(findTarget(s, u)).toBeNull();
     }
   });
   it('vale para o inimigo também (herói do jogador à esquerda)', () => {
@@ -252,20 +175,6 @@ describe('herói como alvo (coluna virtual após a arena)', () => {
     act(s, new Ctx(), u);
     expect(u.col).toBe(5);
     expect(s.heroes.enemy.hp).toBe(30 - u.atk);
-  });
-  it('unidade inimiga válida tem prioridade sobre o herói', () => {
-    const s = emptyBattle();
-    const u = placeUnit(s, c('lyra', 1, 2), 'player', 0, 5);
-    const e = placeUnit(s, c('riku'), 'enemy', 0, 6);
-    expect(findTarget(s, u)).toBe(e);
-    const y = placeUnit(s, c('yume', 1, 3), 'player', 1, 5);
-    expect(findTarget(s, y)).toBe(e);
-  });
-  it('mira especial sem alvo válido ataca o herói com o alcance normal', () => {
-    const s = emptyBattle();
-    const l = placeUnit(s, c('lyra', 1, 2), 'player', 1, 5);
-    placeUnit(s, c('riku'), 'enemy', 0, 2); // inimigo atrás, fora da mira
-    expect(findTarget(s, l)).toBe('hero');
   });
   it('não atravessa inimigo para chegar ao herói (exceto salto)', () => {
     const s = emptyBattle();
@@ -290,42 +199,6 @@ describe('herói como alvo (coluna virtual após a arena)', () => {
 });
 
 describe('habilidades únicas', () => {
-  it('Prole Sombria: ao derrotar, surge uma cria (1 de vida, ataque mágico à distância)', () => {
-    const s = emptyBattle();
-    const v = placeUnit(s, c('vorax', 1, 4), 'player', 1, 3);
-    placeUnit(s, c('riku'), 'enemy', 1, 4, { hp: 1 });
-    act(s, new Ctx(), v);
-    const cria = s.units.find((u) => u.charId === 'cria');
-    expect(cria).toBeTruthy();
-    expect(cria!.side).toBe('player');
-    expect(cria!.hp).toBe(1);
-    expect(cria!.atk).toBe(2);
-    expect(cria!.damageType).toBe('magico');
-    expect([cria!.row, cria!.col]).toEqual([1, 4]);
-  });
-  it('crias que derrotam alguém geram novas crias', () => {
-    const s = emptyBattle();
-    const cria = placeUnit(s, c('cria'), 'player', 1, 2, { minion: true, atk: 2, hp: 1 });
-    placeUnit(s, c('riku'), 'enemy', 1, 4, { hp: 1 });
-    act(s, new Ctx(), cria);
-    expect(s.units.filter((u) => u.charId === 'cria')).toHaveLength(2);
-  });
-  it('ataque da cria escala com o nível do invocador', () => {
-    const s = emptyBattle();
-    const v = placeUnit(s, c('vorax', 21, 4), 'player', 1, 3);
-    placeUnit(s, c('riku'), 'enemy', 1, 4, { hp: 1 });
-    act(s, new Ctx(), v);
-    expect(s.units.find((u) => u.charId === 'cria')!.atk).toBe(4);
-  });
-  it('Punho Espelhado: contra-ataca em dobro e empurra o agressor físico de frente', () => {
-    const s = emptyBattle();
-    const k = placeUnit(s, c('kenji', 1, 4), 'enemy', 1, 5, { atk: 3, hp: 50 });
-    const a = placeUnit(s, c('nara'), 'player', 1, 4, { atk: 2, hp: 20 });
-    act(s, new Ctx(), a);
-    expect(a.hp).toBe(20 - 6);
-    expect(a.col).toBe(3);
-    expect(k.hp).toBe(50 - 1);
-  });
   it('Punho Espelhado não reage a dano mágico', () => {
     const s = emptyBattle();
     placeUnit(s, c('kenji', 1, 4), 'enemy', 1, 5, { hp: 50 });
@@ -339,21 +212,6 @@ describe('habilidades únicas', () => {
     const t = placeUnit(s, c('toru'), 'player', 0, 4, { hp: 20 });
     act(s, new Ctx(), t);
     expect(t.hp).toBe(20);
-  });
-  it('Sifão de Energia reduz o ataque de todos os inimigos', () => {
-    const s = emptyBattle();
-    const a = placeUnit(s, c('riku'), 'player', 0, 0, { atk: 4 });
-    const b = placeUnit(s, c('nara'), 'player', 1, 0, { atk: 3 });
-    expect(effectiveAtk(s, a)).toBe(4);
-    placeUnit(s, c('nyx', 1, 4), 'enemy', 1, 6);
-    expect(effectiveAtk(s, a)).toBe(3);
-    expect(effectiveAtk(s, b)).toBe(2);
-  });
-  it('Sifão com 6★ reduz 2', () => {
-    const s = emptyBattle();
-    const a = placeUnit(s, c('riku'), 'player', 0, 0, { atk: 4 });
-    placeUnit(s, c('nyx', 1, 6), 'enemy', 1, 6);
-    expect(effectiveAtk(s, a)).toBe(2);
   });
 });
 

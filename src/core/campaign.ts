@@ -27,14 +27,14 @@ const NAMES = [
 const POOLS: string[][] = [
   ['riku', 'nara', 'riku', 'nara'],
   ['riku', 'nara', 'toru', 'aiko'],
-  ['nara', 'toru', 'aiko', 'gorath', 'riku'],
+  ['nara', 'toru', 'aiko', 'riku', 'nara'],
   ['toru', 'aiko', 'lyra', 'gorath', 'riku'],
-  ['aiko', 'lyra', 'gorath', 'yume', 'kenji'],
+  ['aiko', 'lyra', 'riku', 'yume', 'kenji'],
   ['lyra', 'riku', 'yume', 'zarek', 'nyx'],
   ['nara', 'yume', 'zarek', 'kenji', 'aiko', 'riku'],
   ['vorax', 'kenji', 'toru', 'lyra', 'riku', 'nara'],
   ['yume', 'zarek', 'kenji', 'nyx', 'aiko', 'riku'],
-  ['vorax', 'nyx', 'kenji', 'toru', 'nara', 'riku'],
+  ['vorax', 'kenji', 'toru', 'nara', 'riku', 'aiko'],
 ];
 
 const UNLOCKS: Record<number, string> = { 3: 'kenji', 5: 'nyx', 8: 'vorax' };

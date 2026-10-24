@@ -14,7 +14,7 @@ export function aiDeploy(state: BattleState, ctx: Ctx, side: Side) {
       .sort((a, b) => b.def.cost - a.def.cost || nextRandom(state) - 0.5);
     if (!options.length) return;
     const pick = options[0];
-    const backline = !!has(pick.def.abilities, (a) => a.rangeBonus || a.targeting === 'ultimoDaFila' || a.targeting === 'retaguarda' || a.targeting === 'menorVida');
+    const backline = !!has(pick.def.abilities, (a) => a.rangeBonus);
     const front = side === 'enemy' ? state.cols - DEPLOY_DEPTH : DEPLOY_DEPTH - 1;
     const back = side === 'enemy' ? state.cols - 1 : 0;
     const colsPref = backline ? [back, front] : [front, back];

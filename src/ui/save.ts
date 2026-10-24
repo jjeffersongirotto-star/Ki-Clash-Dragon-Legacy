@@ -13,7 +13,7 @@ export interface SaveData {
 const KEY = 'kicdl-save-v1';
 export const DECK_MAX = 6;
 export const DECK_MIN = 3;
-export const STARTERS = ['riku', 'nara', 'toru', 'aiko', 'lyra', 'gorath', 'yume', 'zarek'];
+export const STARTERS = ['riku', 'nara', 'toru', 'aiko', 'lyra', 'gorath', 'mei', 'yume', 'zarek'];
 
 export function defaultSave(): SaveData {
   const cards: Record<string, OwnedCard> = {};
@@ -35,7 +35,10 @@ export function loadSave(): SaveData {
     if (!raw) return defaultSave();
     const d = JSON.parse(raw) as SaveData;
     if (d.version !== 1) return defaultSave();
-    return { ...defaultSave(), ...d };
+    const merged = { ...defaultSave(), ...d };
+    // migração: personagens iniciais novos entram na coleção
+    for (const id of STARTERS) if (!merged.cards[id]) merged.cards[id] = newOwned(id);
+    return merged;
   } catch {
     return defaultSave();
   }

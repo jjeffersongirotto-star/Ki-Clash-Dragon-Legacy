@@ -1,8 +1,9 @@
-import { ABILITIES, has } from './abilities';
+import { ABILITIES, AURA_CAP, MINION_CAP, RES_CAP, abilityPower, has } from './abilities';
 import { getChar } from './characters';
 import { statsFor } from './progression';
 import { shuffle } from './rng';
 import type {
+  AbilityId,
   BattleEvent,
   BattleState,
   CardInstance,
@@ -142,6 +143,15 @@ export function makeUnit(
   const def = getChar(card.charId);
   const s = statsFor(def, card.level, card.stars);
   const hp = opts.hp ?? s.hp;
+  let physRes = def.physRes;
+  let magRes = def.magRes;
+  for (const id of def.abilities) {
+    const rb = ABILITIES[id].resBonus?.(card.stars);
+    if (rb) {
+      physRes += rb.phys;
+      magRes += rb.mag;
+    }
+  }
   return {
     uid: state.nextUid++,
     charId: def.id,
@@ -152,8 +162,8 @@ export function makeUnit(
     maxHp: hp,
     hp,
     damageType: def.damageType,
-    physRes: def.physRes,
-    magRes: def.magRes,
+    physRes: Math.min(RES_CAP, physRes),
+    magRes: Math.min(RES_CAP, magRes),
     move: def.move,
     range: def.range,
     abilities: def.abilities.slice(),
@@ -181,14 +191,15 @@ export function hasRangeBonus(u: Unit): boolean {
   return !!has(u.abilities, (a) => a.rangeBonus);
 }
 
+const pw = (u: Unit, id: AbilityId) => (u.abilities.includes(id) ? abilityPower(id, u.stars, u.level) : 0);
+
 export function auraPenalty(state: BattleState, u: Unit): number {
   let p = 0;
   for (const e of state.units) {
     if (e.hp <= 0 || e.side === u.side) continue;
-    const a = has(e.abilities, (x) => x.enemyAtkAura);
-    if (a) p += (a.enemyAtkAura ?? 0) + (e.stars >= 6 ? 1 : 0);
+    if (has(e.abilities, (x) => x.enemyAtkAura)) p += pw(e, 'sifao');
   }
-  return p;
+  return Math.min(AURA_CAP, p);
 }
 
 /** Fúria de batalha: a partir do turno FURY_START, todos ganham +1 de ataque a cada FURY_EVERY turnos (evita empates travados). */
@@ -202,9 +213,9 @@ export function effectiveAtk(state: BattleState, u: Unit): number {
   return Math.max(1, u.atk - auraPenalty(state, u)) + (state.fury ? furyBonus(state.turn) : 0);
 }
 
-/** Dano após resistência. Resistência física 1 contra 3 de dano físico = 2. Mínimo 1. */
-export function computeDamage(atk: number, type: 'fisico' | 'magico', target: { physRes: number; magRes: number }): number {
-  const res = type === 'fisico' ? target.physRes : target.magRes;
+/** Dano após resistência. Resistência física 1 contra 3 de dano físico = 2. Mínimo 1. `pierce` ignora parte da resistência. */
+export function computeDamage(atk: number, type: 'fisico' | 'magico', target: { physRes: number; magRes: number }, pierce = 0): number {
+  const res = Math.max(0, (type === 'fisico' ? target.physRes : target.magRes) - pierce);
   return Math.max(1, atk - res);
 }
 
@@ -214,12 +225,11 @@ export function distanceToEnemyHero(state: BattleState, u: Unit): number {
 
 /**
  * Mira. Regras (arena 2x7):
- * - Básico: inimigo na casa logo à frente (alcance 1). Longo alcance: até 2 casas à frente na fileira.
- * - Herói: funciona como uma unidade inimiga numa coluna virtual logo após o fim da arena, alcançável das
- *   duas fileiras. Se não houver unidade inimiga válida, qualquer unidade ataca o herói com seu alcance
- *   normal (corpo a corpo: na última coluna; alcance 2 / miras especiais: a partir da penúltima).
- * - Miras especiais (último da fila, retaguarda, menor vida) só enxergam até `reach` colunas à frente.
- * - Diagonais: apenas a casa diagonal adjacente (à frente ou atrás).
+ * - Ninguém ataca unidades da OUTRA fileira, exceto as habilidades diagonais (Corte Diagonal / Golpe Reverso).
+ * - Básico: inimigo na casa logo à frente (alcance 1). Longo alcance: o inimigo MAIS PRÓXIMO até 3 casas à frente.
+ * - Miras especiais (retaguarda = mais distante; menor vida) olham só a própria fileira até `reach` casas.
+ * - Herói: funciona como uma unidade numa coluna virtual logo após o fim da arena, alcançável pelas duas
+ *   fileiras. Sem unidade inimiga válida, qualquer unidade ataca o herói com seu alcance.
  */
 export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
   const enemies = state.units.filter((e) => e.hp > 0 && e.side !== u.side);
@@ -229,32 +239,24 @@ export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
   const r = rangeOf(u);
   const reach = Math.max(r, ab?.reach ?? 0);
   const fwd = (e: Unit) => (e.col - u.col) * d;
-  const ahead = (e: Unit) => fwd(e) >= 1 && fwd(e) <= reach;
+  const rowAhead = enemies.filter((e) => e.row === u.row && fwd(e) >= 1 && fwd(e) <= reach);
 
-  if (targeting === 'menorVida') {
-    const c = enemies.filter(ahead).sort((a, b) => a.hp - b.hp || fwd(a) - fwd(b) || a.uid - b.uid);
-    if (c.length) return c[0];
-  } else if (targeting === 'retaguarda') {
-    const c = enemies.filter(ahead).sort((a, b) => fwd(b) - fwd(a) || Math.abs(a.row - u.row) - Math.abs(b.row - u.row) || a.uid - b.uid);
-    if (c.length) return c[0];
-  } else if (targeting === 'ultimoDaFila') {
-    const c = enemies.filter((e) => e.row === u.row && ahead(e)).sort((a, b) => fwd(b) - fwd(a));
-    if (c.length) return c[0];
+  if (targeting === 'menorVida' && rowAhead.length) {
+    return rowAhead.sort((a, b) => a.hp - b.hp || fwd(a) - fwd(b))[0];
   }
-
-  const straight: Unit[] = [];
-  const diagF: Unit[] = [];
-  const diagB: Unit[] = [];
-  for (const e of enemies) {
-    const f = fwd(e);
-    const dr = Math.abs(e.row - u.row);
-    if (dr === 0 && f >= 1 && f <= r) straight.push(e);
-    else if (targeting === 'diagFrente' && f === 1 && dr === 1) diagF.push(e);
-    else if (targeting === 'diagTras' && f === -1 && dr === 1) diagB.push(e);
+  if (targeting === 'retaguarda' && rowAhead.length) {
+    return rowAhead.sort((a, b) => fwd(b) - fwd(a))[0];
   }
-  if (diagB.length) return diagB.sort((a, b) => a.hp - b.hp)[0];
-  if (straight.length) return straight.sort((a, b) => fwd(a) - fwd(b))[0];
-  if (diagF.length) return diagF.sort((a, b) => a.hp - b.hp)[0];
+  if (targeting === 'diagTras') {
+    const back = enemies.filter((e) => fwd(e) === -1 && Math.abs(e.row - u.row) === 1);
+    if (back.length) return back.sort((a, b) => a.hp - b.hp)[0];
+  }
+  const straight = enemies.filter((e) => e.row === u.row && fwd(e) >= 1 && fwd(e) <= r).sort((a, b) => fwd(a) - fwd(b));
+  if (straight.length) return straight[0];
+  if (targeting === 'diagFrente') {
+    const diag = enemies.filter((e) => fwd(e) === 1 && Math.abs(e.row - u.row) === 1);
+    if (diag.length) return diag.sort((a, b) => a.hp - b.hp)[0];
+  }
   if (distanceToEnemyHero(state, u) <= reach) return 'hero';
   return null;
 }
@@ -262,8 +264,7 @@ export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
 function isMeleeFrontAttack(att: Unit, target: Unit): boolean {
   if (att.damageType !== 'fisico' || hasRangeBonus(att)) return false;
   if (att.row !== target.row) return false;
-  const f = (att.col - target.col) * dir(target.side);
-  return f === 1;
+  return (att.col - target.col) * dir(target.side) === 1;
 }
 
 const nameOf = (u: Unit) => `${getChar(u.charId).name}${u.side === 'enemy' ? ' (inimigo)' : ''}`;
@@ -276,28 +277,41 @@ function checkWinner(state: BattleState, ctx: Ctx) {
     ctx.emit(state, { type: 'end', winner: state.winner, text: state.winner === 'player' ? '🏆 Vitória! O herói inimigo caiu.' : '💀 Derrota... seu herói caiu.' });
 }
 
-export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'hero', multiplier = 1, isCounter = false) {
-  const atk = effectiveAtk(state, u) * multiplier;
+export interface AttackOpts {
+  /** multiplicador do ataque (contra-golpe) */
+  mult?: number;
+  /** é um contra-ataque (não gera outro contra) */
+  counter?: boolean;
+  /** bônus somado ao ataque */
+  bonus?: number;
+  /** porcentagem do ataque (golpes secundários) */
+  pct?: number;
+  /** ataque fixo (2ª flecha) */
+  fixed?: number;
+  /** golpe secundário: não aciona contra-golpe */
+  secondary?: boolean;
+  label?: string;
+}
+
+export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'hero', opts: AttackOpts = {}) {
+  let atk = opts.fixed ?? Math.round(effectiveAtk(state, u) * (opts.mult ?? 1)) + (opts.bonus ?? 0);
+  if (opts.pct != null && opts.fixed == null) atk = Math.max(1, Math.ceil((atk * opts.pct) / 100));
+  const verb = opts.label ?? (opts.counter ? 'contra-ataca' : 'ataca');
   if (target === 'hero') {
     const side = enemyOf(u.side);
-    ctx.emit(state, { type: 'attack', uid: u.uid, target: 'hero', targetSide: side, ranged: true, damageType: u.damageType, text: `${nameOf(u)} ataca o herói ${side === 'enemy' ? 'inimigo' : 'aliado'}!` });
+    ctx.emit(state, { type: 'attack', uid: u.uid, target: 'hero', targetSide: side, ranged: true, damageType: u.damageType, text: `${nameOf(u)} ${verb} o herói ${side === 'enemy' ? 'inimigo' : 'aliado'}!` });
     state.heroes[side].hp = Math.max(0, state.heroes[side].hp - atk);
     ctx.emit(state, { type: 'hero', side, amount: atk, text: `Herói ${side === 'enemy' ? 'inimigo' : 'aliado'} sofre ${atk} de dano (${state.heroes[side].hp}/${state.heroes[side].maxHp}).` });
     checkWinner(state, ctx);
     return;
   }
+  // execução (Instinto Predador)
+  if (!opts.counter && u.abilities.includes('menorVida') && target.hp * 2 <= target.maxHp) atk += pw(u, 'menorVida');
+  const pierce = pw(u, 'retaguarda');
   const dist = Math.max(Math.abs(target.col - u.col), Math.abs(target.row - u.row));
   const ranged = !(u.damageType === 'fisico' && dist <= 1 && !hasRangeBonus(u));
-  const dmg = computeDamage(atk, u.damageType, target);
-  ctx.emit(state, {
-    type: 'attack',
-    uid: u.uid,
-    target: target.uid,
-    targetSide: target.side,
-    ranged,
-    damageType: u.damageType,
-    text: `${nameOf(u)} ${isCounter ? 'contra-ataca' : 'ataca'} ${nameOf(target)}`,
-  });
+  const dmg = computeDamage(atk, u.damageType, target, pierce);
+  ctx.emit(state, { type: 'attack', uid: u.uid, target: target.uid, targetSide: target.side, ranged, damageType: u.damageType, text: `${nameOf(u)} ${verb} ${nameOf(target)}` });
   target.hp -= dmg;
   const resisted = atk - dmg;
   ctx.emit(state, {
@@ -312,37 +326,57 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
     return;
   }
   // gancho: contra-golpe
-  if (!isCounter && u.hp > 0) {
-    const c = has(target.abilities, (a) => a.counter)?.counter;
-    if (c && isMeleeFrontAttack(u, target)) {
-      ctx.emit(state, { type: 'counter', uid: target.uid, target: u.uid, text: `🔁 ${nameOf(target)} ativa ${ABILITIES.contraGolpe.name}!` });
-      attack(state, ctx, target, u, c.multiplier, true);
-      if (u.hp > 0 && !has(u.abilities, (a) => a.unpushable)) {
-        const newCol = u.col - dir(u.side) * c.push;
-        if (inBoard(state, u.row, newCol) && !unitAt(state, u.row, newCol)) {
-          const from: [number, number] = [u.row, u.col];
-          u.col = newCol;
-          ctx.emit(state, { type: 'push', uid: u.uid, from, to: [u.row, u.col], text: `  ${nameOf(u)} é empurrado para trás.` });
-        }
+  if (!opts.counter && !opts.secondary && u.hp > 0 && has(target.abilities, (a) => a.counter) && isMeleeFrontAttack(u, target)) {
+    ctx.emit(state, { type: 'counter', uid: target.uid, target: u.uid, text: `🔁 ${nameOf(target)} ativa ${ABILITIES.contraGolpe.name}!` });
+    attack(state, ctx, target, u, { mult: pw(target, 'contraGolpe'), counter: true });
+    if (u.hp > 0 && !has(u.abilities, (a) => a.unpushable)) {
+      const newCol = u.col - dir(u.side);
+      if (inBoard(state, u.row, newCol) && !unitAt(state, u.row, newCol)) {
+        const from: [number, number] = [u.row, u.col];
+        u.col = newCol;
+        ctx.emit(state, { type: 'push', uid: u.uid, from, to: [u.row, u.col], text: `  ${nameOf(u)} é empurrado para trás.` });
       }
     }
   }
 }
 
+/** quem já deu o passo à frente nesta ação (1 passo por ação) */
+const stepped = new WeakMap<Ctx, Set<number>>();
+
 function kill(state: BattleState, ctx: Ctx, victim: Unit, killer: Unit) {
   victim.hp = 0;
   state.units = state.units.filter((x) => x !== victim);
   ctx.emit(state, { type: 'death', uid: victim.uid, text: `✖ ${nameOf(victim)} foi derrotado.` });
+  const oldPos: [number, number] = [killer.row, killer.col];
+  // regra: ao derrotar, avança 1 casa se estiver livre
+  const set = stepped.get(ctx) ?? new Set<number>();
+  stepped.set(ctx, set);
+  if (killer.hp > 0 && state.units.includes(killer) && !set.has(killer.uid)) {
+    const next = killer.col + dir(killer.side);
+    if (inBoard(state, killer.row, next) && !unitAt(state, killer.row, next)) {
+      set.add(killer.uid);
+      killer.col = next;
+      ctx.emit(state, { type: 'move', uid: killer.uid, from: oldPos, to: [killer.row, killer.col], jumped: false, text: `  ${nameOf(killer)} avança após a vitória.` });
+    }
+  }
   // gancho: invocar ao derrotar
   const summon = has(killer.abilities, (a) => a.onKillSummon)?.onKillSummon;
-  if (summon && !unitAt(state, victim.row, victim.col)) {
-    const atk = 2 + Math.floor((killer.level - 1) / 10);
-    const m = placeUnit(state, { charId: summon, level: killer.level, stars: 1 }, killer.side, victim.row, victim.col, { minion: true, atk, hp: 1 });
-    ctx.emit(state, { type: 'spawn', uid: m.uid, text: `🥚 Uma ${getChar(summon).name} surge dos restos!` });
+  if (summon) {
+    const alive = state.units.filter((x) => x.side === killer.side && x.charId === summon).length;
+    if (alive < MINION_CAP) {
+      const spot = [[victim.row, victim.col], oldPos].find(([r, c]) => inBoard(state, r, c) && !unitAt(state, r, c));
+      if (spot) {
+        const atk = 2 + Math.min(2, Math.floor((killer.level - 1) / 15));
+        const hp = pw(killer, 'prole') || 1;
+        const m = placeUnit(state, { charId: summon, level: killer.level, stars: killer.stars }, killer.side, spot[0], spot[1], { minion: true, atk, hp });
+        ctx.emit(state, { type: 'spawn', uid: m.uid, text: `🥚 Uma ${getChar(summon).name} surge dos restos!` });
+      }
+    }
   }
 }
 
-export function moveUnit(state: BattleState, ctx: Ctx, u: Unit) {
+/** Move a unidade; retorna true se saltou. */
+export function moveUnit(state: BattleState, ctx: Ctx, u: Unit): boolean {
   const d = dir(u.side);
   const canJump = !!has(u.abilities, (a) => a.jump);
   const from: [number, number] = [u.row, u.col];
@@ -369,19 +403,68 @@ export function moveUnit(state: BattleState, ctx: Ctx, u: Unit) {
   if (u.col !== from[1]) {
     ctx.emit(state, { type: 'move', uid: u.uid, from, to: [u.row, u.col], jumped, text: `${nameOf(u)} ${jumped ? 'salta' : 'avança'} para a coluna ${u.col + 1}.` });
   }
+  return jumped;
 }
 
-/** Ação automática: ataca se houver alvo; senão anda e tenta atacar. */
-export function act(state: BattleState, ctx: Ctx, u: Unit) {
-  if (u.hp <= 0 || state.winner) return;
-  let t = findTarget(state, u);
-  if (t) {
-    attack(state, ctx, u, t);
+function healNeighbors(state: BattleState, ctx: Ctx, u: Unit) {
+  const amount = pw(u, 'lotus');
+  if (!amount) return;
+  for (const a of state.units) {
+    if (a === u || a.side !== u.side || a.hp <= 0 || a.hp >= a.maxHp) continue;
+    if (Math.abs(a.row - u.row) > 1 || Math.abs(a.col - u.col) > 1) continue;
+    const h = Math.min(amount, a.maxHp - a.hp);
+    a.hp += h;
+    ctx.emit(state, { type: 'heal', uid: a.uid, amount: h, text: `✚ ${nameOf(u)} cura ${nameOf(a)} em ${h}.` });
+  }
+}
+
+/** Golpe completo de uma unidade: alvo principal + efeitos de habilidade. */
+function strike(state: BattleState, ctx: Ctx, u: Unit, t: Unit | 'hero', bonus = 0) {
+  if (t === 'hero') {
+    attack(state, ctx, u, 'hero', { bonus });
     return;
   }
-  moveUnit(state, ctx, u);
+  const d = dir(u.side);
+  const tRow = t.row;
+  const tCol = t.col;
+  attack(state, ctx, u, t, { bonus });
+  if (state.winner || u.hp <= 0) return;
+  // Corte Diagonal: ao bater em frente, também corta a diagonal
+  const cleave = pw(u, 'diagFrente');
+  if (cleave && tRow === u.row) {
+    for (const e of state.units.filter((e) => e.side !== u.side && e.hp > 0 && Math.abs(e.row - u.row) === 1 && (e.col - u.col) * d === 1)) {
+      attack(state, ctx, u, e, { pct: cleave, secondary: true, label: 'corta na diagonal' });
+      if (state.winner || u.hp <= 0) return;
+    }
+  }
+  // Feixe Perfurante: atinge os que estão atrás do alvo, na mesma fileira e no alcance
+  if (u.abilities.includes('perfurante')) {
+    const pct = pw(u, 'perfurante');
+    const r = rangeOf(u);
+    const behind = state.units.filter((e) => e.side !== u.side && e.hp > 0 && e.row === tRow && (e.col - tCol) * d > 0 && (e.col - u.col) * d <= r);
+    for (const e of behind) {
+      attack(state, ctx, u, e, { pct, secondary: true, label: 'atravessa e atinge' });
+      if (state.winner || u.hp <= 0) return;
+    }
+  }
+  // Flecha Dupla
+  const second = pw(u, 'flechaDupla');
+  if (second && t.hp > 0 && state.units.includes(t)) attack(state, ctx, u, t, { fixed: second, secondary: true, label: 'dispara a 2ª flecha em' });
+}
+
+/** Ação automática: (cura) → ataca se houver alvo; senão anda e tenta atacar. */
+export function act(state: BattleState, ctx: Ctx, u: Unit) {
+  if (u.hp <= 0 || state.winner) return;
+  stepped.set(ctx, new Set());
+  healNeighbors(state, ctx, u);
+  let t = findTarget(state, u);
+  if (t) {
+    strike(state, ctx, u, t);
+    return;
+  }
+  const jumped = moveUnit(state, ctx, u);
   t = findTarget(state, u);
-  if (t) attack(state, ctx, u, t);
+  if (t) strike(state, ctx, u, t, jumped ? pw(u, 'salto') : 0);
 }
 
 export function resolveSide(state: BattleState, ctx: Ctx, side: Side) {
