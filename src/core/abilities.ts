@@ -20,7 +20,7 @@ export interface AbilityDef {
   /** como exibir a força atual */
   powerLabel?: (p: number) => string;
   /** gancho de mira (sempre na própria fileira, exceto diagonais) */
-  targeting?: 'diagFrente' | 'diagTras' | 'retaguarda' | 'menorVida';
+  targeting?: 'diagFrente' | 'diagTras' | 'retaguarda' | 'menorVida' | 'longoAlcance' | 'maiorAtaque';
   /** bônus de alcance */
   rangeBonus?: number;
   /** alcance (em colunas à frente) da mira especial */
@@ -35,6 +35,24 @@ export interface AbilityDef {
   enemyAtkAura?: boolean;
   /** não pode ser empurrado */
   unpushable?: boolean;
+  /** ao sofrer golpe físico corpo a corpo de frente: devolve `power` de dano fixo */
+  thorns?: boolean;
+  /** no início da ação: cura `power` o aliado mais ferido da própria fileira */
+  healRow?: boolean;
+  /** aura: aliados vizinhos ganham `power` de ataque (não acumula) */
+  allyAtkAura?: boolean;
+  /** ao acertar uma unidade: `power` de dano na unidade inimiga da mesma coluna na outra fileira */
+  splashOtherRow?: boolean;
+  /** `power` de dano extra contra o herói */
+  heroBonus?: boolean;
+  /** ignora `power` de resistência */
+  pierce?: boolean;
+  /** `power` de dano extra em alvos a 2 ou 3 casas */
+  farBonus?: boolean;
+  /** `power` de dano extra contra unidades de longo alcance */
+  rangedBonus?: boolean;
+  /** `power` de dano extra em alvos com a vida cheia */
+  fullHpBonus?: boolean;
   /** bônus de resistência por estrela */
   resBonus?: (stars: number) => { phys: number; mag: number };
 }
@@ -45,6 +63,8 @@ const clamp = (v: number, max: number) => Math.max(0, Math.min(max, v));
 export const RES_CAP = 3;
 export const AURA_CAP = 2;
 export const MINION_CAP = 3;
+/** bônus de ataque máximo vindo de aliados (Tambor de Guerra) */
+export const BUFF_CAP = 2;
 
 export const ABILITIES: Record<AbilityId, AbilityDef> = {
   diagFrente: {
@@ -187,6 +207,101 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     description: 'Ataque mágico no inimigo mais próximo até 2 casas à frente na sua fileira (inclusive o herói). Não avança quando consegue atacar.',
     icon: '🌑',
     rangeBonus: 1,
+  },
+  // ---------- personagens iniciais (1★ → 4★) ----------
+  espinhos: {
+    id: 'espinhos',
+    name: 'Couraça de Espinhos',
+    description: 'Quem o ataca corpo a corpo de frente sofre dano fixo de volta (se ele sobreviver ao golpe).',
+    icon: '🌵',
+    thorns: true,
+    scaling: 'Devolve 1 (1–2★) · 2 (3★) · 3 (4★, máx.).',
+    power: (s) => (s >= 4 ? 3 : s >= 3 ? 2 : 1),
+    powerLabel: (p) => `devolve ${p}`,
+  },
+  sopro: {
+    id: 'sopro',
+    name: 'Sopro Restaurador',
+    description: 'No início da sua ação, cura o aliado mais ferido da própria fileira (qualquer distância).',
+    icon: '🍃',
+    healRow: true,
+    scaling: 'Cura 1 (1–2★) · 2 (3★) · 3 (4★, máx.).',
+    power: (s) => (s >= 4 ? 3 : s >= 3 ? 2 : 1),
+    powerLabel: (p) => `cura ${p}`,
+  },
+  tambor: {
+    id: 'tambor',
+    name: 'Tambor de Guerra',
+    description: 'Enquanto estiver em campo, os aliados vizinhos (inclusive diagonais e a outra fileira) ganham ataque. Vários tambores não se somam.',
+    icon: '🥁',
+    allyAtkAura: true,
+    scaling: '+1 de ataque (1–3★) · +2 (4★, máx.).',
+    power: (s) => (s >= 4 ? 2 : 1),
+    powerLabel: (p) => `vizinhos +${p} ataque`,
+  },
+  brasa: {
+    id: 'brasa',
+    name: 'Explosão de Brasas',
+    description: 'Ao acertar uma unidade, a explosão também atinge com dano mágico o inimigo da mesma coluna na outra fileira.',
+    icon: '💥',
+    splashOtherRow: true,
+    scaling: 'Explosão de 1 (1–2★) · 2 (3–4★, máx.).',
+    power: (s) => (s >= 3 ? 2 : 1),
+    powerLabel: (p) => `explosão ${p}`,
+  },
+  mare: {
+    id: 'mare',
+    name: 'Maré Implacável',
+    description: 'Causa dano extra ao atacar o herói inimigo.',
+    icon: '🌊',
+    heroBonus: true,
+    scaling: '+1 no herói (1–2★) · +2 (3★) · +3 (4★, máx.).',
+    power: (s) => (s >= 4 ? 3 : s >= 3 ? 2 : 1),
+    powerLabel: (p) => `herói +${p}`,
+  },
+  precisao: {
+    id: 'precisao',
+    name: 'Tiro Certeiro',
+    description: 'A flecha ignora parte da resistência física do alvo.',
+    icon: '➹',
+    pierce: true,
+    scaling: 'Ignora 1 de resistência (1–2★) · 2 (3–4★, máx.).',
+    power: (s) => (s >= 3 ? 2 : 1),
+    powerLabel: (p) => `perfura ${p}`,
+  },
+  olhoAguia: {
+    id: 'olhoAguia',
+    name: 'Olho de Águia',
+    description: 'Causa dano extra em unidades a 2 ou 3 casas de distância (quanto mais longe, mais certeiro).',
+    icon: '🦅',
+    farBonus: true,
+    scaling: '+1 de dano à distância (1–2★) · +2 (3–4★, máx.).',
+    power: (s) => (s >= 3 ? 2 : 1),
+    powerLabel: (p) => `longe +${p}`,
+  },
+  cacaMagos: {
+    id: 'cacaMagos',
+    name: 'Caça-Conjuradores',
+    description: 'Prioriza unidades de longo alcance (magos, arqueiros e suportes à distância) da sua fileira até 2 casas à frente.',
+    icon: '🪓',
+    targeting: 'longoAlcance',
+    reach: 2,
+    rangedBonus: true,
+    scaling: 'Dano extra nelas: +1 (1–2★) · +2 (3–4★, máx.).',
+    power: (s) => (s >= 3 ? 2 : 1),
+    powerLabel: (p) => `caçada +${p}`,
+  },
+  surpresa: {
+    id: 'surpresa',
+    name: 'Ataque Surpresa',
+    description: 'Mira o inimigo de maior ataque da sua fileira até 2 casas à frente e causa dano extra em quem ainda está com a vida cheia.',
+    icon: '🐾',
+    targeting: 'maiorAtaque',
+    reach: 2,
+    fullHpBonus: true,
+    scaling: 'Dano extra: +1 (1–2★) · +2 (3–4★, máx.).',
+    power: (s) => (s >= 3 ? 2 : 1),
+    powerLabel: (p) => `surpresa +${p}`,
   },
 };
 

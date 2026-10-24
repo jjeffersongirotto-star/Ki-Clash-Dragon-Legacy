@@ -6,8 +6,10 @@
 //   e vem garantido na 10ª.
 // - Mão inicial (6 cartas) = compra 0. Exceção do começo: essas 6 voltam a poder vir
 //   sorteadas a partir da 5ª compra (só restam 4 outras) e ficam garantidas na 8ª.
-// - Garantias atrasadas saem em fila, uma por compra (10ª, 11ª, 12ª...). Uma compra
-//   que traz 2 cartas atende 2 garantias da fila.
+// - A cada rodada compra-se o que falta para a mão voltar a ter 6 cartas: todas essas
+//   cartas fazem parte da MESMA compra (v0.8).
+// - Garantias atrasadas saem em fila (10ª, 11ª, 12ª...). Uma compra que traz 2 cartas
+//   atende 2 garantias da fila; 3 cartas, 3 garantias, e assim por diante.
 // - Cópia jogada vai para o campo; quando a unidade morre, a cópia vai para as
 //   derrotadas e nunca volta. Grupo com 0 cópias vivas sai do rodízio.
 import { nextRandom, shuffle } from './rng';
@@ -53,14 +55,26 @@ export interface DeckState {
 }
 
 /**
- * Monta os 10 grupos a partir da equipe. Se a equipe tiver menos de 10 cartas
- * distintas, os grupos que faltam repetem as cartas da equipe em ordem
- * (1ª, 2ª, ...), cada grupo extra com mais 4 cópias. Mais de 10: usa as 10 primeiras.
+ * Regra v0.8: só se entra na batalha com exatamente 10 cartas DIFERENTES (10 × 4 = 40).
+ * Retorna o motivo quando o baralho não vale, ou null quando está ok.
  */
+export function deckProblem(cards: CardInstance[]): string | null {
+  const distinct = new Set(cards.map((c) => c.charId)).size;
+  if (distinct !== cards.length) return 'há personagens repetidos na equipe';
+  if (cards.length < DECK_SLOTS) return `a equipe tem ${cards.length} de ${DECK_SLOTS} cartas`;
+  if (cards.length > DECK_SLOTS) return `a equipe passou de ${DECK_SLOTS} cartas`;
+  return null;
+}
+
+/** Os grupos do baralho: uma carta por personagem, sem completar com repetidas (v0.8). */
 export function buildSlots(cards: CardInstance[]): CardInstance[] {
-  if (!cards.length) return [];
+  const seen = new Set<string>();
   const out: CardInstance[] = [];
-  for (let i = 0; i < DECK_SLOTS; i++) out.push({ ...cards[i % cards.length] });
+  for (const c of cards) {
+    if (seen.has(c.charId) || out.length >= DECK_SLOTS) continue;
+    seen.add(c.charId);
+    out.push({ ...c });
+  }
   return out;
 }
 
@@ -108,7 +122,8 @@ export function drawOpening(d: DeckState, rng: { seed: number }): HandCard[] {
 }
 
 /**
- * Faz uma compra de `count` cartas (normalmente 1 por rodada).
+ * Faz uma compra de `count` cartas (na batalha: quantas faltam para a mão voltar a 6).
+ * Todas as cartas de uma compra contam como a MESMA compra na fila.
  * Ordem de escolha: 1) garantias vencidas, em fila; 2) sorteio entre as liberadas;
  * 3) se nada estiver liberado, a que está mais perto de liberar (a mão nunca fica sem compra).
  * Mão cheia: compra só o que cabe; se não cabe nada, não há compra e a fila não anda.

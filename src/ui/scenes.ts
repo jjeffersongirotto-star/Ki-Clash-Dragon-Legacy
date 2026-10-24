@@ -166,6 +166,96 @@ const SCENES: Record<string, Scene> = {
     for (let i = 0; i < 2 + Math.min(t, 4); i++) { const x = 4 + i * (92 / (1 + Math.min(t, 4))), h = 20 + r(i, 103) * 20 + t * 2; o += `<path d="M${f(x - 4)} 100 Q${f(x - 6)} ${f(100 - h / 2)} ${f(x + (r(i, 104) - 0.5) * 10)} ${f(100 - h)} Q${f(x + 2)} ${f(100 - h / 2)} ${f(x + 4)} 100 Z" fill="#0a1a12" stroke="#2d6a4f" stroke-width=".6"/>`; }
     return o;
   },
+  // ---------- v0.8: personagens iniciais ----------
+  // Daichi — pedreira na montanha
+  daichi: (t, g) => {
+    let o = `<defs>${sky(g, t >= 4 ? '#7a3b12' : '#5e4b3c', '#d9a066', t >= 3 ? '#a8714a' : undefined)}${glow(g, 'lava', '#ff7b00', 0.8)}</defs><rect width="100" height="100" fill="url(#${g}-sky)"/>`;
+    o += `<path d="M0 100 V58 L14 44 L26 56 L34 40 L46 60 H54 L66 38 L76 52 L88 36 L100 50 V100 Z" fill="#4a3426"/>`;
+    for (let i = 0; i < t; i++) { const x = side(r(i, 111)), y = 74 + r(i, 112) * 18; o += `<path d="M${f(x - 6)} ${f(y + 6)} L${f(x - 3)} ${f(y - 4)} L${f(x + 4)} ${f(y - 6)} L${f(x + 7)} ${f(y + 6)} Z" fill="#7f5539" stroke="#2b1a10" stroke-width=".6"/>`; }
+    if (t >= 2) o += `<path d="M0 90 Q50 82 100 90 V100 H0 Z" fill="#2b1a10"/>`;
+    if (t >= 3) for (const x of [8, 92]) o += `<path d="M${x - 4} 100 L${x} 66 L${x + 4} 100 Z" fill="#9c6644"/>`;
+    if (t >= 4) o += `<ellipse cx="50" cy="96" rx="44" ry="6" fill="url(#${g}-lava)"/>` + stars(6, 113, '#ffb347', 60);
+    return o;
+  },
+  // Sora — picos de bambu na névoa
+  sora: (t, g) => {
+    let o = `<defs>${sky(g, t >= 4 ? '#b7e4c7' : '#e9f5ec', '#74c69d', t >= 3 ? '#d8f3dc' : undefined)}${glow(g, 'mist', '#ffffff', 0.8)}</defs><rect width="100" height="100" fill="url(#${g}-sky)"/>`;
+    o += `<path d="M0 80 L16 52 L28 70 L42 46 L58 72 L72 50 L86 68 L100 56 V100 H0 Z" fill="#95d5b2" opacity=".7"/>`;
+    for (let i = 0; i < 1 + t; i++) { const x = side(r(i, 121)); o += `<rect x="${f(x)}" y="${f(20 + r(i, 122) * 20)}" width="2.4" height="90" fill="#2d6a4f"/><path d="M${f(x)} ${f(40 + r(i, 123) * 20)} h2.4" stroke="#1b4332" stroke-width=".8"/>`; }
+    if (t >= 2) o += `<ellipse cx="50" cy="88" rx="60" ry="9" fill="url(#${g}-mist)"/>`;
+    if (t >= 3) for (let i = 0; i < 4; i++) o += `<ellipse cx="${f(side(r(i, 124)))}" cy="${f(14 + r(i, 125) * 50)}" rx="2.4" ry="1" fill="#52b788" transform="rotate(${f(r(i, 126) * 120 - 60)} ${f(side(r(i, 124)))} ${f(14 + r(i, 125) * 50)})"/>`;
+    if (t >= 4) o += `<circle cx="80" cy="16" r="16" fill="url(#${g}-mist)"/><path d="M4 30 Q20 22 34 30 M66 26 Q82 18 96 26" fill="none" stroke="#fff" stroke-width="1.2" opacity=".8"/>`;
+    return o;
+  },
+  // Tobi — acampamento de guerra com fogueiras
+  tobi: (t, g) => {
+    let o = `<defs>${sky(g, '#1d0a05', t >= 4 ? '#9d0208' : '#5a1a08')}${glow(g, 'fire', '#ff7b00', 0.9)}</defs><rect width="100" height="100" fill="url(#${g}-sky)"/>`;
+    o += `<path d="M0 100 V82 Q50 74 100 82 V100 Z" fill="#240a04"/>`;
+    for (let i = 0; i < t; i++) { const x = i % 2 ? 84 - i * 3 : 8 + i * 3; o += `<path d="M${x - 8} 84 L${x} 66 L${x + 8} 84 Z" fill="#6f1d1b" stroke="#ffba08" stroke-width=".5"/>`; }
+    if (t >= 2) o += `<circle cx="12" cy="90" r="9" fill="url(#${g}-fire)"/><path d="M10 92 Q12 82 14 92 Z" fill="#ffba08"/>`;
+    if (t >= 3) o += `<circle cx="88" cy="90" r="9" fill="url(#${g}-fire)"/><path d="M86 92 Q88 82 90 92 Z" fill="#ffba08"/><rect x="2" y="20" width="12" height="18" fill="#9d0208"/><rect x="86" y="20" width="12" height="18" fill="#9d0208"/>`;
+    if (t >= 4) o += stars(8, 131, '#ffba08', 80) + `<path d="M8 20 V60 M92 20 V60" stroke="#3b1f1f" stroke-width="1.4"/>`;
+    return o;
+  },
+  // Kael — vulcão em erupção
+  kael: (t, g) => {
+    let o = `<defs>${sky(g, '#1a0000', t >= 4 ? '#e85d04' : '#7a1c00', t >= 3 ? '#9d0208' : undefined)}${glow(g, 'erupt', '#ffba08', 0.9)}</defs><rect width="100" height="100" fill="url(#${g}-sky)"/>`;
+    o += `<path d="M0 100 L30 56 H70 L100 100 Z" fill="#2b0a00"/>`;
+    for (let i = 0; i < 1 + t; i++) o += `<circle cx="${f(side(r(i, 141)))}" cy="${f(10 + r(i, 142) * 60)}" r="${f(0.8 + r(i, 143))}" fill="#ffba08" opacity=".9"/>`;
+    if (t >= 2) o += `<path d="M34 60 Q40 74 36 100 M64 60 Q60 76 66 100" stroke="#ff4800" stroke-width="1.6" fill="none"/>`;
+    if (t >= 3) o += `<ellipse cx="50" cy="56" rx="26" ry="12" fill="url(#${g}-erupt)"/>`;
+    if (t >= 4) o += `<path d="M6 40 Q10 20 4 6 M94 40 Q90 20 96 6" stroke="#ff7b00" stroke-width="2.2" fill="none" opacity=".8"/><path d="M0 92 H100" stroke="#ffba08" stroke-width=".8" opacity=".6"/>`;
+    return o;
+  },
+  // Suri — maré gelada
+  suri: (t, g) => {
+    let o = `<defs>${sky(g, '#03045e', t >= 4 ? '#48cae4' : '#0077b6', t >= 3 ? '#0096c7' : undefined)}${glow(g, 'ice', '#caf0f8', 0.8)}</defs><rect width="100" height="100" fill="url(#${g}-sky)"/>`;
+    for (let i = 0; i < 1 + t; i++) { const y = 70 + i * (28 / (1 + t)); o += `<path d="M0 ${f(y)} Q12 ${f(y - 5)} 25 ${f(y)} T50 ${f(y)} T75 ${f(y)} T100 ${f(y)}" fill="none" stroke="#caf0f8" stroke-width="1" opacity=".7"/>`; }
+    if (t >= 2) for (const x of [10, 90]) o += `<path d="M${x - 6} 74 L${x} 46 L${x + 6} 74 Z" fill="#caf0f8" opacity=".8" stroke="#90e0ef" stroke-width=".6"/>`;
+    if (t >= 3) o += stars(10, 151, '#ffffff', 50);
+    if (t >= 4) o += `<circle cx="20" cy="18" r="14" fill="url(#${g}-ice)"/><path d="M0 100 V88 Q50 78 100 88 V100 Z" fill="#caf0f8" opacity=".35"/>`;
+    return o;
+  },
+  // Hana — clareira da floresta
+  hana: (t, g) => {
+    let o = `<defs>${sky(g, t >= 4 ? '#f6bd60' : '#a7c957', '#386641', t >= 3 ? '#6a994e' : undefined)}${glow(g, 'beam', '#fefae0', 0.7)}</defs><rect width="100" height="100" fill="url(#${g}-sky)"/>`;
+    for (let i = 0; i < 1 + t; i++) { const x = side(r(i, 161)); o += `<path d="M${f(x)} 100 V${f(40 + r(i, 162) * 20)}" stroke="#283618" stroke-width="3"/><circle cx="${f(x + 1)}" cy="${f(36 + r(i, 162) * 20)}" r="${f(8 + r(i, 163) * 5)}" fill="#283618" opacity=".85"/>`; }
+    o += `<path d="M0 100 V88 Q50 80 100 88 V100 Z" fill="#283618"/>`;
+    if (t >= 3) for (let i = 0; i < 3; i++) o += `<path d="M${30 + i * 18} 0 L${22 + i * 18} 100 L${30 + i * 18} 100 Z" fill="url(#${g}-beam)" opacity=".35"/>`;
+    if (t >= 4) for (let i = 0; i < 5; i++) o += `<path d="M${f(side(r(i, 164)))} ${f(10 + r(i, 165) * 60)} l3 -1 l-1 3 Z" fill="#fefae0"/>`;
+    return o;
+  },
+  // Jin — tempestade nos penhascos
+  jin: (t, g) => {
+    let o = `<defs>${sky(g, '#0b0c1e', t >= 4 ? '#5a4fcf' : '#2f3061', t >= 3 ? '#3c3a74' : undefined)}${glow(g, 'flash', '#ffee32', 0.6)}</defs><rect width="100" height="100" fill="url(#${g}-sky)"/>`;
+    for (let i = 0; i < 1 + t; i++) o += `<ellipse cx="${f(r(i, 171) * 100)}" cy="${f(6 + r(i, 172) * 18)}" rx="${f(14 + r(i, 173) * 10)}" ry="5" fill="#1b1b3a" opacity=".9"/>`;
+    o += `<path d="M0 100 V70 L10 64 L18 78 L24 100 Z M100 100 V66 L90 60 L82 76 L76 100 Z" fill="#0b0c1e"/>`;
+    if (t >= 2) o += `<polyline points="12,14 8,30 14,30 6,48" fill="none" stroke="#ffee32" stroke-width="1.4"/>`;
+    if (t >= 3) o += `<polyline points="90,12 94,28 88,28 96,46" fill="none" stroke="#ffee32" stroke-width="1.4"/>` + `<circle cx="50" cy="10" r="20" fill="url(#${g}-flash)"/>`;
+    if (t >= 4) for (let i = 0; i < 8; i++) o += `<path d="M${f(r(i, 174) * 100)} ${f(20 + r(i, 175) * 60)} l-2 6" stroke="#a2d2ff" stroke-width=".6" opacity=".7"/>`;
+    return o;
+  },
+  // Ren — vielas da cidade à noite
+  ren: (t, g) => {
+    let o = `<defs>${sky(g, '#0d1b2a', t >= 4 ? '#3a506b' : '#1b263b')}${glow(g, 'lamp', '#a2d2ff', 0.8)}</defs><rect width="100" height="100" fill="url(#${g}-sky)"/>`;
+    o += `<rect x="0" y="20" width="22" height="80" fill="#0b132b"/><rect x="78" y="14" width="22" height="86" fill="#0b132b"/>`;
+    for (let i = 0; i < 2 * t; i++) o += `<rect x="${i % 2 ? 82 + (i % 3) * 5 : 3 + (i % 3) * 6}" y="${24 + Math.floor(i / 2) * 12}" width="3" height="4" fill="#ffd166" opacity="${f(0.5 + r(i, 181) * 0.5)}"/>`;
+    if (t >= 2) o += `<path d="M22 30 Q50 40 78 30" fill="none" stroke="#415a77" stroke-width=".6"/><rect x="30" y="32" width="4" height="6" fill="#e63946"/><rect x="66" y="32" width="4" height="6" fill="#e63946"/>`;
+    if (t >= 3) o += `<circle cx="11" cy="60" r="10" fill="url(#${g}-lamp)"/><rect x="10" y="58" width="2" height="6" fill="#a2d2ff"/>`;
+    if (t >= 4) for (let i = 0; i < 10; i++) o += `<path d="M${f(r(i, 182) * 100)} ${f(r(i, 183) * 80)} l-1.5 5" stroke="#a2d2ff" stroke-width=".5" opacity=".6"/>`;
+    return o;
+  },
+  // Kuro — telhados sob a lua roxa
+  kuro: (t, g) => {
+    let o = `<defs>${sky(g, '#10002b', t >= 4 ? '#5a189a' : '#240046')}${glow(g, 'moon', '#e0aaff', 0.8)}</defs><rect width="100" height="100" fill="url(#${g}-sky)"/>`;
+    o += `<circle cx="80" cy="20" r="${7 + t * 1.5}" fill="#e0aaff" opacity=".9"/>`;
+    o += `<path d="M0 100 V78 L12 70 L24 78 V100 Z M76 100 V74 L88 66 L100 74 V100 Z" fill="#0a0014"/>`;
+    for (let i = 0; i < t; i++) o += `<path d="M${f(side(r(i, 191)))} ${f(30 + r(i, 192) * 30)} q2 -3 4 0" fill="none" stroke="#c77dff" stroke-width=".6"/>`;
+    if (t >= 2) o += `<circle cx="80" cy="20" r="${18 + t * 2}" fill="url(#${g}-moon)"/>`;
+    if (t >= 3) o += `<circle cx="10" cy="64" r="1.2" fill="#ffd60a"/><circle cx="14" cy="64" r="1.2" fill="#ffd60a"/>` + stars(8, 193, '#e0aaff', 50);
+    if (t >= 4) o += `<path d="M2 40 L8 52 M6 40 L12 52 M10 40 L16 52" stroke="#c77dff" stroke-width="1" opacity=".8"/>`;
+    return o;
+  },
 };
 SCENES.cria = SCENES.vorax;
 

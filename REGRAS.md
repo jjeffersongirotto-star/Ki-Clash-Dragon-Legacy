@@ -12,22 +12,23 @@ Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói do jog
 
 ## 3. Turnos e energia
 1. No início do seu turno você recebe **energia ⚡** = 2 + número do turno (3 no 1º turno), máximo **10**. A energia não acumula.
-2. Você compra **1 carta** (se a mão de 6 estiver cheia, não compra — ver seção 4).
+2. Você compra **as cartas que faltarem para a mão voltar a ter 6** (jogou 3, compra 3; com a mão cheia, não compra — ver seção 4).
 3. Invoca quantas cartas a energia permitir (cada carta tem um custo), em casas livres da sua zona.
 4. Ao tocar **LUTAR**, suas unidades agem sozinhas, da mais avançada para a mais recuada. Depois o inimigo compra, invoca e age.
 
 ## 4. Mão e baralho
 ### Baralho de 40 cartas
 - A **equipe é o baralho**: **10 cartas diferentes × 4 cópias = 40 cartas**. A IA também joga com 10 cartas × 4.
-- **Equipe com menos de 10 personagens** (de 3 a 9): as vagas que faltam **repetem as cartas da equipe em ordem** (a 1ª carta ganha um 2º grupo de 4 cópias, depois a 2ª, e assim por diante). Cada grupo tem a sua própria fila de compra. O baralho continua com 40 cartas. Exemplo: com os 9 personagens iniciais, a 1ª carta da equipe fica com 8 cópias.
-- **Equipe da IA:** cada fase tem o seu conjunto de personagens; ele é repetido em ordem até formar 10 grupos (ex.: fase 1 = Riku, Nara, Riku, Nara… → 5 grupos de cada).
+- **Mínimo obrigatório:** só dá para entrar na batalha com **exatamente 10 personagens diferentes** na equipe. Não há mais preenchimento com cartas repetidas. Com menos de 10, tocar em **Lutar** abre a janela do jogo **Equipe incompleta**, que mostra quantos faltam e oferece **Ir para a equipe** (nunca um alerta do navegador).
+- **Equipe da IA:** cada fase tem **10 personagens diferentes** (ver seção 14).
 - Na batalha, o **Baralho** fica à esquerda da mão (com quantas cartas ainda podem ser compradas) e as **Derrotadas** à direita (com quantas cópias já caíram).
 
 ### Mão
 - A **mão tem 6 cartas**. A partida começa com **6 cartas diferentes** sorteadas.
-- Compra de **1 carta por rodada**, no início do turno. Se a mão estiver **cheia (6)**, a rodada **não compra** — e, como não houve compra, a fila de nenhuma carta anda.
+- No início de cada turno você **compra o que faltar para a mão voltar a ter 6** (jogou 1, compra 1; jogou 4, compra 4). Todas as cartas dessa rodada fazem parte da **mesma compra** na fila (a compra conta 1 vez, não 1 por carta).
+- Se a mão estiver **cheia (6)**, a rodada **não compra** — e, como não houve compra, a fila de nenhuma carta anda.
 - Cartas não usadas **ficam na mão**.
-- A mão pode ficar vazia se você jogar tudo, mas no turno seguinte sempre há compra enquanto restar alguma carta no Baralho.
+- A mão pode ficar vazia se você jogar tudo, mas no turno seguinte ela volta a 6 enquanto houver cartas no Baralho (se o Baralho tiver menos cartas que o necessário, vem o que houver).
 
 ### Cópias em campo e derrotadas
 - A carta jogada sai da mão e vira **unidade em campo**. Enquanto a unidade está viva, aquela cópia não está no Baralho.
@@ -40,31 +41,33 @@ Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói do jog
 - Na **7ª, 8ª e 9ª** compra depois dela, ela **pode vir no sorteio** (entre todas as cartas liberadas).
 - Se não veio até a 9ª, vem **garantida na 10ª**.
 - **Exceção do começo:** as 6 cartas da mão inicial podem voltar no sorteio a partir da **5ª compra** (as compras 1 a 4 trazem as 4 cartas que ficaram fora da mão). Elas ficam **garantidas a partir da 8ª compra**. Depois disso vale a regra normal (7ª–9ª sorteio, 10ª garantida).
-- **Garantias em fila:** se várias cartas vencem ao mesmo tempo, sai **uma por compra**, na ordem em que foram compradas (10ª, 11ª, 12ª...). Uma compra que traga 2 cartas atende 2 garantias de uma vez.
-- **Ordem de escolha numa compra:** 1) garantias vencidas, em fila; 2) sorteio entre as cartas liberadas; 3) se nenhuma estiver liberada, vem a que está **mais perto de liberar**, para a compra nunca falhar.
+- **Garantias em fila:** se várias cartas vencem ao mesmo tempo, elas saem na ordem em que foram compradas (10ª, 11ª, 12ª...). Como cada compra traz quantas cartas faltam na mão, **uma compra de 2 cartas atende 2 garantias, uma de 3 atende 3**, e assim por diante; as que sobrarem continuam na fila para a próxima compra.
+- **Ordem de escolha numa compra:** 1) garantias vencidas, em fila; 2) sorteio entre as cartas liberadas; 3) se ainda faltarem cartas para completar 6 e nenhuma outra estiver liberada, vem a que está **mais perto de liberar** — completar a mão tem prioridade sobre o bloqueio. Isso só acontece quando você joga muitas cartas de uma vez (ex.: no começo, as 4 que ficaram fora da mão inicial acabam e as 6 iniciais só liberam na 5ª compra).
 - Uma carta só pode vir se tiver **cópia no Baralho**. Se todas as cópias vivas estão na mão ou em campo, ela espera; se for uma garantia, sai assim que tiver cópia disponível.
-- **Efeito prático:** com as 10 cartas no rodízio e 1 compra por rodada, a regra deixa um intervalo de exatamente 10 compras entre duas vindas da mesma carta. A partida começa com uma ordem sorteada, e essa ordem tende a se repetir. O sorteio volta a variar quando cartas saem do rodízio (4 cópias derrotadas) ou ficam sem cópia disponível no Baralho.
+- **Efeito prático (aleatoriedade):** como a quantidade comprada por rodada varia com o número de cartas que você jogou, o número de cartas por compra muda a cada turno e a ordem **não fica presa num ciclo fixo** (na v0.7, com 1 carta por rodada, cada carta voltava sempre na 10ª compra). Agora uma carta pode voltar na 7ª, 8ª, 9ª ou 10ª compra de verdade, e partidas diferentes têm sequências diferentes. Quando você joga só 1 carta por rodada, o comportamento é o mesmo da v0.7.
 
 ## 5. Ação de cada unidade
-1. **Cura** (só Mei): cura os aliados vizinhos.
+1. **Cura** (Mei: aliados vizinhos; Sora: o aliado mais ferido da própria fileira).
 2. Se houver **alvo no alcance**, ataca e **não anda**.
 3. Senão, **anda até 2 casas** para frente (parando assim que um alvo entra no alcance) e ataca se puder.
 4. **Bloqueio:** ninguém atravessa uma unidade (aliada ou inimiga) sem derrotá-la, exceto quem tem **Salto** (pula 1 unidade, avançando 2 casas).
 5. **Passo da vitória:** ao **derrotar um inimigo**, a unidade **avança 1 casa** se ela estiver livre (no máximo 1 passo por ação).
 
 ## 6. Alcance e alvos
-- **Só a própria fileira:** ninguém ataca unidades da outra fileira, exceto as habilidades **diagonais** (Corte Diagonal e Golpe Reverso).
+- **Só a própria fileira:** ninguém ataca unidades da outra fileira, exceto as habilidades **diagonais** (Corte Diagonal e Golpe Reverso) e a **lateral** Explosão de Brasas (Kael), que atinge a casa da mesma coluna na outra fileira.
 - **Corpo a corpo (alcance 1):** só a casa **logo à frente**.
 - **Longo alcance (alcance 3):** o inimigo **mais próximo** até **3 casas à frente**. Não avança quando pode atacar.
 - **Miras especiais** (sempre na própria fileira):
   - **Emboscada (Zarek):** o inimigo **mais distante** até 2 casas.
   - **Instinto Predador (Yume):** o inimigo com **menos vida** até 2 casas.
+  - **Caça-Conjuradores (Ren):** prioriza inimigos de **longo alcance** (magos, arqueiros, suportes à distância) até 2 casas; sem eles, ataca normalmente.
+  - **Ataque Surpresa (Kuro):** o inimigo de **maior ataque** até 2 casas.
   - **Feixe Perfurante (Lyra):** o mais próximo e também **os que estão atrás dele** no alcance 3.
   - **Corte Diagonal (Nara):** a casa diagonal logo à frente, se não houver ninguém em frente.
   - **Golpe Reverso (Toru):** prioriza a casa diagonal logo atrás.
 - **Herói:** se não houver unidade inimiga válida, a unidade ataca o herói com seu alcance normal:
   - corpo a corpo: da **última coluna**;
-  - Zarek e Yume (mira 2) e a Cria Sombria (alcance 2): da **penúltima**;
+  - Zarek, Yume, Ren e Kuro (mira 2) e a Cria Sombria (alcance 2): da **penúltima**;
   - longo alcance (3): a partir da **antepenúltima**.
 - Unidades inimigas no alcance sempre têm **prioridade** sobre o herói.
 
@@ -97,11 +100,11 @@ A partir do **turno 8**, todas as unidades dos dois lados ganham **+1 de ataque*
 
 | Começa | Máximo | Personagens |
 |---|---|---|
-| 1★ | 4★ | Riku, Nara, Toru |
+| 1★ | 4★ | Riku, Nara, Toru, Daichi, Sora, Tobi, Kael, Suri, Hana, Jin, Ren, Kuro (os 12 iniciais) |
 | 2★ | 4★ | Aiko, Lyra, Gorath, Mei |
 | 3★ | 5★ | Yume, Zarek |
 | 4★ | 6★ | Nyx-07 |
-| 5★ (único) | 6★ | Kenji, Vorax |
+| 5★ (único) | 6★ | Kenji, Vorax — **bloqueados por enquanto** ("em breve") |
 
 ### Visual das cartas
 Todas as cartas (mão, coleção, equipe, treino, troca de equipe, detalhes e recompensas) seguem o mesmo padrão:
@@ -141,6 +144,18 @@ Cada retrato tem um cenário próprio, que também fica mais rico a cada estrela
 | Kenji | Dojô | pergaminho (3★), luz dourada (5★), tochas e 2º pergaminho (6★) |
 | Nyx-07 | Laboratório tecnológico | telas (3★), plataforma holográfica (5★), fluxo de dados (6★) |
 | Vorax e Cria | Abismo sombrio | mais tentáculos e olhos a cada ★, fenda de energia (5★), vórtice (6★) |
+| Daichi | Pedreira na montanha | mais pedras a cada ★, chão escuro (2★), estalagmites (3★), lava e brasas (4★) |
+| Sora | Picos de bambu na névoa | mais bambus a cada ★, névoa (2★), folhas ao vento (3★), sol e brisa (4★) |
+| Tobi | Acampamento de guerra | mais tendas a cada ★, fogueira (2★), 2ª fogueira e estandartes (3★), faíscas e mastros (4★) |
+| Kael | Vulcão em erupção | mais brasas a cada ★, rios de lava (2★), cratera brilhando (3★), labaredas (4★) |
+| Suri | Maré gelada | mais ondas a cada ★, icebergs (2★), estrelas (3★), lua gelada e espuma (4★) |
+| Hana | Clareira da floresta | mais árvores a cada ★, raios de sol (3★), vaga-lumes (4★) |
+| Jin | Tempestade nos penhascos | mais nuvens a cada ★, raio (2★), 2º raio e clarão (3★), chuva (4★) |
+| Ren | Vielas da cidade à noite | mais janelas acesas a cada ★, varal de lanternas (2★), poste (3★), garoa (4★) |
+| Kuro | Telhados sob a lua roxa | lua maior a cada ★, halo da lua (2★), olhos de gato e estrelas (3★), marcas de garra (4★) |
+
+### Marcas próprias dos personagens iniciais
+Cada um dos 9 novos tem um detalhe que o identifica desde 1★, além da evolução normal por estrela: Daichi (faixa de pedra com chifre, cicatriz e ombreiras de rocha), Sora (presilha de folha e fitas ao vento), Tobi (faixa na cabeça, pintura de guerra e baquetas), Kael (marca de chama na testa e brasas), Suri (tiara de gelo), Hana (pena no cabelo e pintura de caçadora), Jin (óculos de atirador e raio), Ren (lenço cobrindo o rosto) e Kuro (orelhas de gato e cicatrizes de garra). O chifre, as fitas, as baquetas, a tiara, a pena, o raio e as orelhas crescem a cada estrela.
 
 ## 11. Evolução
 - **Status:** ataque e vida = base × (1 + 0,08 × (nível − 1)) × (1 + 0,15 × (estrelas − 1)), arredondado.
@@ -150,6 +165,7 @@ Cada retrato tem um cenário próprio, que também fica mais rico a cada estrela
   - resistência máxima **3** (física e mágica);
   - redução de ataque por Sifão: no máximo **2** no total, mesmo com vários Nyx;
   - no máximo **3 Crias** por lado;
+  - bônus de ataque vindo de aliados (Tambor de Guerra): no máximo **+2**, sem somar tambores;
   - dano mínimo sempre **1**.
 
 ## 12. Personagens
@@ -169,6 +185,15 @@ Ataque/vida mostrados em 1★ nível 1 (base) e, entre parênteses, na estrela m
 | Kenji Punho-Espelhado ✦ | ⚔️ DPS | Lendário | 5–6★ | 5 | 3 / 7 (5 / 11 em 5★) | Físico | 1 | 1/0 | Punho Espelhado — Multiplicador: ×2 (5★) · ×2,25 (6★, máx.). |
 | Nyx-07 | ➕ Suporte | Lendário | 4–6★ | 5 | 2 / 6 (3 / 9 em 4★) | Mágico | 3 | 0/1 | Sifão de Energia — −1 de ataque (4–5★) · −2 (6★). |
 | Vorax ✦ | 🪄 Mago | Mítico | 5–6★ | 6 | 3 / 6 (5 / 10 em 5★) | Mágico | 3 | 0/1 | Prole Sombria — Cria: ataque 2 e vida 1 (5★) · ataque 3 e vida 2 (6★). |
+| Daichi Punho-de-Rocha | 🛡️ Tanque | Comum | 1–4★ | 3 | 2 / 9 | Físico | 1 | 1/0 | Couraça de Espinhos — devolve 1 (1–2★) · 2 (3★) · 3 (4★). |
+| Sora Brisa-Serena | ➕ Suporte | Comum | 1–4★ | 2 | 1 / 5 | Mágico | 3 | 0/1 | Sopro Restaurador — cura 1 (1–2★) · 2 (3★) · 3 (4★). |
+| Tobi Tambor-de-Guerra | ➕ Suporte | Incomum | 1–4★ | 3 | 2 / 7 | Físico | 1 | 0/0 | Tambor de Guerra — vizinhos +1 de ataque (1–3★) · +2 (4★). |
+| Kael Chama-Rubra | 🪄 Mago | Incomum | 1–4★ | 3 | 3 / 4 | Mágico | 3 | 0/1 | Explosão de Brasas — explosão de 1 (1–2★) · 2 (3–4★). |
+| Suri Maré-Gélida | 🪄 Mago | Comum | 1–4★ | 2 | 2 / 5 | Mágico | 3 | 0/1 | Maré Implacável — +1 no herói (1–2★) · +2 (3★) · +3 (4★). |
+| Hana Pena-Veloz | 🏹 Arqueiro | Comum | 1–4★ | 2 | 2 / 5 | Físico | 3 | 0/0 | Tiro Certeiro — ignora 1 de resistência física (1–2★) · 2 (3–4★). |
+| Jin Arco-Trovão | 🏹 Arqueiro | Incomum | 1–4★ | 3 | 3 / 5 | Físico | 3 | 0/0 | Olho de Águia — +1 de dano a 2–3 casas (1–2★) · +2 (3–4★). |
+| Ren Presa-Oculta | 💀 Assassino | Comum | 1–4★ | 2 | 3 / 5 | Físico | 1 (mira 2) | 0/0 | Caça-Conjuradores — +1 de dano em quem ataca de longe (1–2★) · +2 (3–4★). |
+| Kuro Garra-Noturna | 💀 Assassino | Incomum | 1–4★ | 3 | 3 / 5 | Físico | 1 (mira 2) | 0/0 | Ataque Surpresa — +1 em alvo com vida cheia (1–2★) · +2 (3–4★). |
 | *Cria Sombria* (invocada) | 🪄 Mago | — | — | — | 2 ou 3 / 1 ou 2 | Mágico | 2 | 0/0 | Disparo Sombrio (alcance 2) e Prole Sombria. |
 
 ✦ = **personagem único**: muito forte, já nasce em 5★ e só chega a 6★.
@@ -187,17 +212,33 @@ Habilidades em detalhe:
 - **Punho Espelhado:** ao sofrer golpe físico corpo a corpo de frente, contra-ataca com ataque multiplicado e empurra o agressor 1 casa para trás.
 - **Sifão de Energia:** enquanto em campo, todos os inimigos perdem ataque (ataque mínimo 1).
 - **Prole Sombria:** ao derrotar, surge uma **Cria Sombria** na casa do derrotado ou na antiga casa de Vorax. Crias também geram crias (máx. 3 por lado). A cria tem **ataque 2** com Vorax em **5★** e **ataque 3** com Vorax em **6★**; vida 1 (5★) ou 2 (6★). Uma cria gerada por outra cria herda as mesmas estrelas.
+- **Couraça de Espinhos (Daichi):** quem o ataca **corpo a corpo de frente** (golpe principal) sofre dano fixo de volta, se Daichi sobreviver ao golpe. Ataques à distância e golpes secundários não ativam.
+- **Sopro Restaurador (Sora):** no início da ação, cura o aliado **mais ferido da própria fileira**, a qualquer distância. Sora ataca à distância (alcance 3, mágico).
+- **Tambor de Guerra (Tobi):** enquanto Tobi estiver em campo, os aliados nos **8 vizinhos** (inclusive a outra fileira) ganham ataque. Vários tambores **não se somam** (vale o maior); bônus de aliados tem teto de **+2**. Crias não recebem.
+- **Explosão de Brasas (Kael):** ao acertar uma unidade, a explosão causa dano mágico fixo no inimigo da **mesma coluna na outra fileira** (habilidade lateral).
+- **Maré Implacável (Suri):** dano extra quando ataca o **herói** inimigo.
+- **Tiro Certeiro (Hana):** ignora parte da **resistência física** do alvo.
+- **Olho de Águia (Jin):** dano extra em unidades a **2 ou 3 casas** (colado, só o dano normal).
+- **Caça-Conjuradores (Ren):** prioriza inimigos de longo alcance da fileira até 2 casas e causa dano extra neles.
+- **Ataque Surpresa (Kuro):** mira o inimigo de maior ataque da fileira até 2 casas; dano extra se o alvo estiver com a **vida cheia**.
 - **Disparo Sombrio (Cria):** ataque **mágico** no inimigo **mais próximo até 2 casas à frente** na própria fileira (como as unidades de longo alcance, mas com alcance 2), inclusive o herói a partir da penúltima coluna. Não avança quando pode atacar.
 
 ## 13. Equipe e janelas do jogo
-- A equipe tem de **3 a 10** personagens e é o seu baralho (cada um vale 4 cópias; com menos de 10, os primeiros se repetem — ver seção 4).
-- Novo jogo: a equipe começa com os **9 personagens iniciais**. Ao desbloquear um personagem, ele **entra direto na equipe** se houver vaga.
-- Saves antigos (equipe de até 6) são completados automaticamente até 10 com os seus personagens mais fortes que estavam fora da equipe (uma única vez).
+- A equipe é o seu baralho e precisa ter **exatamente 10 personagens diferentes** para lutar (cada um vale 4 cópias). Dá para tirar alguém e ficar com menos de 10 enquanto monta a equipe, mas aí a batalha fica bloqueada: o jogo avisa ao tirar, a tela de Coleção mostra "faltam N" em vermelho, a Aventura mostra um aviso com **Completar equipe**, e **Lutar** abre a janela **Equipe incompleta** com **Ir para a equipe**.
+- **Novo jogo:** você começa **só com personagens de 1★** — os **12 iniciais** (2 de cada categoria). A equipe começa com 10 deles; os outros 2 ficam na coleção para trocar. Ao desbloquear um personagem, ele **entra direto na equipe** se houver vaga.
+- **Saves antigos (migração da v0.8, uma única vez):** você **mantém todos os personagens, níveis, estrelas, itens e fases** que já tinha — inclusive **Kenji e Vorax**, se já tinham sido obtidos (ninguém perde progresso). Todo save também ganha os **9 novos personagens de 1★**. Se a equipe tiver menos de 10, ela é completada com os seus personagens mais fortes que estavam fora dela.
 - Com a equipe cheia, **Colocar na equipe** abre a janela de **troca**: todas as cartas da equipe começam marcadas; toque nas que vão **sair** (ficam cinza com ✖). **Trocar** só libera quando o número certo estiver desmarcado; **Cancelar** não muda nada.
-- Todas as confirmações e avisos (sair da batalha, apagar progresso, equipe mínima) usam janelas do próprio jogo, no tema escuro/dourado.
+- Todas as confirmações e avisos (sair da batalha, apagar progresso, equipe incompleta) usam janelas do próprio jogo, no tema escuro/dourado.
+
+## 13.1 Progressão de personagens
+- **Começo:** só personagens de **1★** (os 12 iniciais).
+- **2★, 3★ e 4★:** desbloqueados pela **progressão normal**, na **primeira vitória** de cada fase (ver seção 14).
+- **5★ e 6★ (Kenji e Vorax):** **bloqueados por enquanto**, sem forma de obter no jogo (nem missão especial). Aparecem na coleção, em "Ainda não obtidos", **apagados com cadeado** e a etiqueta **"🔒 Em breve"**. A forma de desbloquear será decidida numa atualização futura. Eles continuam aparecendo como **inimigos** nas fases finais.
 
 ## 14. Aventura
 - 10 fases; vencer libera a próxima. Primeira vitória dá a recompensa completa; repetir dá 50%.
-- Desbloqueios: **Kenji** (fase 3), **Nyx-07** (fase 5), **Vorax** (fase 8).
+- **Desbloqueios (primeira vitória):** fase 1 → **Aiko** (2★) · fase 2 → **Mei** (2★) · fase 3 → **Lyra** (2★) · fase 4 → **Gorath** (2★) · fase 5 → **Yume** (3★) · fase 6 → **Zarek** (3★) · fase 8 → **Nyx-07** (4★). Kenji e Vorax: em breve.
+- **Baralho da IA:** toda fase tem **10 personagens diferentes**. Fases 1 e 2 usam só personagens de 1★ (a fase 1 sem tanques); a partir da 3 entram os de 2★, 3★ e 4★; Kenji (fases 8 e 9) e Vorax (fase 10) só aparecem como inimigos.
+- **Nível dos inimigos:** fase 1 = nível 1, fase 2 = nível 2 e depois 1 + 1,5 × (fase − 1), arredondado (fase 10 = nível 15, com +1★).
 - Derrota dá 1 Pergaminho de Ki de consolo.
 - Progresso salvo no navegador (localStorage).

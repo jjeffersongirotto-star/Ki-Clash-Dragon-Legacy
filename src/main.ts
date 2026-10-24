@@ -1,12 +1,12 @@
 import './ui/style.css';
-import { CATEGORY_INFO, CHAR_BY_ID, PLAYABLE, RARITY_INFO, STAR_COLORS, getChar } from './core/characters';
+import { CATEGORY_INFO, CHAR_BY_ID, PLAYABLE, RARITY_INFO, STAR_COLORS, STARTER_IDS, getChar, isComingSoon } from './core/characters';
 import { STAGES } from './core/campaign';
 import { XP_ITEMS, ascend, ascendCost, canAscend, feedXp, maxLevel, newOwned, statsFor, xpProgress, xpToNext, type XpItemId } from './core/progression';
 import { portraitSVG } from './ui/art';
 import { BattleView } from './ui/battleView';
 import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, reachLabel, starStyle, starsHTML } from './ui/components';
 import { gameAlert, gameConfirm, showDialog } from './ui/dialog';
-import { DECK_MAX, DECK_MIN, loadSave, resetSave, writeSave, type SaveData } from './ui/save';
+import { DECK_MAX, DECK_REQUIRED, loadSave, resetSave, teamReady, writeSave, type SaveData } from './ui/save';
 
 const app = document.getElementById('app')!;
 let save: SaveData = loadSave();
@@ -66,7 +66,8 @@ function home() {
 // ---------------- AVENTURA ----------------
 function adventure() {
   app.innerHTML = `<div class="screen">${topbar('Aventura')}
-    <p class="hint">Sua equipe: ${save.deck.map((id) => esc(getChar(id).name)).join(', ')}</p>
+    <p class="hint">Sua equipe (${save.deck.length}/${DECK_REQUIRED}): ${save.deck.map((id) => esc(getChar(id).name)).join(', ')}</p>
+    ${teamReady(save) ? '' : `<p class="warn-bar">⚠ A equipe precisa de ${DECK_REQUIRED} personagens para lutar. <button class="btn small" data-nav="collection">Completar equipe</button></p>`}
     <div class="stages">${STAGES.map((s, i) => {
       const unlocked = i === 0 || save.cleared.includes(STAGES[i - 1].id);
       const done = save.cleared.includes(s.id);
@@ -84,7 +85,28 @@ function adventure() {
   app.querySelectorAll<HTMLElement>('[data-stage]').forEach((el) => el.addEventListener('click', () => startBattle(+el.dataset.stage!)));
 }
 
+/** Regra v0.8: sem 10 personagens na equipe não há batalha (janela do jogo, nunca alerta do navegador). */
+async function teamWarning(): Promise<void> {
+  const have = save.deck.filter((id) => save.cards[id]).length;
+  const v = await showDialog({
+    title: 'Equipe incompleta',
+    icon: '🃏',
+    html: `<p class="dialog-msg">Para lutar, a sua equipe precisa de <b>${DECK_REQUIRED} personagens diferentes</b> (${DECK_REQUIRED} cartas × 4 cópias = 40 no baralho).</p>
+      <p class="dialog-msg">Agora ela tem <b>${have}/${DECK_REQUIRED}</b>: ${have < DECK_REQUIRED ? `faltam <b>${DECK_REQUIRED - have}</b>` : 'confira a equipe'}.</p>
+      <div class="team-need">${Array.from({ length: DECK_REQUIRED }, (_, i) => `<span class="${i < have ? 'on' : ''}"></span>`).join('')}</div>`,
+    buttons: [
+      { label: 'Agora não', value: 'cancel', kind: 'ghost' },
+      { label: 'Ir para a equipe', value: 'team', kind: 'primary' },
+    ],
+  });
+  if (v === 'team') collection();
+}
+
 function startBattle(stageId: number) {
+  if (!teamReady(save)) {
+    void teamWarning();
+    return;
+  }
   const stage = STAGES.find((s) => s.id === stageId)!;
   const deck = save.deck.filter((id) => save.cards[id]).map((id) => ({ charId: id, level: save.cards[id].level, stars: save.cards[id].stars }));
   app.innerHTML = '<div class="screen battle-screen" id="bs"></div>';
@@ -146,10 +168,13 @@ function collection() {
     return B.stars - A.stars || B.level - A.level || getChar(a).cost - getChar(b).cost;
   };
   const owned = PLAYABLE.filter((d) => save.cards[d.id]).map((d) => d.id).sort(byPower);
-  const locked = PLAYABLE.filter((d) => !save.cards[d.id]).sort((a, b) => (unlockStage(a.id) ?? 99) - (unlockStage(b.id) ?? 99));
+  const lockOrder = (id: string) => (isComingSoon(getChar(id)) ? 999 : unlockStage(id) ?? 99);
+  const locked = PLAYABLE.filter((d) => !save.cards[d.id]).sort((a, b) => lockOrder(a.id) - lockOrder(b.id));
+  const lockBadge = (id: string) => (isComingSoon(getChar(id)) ? '🔒 Em breve' : `🔒 Fase ${unlockStage(id) ?? '?'}`);
+  const missing = DECK_REQUIRED - save.deck.length;
   app.innerHTML = `<div class="screen">${topbar('Coleção & Equipe')}
     <section class="deck-bar">
-      <div class="deck-title">Equipe = baralho <b>${save.deck.length}/${DECK_MAX}</b> <small>(cada carta vale 4 cópias · ${save.deck.length < DECK_MAX ? `faltam ${DECK_MAX - save.deck.length}: repetem as primeiras da equipe` : '40 cartas'})</small></div>
+      <div class="deck-title">Equipe = baralho <b>${save.deck.length}/${DECK_MAX}</b> <small>(cada carta vale 4 cópias · ${missing > 0 ? `<span class="warn">faltam ${missing}: sem ${DECK_REQUIRED} não dá para lutar</span>` : '40 cartas'})</small></div>
       <div class="deck-slots">${Array.from({ length: DECK_MAX }, (_, i) => {
         const id = save.deck[i];
         return id ? cardHTML(save.cards[id], { compact: true, attrs: `data-card="${id}"` }) : '<div class="slot">+</div>';
@@ -159,7 +184,8 @@ function collection() {
     <h3 class="sec-title">Seus personagens <small>(${owned.length})</small></h3>
     <div class="card-grid">${owned.map((id) => cardHTML(save.cards[id], { attrs: `data-card="${id}"`, badge: save.deck.includes(id) ? '✔ Equipe' : undefined, extraClass: save.deck.includes(id) ? 'in-deck' : '' })).join('')}</div>
     ${locked.length ? `<div class="divider"><span>🔒 Ainda não obtidos (${locked.length})</span></div>
-    <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, level: 1, stars: def.minStars }, { locked: true, attrs: `data-card="${def.id}"`, badge: `🔒 Fase ${unlockStage(def.id) ?? '?'}` })).join('')}</div>` : ''}
+    <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, level: 1, stars: def.minStars }, { locked: true, extraClass: isComingSoon(def) ? 'soon' : '', attrs: `data-card="${def.id}"`, badge: lockBadge(def.id) })).join('')}</div>
+    ${locked.some(isComingSoon) ? `<p class="hint soon-note">🔒 <b>Em breve:</b> ${locked.filter(isComingSoon).map((d) => esc(d.name)).join(' e ')} ${locked.filter(isComingSoon).length > 1 ? 'começam' : 'começa'} em 5★ e ainda não ${locked.filter(isComingSoon).length > 1 ? 'podem' : 'pode'} ser obtidos. A forma de conseguir será revelada numa atualização futura.</p>` : ''}` : ''}
   </div>`;
   bindNav();
   app.querySelectorAll<HTMLElement>('[data-card]').forEach((el) => el.addEventListener('click', () => cardDetail(el.dataset.card!)));
@@ -182,7 +208,7 @@ function cardDetail(id: string) {
       ${abilityListHTML(def, stars, lvl)}
       <p class="lore">${esc(def.lore)}</p>
     </div></div>
-    <div class="row">${owned ? `<button class="btn primary" data-m="deck">${inDeck ? 'Tirar da equipe' : 'Colocar na equipe'}</button><button class="btn" data-m="train">Treinar</button>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id) ?? '?'} para desbloquear.</p>`}<button class="btn ghost" data-m="close">Fechar</button></div>`,
+    <div class="row">${owned ? `<button class="btn primary" data-m="deck">${inDeck ? 'Tirar da equipe' : 'Colocar na equipe'}</button><button class="btn" data-m="train">Treinar</button>` : isComingSoon(def) ? `<p class="hint">🔒 <b>Em breve.</b> Personagem de ${def.minStars}★: ainda não pode ser obtido. A forma de conseguir será revelada numa atualização futura.</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id) ?? '?'} pela primeira vez para desbloquear.</p>`}<button class="btn ghost" data-m="close">Fechar</button></div>`,
     (m) => {
       m.querySelector('[data-m=close]')!.addEventListener('click', closeModal);
       m.querySelector('[data-m=train]')?.addEventListener('click', () => {
@@ -192,8 +218,8 @@ function cardDetail(id: string) {
       });
       m.querySelector('[data-m=deck]')?.addEventListener('click', async () => {
         if (inDeck) {
-          if (save.deck.length <= DECK_MIN) return gameAlert('Equipe mínima', `A equipe precisa de pelo menos ${DECK_MIN} personagens. Coloque outro antes de tirar este.`, '🛡️');
           save.deck = save.deck.filter((x) => x !== id);
+          if (save.deck.length < DECK_REQUIRED) void gameAlert('Equipe com menos de 10', `Sem ${DECK_REQUIRED} personagens na equipe você não pode lutar. Coloque outro personagem no lugar de ${getChar(id).name}.`, '🃏');
         } else if (save.deck.length >= DECK_MAX) {
           const removed = await swapDialog(id);
           if (!removed) return;
@@ -352,31 +378,32 @@ function help() {
   <div class="help">
     <h3>Objetivo</h3><p>A arena tem <b>2 fileiras × 7 colunas</b>. Cada herói fica logo depois da última coluna do seu lado. Zere a vida do <b>herói inimigo</b> (à direita) antes que ele zere a sua.</p>
     <h3>Seu turno</h3><ol>
-      <li>Você recebe <b>energia ⚡</b> (3 no 1º turno, +1 por turno, máx. 10) e compra <b>1 carta</b> (se a mão de 6 não estiver cheia).</li>
+      <li>Você recebe <b>energia ⚡</b> (3 no 1º turno, +1 por turno, máx. 10) e compra <b>as cartas que faltarem para a mão voltar a ter 6</b>.</li>
       <li>Toque numa carta e numa casa brilhante das <b>3 colunas da esquerda</b> para invocá-la. O inimigo invoca nas 3 colunas da direita.</li>
       <li>Toque em <b>LUTAR</b>: suas unidades agem sozinhas, depois o inimigo invoca e age.</li></ol>
     <h3>Cartas e baralho</h3><ul>
-      <li>Sua <b>equipe é o baralho</b>: <b>10 cartas diferentes × 4 cópias = 40 cartas</b>. Com menos de 10 personagens, as vagas que faltam repetem as primeiras cartas da equipe.</li>
-      <li>A <b>mão tem 6 cartas</b>. Você começa com 6 diferentes e compra <b>1 por rodada</b> (com a mão cheia, não compra). Cartas não usadas ficam na mão.</li>
+      <li>Sua <b>equipe é o baralho</b>: <b>10 cartas diferentes × 4 cópias = 40 cartas</b>. Só dá para lutar com <b>exatamente 10 personagens</b> na equipe.</li>
+      <li>A <b>mão tem 6 cartas</b>. Você começa com 6 diferentes e, a cada rodada, <b>compra o que faltar para voltar a 6</b> (jogou 3, compra 3; com a mão cheia, não compra). Cartas não usadas ficam na mão.</li>
       <li>À esquerda da mão fica o <b>Baralho</b> (quantas cartas ainda podem vir); à direita, as <b>Derrotadas</b>.</li>
       <li>A carta jogada vira unidade em campo. Quando a unidade <b>morre</b>, aquela cópia vai para as <b>Derrotadas e não volta mais</b> (sobram 3 daquela carta, e assim por diante).</li>
       <li><b>Compra semi-aleatória:</b> depois de comprada, a carta fica <b>bloqueada nas 6 compras seguintes</b>; na <b>7ª, 8ª e 9ª</b> pode vir no sorteio e na <b>10ª vem garantida</b>. Conta a partir da compra, não de quando você joga.</li>
       <li><b>Começo da luta:</b> as 6 cartas da mão inicial voltam ao sorteio já na <b>5ª compra</b> (só restam 4 outras) e ficam garantidas na 8ª.</li>
-      <li>Se várias cartas ficarem garantidas ao mesmo tempo, elas saem <b>em fila, uma por compra</b>.</li></ul>
+      <li>Todas as cartas compradas na mesma rodada contam como <b>uma compra só</b>. Se várias cartas ficarem garantidas ao mesmo tempo, saem <b>em fila</b>; uma compra de 3 cartas atende até 3 garantias.</li></ul>
     <h3>Como as unidades agem</h3><ul>
       <li>Se houver alvo no alcance, atacam. Senão, <b>andam até 2 casas</b> e tentam atacar.</li>
-      <li><b>Só a própria fileira:</b> ninguém ataca a outra fileira, exceto Corte Diagonal (Nara) e Golpe Reverso (Toru). A cura de Mei também alcança vizinhos da outra fileira.</li>
+      <li><b>Só a própria fileira:</b> ninguém ataca a outra fileira, exceto Corte Diagonal (Nara), Golpe Reverso (Toru) e a Explosão de Brasas (Kael). A cura de Mei e o Tambor de Guerra (Tobi) também alcançam vizinhos da outra fileira.</li>
       <li><b>Corpo a corpo:</b> só atinge o inimigo na casa <b>logo à frente</b>.</li>
       <li><b>Longo alcance (Magos 🪄, Arqueiros 🏹 e Suportes à distância):</b> atinge o inimigo <b>mais próximo até 3 casas à frente</b> e não avança se puder atacar.</li>
       <li><b>Ao derrotar um inimigo</b>, a unidade <b>avança 1 casa</b> se ela estiver livre.</li>
-      <li><b>O herói inimigo</b> conta como uma unidade parada logo depois da última coluna, alcançável pelas duas fileiras. Quem não tem unidade inimiga para enfrentar ataca o herói com o próprio alcance: corpo a corpo (inclusive Nara e Toru) da <b>última coluna</b>; Zarek e Yume (mira até 2) da <b>penúltima</b>; quem tem longo alcance já de <b>3 casas</b> antes do herói, sem precisar ir até o fim.</li>
-      <li><b>Miras especiais</b> (sempre na própria fileira): <b>Emboscada</b> (Zarek) pega o inimigo mais distante até 2 casas; <b>Instinto Predador</b> (Yume) o de menos vida até 2 casas; <b>Feixe Perfurante</b> (Lyra) acerta o mais próximo e atravessa os de trás no alcance. Sem alvo válido, atacam normalmente — ou o herói, se estiver no alcance.</li>
+      <li><b>O herói inimigo</b> conta como uma unidade parada logo depois da última coluna, alcançável pelas duas fileiras. Quem não tem unidade inimiga para enfrentar ataca o herói com o próprio alcance: corpo a corpo (inclusive Nara e Toru) da <b>última coluna</b>; Zarek, Yume, Ren e Kuro (mira até 2) da <b>penúltima</b>; quem tem longo alcance já de <b>3 casas</b> antes do herói, sem precisar ir até o fim.</li>
+      <li><b>Miras especiais</b> (sempre na própria fileira): <b>Emboscada</b> (Zarek) pega o inimigo mais distante até 2 casas; <b>Instinto Predador</b> (Yume) o de menos vida até 2 casas; <b>Caça-Conjuradores</b> (Ren) prioriza quem ataca de longe, até 2 casas; <b>Ataque Surpresa</b> (Kuro) o de maior ataque, até 2 casas; <b>Feixe Perfurante</b> (Lyra) acerta o mais próximo e atravessa os de trás no alcance. Sem alvo válido, atacam normalmente — ou o herói, se estiver no alcance.</li>
       <li><b>Diagonais:</b> Corte Diagonal atinge a casa diagonal logo à frente; Golpe Reverso, a casa diagonal logo atrás.</li>
       <li>Ninguém atravessa um inimigo sem derrotá-lo — exceto quem tem <b>Salto</b> (pula 1 unidade, 2 casas).</li></ul>
     <h3>Fúria de batalha 🔥</h3><p>A partir do <b>turno 8</b>, todas as unidades dos dois lados ganham <b>+1 de ataque a cada 3 turnos</b>, para a luta não travar. Se chegar ao turno 40, vence quem tiver mais vida (em %) no herói.</p>
     <h3>Dano</h3><p><b>Físico 👊</b> é reduzido pela resistência física; <b>Mágico ✨</b> pela resistência mágica. Ex.: 3 de dano físico contra resistência 1 = 2 de dano.</p>
     <h3>Estrelas e cores das cartas</h3><p>${[1, 2, 3, 4, 5, 6].map((n) => `<span class="rar-chip" style="--rc:${STAR_COLORS[n].color}">${n}★ ${STAR_COLORS[n].label}</span>`).join(' ')}</p>
     <p>A <b>cor da carta mostra as estrelas</b>. A raridade (${Object.values(RARITY_INFO).map((r) => r.label).join(', ')}) aparece como texto. Quem começa em 1★ ou 2★ vai até 4★; em 3★ vai até 5★; em 4★ ou 5★ vai até 6★. Os <b>únicos</b> (Kenji e Vorax) já nascem em 5★. Cada estrela libera +10 níveis e deixa o visual mais imponente.</p>
+    <h3>Progressão</h3><p>Você começa só com os <b>${STARTER_IDS.length} personagens de 1★</b>. Os de 2★, 3★ e 4★ são desbloqueados ao vencer as fases pela primeira vez. Os de 5★ e 6★ (Kenji e Vorax) estão <b>bloqueados por enquanto</b>: a forma de conseguir será revelada numa atualização futura.</p>
     <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.values(CATEGORY_INFO).map((c) => `<li><b>${c.icon} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
     <h3>Habilidades evoluem</h3><p>As habilidades ficam mais fortes com <b>estrelas</b> (e algumas com <b>nível</b>) — veja "⭐" nos detalhes da carta. Todas têm teto: resistência máxima 3, redução de ataque máxima 2, no máximo 3 Crias por lado e dano mínimo sempre 1. Ninguém fica invencível.</p>
     <h3>Treino</h3><p>Use Pergaminhos, Cristais e Orbes de Ki para encher a barra de XP. Em 100% o nível sobe e a próxima barra é maior. No nível máximo, gaste Essências ✴ para <b>Despertar</b> (+1★).</p>
