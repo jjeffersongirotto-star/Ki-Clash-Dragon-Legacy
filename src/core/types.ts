@@ -142,7 +142,7 @@ export interface Snapshot {
 export type BattleEvent =
   | { type: 'turn'; side: Side; turn: number; text: string }
   | { type: 'deploy'; uid: number; text: string }
-  | { type: 'move'; uid: number; from: [number, number]; to: [number, number]; jumped: boolean; text: string }
+  | { type: 'move'; uid: number; from: [number, number]; to: [number, number]; jumped: boolean; through?: [number, number][]; text: string }
   | { type: 'attack'; uid: number; target: number | 'hero'; targetSide: Side; ranged: boolean; damageType: DamageType; text: string }
   | { type: 'damage'; uid: number; amount: number; damageType: DamageType; text: string }
   | { type: 'hero'; side: Side; amount: number; text: string }

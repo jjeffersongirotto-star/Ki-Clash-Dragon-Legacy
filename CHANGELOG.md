@@ -2,6 +2,14 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.15.0] — 25/10/2026 · PR #28 — Nova regra de movimento
+- **Sem passo da vitória:** quem derrota um inimigo agora fica onde está (não avança 1 casa).
+- **Atravessar aliados:** no movimento (até 2 casas) a unidade passa pelos aliados, mas só para em casa livre; ninguém termina numa casa ocupada. Se só houver aliados à frente, fica na última casa livre. O alcance é conferido a cada casa livre. Inimigos continuam bloqueando.
+- **Salto Vendaval (Riku):** anda até **3 casas, fixo em todas as cores e níveis**, e pode pular 1 unidade (aliada ou inimiga), caindo numa casa livre. O bônus de investida continua crescendo como antes (máx. +3). Descrição e evolução da habilidade atualizadas.
+- **Arena:** ao passar por um aliado, quem anda dá um pulinho por cima dele e o aliado se abaixa; a seta mostra **PASSA** (Riku: **JUMP**). Só transform, sem animação contínua nova.
+- **Simulador** (`scripts/balance/move15.ts`, 100 jogadores): fases finais mais fáceis (fase 6: 30% → 41%, fase 8: 30% → 45%, fase 9: 58% → 74%, fase 10: 26% → 36%); tabela completa no REGRAS.md.
+- Testes: atravessar aliados, nunca terminar em casa ocupada, inimigos bloqueiam, sem passo da vitória, Riku 3 casas em todas as cores/níveis.
+
 ## [0.14.4] — 25/10/2026 · PR #27 — Arrastar a carta até o campo
 - **Arrastar para invocar:** segure uma carta da mão e arraste até uma casa da sua zona para invocá-la (funciona no toque e no mouse). O jeito antigo (tocar na carta e depois na casa) continua funcionando igual.
 - Durante o arrasto a carta segue o dedo, a da mão fica apagada e as casas livres da sua zona ficam destacadas; a casa embaixo do dedo brilha mais.

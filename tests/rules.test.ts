@@ -8,13 +8,14 @@ import type { BattleState, CardInstance } from '../src/core/types';
 const c = (charId: string, level = 1, stars = 1): CardInstance => ({ charId, level, stars });
 const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
 
-describe('passo à frente ao derrotar', () => {
-  it('quem derrota avança 1 casa se estiver livre', () => {
+describe('sem passo da vitória (v0.15.0)', () => {
+  it('quem derrota NÃO avança, mesmo com a casa livre', () => {
     const s = empty();
     const u = placeUnit(s, c('riku'), 'player', 0, 2, { atk: 9 });
     placeUnit(s, c('nara'), 'enemy', 0, 3, { hp: 1 });
     act(s, new Ctx(), u);
-    expect(u.col).toBe(3);
+    expect(s.units.filter((x) => x.side === 'enemy')).toHaveLength(0);
+    expect(u.col).toBe(2);
   });
   it('não avança se a casa estiver ocupada', () => {
     const s = empty();
@@ -24,14 +25,14 @@ describe('passo à frente ao derrotar', () => {
     act(s, new Ctx(), a);
     expect(a.col).toBe(1);
   });
-  it('à distância também avança 1 casa (e só 1 por ação)', () => {
+  it('à distância também não avança ao derrotar', () => {
     const s = empty();
     const l = placeUnit(s, c('lyra', 1, 5), 'player', 1, 1, { atk: 9 });
     placeUnit(s, c('riku'), 'enemy', 1, 3, { hp: 1 });
     placeUnit(s, c('riku'), 'enemy', 1, 4, { hp: 1 });
     act(s, new Ctx(), l);
     expect(s.units.filter((u) => u.side === 'enemy')).toHaveLength(0);
-    expect(l.col).toBe(2);
+    expect(l.col).toBe(1);
   });
 });
 
