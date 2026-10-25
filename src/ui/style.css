@@ -877,15 +877,34 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 }
 
 /* =====================================================================
-   v0.12.0 — Líder do jogador: bárbaro (WebP animado, respiração)
+   v0.12.0 / v0.12.1 — Líderes animados: bárbaro (aliado) e minotauro (adversário)
    ===================================================================== */
-/* a imagem anima sozinha: sem animação CSS e sem filtro (filtro em imagem animada = repintura a cada quadro) */
-.hero-img { display: block; filter: none !important; animation: none !important; height: calc(var(--cell) * 2 - 22px); width: auto; max-width: 100%; object-fit: contain; object-position: 50% 100%; margin: 0 auto; image-rendering: auto; -webkit-user-drag: none; user-select: none; pointer-events: none; }
+/* as imagens animam sozinhas: sem animação CSS e sem filtro (filtro em imagem animada = repintura a cada quadro).
+   A imagem preenche a coluna (acima da barra de vida), de pé no piso, sem distorcer. */
+.hero-fig { position: relative; flex: 1 1 auto; min-height: 0; }
+.battle .hero-img, .hero-img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; max-width: none; object-fit: contain; object-position: 50% 100%; margin: 0; display: block; filter: none !important; animation: none !important; image-rendering: auto; -webkit-user-drag: none; user-select: none; pointer-events: none; z-index: 1; }
+/* aura atrás do Líder: camada FIXA (gradiente), elemento separado, sem filtro */
+.hero-aura { position: absolute; left: -4%; right: -4%; top: 2%; bottom: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 52% 48% at 50% 56%, color-mix(in srgb, var(--ha) 50%, transparent) 0%, color-mix(in srgb, var(--ha2) 24%, transparent) 55%, transparent 74%); }
+.hero-p { --ha: #00f5d4; --ha2: #2fb8ff; }
+.hero-e { --ha: #ff4d6d; --ha2: #b5179e; }
 .hero-p { background: radial-gradient(ellipse 80% 16% at 50% 97%, rgba(0,245,212,.42), rgba(47,184,255,.12) 60%, transparent 72%), linear-gradient(180deg, transparent 0%, rgba(8,11,26,.55) 100%); }
-.hero-p .hero-fig { position: relative; }
+.hero-e { background: radial-gradient(ellipse 80% 16% at 50% 97%, rgba(255,77,109,.42), rgba(181,23,158,.12) 60%, transparent 72%), linear-gradient(180deg, transparent 0%, rgba(8,11,26,.55) 100%); }
+.hero { min-height: calc(var(--cell) * 2 + 8px); }
+/* celular em pé: bárbaro é estreito, minotauro é largo — colunas proporcionais */
 @media (max-width: 640px) {
-  .hero-img { height: max(60px, calc(var(--cell) * 2 - 18px)); width: auto; }
+  .hero-p { width: 42px; flex-basis: 42px; }
+  .hero-e { width: 58px; flex-basis: 58px; }
 }
 @media (orientation: landscape) {
-  .battle .hero-img { height: calc(var(--cell) * 2 - 18px); width: auto; max-width: calc(var(--hero-w) - 4px); }
+  .battle-screen {
+    --hero-wp: clamp(58px, 12.5vw, 190px);
+    --hero-we: clamp(78px, 19vw, 290px);
+    --hero-w: var(--hero-we);
+    --cell: clamp(30px, min(calc((100vw - var(--hero-wp) - var(--hero-we) - 40px) / 7), calc((100dvh - var(--hud-h) - var(--bottom-h) - 44px) / 2)), 170px);
+  }
+  /* coluna do Líder ocupa toda a altura da arena (o nome saiu: a figura cresce) */
+  .battle .hero { align-self: stretch; min-height: calc(var(--cell) * 2 + 16px); padding: 0 2px 3px; }
+  .battle .hero-p { width: var(--hero-wp); flex: 0 0 var(--hero-wp); }
+  .battle .hero-e { width: var(--hero-we); flex: 0 0 var(--hero-we); }
 }

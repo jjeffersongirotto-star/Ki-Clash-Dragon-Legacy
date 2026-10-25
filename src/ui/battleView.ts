@@ -5,7 +5,7 @@ import { pileCount } from '../core/deck';
 import type { BattleState, CardInstance, RecordedEvent, Side, Snapshot, Unit } from '../core/types';
 import type { Stage } from '../core/campaign';
 import { PLAYER_HERO_HP } from '../core/campaign';
-import { heroSVG, playerLeaderImg, unitSpriteSVG } from './art';
+import { enemyLeaderImg, playerLeaderImg, unitSpriteSVG } from './art';
 import { gameConfirm } from './dialog';
 import { requestLandscape } from './orientation';
 import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, starStyle, tierHTML } from './components';
@@ -91,9 +91,8 @@ export class BattleView {
       </div>
       <div class="field">
         <div class="hero hero-p" id="hero-player">
-          <div class="hero-fig">${playerLeaderImg()}</div>
+          <div class="hero-fig"><div class="hero-aura"></div>${playerLeaderImg()}</div>
           <div class="hero-hp"><div class="bar"><i></i></div><span></span></div>
-          <div class="hero-name">Líder Aliado</div>
         </div>
         <div class="board-wrap">
           <div class="arena-scenery" aria-hidden="true"></div>
@@ -105,9 +104,8 @@ export class BattleView {
           <div class="banner" id="banner"></div>
         </div>
         <div class="hero hero-e" id="hero-enemy">
-          <div class="hero-fig">${heroSVG('enemy')}</div>
+          <div class="hero-fig"><div class="hero-aura"></div>${enemyLeaderImg()}</div>
           <div class="hero-hp"><div class="bar"><i></i></div><span></span></div>
-          <div class="hero-name">Líder Inimigo</div>
         </div>
       </div>
       <div class="tactical-tabs">
