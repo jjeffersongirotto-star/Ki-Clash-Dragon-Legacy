@@ -2,6 +2,7 @@ import { getChar } from './characters';
 import type { CardInstance } from './types';
 import { maxLevel } from './progression';
 import { DECK_SLOTS } from './deck';
+import { LEADER_HP } from './leaders';
 
 export interface Stage {
   id: number;
@@ -45,6 +46,16 @@ const POOLS: string[][] = [
  */
 export const UNLOCKS: Record<number, string> = { 1: 'aiko', 2: 'mei', 3: 'lyra', 4: 'gorath', 5: 'yume', 6: 'zarek', 8: 'nyx' };
 
+/**
+ * v0.13.0 — vida do Líder inimigo por fase (índice 0 = fase 1).
+ * Antes: 12 + 2·i. Agora soma METADE do acréscimo de vida que o Líder do jogador tem no nível
+ * esperado para aquela fase (nível = número da fase, +10 por nível → +5 por fase): 12 + 7·i.
+ * Assim o Líder do jogador deixa de ser derrubado num turno só, sem a campanha ficar fácil.
+ */
+export function enemyLeaderHp(i: number): number {
+  return 12 + 2 * i + Math.round((LEADER_HP[Math.min(i, LEADER_HP.length - 1)] - LEADER_HP[0]) / 2);
+}
+
 export const STAGES: Stage[] = NAMES.map((name, i) => {
   const id = i + 1;
   // fases 1 e 2 mais leves para a equipe inicial de Comum (nível 1 e 2); depois, como antes
@@ -59,11 +70,12 @@ export const STAGES: Stage[] = NAMES.map((name, i) => {
   return {
     id,
     name,
-    enemyHeroHp: 12 + i * 2,
+    enemyHeroHp: enemyLeaderHp(i),
     enemyDeck: deck,
     rewards: { pergaminho: 4 + i * 2, cristal: 1 + Math.floor(i / 2), orbe: i >= 5 ? 1 : 0, essencias: 6 + i * 3 },
     unlock: UNLOCKS[id],
   };
 });
 
-export const PLAYER_HERO_HP = 20;
+/** Vida do Líder do jogador no nível 1 (v0.13: sobe com o nível do Líder — ver leaders.ts). */
+export const PLAYER_HERO_HP = LEADER_HP[0];

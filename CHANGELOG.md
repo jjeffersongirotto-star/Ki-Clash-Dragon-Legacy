@@ -2,6 +2,16 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.13.0] — 25/10/2026 · PR #21 — Poder das cartas e do baralho, Líder com níveis
+- **Poder ⚡ em cada carta:** 10 × peso da habilidade × √(ataque × vida). Sobe a cada nível, no "+" e a cada cor. O peso de cada personagem (de 0,78 a 1,39, média 1) foi medido em 30 000 batalhas IA × IA. Aparece num selo na Coleção, na Equipe e na janela de detalhes.
+- **Poder do baralho** = soma das 10 cartas da equipe, em destaque em Coleção & Equipe e na Aventura.
+- **O Líder (Bárbaro) sobe de nível:** novo painel em Coleção & Equipe, com a arte, o nível, a vida, o Poder do baralho, uma barra até o próximo requisito e o botão **Evoluir** (janela do próprio jogo). Evoluir é grátis: basta o Poder do baralho alcançar o requisito na hora (480, 510, 560, 610, 660, 760, 840, 930, 980). Depois o Líder **nunca perde o nível**, mesmo trocando cartas.
+- **Vida do Líder:** +10 por nível, de 20 a 110. Simulamos +5, +10 e passos crescentes (+3/+5/+10). Só +10 impede que um único turno inimigo derrube o Líder de vida cheia em qualquer fase (antes, na fase 10, chegava a 190% da vida).
+- **Líder inimigo mais resistente:** 12 + 7 por fase (12 → 75; antes 12 → 30). É metade do que o seu Líder ganha, para a campanha continuar desafiadora: as chances de vitória ao chegar em cada fase ficaram como antes (ex.: fase 10 27% → 25%).
+- **Preparado para mais Líderes** (1 por categoria, com habilidades próprias): os Líderes viraram uma lista; por enquanto só o Bárbaro.
+- **Saves antigos** ganham o Líder no nível 1 (20 de vida, como antes).
+- Tabelas completas no REGRAS.md (seção 15). Simuladores em `scripts/balance/`. Coleção & Equipe a ~60 FPS.
+
 ## [0.12.2] — 24/10/2026 · PR #20 — Minotauro com machado no ombro, Líderes na altura da arena
 - **Novo minotauro** (Líder adversário): mesma criatura, de pé, com o machado apoiado no ombro direito (pose estreita). Arte animada com respiração (17 quadros, 1,6 s, transparente), **WebP animado de 235 KB** (o GIF tinha 1,29 MB). Sem espelhar: o machado fica no ombro do lado de fora da tela, e o rosto já está virado para a arena.
 - **Colunas dos Líderes iguais de novo** (13,5% da largura cada): as casas da arena voltam ao tamanho da v0.12.0 (84 → 90 px em 915×412).

@@ -15,6 +15,8 @@ export interface BattleCallbacks {
   setSpeed: (s: number) => void;
   onFinish: (winner: Side | 'empate') => void;
   onExit: () => void;
+  /** v0.13: vida do Líder do jogador (nível do Líder). Sem informar: nível 1 */
+  playerHeroHp?: number;
 }
 
 const INFO_DEFAULT = 'Toque numa carta e depois numa casa brilhante para invocar. Segure a carta (ou use 🔍 Detalhes) para ver os detalhes.';
@@ -44,7 +46,7 @@ export class BattleView {
     this.root = root;
     this.cb = cb;
     this.stage = stage;
-    this.state = createBattle({ playerDeck, enemyDeck: stage.enemyDeck, playerHeroHp: PLAYER_HERO_HP, enemyHeroHp: stage.enemyHeroHp });
+    this.state = createBattle({ playerDeck, enemyDeck: stage.enemyDeck, playerHeroHp: cb.playerHeroHp ?? PLAYER_HERO_HP, enemyHeroHp: stage.enemyHeroHp });
     this.mount();
     this.renderSnapshot(this.snap());
     this.renderHand();

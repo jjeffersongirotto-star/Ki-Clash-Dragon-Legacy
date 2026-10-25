@@ -3,7 +3,7 @@
 > Documento oficial com **todas** as regras atuais do jogo. Toda mudança de regra deve atualizar este arquivo e o [CHANGELOG.md](CHANGELOG.md).
 
 ## 1. Objetivo
-Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói do jogador: **20** de vida. Herói inimigo: de 12 (fase 1) a 30 (fase 10).
+Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói (Líder) do jogador: **20** de vida no nível 1, até **110** no nível 10 (ver seção 15). Líder inimigo: de **12** (fase 1) a **75** (fase 10).
 
 ## 2. Arena e Lutadores Interativos
 - **2 fileiras × 7 colunas.** Você fica à esquerda, o inimigo à direita.
@@ -330,7 +330,8 @@ Habilidades em detalhe:
 - **Saves antigos (migração da v0.8, uma única vez):** você **mantém todos os personagens, níveis, cores, itens e fases** que já tinha — inclusive **Kenji e Vorax**, se já tinham sido obtidos (ninguém perde progresso). Todo save também ganha os **9 novos personagens Comuns**. Se a equipe tiver menos de 10, ela é completada com os seus personagens mais fortes que estavam fora dela.
 - **Saves antigos (migração da v0.10, uma única vez):** as estrelas viram a cor de mesmo número (1★ Comum, 2★ Incomum, 3★ Raro, 4★ Épico, 5★ Lendário, 6★ Mítico), sempre na **cor base** (sem "+"). Cada personagem mantém a cor que já tinha, o nível e o XP (o nível máximo da cor base é o mesmo do antigo nível máximo).
 - Com a equipe cheia, **Colocar na equipe** abre a janela de **troca**: todas as cartas da equipe começam marcadas; toque nas que vão **sair** (ficam cinza com ✖). **Trocar** só libera quando o número certo estiver desmarcado; **Cancelar** não muda nada.
-- Todas as confirmações e avisos (sair da batalha, apagar progresso, equipe incompleta) usam janelas do próprio jogo, no tema escuro/dourado.
+- **Saves antigos (migração da v0.13):** todo save ganha o **Líder Bárbaro no nível 1** (20 de vida, como antes). Cartas, itens e fases não mudam.
+- Todas as confirmações e avisos (sair da batalha, apagar progresso, equipe incompleta, evoluir o Líder) usam janelas do próprio jogo, no tema escuro/dourado.
 
 ## 13.1 Progressão de personagens
 - **Começo:** só personagens de **Comum** (os 12 iniciais).
@@ -342,5 +343,79 @@ Habilidades em detalhe:
 - **Desbloqueios (primeira vitória):** fase 1 → **Aiko** (Incomum) · fase 2 → **Mei** (Incomum) · fase 3 → **Lyra** (Incomum) · fase 4 → **Gorath** (Incomum) · fase 5 → **Yume** (Raro) · fase 6 → **Zarek** (Raro) · fase 8 → **Nyx-07** (Épico). Kenji e Vorax: em breve.
 - **Baralho da IA:** toda fase tem **10 personagens diferentes**. Fases 1 e 2 usam só personagens Comuns (a fase 1 sem tanques); a partir da 3 entram os de Incomum, Raro e Épico; Kenji (fases 8 e 9) e Vorax (fase 10) só aparecem como inimigos.
 - **Nível dos inimigos:** fase 1 = nível 1, fase 2 = nível 2 e depois 1 + 1,5 × (fase − 1), arredondado (fase 10 = nível 15, com +Comum).
+- **Vida do Líder inimigo (v0.13):** 12 + 7 × (fase − 1) → 12, 19, 26, 33, 40, 47, 54, 61, 68, 75. Antes era 12 + 2 × (fase − 1); os +5 por fase a mais são **metade** do acréscimo de vida do seu Líder no nível esperado daquela fase (ver seção 15).
 - Derrota dá 1 Pergaminho de Ki de consolo.
 - Progresso salvo no navegador (localStorage).
+
+## 15. Poder ⚡ e Líder 👑 (v0.13)
+### Poder da carta
+- **Poder = arredondar( 10 × peso da habilidade × √(ataque × vida) )**, com o ataque e a vida **atuais** da carta (nível, cor e "+" já aplicados). Por isso o Poder **sobe a cada nível, no "+" e a cada cor**.
+- **Peso da habilidade** = valor de combate medido de cada personagem (média 1,00). Ele inclui o efeito das **habilidades** e do **custo** de energia:
+
+| Personagem | Peso | Personagem | Peso | Personagem | Peso |
+|---|---|---|---|---|---|
+| Kenji | 1,39 | Aiko | 1,06 | Nyx-07 | 0,95 |
+| Daichi | 1,17 | Riku | 1,04 | Gorath | 0,92 |
+| Sora | 1,16 | Toru | 1,00 | Kuro | 0,92 |
+| Lyra | 1,09 | Yume | 1,00 | Nara | 0,91 |
+| Tobi | 1,08 | Suri | 1,00 | Hana | 0,90 |
+| Vorax | 0,98 | Kael | 0,97 | Zarek | 0,89 |
+| Jin | 0,96 | Mei | 0,86 | Ren | 0,78 |
+
+- **Como foi calibrado** (`scripts/balance/calibrate.ts`): 30 000 batalhas IA × IA (a mesma IA do Auto) entre baralhos aleatórios de 10 personagens, com cor, "+" e nível sorteados, nas duas ordens (quem começa). Uma regressão logística mediu quanto cada personagem soma para vencer, por unidade de √(ataque × vida). Formatos testados: ataque^a × vida^(1−a) com a = 0,4 / 0,5 / 0,6 e divisão por custo^g com g = 0 / 0,25 / 0,5. Todos acertaram ~71,5% dos vencedores (log-loss 0,552–0,553); ficou o mais simples (a = 0,5, g = 0; o custo já entra no peso de cada personagem).
+- **Validação:** só a razão de Poder entre os dois baralhos já prevê o vencedor:
+
+| Poder do seu baralho ÷ do adversário | < 0,80 | 0,80–0,90 | 0,90–0,97 | 0,97–1,03 | 1,03–1,10 | 1,10–1,25 | > 1,25 |
+|---|---|---|---|---|---|---|---|
+| Vitória de quem começa | 27% | 44% | 56% | 64% | 73% | 82% | 91% |
+
+- Exemplos: Riku Comum Nv.1 = ⚡44 · Toru Comum Nv.1 = ⚡47 · equipe inicial = **⚡377**.
+- O Poder aparece num selo ⚡ em cada carta da **Coleção**, da **Equipe** e na janela de detalhes (com o valor também na linha de status). O selo é texto por cima do quadro congelado da carta (não muda o bitmap).
+
+### Poder do baralho
+- **Soma do Poder das 10 cartas da equipe**, em destaque em **Coleção & Equipe** (painel do Líder e título da equipe) e na **Aventura**.
+- Baralhos da IA: fase 1 ⚡346 · 2 ⚡388 · 3 ⚡461 · 4 ⚡567 · 5 ⚡558 · 6 ⚡703 · 7 ⚡713 · 8 ⚡925 · 9 ⚡936 · 10 ⚡1134.
+
+### Nível do Líder
+- Painel do Líder em **Coleção & Equipe**: arte animada, nível, vida máxima, Poder do baralho, barra até o próximo requisito e o botão **⬆ Evoluir**. O botão abre uma janela do jogo com nível, vida e Poder (atual / necessário). Sem Poder suficiente, a janela mostra quanto falta.
+- **Evoluir é grátis** e sobe **1 nível por vez**: a única trava é o **Poder do baralho ≥ requisito do próximo nível**, conferido **só na hora de evoluir**.
+- **O Líder nunca perde nível.** Depois de evoluir você pode trocar cartas à vontade, mesmo ficando abaixo do requisito.
+- Cada nível dá **+10 de vida máxima**. A batalha começa com o Líder na vida máxima do nível atual.
+
+| Nível do Líder | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Poder do baralho necessário | — | 480 | 510 | 560 | 610 | 660 | 760 | 840 | 930 | 980 |
+| Vida máxima | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 90 | 100 | 110 |
+
+- Os requisitos são o **Poder típico com que o jogador chega à fase de mesmo número** (mediana do simulador): o Líder chega ao nível N por volta da fase N.
+- **Vários Líderes no futuro:** os Líderes são uma lista (id, categoria, arte, curva de vida, requisitos, habilidades). Haverá 1 por categoria, cada um com habilidades especiais que também evoluem. Por enquanto só o **Bárbaro** está disponível (sem tela de escolha). Cada Líder guarda o próprio nível.
+
+### Por que +10 por nível (simulação)
+- `scripts/balance/schedules.ts` e `final.ts`: 30–40 jogadores simulados começam um save novo e seguem a campanha. Antes de cada tentativa gastam todo o XP na equipe (menor nível primeiro), despertam quem está no teto, usam as 10 cartas de maior Poder e evoluem o Líder quando podem. Se perdem, ganham +1 Pergaminho, repetem a última fase vencida (50%) e tentam de novo. Em cada fase, 40 batalhas medem a vitória **no momento em que chegam** e o maior dano que o Líder leva num único turno inimigo (sem cortar em 0).
+- **One-shot** = um turno inimigo tirar **100% ou mais** da vida máxima do Líder.
+
+| Curva (Líder inimigo +metade do acréscimo) | Maior turno ÷ vida (pior fase) | Fases com risco de one-shot | Turnos ≥ 50% da vida na fase 10 | Vitória ao chegar: fase 6 / 8 / 10 |
+|---|---|---|---|---|
+| Hoje (20 fixo, inimigo 12 + 2·i) | 190% | 3 a 10 | 63% | 32% / 30% / 27% |
+| A: +5 por nível (20 → 65) | 123% | 3 a 8 e 10 | 21% | 32% / 27% / 26% |
+| C: +3, +5, +10 (20 → 74) | 128% | 3 a 8 e 10 | 21% | 28% / 31% / 27% |
+| **B: +10 por nível (20 → 110)** | **97%** | **nenhuma** | **6%** | **31% / 29% / 25%** |
+
+- Só a **B** tira o one-shot em todas as fases. A **A** e a **C** ainda deixam um turno inimigo derrubar o Líder de vida cheia.
+- **Líder inimigo:** testado sem mudar (12 + 2·i), com **metade** do acréscimo e com o acréscimo **inteiro**. Com a B e o inimigo sem mudar, as fases ficavam mais fáceis (fase 9: 52% → 68%). Com o acréscimo inteiro ficavam mais difíceis que hoje (fase 10: 27% → 21%). **Metade** (12 + 7·i) mantém a dificuldade de hoje.
+
+### Resultado por fase (v0.13, 40 jogadores simulados)
+| Fase | Poder ao chegar | Nível do Líder ao chegar | Vida do Líder | Líder inimigo | Vitória ao chegar (antes → agora) | Tentativas até vencer | Maior turno ÷ vida (antes → agora) | Maior ataque de uma unidade inimiga |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 447 | 1 | 20 | 12 | 99% → 100% | 1,0 | 60% → 45% | 3 |
+| 2 | 485 | 2 | 30 | 19 | 97% → 97% | 1,0 | 90% → 60% | 3 |
+| 3 | 515 | 3 | 40 | 26 | 94% → 94% | 1,1 | 140% → 88% | 4 |
+| 4 | 568 | 4 | 50 | 33 | 57% → 56% | 1,5 | 150% → 96% | 5 |
+| 5 | 611 | 5 | 60 | 40 | 74% → 78% | 1,2 | 145% → 82% | 5 |
+| 6 | 669 | 6 | 70 | 47 | 32% → 31% | 2,3 | 170% → 97% | 9 |
+| 7 | 751 | 6 | 70 | 54 | 76% → 74% | 1,4 | 150% → 87% | 9 |
+| 8 | 821 | 7 | 80 | 61 | 30% → 29% | 2,4 | 165% → 79% | 10 |
+| 9 | 922 | 8 | 90 | 68 | 52% → 55% | 1,9 | 155% → 74% | 10 |
+| 10 | 976 | 9 | 100 | 75 | 27% → 25% | 3,0 | 190% → 78% | 12 |
+
+- O ataque máximo inclui a Fúria de batalha. Exemplo do risco antigo: na fase 10 o pior turno inimigo tirava 190% da vida (38 de dano contra 20 de vida). Agora tira no máximo 78% (78 de 100).
