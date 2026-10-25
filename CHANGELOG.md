@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.15.2] — 25/10/2026 · PR #30 — Riku salta por cima do inimigo
+- **Salto Vendaval (Riku):** quando o inimigo logo à frente está no alcance e a casa atrás dele está livre, o Riku salta por cima dele (gasta 2 das 3 casas), cai nessa casa e ataca com o **bônus de investida** quem estiver no alcance à frente, inclusive o Comandante. Se ninguém estiver no alcance, usa a casa que sobra para andar.
+- Casa de trás ocupada (aliado ou inimigo) ou fora do campo: ataca o inimigo da frente normalmente.
+- A seta **JUMP** e a investida aparecem só nesse salto de verdade.
+- Simulador (100 jogadores): vitória por fase praticamente igual (0 a 2 pontos).
+
 ## [0.15.1] — 25/10/2026 · PR #29 — Tetos em habilidades
 - **Feixe Perfurante (Lyra):** dano nos que estão atrás do alvo agora vai até **75%** (50% Incomum · 75% de Raro em diante). Antes chegava a 100% no Épico.
 - **Corte Diagonal (Nara):** o segundo alvo, na outra fileira, leva no máximo **50%** (antes 100% no Épico).

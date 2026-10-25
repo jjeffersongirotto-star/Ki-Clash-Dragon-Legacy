@@ -430,12 +430,12 @@ export function moveRange(u: Unit): number {
  * - Inimigos bloqueiam; só o Salto Vendaval pula 1 unidade inimiga por movimento (aterrissando em casa livre).
  * - Para assim que um alvo entra no alcance (checado só nas casas livres onde ela pode parar).
  */
-export function moveUnit(state: BattleState, ctx: Ctx, u: Unit): boolean {
+export function moveUnit(state: BattleState, ctx: Ctx, u: Unit, opts: { leapFront?: boolean } = {}): boolean {
   const d = dir(u.side);
   const canJump = !!has(u.abilities, (a) => a.jump);
   const start = u.col;
   const from: [number, number] = [u.row, start];
-  if (findTarget(state, u)) return false;
+  if (!(opts.leapFront && canJump) && findTarget(state, u)) return false;
   const steps = moveRange(u);
   let enemyHops = canJump ? 1 : 0;
   let stop = start;
@@ -546,12 +546,31 @@ function strike(state: BattleState, ctx: Ctx, u: Unit, t: Unit | 'hero', bonus =
   if (second && t.hp > 0 && state.units.includes(t)) attack(state, ctx, u, t, { fixed: second, secondary: true, label: 'dispara a 2ª flecha em' });
 }
 
+/**
+ * Salto Vendaval (v0.15.2): o alvo é o inimigo logo à frente na mesma fileira e a casa atrás dele
+ * existe e está livre → o Riku salta por cima dele em vez de atacá-lo.
+ */
+export function canLeapOver(state: BattleState, u: Unit, t: Unit | 'hero'): boolean {
+  if (t === 'hero' || !has(u.abilities, (a) => a.jump)) return false;
+  const d = dir(u.side);
+  if (t.row !== u.row || t.col !== u.col + d) return false;
+  const land = u.col + 2 * d;
+  return inBoard(state, u.row, land) && !unitAt(state, u.row, land);
+}
+
 /** Ação automática: (cura) → ataca se houver alvo; senão anda e tenta atacar. */
 export function act(state: BattleState, ctx: Ctx, u: Unit) {
   if (u.hp <= 0 || state.winner) return;
   healNeighbors(state, ctx, u);
   healRow(state, ctx, u);
   let t = findTarget(state, u);
+  if (t && canLeapOver(state, u, t)) {
+    // v0.15.2: Salto Vendaval por cima do inimigo da frente (casa de trás livre) e ataque com investida
+    const jumped = moveUnit(state, ctx, u, { leapFront: true });
+    t = findTarget(state, u);
+    if (t) strike(state, ctx, u, t, jumped ? pw(u, 'salto') : 0);
+    return;
+  }
   if (t) {
     strike(state, ctx, u, t);
     return;

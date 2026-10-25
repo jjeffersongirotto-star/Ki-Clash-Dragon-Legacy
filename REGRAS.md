@@ -86,8 +86,8 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 2. Se houver **alvo no alcance**, ataca e **não anda**.
 3. Senão, **anda até 2 casas** para frente (parando assim que um alvo entra no alcance) e ataca se puder. O alcance é conferido a cada **casa livre** onde a unidade pode parar; passar por cima de um aliado não conta como parar ali.
 4. **Atravessar aliados (v0.15.0):** a unidade **passa pelos aliados** durante o movimento (dentro dos seus 2 passos), mas **só para em casa livre**: ninguém termina numa casa ocupada. Se as casas que ela alcança à frente estiverem ocupadas por aliados, ela fica na **última casa livre antes deles** (às vezes, parada). Exemplo: um arqueiro ataca e fica parado; o tanque atrás dele passa por ele e para na frente.
-5. **Inimigos bloqueiam:** ninguém atravessa um inimigo, exceto quem tem **Salto Vendaval** (Riku), que pode **saltar 1 inimigo** no caminho. Na prática o Riku ataca o inimigo que estiver logo à frente em vez de saltá-lo, porque atacar tem prioridade.
-6. **Salto Vendaval (Riku):** anda até **3 casas**, sempre: o movimento **não aumenta** com a cor nem com o nível. Cai sempre numa casa livre. O bônus de investida vale **só quando ele salta de verdade com a habilidade** (por cima de um inimigo); **passar por aliados não conta como salto** (v0.15.1), nem para o Riku.
+5. **Inimigos bloqueiam:** ninguém atravessa um inimigo, exceto quem tem **Salto Vendaval** (Riku), que pode **saltar 1 inimigo** (ver item 6).
+6. **Salto Vendaval (Riku):** anda até **3 casas**, sempre: o movimento **não aumenta** com a cor nem com o nível. **Salto por cima do inimigo (v0.15.2):** se o inimigo logo à frente está no alcance e a **casa atrás dele existe e está livre**, o Riku **salta por cima dele** em vez de atacá-lo (o salto gasta 2 das 3 casas), cai nessa casa e ataca **com o bônus de investida** quem estiver no alcance à frente (inclusive o Comandante). Se ninguém estiver no alcance, usa a casa que sobra para andar e, se aparecer alvo, ataca com a investida. Se a casa atrás estiver ocupada (aliado ou inimigo) ou fora do campo, ele ataca o inimigo da frente normalmente. Cai sempre numa casa livre. O bônus de investida vale **só quando ele salta de verdade com a habilidade** (por cima de um inimigo); **passar por aliados não conta como salto** (v0.15.1), nem para o Riku.
 7. **Sem passo da vitória (v0.15.0):** quem **derrota um inimigo fica onde está** (antes avançava 1 casa).
 
 ## 6. Alcance e alvos
@@ -326,7 +326,7 @@ Ataque/vida mostrados em Comum nível 1 (base) e, entre parênteses, na cor inic
 ✦ = **personagem único**: muito forte, já nasce em Lendário e só chega a Mítico+.
 
 Habilidades em detalhe:
-- **Salto Vendaval:** anda até **3 casas (fixo em todas as cores e níveis)** e pode saltar 1 inimigo no caminho, caindo numa casa livre. Só no turno em que **salta com a habilidade** ataca com o bônus de investida; passar por aliados (regra comum de movimento) não conta (esse bônus continua crescendo: +1 Raro, +2 Épico, +1 no nível 30, máx. +3).
+- **Salto Vendaval:** anda até **3 casas (fixo em todas as cores e níveis)** e salta por cima do inimigo logo à frente quando a casa atrás dele está livre (v0.15.2), caindo nela. Só no turno em que **salta com a habilidade** ataca com o bônus de investida; passar por aliados (regra comum de movimento) não conta (esse bônus continua crescendo: +1 Raro, +2 Épico, +1 no nível 30, máx. +3).
 - **Corte Diagonal:** ataca a diagonal logo à frente quando não há ninguém em frente. A partir de Raro, ao bater em frente também corta a diagonal com **50%** do dano (teto, v0.15.1).
 - **Golpe Reverso:** prioriza o inimigo na diagonal logo atrás.
 - **Postura de Guarda:** resistência física extra por cor.
@@ -467,3 +467,6 @@ Atravessar aliados, sem passo da vitória e Riku com 3 casas fixas. Vitória ao 
 
 ### v0.15.1 — tetos de habilidade (100 jogadores simulados)
 Feixe Perfurante máx. 75%, Corte Diagonal máx. 50%, Bênção do Lótus nos 2 mais feridos e investida só no salto de verdade. Vitória ao chegar, antes → depois: fase 1 99% → 99% · 2 96% → 95% · 3 93% → 93% · 4 57% → 59% · 5 80% → 80% · 6 41% → 42% · 7 78% → 79% · 8 45% → 47% · 9 74% → 74% · 10 36% → 36%. Praticamente sem mudança na campanha (diferenças dentro do ruído); o efeito aparece em cartas Épicas ou melhores dessas habilidades.
+
+### v0.15.2 — Riku salta o inimigo da frente (100 jogadores simulados)
+Vitória ao chegar, antes → depois: fase 1 99% → 99% · 2 95% → 95% · 3 93% → 93% · 4 59% → 59% · 5 80% → 81% · 6 42% → 43% · 7 79% → 78% · 8 47% → 47% · 9 74% → 76% · 10 36% → 37%. Sem efeito relevante na campanha (Riku é uma carta só, dos dois lados).

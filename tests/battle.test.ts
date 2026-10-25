@@ -271,7 +271,7 @@ describe('mão e baralho', () => {
     expect(pileCount(s.decks.player) + s.decks.player.hand.length).toBe(39);
     const u = s.units.find((x) => x.side === 'player')!;
     expect(u.slot).toBe(card.slot);
-    const killer = placeUnit(s, c('riku'), 'enemy', 0, 3, { atk: 99 });
+    const killer = placeUnit(s, c('nara'), 'enemy', 0, 3, { atk: 99 });
     act(s, new Ctx(), killer);
     expect(s.units.includes(u)).toBe(false);
     expect(s.decks.player.defeated.map((x) => x.charId)).toEqual([card.charId]);
