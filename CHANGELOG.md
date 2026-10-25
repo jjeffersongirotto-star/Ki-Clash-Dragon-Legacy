@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.15.4] — 25/10/2026 · PR #32 — Riku sempre se move saltando
+- **Salto Vendaval:** o movimento do Riku agora é **sempre um salto** para a **3ª casa à frente**, por cima de aliados ou inimigos nas casas 1–2. 3ª ocupada ou fora do campo → cai na 2ª; 2ª também → na 1ª; as três ocupadas → fica. Nunca vai além da 3ª e não anda depois de cair.
+- Inimigo logo à frente: salta por cima dele se houver casa de pouso livre (3ª, senão 2ª); sem pouso, ataca normalmente.
+- Ao cair, ataca com o **bônus de investida** se houver alvo no alcance (inclusive o Comandante). Seta **JUMP** em todo movimento do Riku.
+
 ## [0.15.3] — 25/10/2026 · PR #31 — Riku para depois do salto
 - **Salto Vendaval (Riku):** ao saltar por cima de um inimigo, o Riku cai **2 casas à frente e para** (não anda a 3ª casa depois do salto). Se houver alvo no alcance ao cair, ataca com o bônus de investida.
 - Com o caminho livre, continua andando até **3 casas** (fixo em todas as cores e níveis). Passar por aliados não é salto e não o faz parar.

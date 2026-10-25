@@ -101,35 +101,6 @@ describe('v0.15.0 — Salto Vendaval (Riku): 3 casas fixas', () => {
         s.units = [];
       }
     expect(SALTO_MOVE).toBe(3);
-    expect(ABILITIES.salto.scaling).toContain('sempre 3 casas');
-  });
-  it('pula 1 inimigo no caminho (quando ele não é alvo) e cai em casa livre', () => {
-    const s = empty();
-    const u = placeUnit(s, c('riku'), 'player', 0, 0);
-    // inimigo "invisível" para a mira: Riku alcance 1; colocamos o inimigo adjacente mas testamos o movimento puro
-    const e = placeUnit(s, c('gorath'), 'enemy', 0, 2, { hp: 99 });
-    moveUnit(s, new Ctx(), u);
-    expect(u.col).toBe(1); // para assim que o inimigo entra no alcance (atacar tem prioridade sobre pular)
-    expect(e.col).toBe(2);
-  });
-  it('não pula 2 inimigos', () => {
-    const s = empty();
-    const u = placeUnit(s, c('riku'), 'player', 1, 0);
-    // sem alvo possível na mira (inimigos na outra fileira não contam), testamos o bloqueio direto
-    placeUnit(s, c('gorath'), 'enemy', 1, 1, { hp: 99 });
-    placeUnit(s, c('gorath'), 'enemy', 1, 2, { hp: 99 });
-    moveUnit(s, new Ctx(), u);
-    expect(u.col).toBe(0);
-  });
-  it('atravessa aliados SEM investida (v0.15.1: só o salto da habilidade conta)', () => {
-    const s = empty();
-    const u = placeUnit(s, c('riku', 1, 4), 'player', 0, 0);
-    placeUnit(s, c('gorath'), 'player', 0, 1);
-    const e = placeUnit(s, c('nara'), 'enemy', 0, 3, { hp: 99 });
-    const ctx = new Ctx();
-    act(s, ctx, u);
-    expect(u.col).toBe(2);
-    const hit = ctx.events.find((x) => x.type === 'damage' && x.uid === e.uid) as { amount: number } | undefined;
-    expect(hit!.amount).toBe(u.atk);
+    expect(ABILITIES.salto.scaling).toContain('sempre até a 3ª casa');
   });
 });

@@ -190,15 +190,6 @@ describe('habilidades por estrela/nível (com teto)', () => {
     expect(abilityPower('flechaDupla', 3, 1)).toBe(2);
     expect(abilityPower('flechaDupla', 4, 1)).toBe(3);
   });
-  it('Salto: passar por um aliado NÃO é salto (sem investida, v0.15.1)', () => {
-    const s = empty();
-    const r = placeUnit(s, c('riku', 1, 4), 'player', 0, 0, { atk: 3 });
-    placeUnit(s, c('gorath'), 'player', 0, 1);
-    const e = placeUnit(s, c('nara'), 'enemy', 0, 3, { hp: 50 });
-    act(s, new Ctx(), r);
-    expect(r.col).toBe(2);
-    expect(e.hp).toBe(50 - 3);
-  });
   it('Bênção do Lótus cura aliados vizinhos (inclusive outra fileira)', () => {
     const s = empty();
     const m = placeUnit(s, c('mei', 1, 2), 'player', 0, 1);
