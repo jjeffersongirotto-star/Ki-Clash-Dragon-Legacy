@@ -23,13 +23,13 @@ describe('v0.15.2 — Salto Vendaval por cima do inimigo da frente', () => {
     expect(dmgTo(ctx, front.uid)).toBe(0);
     expect(dmgTo(ctx, next.uid)).toBe(5 + abilityPower('salto', 4, 1)); // investida +2 (Épico)
   });
-  it('sem ninguém no alcance depois do salto: usa a 3ª casa que sobra e não ataca', () => {
+  it('sem ninguém no alcance depois do salto: cai 2 casas à frente e PARA (v0.15.3), sem atacar', () => {
     const s = empty();
     const r = placeUnit(s, c('riku', 1, 4), 'player', 1, 0, { atk: 5 });
     const front = placeUnit(s, c('nara'), 'enemy', 1, 1, { hp: 50 });
     const ctx = new Ctx();
     act(s, ctx, r);
-    expect(r.col).toBe(3); // salto (2 casas) + 1 passo = 3 casas fixas
+    expect(r.col).toBe(2); // v0.15.3: salto = 2 casas e para
     expect(moves(ctx)[0].jumped).toBe(true);
     expect(ctx.events.some((e) => e.type === 'attack')).toBe(false);
     expect(front.hp).toBe(50);
@@ -75,7 +75,7 @@ describe('v0.15.2 — Salto Vendaval por cima do inimigo da frente', () => {
     const r = placeUnit(s, c('riku'), 'enemy', 1, 5);
     placeUnit(s, c('nara'), 'player', 1, 4, { hp: 50 });
     act(s, new Ctx(), r);
-    expect(r.col).toBe(2); // 5 → salta a 4 → cai na 3 → 3ª casa: 2
+    expect(r.col).toBe(3); // 5 → salta o inimigo da 4 → cai na 3 e para
   });
   it('só o Riku salta: outros atacam o inimigo da frente', () => {
     const s = empty();

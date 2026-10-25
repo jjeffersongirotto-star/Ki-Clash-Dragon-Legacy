@@ -460,6 +460,8 @@ export function moveUnit(state: BattleState, ctx: Ctx, u: Unit, opts: { leapFron
     }
     stop = c;
     u.col = c;
+    // v0.15.3: depois de saltar por cima de alguém, o Riku cai 2 casas à frente e PARA (não anda a 3ª casa)
+    if (hops.length) break;
     if (findTarget(state, u)) break;
   }
   u.col = stop;

@@ -2,6 +2,10 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.15.3] — 25/10/2026 · PR #31 — Riku para depois do salto
+- **Salto Vendaval (Riku):** ao saltar por cima de um inimigo, o Riku cai **2 casas à frente e para** (não anda a 3ª casa depois do salto). Se houver alvo no alcance ao cair, ataca com o bônus de investida.
+- Com o caminho livre, continua andando até **3 casas** (fixo em todas as cores e níveis). Passar por aliados não é salto e não o faz parar.
+
 ## [0.15.2] — 25/10/2026 · PR #30 — Riku salta por cima do inimigo
 - **Salto Vendaval (Riku):** quando o inimigo logo à frente está no alcance e a casa atrás dele está livre, o Riku salta por cima dele (gasta 2 das 3 casas), cai nessa casa e ataca com o **bônus de investida** quem estiver no alcance à frente, inclusive o Comandante. Se ninguém estiver no alcance, usa a casa que sobra para andar.
 - Casa de trás ocupada (aliado ou inimigo) ou fora do campo: ataca o inimigo da frente normalmente.
