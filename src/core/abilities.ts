@@ -26,7 +26,7 @@ export interface AbilityDef {
   rangeBonus?: number;
   /** alcance (em colunas à frente) da mira especial */
   reach?: number;
-  /** pode pular unidades no movimento */
+  /** Salto: anda SALTO_MOVE (3) casas fixas e pode pular 1 unidade (inclusive inimiga) */
   jump?: boolean;
   /** ao derrotar: invoca uma unidade */
   onKillSummon?: string;
@@ -98,10 +98,10 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   salto: {
     id: 'salto',
     name: 'Salto Vendaval',
-    description: 'Pula por cima de uma unidade, avançando 2 casas de uma vez. Ataca com bônus no turno em que salta.',
+    description: 'Anda até 3 casas e pode pular por cima de 1 unidade no caminho (aliada ou inimiga), caindo numa casa livre. Ataca com bônus no turno em que salta.',
     icon: '⤴',
     jump: true,
-    scaling: 'Bônus de investida: +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3).',
+    scaling: 'Movimento: sempre 3 casas (fixo, não aumenta com cor nem nível) · Bônus de investida: +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3).',
     power: (s, l) => clamp(Math.max(0, s - 2) + (l >= 30 ? 1 : 0), 3),
     powerLabel: (p) => `investida +${p}`,
   },

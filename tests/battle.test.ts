@@ -85,12 +85,12 @@ describe('movimento', () => {
     expect(u.col).toBe(3);
     expect(e.hp).toBeLessThan(99);
   });
-  it('salto pula por cima de uma unidade (2 casas)', () => {
+  it('salto pula por cima de uma unidade e anda até 3 casas (v0.15.0)', () => {
     const s = emptyBattle();
     const u = placeUnit(s, c('riku'), 'player', 1, 0);
     placeUnit(s, c('gorath'), 'player', 1, 1);
     act(s, new Ctx(), u);
-    expect(u.col).toBe(2);
+    expect(u.col).toBe(3);
   });
   it('inimigo anda para a esquerda', () => {
     const s = emptyBattle();

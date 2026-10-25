@@ -645,7 +645,7 @@ export class BattleView {
   }
 
   /** Seta tática MOVE e poeira quando o personagem caminha na arena */
-  showMoveTrail(from: [number, number], to: [number, number], jumped: boolean) {
+  showMoveTrail(from: [number, number], to: [number, number], jumped: boolean, label = jumped ? 'JUMP' : 'MOVE') {
     const fx = this.root.querySelector('.fx')!;
     const [x1, y1] = this.center(from[0], from[1]);
     const [x2] = this.center(to[0], to[1]);
@@ -654,7 +654,7 @@ export class BattleView {
     trail.style.left = `${Math.min(x1, x2)}px`;
     trail.style.top = `${y1 - 26}px`;
     trail.style.width = `${Math.max(36, Math.abs(x2 - x1))}px`;
-    trail.innerHTML = `<span>${jumped ? 'JUMP' : 'MOVE'}</span><i></i>`;
+    trail.innerHTML = `<span>${label}</span><i></i>`;
     fx.appendChild(trail);
     for (let i = 0; i < 3; i++) {
       const dust = document.createElement('div');
@@ -716,11 +716,22 @@ export class BattleView {
       }
       case 'move': {
         const el = this.tokens.get(ev.uid);
-        this.showMoveTrail(ev.from, ev.to, ev.jumped);
+        const through = ev.through ?? [];
+        const mover = ev.snap.units.find((x) => x.uid === ev.uid);
+        const leap = !!mover && mover.abilities.includes('salto');
+        this.showMoveTrail(ev.from, ev.to, ev.jumped, leap ? 'JUMP' : through.length ? 'PASSA' : 'MOVE');
         if (el) {
-          const cls = ev.jumped ? 'jumping' : 'moving';
-          el.classList.add(cls);
-          setTimeout(() => el.classList.remove(cls), this.dur(430));
+          // v0.15.0: passar por um aliado = pulinho por cima dele (só transform), e o aliado se abaixa
+          const cls = ev.jumped ? ['jumping', 'passing'] : ['moving'];
+          el.classList.add(...cls);
+          setTimeout(() => el.classList.remove(...cls), this.dur(430));
+        }
+        for (const [r, c] of through) {
+          const o = ev.snap.units.find((x) => x.row === r && x.col === c && x.uid !== ev.uid);
+          const oe = o && this.tokens.get(o.uid);
+          if (!oe) continue;
+          oe.classList.add('ducking');
+          setTimeout(() => oe.classList.remove('ducking'), this.dur(430));
         }
         await sleep(this.dur(420));
         break;

@@ -386,26 +386,13 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   }
 }
 
-/** quem já deu o passo à frente nesta ação (1 passo por ação) */
-const stepped = new WeakMap<Ctx, Set<number>>();
-
 function kill(state: BattleState, ctx: Ctx, victim: Unit, killer: Unit) {
   victim.hp = 0;
   state.units = state.units.filter((x) => x !== victim);
   if (victim.slot != null) defeatCopy(state.decks[victim.side], victim.slot);
   ctx.emit(state, { type: 'death', uid: victim.uid, text: `✖ ${nameOf(victim)} foi derrotado.` });
+  // v0.15.0: sem "passo da vitória" — quem derrota fica onde está.
   const oldPos: [number, number] = [killer.row, killer.col];
-  // regra: ao derrotar, avança 1 casa se estiver livre
-  const set = stepped.get(ctx) ?? new Set<number>();
-  stepped.set(ctx, set);
-  if (killer.hp > 0 && state.units.includes(killer) && !set.has(killer.uid)) {
-    const next = killer.col + dir(killer.side);
-    if (inBoard(state, killer.row, next) && !unitAt(state, killer.row, next)) {
-      set.add(killer.uid);
-      killer.col = next;
-      ctx.emit(state, { type: 'move', uid: killer.uid, from: oldPos, to: [killer.row, killer.col], jumped: false, text: `  ${nameOf(killer)} avança após a vitória.` });
-    }
-  }
   // gancho: invocar ao derrotar
   const summon = has(killer.abilities, (a) => a.onKillSummon)?.onKillSummon;
   if (summon) {
@@ -427,33 +414,58 @@ export function criaAtk(stars: number): number {
   return stars >= 6 ? 3 : 2;
 }
 
-/** Move a unidade; retorna true se saltou. */
+/** Salto Vendaval: anda até SALTO_MOVE casas em qualquer cor/nível (fixo, não escala). */
+export const SALTO_MOVE = 3;
+
+/** Quantas casas a unidade anda por ação (Salto Vendaval = 3 fixo; demais = atributo `move`). */
+export function moveRange(u: Unit): number {
+  return has(u.abilities, (a) => a.jump) ? SALTO_MOVE : u.move;
+}
+
+/**
+ * Move a unidade (v0.15.0) e retorna true se ela passou por cima de alguma unidade (Salto: ativa a investida).
+ * - Anda até `moveRange` casas para frente, na própria fileira.
+ * - Atravessa ALIADOS livremente, mas só PARA em casa livre; se não houver casa livre alcançável,
+ *   fica na última casa livre antes deles.
+ * - Inimigos bloqueiam; só o Salto Vendaval pula 1 unidade inimiga por movimento (aterrissando em casa livre).
+ * - Para assim que um alvo entra no alcance (checado só nas casas livres onde ela pode parar).
+ */
 export function moveUnit(state: BattleState, ctx: Ctx, u: Unit): boolean {
   const d = dir(u.side);
   const canJump = !!has(u.abilities, (a) => a.jump);
-  const from: [number, number] = [u.row, u.col];
-  let steps = u.move;
-  let jumped = false;
-  while (steps > 0) {
+  const start = u.col;
+  const from: [number, number] = [u.row, start];
+  if (findTarget(state, u)) return false;
+  const steps = moveRange(u);
+  let enemyHops = canJump ? 1 : 0;
+  let stop = start;
+  const over: number[] = [];
+  for (let k = 1; k <= steps; k++) {
+    const c = start + k * d;
+    if (!inBoard(state, u.row, c)) break;
+    const occ = unitAt(state, u.row, c);
+    if (occ && occ !== u) {
+      if (occ.side === u.side) {
+        over.push(c);
+        continue;
+      }
+      if (enemyHops > 0) {
+        enemyHops--;
+        over.push(c);
+        continue;
+      }
+      break;
+    }
+    stop = c;
+    u.col = c;
     if (findTarget(state, u)) break;
-    const next = u.col + d;
-    if (!inBoard(state, u.row, next)) break;
-    if (!unitAt(state, u.row, next)) {
-      u.col = next;
-      steps--;
-      continue;
-    }
-    const land = next + d;
-    if (canJump && inBoard(state, u.row, land) && !unitAt(state, u.row, land)) {
-      u.col = land;
-      steps -= 2;
-      jumped = true;
-      continue;
-    }
-    break;
   }
-  if (u.col !== from[1]) {
-    ctx.emit(state, { type: 'move', uid: u.uid, from, to: [u.row, u.col], jumped, text: `${nameOf(u)} ${jumped ? 'salta' : 'avança'} para a coluna ${u.col + 1}.` });
+  u.col = stop;
+  const passed = over.filter((c) => (c - start) * d > 0 && (stop - c) * d > 0);
+  const jumped = passed.length > 0;
+  if (stop !== start) {
+    const how = canJump && jumped ? 'salta' : jumped ? 'passa pelos aliados e avança' : 'avança';
+    ctx.emit(state, { type: 'move', uid: u.uid, from, to: [u.row, stop], jumped, through: passed.map((c) => [u.row, c] as [number, number]), text: `${nameOf(u)} ${how} para a coluna ${stop + 1}.` });
   }
   return jumped;
 }
@@ -528,7 +540,6 @@ function strike(state: BattleState, ctx: Ctx, u: Unit, t: Unit | 'hero', bonus =
 /** Ação automática: (cura) → ataca se houver alvo; senão anda e tenta atacar. */
 export function act(state: BattleState, ctx: Ctx, u: Unit) {
   if (u.hp <= 0 || state.winner) return;
-  stepped.set(ctx, new Set());
   healNeighbors(state, ctx, u);
   healRow(state, ctx, u);
   let t = findTarget(state, u);
@@ -538,8 +549,10 @@ export function act(state: BattleState, ctx: Ctx, u: Unit) {
   }
   const jumped = moveUnit(state, ctx, u);
   t = findTarget(state, u);
-  if (t) strike(state, ctx, u, t, jumped ? pw(u, 'salto') : 0);
+  if (t) strike(state, ctx, u, t, jumped && canLeap(u) ? pw(u, 'salto') : 0);
 }
+
+const canLeap = (u: Unit) => !!has(u.abilities, (a) => a.jump);
 
 export function resolveSide(state: BattleState, ctx: Ctx, side: Side) {
   const order = state.units

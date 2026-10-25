@@ -84,9 +84,11 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 ## 5. Ação de cada unidade
 1. **Cura** (Mei: aliados vizinhos; Sora: o aliado mais ferido da própria fileira).
 2. Se houver **alvo no alcance**, ataca e **não anda**.
-3. Senão, **anda até 2 casas** para frente (parando assim que um alvo entra no alcance) e ataca se puder.
-4. **Bloqueio:** ninguém atravessa uma unidade (aliada ou inimiga) sem derrotá-la, exceto quem tem **Salto** (pula 1 unidade, avançando 2 casas).
-5. **Passo da vitória:** ao **derrotar um inimigo**, a unidade **avança 1 casa** se ela estiver livre (no máximo 1 passo por ação).
+3. Senão, **anda até 2 casas** para frente (parando assim que um alvo entra no alcance) e ataca se puder. O alcance é conferido a cada **casa livre** onde a unidade pode parar; passar por cima de um aliado não conta como parar ali.
+4. **Atravessar aliados (v0.15.0):** a unidade **passa pelos aliados** durante o movimento (dentro dos seus 2 passos), mas **só para em casa livre**: ninguém termina numa casa ocupada. Se as casas que ela alcança à frente estiverem ocupadas por aliados, ela fica na **última casa livre antes deles** (às vezes, parada). Exemplo: um arqueiro ataca e fica parado; o tanque atrás dele passa por ele e para na frente.
+5. **Inimigos bloqueiam:** ninguém atravessa um inimigo, exceto quem tem **Salto Vendaval** (Riku), que pode pular **1 unidade** (aliada ou inimiga) no caminho. Na prática o Riku ataca o inimigo que estiver logo à frente em vez de pulá-lo, porque atacar tem prioridade.
+6. **Salto Vendaval (Riku):** anda até **3 casas**, sempre: o movimento **não aumenta** com a cor nem com o nível. Cai sempre numa casa livre e, se passou por cima de alguém, ataca com o bônus de investida no mesmo turno.
+7. **Sem passo da vitória (v0.15.0):** quem **derrota um inimigo fica onde está** (antes avançava 1 casa).
 
 ## 6. Alcance e alvos
 - **Só a própria fileira:** ninguém ataca unidades da outra fileira, exceto as habilidades **diagonais** (Corte Diagonal e Golpe Reverso) e a **lateral** Explosão de Brasas (Kael), que atinge a casa da mesma coluna na outra fileira.
@@ -298,7 +300,7 @@ Ataque/vida mostrados em Comum nível 1 (base) e, entre parênteses, na cor inic
 
 | Personagem | Raça | Categoria | Cores | "+" melhora | Custo | Ataque / Vida | Dano | Alcance | Resist. fís./mág. | Habilidade e evolução |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Riku Vendaval | 🌍 Humano | ⚔️ DPS | Comum → Épico+ | ataque | 2 | 3 / 6 (3 / 6 em Comum) | Físico | 1 | 0/0 | Salto Vendaval — Bônus de investida: +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3). |
+| Riku Vendaval | 🌍 Humano | ⚔️ DPS | Comum → Épico+ | ataque | 2 | 3 / 6 (3 / 6 em Comum) | Físico | 1 | 0/0 | Salto Vendaval — Movimento: sempre 3 casas (fixo, não aumenta com cor nem nível) · Bônus de investida: +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3). |
 | Nara Lâmina-Lunar | 🪐 Extraterrestre | ⚔️ DPS | Comum → Épico+ | ataque | 2 | 3 / 6 (3 / 6 em Comum) | Físico | 1 | 0/0 | Corte Diagonal — Raro: ao bater em frente, também corta a diagonal com 50% do dano · Épico: 100%. |
 | Toru Sombra-Reversa | 🤖 Androide | 🛡️ Tanque | Comum → Épico+ | vida | 3 | 2 / 11 (2 / 11 em Comum) | Físico | 1 | 1/0 | Golpe Reverso<br>Postura de Guarda — Raro: +1 de resistência física · Épico: +2 (máx.). |
 | Aiko Flecha-Celeste | 🪐 Extraterrestre | 🏹 Arqueiro | Incomum → Épico+ | ataque | 3 | 3 / 5 (3 / 6 em Incomum) | Físico | 3 | 0/0 | Flecha Dupla — Incomum: 2ª flecha de 1 · Raro: 2 · Épico: 3 (máx. 3); +1 no nível 25. |
@@ -324,7 +326,7 @@ Ataque/vida mostrados em Comum nível 1 (base) e, entre parênteses, na cor inic
 ✦ = **personagem único**: muito forte, já nasce em Lendário e só chega a Mítico+.
 
 Habilidades em detalhe:
-- **Salto Vendaval:** pula 1 unidade (2 casas). No turno em que salta, ataca com o bônus de investida.
+- **Salto Vendaval:** anda até **3 casas (fixo em todas as cores e níveis)** e pode pular 1 unidade no caminho (aliada ou inimiga), caindo numa casa livre. No turno em que salta, ataca com o bônus de investida (esse bônus continua crescendo: +1 Raro, +2 Épico, +1 no nível 30, máx. +3).
 - **Corte Diagonal:** ataca a diagonal logo à frente quando não há ninguém em frente. A partir de Raro, ao bater em frente também corta a diagonal (50%; 100% em Épico).
 - **Golpe Reverso:** prioriza o inimigo na diagonal logo atrás.
 - **Postura de Guarda:** resistência física extra por cor.
@@ -444,3 +446,21 @@ Habilidades em detalhe:
 | 10 | 976 | 9 | 100 | 75 | 27% → 25% | 3,0 | 190% → 78% | 12 |
 
 - O ataque máximo inclui a Fúria de batalha. Exemplo do risco antigo: na fase 10 o pior turno inimigo tirava 190% da vida (38 de dano contra 20 de vida). Agora tira no máximo 78% (78 de 100).
+
+### v0.15.0 — nova regra de movimento (100 jogadores simulados, `scripts/balance/move15.ts`)
+Atravessar aliados, sem passo da vitória e Riku com 3 casas fixas. Vitória ao chegar e maior turno inimigo (p95 ÷ vida do Comandante), antes → depois:
+
+| Fase | Vitória ao chegar | Turno inimigo p95 ÷ vida | Turnos ≥ 50% da vida |
+|---|---|---|---|
+| 1 | 99% → 99% | 15% → 15% | 0% → 0% |
+| 2 | 98% → 96% | 13% → 20% | 0% → 1% |
+| 3 | 94% → 93% | 25% → 30% | 2% → 3% |
+| 4 | 56% → 57% | 62% → 72% | 15% → 26% |
+| 5 | 78% → 80% | 48% → 57% | 4% → 9% |
+| 6 | 30% → 41% | 65% → 70% | 21% → 26% |
+| 7 | 76% → 78% | 49% → 53% | 4% → 6% |
+| 8 | 30% → 45% | 49% → 63% | 5% → 12% |
+| 9 | 58% → 74% | 39% → 52% | 1% → 6% |
+| 10 | 26% → 36% | 50% → 58% | 5% → 10% |
+
+- As tropas chegam mais rápido à linha de frente (dos dois lados): as fases finais ficaram **mais fáceis** (+10 a +16 pontos nas fases 6, 8, 9 e 10), e os turnos inimigos fortes ficaram um pouco mais comuns. Nenhum valor de dificuldade foi mexido nesta versão.

@@ -553,7 +553,8 @@ function help() {
       <li><b>Só a própria fileira:</b> ninguém ataca a outra fileira, exceto Corte Diagonal (Nara), Golpe Reverso (Toru) e a Explosão de Brasas (Kael). A cura de Mei e o Tambor de Guerra (Tobi) também alcançam vizinhos da outra fileira.</li>
       <li><b>Corpo a corpo:</b> só atinge o inimigo na casa <b>logo à frente</b> com animação de investida e corte de energia (<b>HIT!</b>).</li>
       <li><b>Longo alcance (Magos 🪄, Arqueiros 🏹 e Suportes à distância):</b> atinge o inimigo <b>mais próximo até 3 casas à frente</b> disparando feixes de Ki ou flechas energéticas e não avança se puder atacar.</li>
-      <li><b>Ao derrotar um inimigo</b>, a unidade <b>avança 1 casa</b> se ela estiver livre.</li>
+      <li><b>Passam pelos aliados</b> ao caminhar, mas só param em casa livre (ninguém termina em casa ocupada). <b>Inimigos bloqueiam.</b> O <b>Riku</b> (Salto Vendaval) anda até <b>3 casas, sempre</b>, e pode pular 1 unidade.</li>
+      <li><b>Ao derrotar um inimigo</b>, a unidade <b>fica onde está</b>.</li>
       <li><b>O Comandante inimigo</b> conta como uma unidade parada logo depois da última coluna, alcançável pelas duas fileiras.</li></ul>
     <h3>Fúria de batalha 🔥</h3><p>A partir do <b>turno 8</b>, todas as unidades dos dois lados ganham <b>+1 de ataque a cada 3 turnos</b>, para a luta não travar. Se chegar ao turno 40, vence quem tiver mais vida (em %) no Comandante.</p>
     <h3>Dano</h3><p><b>Físico 👊</b> é reduzido pela resistência física; <b>Mágico ✨</b> pela resistência mágica. Ex.: 3 de dano físico contra resistência 1 = 2 de dano.</p>
