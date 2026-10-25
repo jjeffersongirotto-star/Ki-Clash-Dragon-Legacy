@@ -934,93 +934,110 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 }
 
 /* =====================================================================
-   v0.14.0 — PADRÃO DE CARTA (referência do jogador)
-   Gota azul de custo (topo esq.) · pílula Nv | ⚡Poder (topo dir.) · arte grande ·
-   faixa escura do nome com cantos ornamentados + gema + palavra da cor ·
-   cápsula raça + categoria (centro) · ataque com emblema da CATEGORIA (esq.) ·
-   coração de vida (dir.) · fileira de habilidades embaixo da carta.
-   Tudo estático: imagens SVG prontas (decodificadas uma vez) + CSS, sem filtro nem animação.
+   PADRÃO DE CARTA — v0.14 (referência do jogador), habilidades dentro (v0.14.1),
+   acabamento v0.14.2 (prévia v14.2f aprovada)
+   Gota de custo (topo esq.) · ⚡Poder sozinho numa pílula centralizada · estrela dourada
+   de nível (topo dir.) · arte alta · faixa do nome · palavra da cor · painel escuro de baixo
+   com ataque (esq.) e vida (dir.) centralizados na altura do painel, cápsula raça/categoria,
+   linha com pontinhos e fileira de habilidades.
+   Tudo estático: SVG prontos (decodificados uma vez) + CSS. Nada de filter/animação novos —
+   contornos com -webkit-text-stroke + paint-order, brilhos com text-shadow/gradiente.
    ===================================================================== */
-.card-frame { padding-bottom: 3cqw; }
+.card-frame, .card.ab .card-frame, .card.compact .card-frame { padding-bottom: 0; }
+/* ---- arte: carta "alta" (com habilidades) ganha arte mais alta; personagem preso na janela da arte ---- */
+.card.ab .card-art { aspect-ratio: .72; }
+.card.ab .card-fig { left: -6cqw; top: 5cqw; width: 112cqw; clip-path: inset(-30% 14.1% 0 6.1%); }
+.card-fig, .hand .card.ab .card-fig, .swap-grid .card.ab .card-fig { clip-path: inset(-30% 4.9% 0 4.9%); }
+.hand .card.ab .card-art, .swap-grid .card.ab .card-art { aspect-ratio: .82; }
+.hand .card.ab .card-fig, .swap-grid .card.ab .card-fig { left: -4cqw; top: 2cqw; width: calc(100% + 8cqw); }
+.card-bg img { object-fit: cover; }
+/* ---- custo: gota com número contornado e brilho azul ---- */
 .ck-cost { position: absolute; z-index: 7; top: -9cqw; left: -9cqw; width: 28cqw; height: 33cqw; background: url('../assets/card/drop.svg') center / contain no-repeat;
   display: grid; place-items: center; padding-top: 9cqw; box-sizing: border-box; pointer-events: none; }
-.ck-cost span { font-weight: 900; font-size: 14.5cqw; line-height: 1; color: #fff; text-shadow: 0 .8cqw 0 #062a66, 0 0 2cqw #031a44, -.5cqw 0 #062a66, .5cqw 0 #062a66; }
-.ck-lvp { position: absolute; z-index: 7; top: 2.6cqw; right: 2.6cqw; height: 12cqw; display: flex; align-items: stretch; border-radius: 99px; overflow: hidden; pointer-events: none;
-  border: .8cqw solid #c9ced6; box-shadow: 0 0 0 .5cqw #1b1e25, 0 1.2cqw 2.4cqw rgba(0,0,0,.6); line-height: 1; font-weight: 900; }
-.ck-lv { display: flex; align-items: center; gap: 1cqw; padding: 0 2.4cqw 0 3cqw; background: linear-gradient(180deg, #8a919c, #4b525d 60%, #5b626d); color: #ffd34d; font-size: 7.6cqw; text-shadow: 0 .5cqw 0 #000; }
-.ck-lv small { font-size: 6cqw; font-weight: 900; }
-.ck-pow { display: flex; align-items: center; padding: 0 3cqw 0 2.2cqw; background: linear-gradient(180deg, #23262e, #0d0f14); color: #ffcf3a; font-size: 7.6cqw; text-shadow: 0 0 2cqw rgba(255,190,40,.5); }
-/* faixa do nome */
-.ck-banner { position: relative; z-index: 6; margin: -14cqw -1.2cqw 0; padding: 3.2cqw 6cqw 4cqw; text-align: center;
+.ck-cost::before { content: ''; position: absolute; inset: -3cqw; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, rgba(70,170,255,.55), rgba(70,170,255,.18) 60%, transparent); }
+.ck-cost span, .ck-atk span, .ck-hp span { font-weight: 900; line-height: 1; color: #fff; -webkit-text-stroke: 1.8cqw #000; paint-order: stroke fill;
+  text-shadow: 0 1.1cqw 0 #000, 0 1.8cqw 2.2cqw rgba(0,0,0,.85); }
+.ck-cost span { font-size: 14.5cqw; text-shadow: 0 1.1cqw 0 #000, 0 1.8cqw 2.2cqw rgba(0,0,0,.85), 0 0 3.4cqw rgba(90,190,255,.95); }
+/* ---- ⚡Poder sozinho, centralizado; a largura acompanha o número ---- */
+.ck-pow { position: absolute; z-index: 7; top: 3cqw; left: 50%; transform: translateX(-50%); height: 11.5cqw; box-sizing: border-box; display: flex; align-items: center; gap: .4cqw;
+  padding: 0 3.6cqw 0 2.8cqw; border-radius: 99px; border: .8cqw solid #c9ced6; box-shadow: 0 0 0 .5cqw #1b1e25, 0 1.2cqw 2.4cqw rgba(0,0,0,.6);
+  background: linear-gradient(180deg, #3a3f4a, #15181f); color: #ffcf3a; font-weight: 900; font-size: 8cqw; line-height: 1; white-space: nowrap;
+  text-shadow: 0 0 2cqw rgba(255,190,40,.5); pointer-events: none; }
+/* ---- nível: estrela dourada com asinhas no canto direito (como a gota no esquerdo) ---- */
+.ck-star { position: absolute; z-index: 8; top: -11cqw; right: -12cqw; width: 35cqw; height: 35cqw; box-sizing: border-box; padding-top: 12.2cqw;
+  background: center / contain no-repeat url('../assets/card/lv-star.svg'); display: flex; flex-direction: column; align-items: center; pointer-events: none;
+  color: #fff; font-weight: 900; line-height: .92; -webkit-text-stroke: 1.1cqw #2a1a00; paint-order: stroke fill; text-shadow: 0 .7cqw 0 #000; }
+.ck-star small { font-size: 4.6cqw; font-weight: 900; }
+.ck-star b { font-size: 9cqw; font-weight: 900; }
+/* ---- faixa do nome: degradê (mais escuro embaixo) + borda prata fina; nome um pouco acima da gema ---- */
+.ck-banner { position: relative; z-index: 6; margin: -14cqw -1.2cqw 0; padding: 2cqw 6cqw 5.2cqw; text-align: center;
   background:
-    radial-gradient(circle at 0 0, #d7dce3 0 1.6cqw, transparent 1.8cqw), radial-gradient(circle at 100% 0, #d7dce3 0 1.6cqw, transparent 1.8cqw),
-    radial-gradient(circle at 0 100%, #d7dce3 0 1.6cqw, transparent 1.8cqw), radial-gradient(circle at 100% 100%, #d7dce3 0 1.6cqw, transparent 1.8cqw),
-    linear-gradient(180deg, #4a505c 0%, #262a33 45%, #1b1e25 100%);
-  border-top: .9cqw solid color-mix(in srgb, var(--rg) 70%, #fff); border-bottom: .9cqw solid color-mix(in srgb, var(--rg) 70%, #fff);
-  box-shadow: inset 0 0 0 .5cqw #0d0f14, 0 1.4cqw 3cqw rgba(0,0,0,.6); }
+    radial-gradient(circle at 0 0, #eef1f5 0 1.4cqw, transparent 1.6cqw), radial-gradient(circle at 100% 0, #eef1f5 0 1.4cqw, transparent 1.6cqw),
+    radial-gradient(circle at 0 100%, #eef1f5 0 1.4cqw, transparent 1.6cqw), radial-gradient(circle at 100% 100%, #eef1f5 0 1.4cqw, transparent 1.6cqw),
+    linear-gradient(180deg, #5a606d 0%, #30353f 48%, #16181e 100%);
+  border: .7cqw solid transparent; border-image: linear-gradient(90deg, #8d96a2, #f4f6f9 25%, #a7afba 50%, #f4f6f9 75%, #8d96a2) 1;
+  box-shadow: inset 0 .5cqw 0 rgba(255,255,255,.18), 0 1.4cqw 3cqw rgba(0,0,0,.6); }
 .ck-banner::before { content: ''; position: absolute; inset: 1.6cqw 2.2cqw; border: .45cqw solid rgba(215,220,227,.38); border-radius: .8cqw; pointer-events: none;
   -webkit-mask: linear-gradient(#000 0 0) top left / 9cqw 4cqw no-repeat, linear-gradient(#000 0 0) top right / 9cqw 4cqw no-repeat, linear-gradient(#000 0 0) bottom left / 9cqw 4cqw no-repeat, linear-gradient(#000 0 0) bottom right / 9cqw 4cqw no-repeat;
   mask: linear-gradient(#000 0 0) top left / 9cqw 4cqw no-repeat, linear-gradient(#000 0 0) top right / 9cqw 4cqw no-repeat, linear-gradient(#000 0 0) bottom left / 9cqw 4cqw no-repeat, linear-gradient(#000 0 0) bottom right / 9cqw 4cqw no-repeat; }
 .ck-name { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; color: #fff; font-family: Georgia, 'Noto Serif', 'DejaVu Serif', 'Times New Roman', serif; font-weight: 700;
-  font-size: 9.6cqw; line-height: 1.1; text-shadow: 0 .6cqw 0 #000, 0 0 2cqw rgba(0,0,0,.6); }
+  font-size: calc(9.6cqw * var(--nfit, 1)); line-height: 1.1; text-shadow: 0 .6cqw 0 #000, 0 0 2cqw rgba(0,0,0,.6); }
 .ck-name .short { display: none; }
 .ck-gem { position: absolute; left: 50%; bottom: -4.6cqw; width: 8cqw; height: 8cqw; transform: translateX(-50%) rotate(45deg); border-radius: 1.4cqw;
   background: radial-gradient(circle at 35% 30%, #ffffff 0%, color-mix(in srgb, var(--rg) 80%, #fff) 30%, color-mix(in srgb, var(--rc) 70%, #000) 100%);
   box-shadow: 0 0 0 .7cqw #14171e, 0 0 0 1.3cqw color-mix(in srgb, var(--rg) 70%, #fff); }
-.ck-rar { position: relative; z-index: 5; text-align: center; margin-top: 5.6cqw; font-size: 6.6cqw; font-weight: 800; color: color-mix(in srgb, var(--rg) 55%, #a9b0bb); line-height: 1.1; }
-/* rodapé: ataque | raça + categoria | vida */
-.ck-foot { position: relative; z-index: 7; display: flex; align-items: center; justify-content: center; height: 19cqw; margin-top: .6cqw; }
-.ck-icons { display: flex; align-items: center; gap: 3.4cqw; padding: 1.6cqw 4.6cqw; border-radius: 99px; font-size: 9cqw; line-height: 1;
+/* ---- painel escuro de baixo ---- */
+.ck-panel { position: relative; z-index: 7; display: flex; flex-direction: column; align-items: center; padding-bottom: .4cqw; }
+.ck-rar { text-align: center; margin-top: 7.4cqw; font-size: 5.8cqw; font-weight: 800; line-height: 1; color: #eef1f5; text-shadow: 0 .5cqw 0 #000, 0 0 1.6cqw rgba(200,215,235,.45); }
+.ck-foot { display: flex; justify-content: center; margin-top: 1cqw; }
+.ck-icons { display: flex; align-items: center; gap: 2.6cqw; padding: .7cqw 3.6cqw; border-radius: 99px; font-size: 6.2cqw; line-height: 1;
   background: linear-gradient(180deg, #2c313c, #12151b); border: .7cqw solid #8b93a1; box-shadow: inset 0 .8cqw 1.6cqw rgba(0,0,0,.6), 0 1cqw 2cqw rgba(0,0,0,.5); }
-.ck-atk, .ck-hp { position: absolute; display: grid; place-items: center; pointer-events: none; }
-.ck-atk { left: -10cqw; bottom: -8cqw; width: 34cqw; height: 34cqw; background: center / contain no-repeat url('../assets/card/atk-dps.svg'); padding-top: 4cqw; box-sizing: border-box; }
+.ck-sep { height: 3.4cqw; width: 44cqw; display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(90deg, transparent, rgba(130,190,255,.75) 18%, rgba(130,190,255,.75) 82%, transparent) center / 100% .35cqw no-repeat; }
+.ck-sep i { width: 1.6cqw; height: 1.6cqw; border-radius: 50%; background: #bfe3ff; box-shadow: 0 0 1.4cqw #4fb4ff, 0 0 .6cqw #fff; }
+.ck-abil { display: flex; justify-content: center; align-items: center; gap: 1.6cqw; min-height: 8.4cqw; }
+.ck-ab { width: 8.4cqw; height: 8.4cqw; border-radius: 50%; display: grid; place-items: center; font-size: 4.9cqw; line-height: 1;
+  background: radial-gradient(circle at 40% 35%, #3d4558, #141824 75%); border: .6cqw solid #9aa3ad; box-shadow: 0 .6cqw 1.2cqw rgba(0,0,0,.6); }
+.ck-ab .ab-svg { width: 88%; height: 88%; }
+.ck-dot { width: 1.5cqw; height: 1.5cqw; border-radius: 50%; flex: none; background: #bfe3ff; box-shadow: 0 0 1.2cqw #4fb4ff; }
+.ab-svg { display: inline-block; width: 1.15em; height: 1.15em; vertical-align: -.2em; }
+/* ataque e vida: nas laterais, centralizados na altura do painel */
+.ck-atk, .ck-hp { position: absolute; z-index: 2; top: 50%; bottom: auto; transform: translateY(-50%); display: grid; place-items: center; box-sizing: border-box; pointer-events: none; }
+.ck-atk { left: -11cqw; width: 34cqw; height: 34cqw; padding-top: 4cqw; background: center / contain no-repeat url('../assets/card/atk-dps.svg'); }
 .cat-tanque .ck-atk { background-image: url('../assets/card/atk-tanque.svg'); }
 .cat-mago .ck-atk { background-image: url('../assets/card/atk-mago.svg'); }
 .cat-arqueiro .ck-atk { background-image: url('../assets/card/atk-arqueiro.svg'); }
 .cat-assassino .ck-atk { background-image: url('../assets/card/atk-assassino.svg'); }
 .cat-suporte .ck-atk { background-image: url('../assets/card/atk-suporte.svg'); }
-.ck-hp { right: -8.5cqw; bottom: -6cqw; width: 31cqw; height: 28.5cqw; background: center / contain no-repeat url('../assets/card/heart.svg'); padding-bottom: 2cqw; box-sizing: border-box; }
-.ck-atk span, .ck-hp span { font-weight: 900; font-size: 13.5cqw; line-height: 1; color: #fff;
-  text-shadow: 0 .8cqw 0 #000, -.6cqw 0 #000, .6cqw 0 #000, 0 -.5cqw 0 #000, 0 0 2.4cqw rgba(0,0,0,.8); }
-/* fileira de habilidades embaixo da carta */
-.ck-abil { display: flex; justify-content: center; align-items: center; gap: 1.8cqw; margin-top: 3.2cqw; min-height: 11cqw; }
-.ck-ab { width: 11cqw; height: 11cqw; border-radius: 50%; display: grid; place-items: center; font-size: 6.4cqw; line-height: 1;
-  background: radial-gradient(circle at 40% 35%, #3d4558, #141824 75%); border: .6cqw solid #9aa3ad; box-shadow: 0 .6cqw 1.2cqw rgba(0,0,0,.6); }
-.ck-dot { width: 1.8cqw; height: 1.8cqw; border-radius: 50%; background: #6b7385; flex: none; }
-/* cartas pequenas: nome curto, sem palavra da cor/gema/habilidades */
+.ck-hp { right: -9.5cqw; width: 31cqw; height: 28.5cqw; padding-bottom: 2cqw; background: center / contain no-repeat url('../assets/card/heart.svg'); }
+.ck-hp::before { content: ''; position: absolute; inset: -1cqw; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,80,90,.35), transparent); }
+.ck-atk span, .ck-hp span { font-size: 13.5cqw; }
+.ck-hp span { text-shadow: 0 1.1cqw 0 #000, 0 1.8cqw 2.2cqw rgba(0,0,0,.85), 0 0 3cqw rgba(255,120,120,.6); }
+/* ---- cartas "baixas": mão da batalha, equipe/Treinar (compactas), troca rápida ---- */
+.card.compact .ck-rar, .card.compact .ck-gem, .hand .ck-rar, .hand .ck-gem, .hand .ck-abil, .hand .ck-sep, .swap-grid .ck-abil, .swap-grid .ck-sep { display: none; }
+.card.compact .ck-banner, .hand .ck-banner { padding: 2.4cqw 4cqw 2.8cqw; }
+.card.compact .ck-name, .hand .ck-name { -webkit-line-clamp: 1; }
+.card.compact .ck-panel, .hand .ck-panel { min-height: 21cqw; justify-content: center; padding-bottom: 1cqw; }
+.card.compact .ck-foot, .hand .ck-foot { margin-top: 0; }
+.swap-grid .ck-panel { padding-bottom: 2cqw; }
+.card.compact .ck-atk, .hand .ck-atk { left: -8cqw; width: 30cqw; height: 30cqw; padding-top: 3.5cqw; }
+.card.compact .ck-hp, .hand .ck-hp { right: -7cqw; width: 28cqw; height: 26cqw; }
+.card.compact .ck-star, .hand .ck-star { top: -8cqw; right: -8cqw; width: 31cqw; height: 31cqw; padding-top: 10.6cqw; }
+/* cartas pequenas: nome curto; pílula e estrela com letras maiores para continuar legíveis */
 @container (max-width: 104px) {
   .ck-name .full { display: none; } .ck-name .short { display: inline; }
   .ck-name { font-size: 11cqw; -webkit-line-clamp: 1; }
-  .ck-lvp { height: 15cqw; top: 2cqw; right: 2cqw; border-width: .7cqw; }
-  .ck-lv { font-size: 10cqw; padding: 0 2cqw 0 2.6cqw; } .ck-lv small { font-size: 7.5cqw; }
-  .ck-pow { font-size: 10cqw; padding: 0 2.4cqw 0 1.6cqw; }
+  .ck-pow { height: 13.4cqw; top: 2.6cqw; font-size: 8.8cqw; border-width: .7cqw; padding: 0 2.4cqw 0 1.6cqw; gap: 0; }
+  .ck-star small { display: none; }
+  .ck-star b { font-size: 12cqw; }
+  .ck-star, .card.compact .ck-star, .hand .ck-star { padding-top: 0; justify-content: center; }
+  .ck-star b { margin-top: 1.4cqw; }
 }
-/* mão da batalha: emblemas sem passar da borda de baixo (a faixa da mão corta o que sai) */
-.hand .ck-atk { left: -7cqw; bottom: -3cqw; width: 31cqw; height: 31cqw; }
-.hand .ck-hp { right: -6cqw; bottom: -2cqw; width: 29cqw; height: 27cqw; }
-.card.compact .ck-rar, .card.compact .ck-gem, .hand .ck-rar, .hand .ck-gem, .hand .ck-abil, .swap-grid .ck-abil { display: none; }
-.card.compact .ck-banner, .hand .ck-banner { padding: 2.4cqw 4cqw 2.8cqw; }
-.card.compact .ck-name, .hand .ck-name { -webkit-line-clamp: 1; }
-.card.compact .ck-foot, .hand .ck-foot { margin-top: -1cqw; height: 18cqw; }
 @container (max-width: 84px) { .ck-icons { display: none; } }
 /* bloqueadas: tons apagados sem filtro */
-.card.grid-card.locked .ck-cost, .card.grid-card.locked .ck-atk, .card.grid-card.locked .ck-hp, .card.grid-card.locked .ck-icons, .card.grid-card.locked .ck-abil, .card.grid-card.locked .ck-lvp { opacity: .45; }
+.card.grid-card.locked .ck-cost, .card.grid-card.locked .ck-atk, .card.grid-card.locked .ck-hp, .card.grid-card.locked .ck-icons, .card.grid-card.locked .ck-abil,
+.card.grid-card.locked .ck-star, .card.grid-card.locked .ck-sep { opacity: .45; }
 .card.grid-card.locked .ck-pow { display: none; }
 .card.grid-card.locked .ck-name { color: #9a9ca0; }
-/* o selo antigo de Poder (v0.13) agora está na pílula do topo */
+/* o selo antigo de Poder (v0.13) agora é a pílula do topo */
 .card-power { display: none; }
-
-/* =====================================================================
-   v0.14.1 — HABILIDADES DENTRO DA CARTA
-   A moldura (borda prata/da cor + fundo escuro) desce e envolve a fileira de
-   habilidades no centro de baixo, abaixo da cápsula raça/categoria. Ataque e
-   coração continuam nos cantos de baixo, subidos para não tocar a fileira.
-   ===================================================================== */
-.card.ab .card-frame { padding-bottom: 3.4cqw; }
-.ck-abil { position: relative; z-index: 6; margin-top: 4.6cqw; }
-.card.ab .ck-atk { bottom: -5cqw; }
-.card.ab .ck-hp { bottom: -3.4cqw; }
-/* onde a fileira fica escondida (mão da batalha: ilegível nesse tamanho; troca rápida) volta o v0.14.0 */
-.hand .card.ab .card-frame, .swap-grid .card.ab .card-frame { padding-bottom: 3cqw; }
-.hand .card.ab .ck-atk { bottom: -3cqw; } .hand .card.ab .ck-hp { bottom: -2cqw; }
-.swap-grid .card.ab .ck-atk { bottom: -8cqw; } .swap-grid .card.ab .ck-hp { bottom: -6cqw; }

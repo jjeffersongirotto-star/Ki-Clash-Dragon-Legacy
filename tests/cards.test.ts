@@ -6,7 +6,7 @@ import { PLAYABLE, RACE_INFO, getChar } from '../src/core/characters';
 describe('visual das cartas', () => {
   it('tem moldura, cenário, personagem separado, custo, nível/Poder, faixa com o nome, ataque e vida (padrão v0.14)', () => {
     const h = cardHTML({ charId: 'riku', level: 7, stars: 2 });
-    for (const cls of ['card-metal', 'card-frame', 'card-bg', 'card-aura', 'card-fig', 'ck-cost', 'ck-lvp', 'ck-banner', 'ck-rar', 'ck-icons', 'ck-atk', 'ck-hp', 'ck-abil']) expect(h).toContain(cls);
+    for (const cls of ['card-metal', 'card-frame', 'card-bg', 'card-aura', 'card-fig', 'ck-cost', 'ck-pow', 'ck-star', 'ck-banner', 'ck-rar', 'ck-icons', 'ck-atk', 'ck-hp', 'ck-abil']) expect(h).toContain(cls);
     expect(h).toContain('Riku Vendaval');
     expect(h).toMatch(/class="card s2/);
   });

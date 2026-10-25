@@ -2,6 +2,17 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.14.2] — 25/10/2026 · PR #25 — Acabamento da carta (prévia v14.2f)
+- **Topo:** o **⚡Poder** fica sozinho numa pílula centralizada (a largura acompanha o número, testado com 47, 100, 1000 e 10000) e o **nível** virou uma **estrela dourada com asinhas** no canto direito, com "Nv." em cima do número (como a gota no canto esquerdo).
+- **Números mais fortes:** custo, ataque e vida com contorno preto grosso e sombra forte; brilho azul neon na gota e vermelho suave no coração.
+- **Faixa do nome:** degradê vertical (mais escura embaixo) e borda prata fina; o nome subiu um pouco e não encosta mais na gema. A palavra da cor ("Comum" etc.) ficou branca/prata e longe da gema.
+- **Painel de baixo:** ataque e vida **centralizados na altura do painel escuro**, nas laterais; ícones de raça/categoria e de habilidades um pouco menores, com uma **linha com pontinhos brilhantes** entre as duas fileiras. Nada encosta na borda de baixo.
+- **Novos emblemas de ataque, um por categoria** (fundo laranja liso, aro dourado, contorno preto grosso, sem a explosão de pontas, armas cruzadas **na frente** da base): Tanque placa octogonal rebitada + martelos, DPS medalhão + duas espadas inteiras, Mago círculo de runas + cajados, Arqueiro alvo + arco e flecha, Assassino losango + adagas, Suporte cristal + cetros.
+- **Resistência Física** (Postura de Guarda) agora tem ícone de **peitoral de armadura**, na carta e na lista de habilidades.
+- **Arte:** nas cartas com habilidades a arte ficou mais alta e o personagem um pouco mais para cima; o personagem fica preso na janela da arte (a lâmina do Toru não sai mais da carta).
+- **Nomes compridos** (Tobi Tambor-de-Guerra, Gorath Muralha-de-Ferro) cabem inteiros na grade da Coleção (letra um pouco menor só nesses).
+- Cartas pequenas (mão da batalha, equipe, Treinar, troca rápida) seguem com a mesma altura de antes, com tudo em tamanho ajustado. Só SVG estático, contorno/sombra de texto e degradês: Coleção e batalha seguem a ~60 FPS.
+
 ## [0.14.1] — 25/10/2026 · PR #24 — Habilidades dentro da carta
 - **A fileira de habilidades agora fica dentro da carta:** a moldura (borda prata/da cor e fundo escuro) desce e envolve as bolinhas de habilidade no centro de baixo, abaixo da cápsula raça/categoria — antes elas ficavam soltas embaixo da carta.
 - Ataque (canto esquerdo) e coração (canto direito) continuam nos cantos de baixo, um pouco mais acima, sem tocar a fileira.
