@@ -1051,3 +1051,15 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .card.grid-card.locked .ck-name { color: #9a9ca0; }
 /* o selo antigo de Poder (v0.13) agora é a pílula do topo */
 .card-power { display: none; }
+
+/* =====================================================================
+   v0.14.4 — ARRASTAR A CARTA DA MÃO ATÉ O CAMPO
+   Arrasto na vertical vira "invocar"; na horizontal a mão continua rolando (celular em pé).
+   A carta fantasma só muda transform (sem redesenhar a página).
+   ===================================================================== */
+.hand .hand-card { touch-action: pan-x; -webkit-user-select: none; user-select: none; }
+@media (orientation: landscape) { .battle .hand .hand-card { touch-action: none; } }
+.hand .hand-card.dragging { opacity: .35; }
+.hand.drag-ghost-wrap { position: fixed; left: 0; top: 0; z-index: 9999; display: block; width: 0; height: 0; padding: 0; margin: 0; overflow: visible; pointer-events: none; background: none; border: 0; box-shadow: none; }
+.hand.drag-ghost-wrap .card { position: absolute; left: 0; top: 0; margin: 0; transform-origin: 0 0; will-change: transform; pointer-events: none; box-shadow: 0 10px 24px rgba(0,0,0,.6); }
+.cell.drop-over { background: rgba(255,230,140,.55); box-shadow: inset 0 0 0 3px #fff3b0, 0 0 18px rgba(255,220,110,.75); }

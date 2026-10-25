@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.14.4] — 25/10/2026 · PR #27 — Arrastar a carta até o campo
+- **Arrastar para invocar:** segure uma carta da mão e arraste até uma casa da sua zona para invocá-la (funciona no toque e no mouse). O jeito antigo (tocar na carta e depois na casa) continua funcionando igual.
+- Durante o arrasto a carta segue o dedo, a da mão fica apagada e as casas livres da sua zona ficam destacadas; a casa embaixo do dedo brilha mais.
+- Soltar numa casa destacada invoca com as mesmas regras do toque (energia, zona, casa livre); soltar em outro lugar ou fora do campo cancela e a carta volta para a mão.
+- Toque curto continua selecionando; segurar parado (~0,5 s) continua abrindo os detalhes; com o celular em pé, arrastar para o lado continua rolando a mão.
+- A carta que segue o dedo só muda de posição (transform), sem redesenhar a tela: ~60 FPS durante o arrasto.
+
 ## [0.14.3] — 25/10/2026 · PR #26 — Habilidades também nas cartas pequenas
 - Na **mão da batalha**, na **equipe da Coleção**, na lista do **Treinar**, na **troca rápida** e na carta de personagem novo, o espaço vazio **entre o ataque e a vida** agora mostra os **ícones das habilidades** do personagem (os mesmos da carta grande, com o peitoral da Resistência Física), separados por pontinhos.
 - As bolinhas são dimensionadas para caber entre o emblema de ataque e o coração sem encostar em nenhum dos dois; as cartas **não ficaram mais altas** (a mão continua com 110 px de altura no celular deitado). Com 3 ou mais habilidades as bolinhas ficam menores em vez de esconder alguma.
