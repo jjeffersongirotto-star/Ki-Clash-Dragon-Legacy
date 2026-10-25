@@ -1009,3 +1009,18 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .card.grid-card.locked .ck-name { color: #9a9ca0; }
 /* o selo antigo de Poder (v0.13) agora está na pílula do topo */
 .card-power { display: none; }
+
+/* =====================================================================
+   v0.14.1 — HABILIDADES DENTRO DA CARTA
+   A moldura (borda prata/da cor + fundo escuro) desce e envolve a fileira de
+   habilidades no centro de baixo, abaixo da cápsula raça/categoria. Ataque e
+   coração continuam nos cantos de baixo, subidos para não tocar a fileira.
+   ===================================================================== */
+.card.ab .card-frame { padding-bottom: 3.4cqw; }
+.ck-abil { position: relative; z-index: 6; margin-top: 4.6cqw; }
+.card.ab .ck-atk { bottom: -5cqw; }
+.card.ab .ck-hp { bottom: -3.4cqw; }
+/* onde a fileira fica escondida (mão da batalha: ilegível nesse tamanho; troca rápida) volta o v0.14.0 */
+.hand .card.ab .card-frame, .swap-grid .card.ab .card-frame { padding-bottom: 3cqw; }
+.hand .card.ab .ck-atk { bottom: -3cqw; } .hand .card.ab .ck-hp { bottom: -2cqw; }
+.swap-grid .card.ab .ck-atk { bottom: -8cqw; } .swap-grid .card.ab .ck-hp { bottom: -6cqw; }

@@ -78,4 +78,19 @@ describe('v0.14 — padrão de carta', () => {
     expect(cardHTML({ charId: 'riku', level: 1, stars: 1 }, { compact: true })).not.toContain('ck-abil');
     expect(getChar('riku').abilities.length).toBeGreaterThan(0);
   });
+  it('v0.14.1: fileira de habilidades fica DENTRO da moldura, depois da cápsula', () => {
+    for (const d of PLAYABLE) {
+      const h = cardHTML({ charId: d.id, level: 1, stars: d.minStars });
+      const frame = h.indexOf('class="card-frame"');
+      const foot = h.indexOf('class="ck-foot"');
+      const abil = h.indexOf('class="ck-abil"');
+      expect(abil, d.id).toBeGreaterThan(foot);
+      expect(foot).toBeGreaterThan(frame);
+      // a moldura só fecha depois da fileira
+      expect(h.indexOf('</div></div>', abil), d.id).toBeGreaterThan(abil);
+      expect(h.slice(abil).match(/<\/div><\/div>\s*<\/div>\s*$/), d.id).not.toBeNull();
+      expect(h).toMatch(/class="card [^"]*\bab\b/);
+    }
+    expect(cardHTML({ charId: 'riku', level: 1, stars: 1 }, { compact: true })).not.toMatch(/class="card [^"]*\bab\b/);
+  });
 });

@@ -70,11 +70,11 @@ export function cardHTML(
   // v0.10.2: carta de grade = quadro congelado (bitmaps prontos, sem animação/filtro/blend)
   const ga = opts.grid ? gridArtHTML(def, t, !!opts.locked) : null;
   const sparks = t >= 5 && !opts.locked ? Array.from({ length: t === 6 ? 7 : 4 }, (_, i) => `<i class="spk" style="--i:${i}"></i>`).join('') : '';
-  // v0.14: fileira de habilidades (bolinhas separadas por pontos), embaixo da carta
+  // v0.14.1: fileira de habilidades (bolinhas separadas por pontos) DENTRO da moldura, no centro de baixo
   const abil = opts.compact
     ? ''
     : `<div class="ck-abil">${def.abilities.map((a) => `<span class="ck-ab" title="${esc(ABILITIES[a].name)}">${ABILITIES[a].icon}</span>`).join('<i class="ck-dot"></i>')}</div>`;
-  return `<div class="card s${t} race-${def.race} cat-${def.category} ${opts.compact ? 'compact' : ''} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}${ga ? ` grid-card${ga.baked ? ' baked' : ''}` : ''}" style="${ga && opts.locked ? LOCKED_GRID_STYLE : `${starStyle(t)};--ac:${def.palette.aura};--race-c:${race.color}`}" ${opts.attrs ?? ''}>
+  return `<div class="card s${t} race-${def.race} cat-${def.category} ${opts.compact ? 'compact' : 'ab'} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}${ga ? ` grid-card${ga.baked ? ' baked' : ''}` : ''}" style="${ga && opts.locked ? LOCKED_GRID_STYLE : `${starStyle(t)};--ac:${def.palette.aura};--race-c:${race.color}`}" ${opts.attrs ?? ''}>
     <div class="card-metal"><div class="card-frame">
       <div class="card-art">
         <div class="card-bg">${ga ? ga.bg : portraitImg(def, { stars: t, layer: 'bg' })}</div>
@@ -92,9 +92,9 @@ export function cardHTML(
         <div class="ck-icons"><span title="${race.label}">${race.icon}</span><span title="${cat.label}">${cat.icon}</span></div>
         <div class="ck-hp" title="Vida: ${st.hp}"><span>${st.hp}</span></div>
       </div>
+      ${abil}
       ${sparks}
     </div></div>
-    ${abil}
   </div>`;
 }
 

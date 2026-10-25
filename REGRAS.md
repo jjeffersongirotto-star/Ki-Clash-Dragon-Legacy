@@ -188,7 +188,8 @@ Todas as cartas (mão, coleção, equipe, treino, troca de equipe, detalhes, ins
 | ➕ Suporte | cetro com cristal azul brilhante |
 
 - **Embaixo à direita: Vida**, o número sobre um **coração vermelho** brilhante.
-- **Abaixo da carta:** fileira centralizada de **bolinhas com os ícones das habilidades** (uma por habilidade), separadas por pontinhos.
+- **Habilidades dentro da carta (v0.14.1):** no centro de baixo, abaixo da cápsula raça/categoria, fica uma fileira de **bolinhas com os ícones das habilidades** (uma por habilidade), separadas por pontinhos. A moldura (borda prata/da cor e fundo escuro) **desce e envolve a fileira**: as habilidades fazem parte da carta, não ficam embaixo dela. O ataque e o coração continuam nos cantos de baixo, um pouco acima, sem encostar na fileira.
+- **Onde aparece a fileira:** carta grande (detalhes da Coleção, Treinar, inspeção em batalha) e **cartas da grade "Seus personagens" da Coleção**. Fica escondida nas cartas pequenas (equipe, lista do Treinar, troca rápida) e na **mão da batalha**, onde as bolinhas ficariam com ~10 px e ilegíveis; ali as habilidades aparecem ao tocar na carta (inspeção).
 - **Removidos:** o medalhão de categoria no topo direito, a linha "👊 ataque ❤ vida + ícones" e a linha "RAÇA · COR · CATEGORIA" (a raça e a categoria ficam na cápsula; a cor, embaixo do nome). Não há estrelas.
 - **Cartas pequenas** (equipe na Coleção, lista do Treinar, mão da batalha):
   - mostram só o primeiro nome, em 1 linha, sem a gema, sem a palavra da cor e sem a fileira de habilidades;
