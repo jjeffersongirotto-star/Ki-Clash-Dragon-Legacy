@@ -74,8 +74,8 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     description: 'Também ataca o inimigo na diagonal logo à frente (outra fileira, 1 coluna adiante).',
     icon: '↗',
     targeting: 'diagFrente',
-    scaling: 'Raro: ao bater em frente, também corta a diagonal com 50% do dano · Épico: 100%.',
-    power: (s) => (s >= 4 ? 100 : s >= 3 ? 50 : 0),
+    scaling: 'Raro em diante: ao bater em frente, também corta a diagonal com 50% do dano (máx.).',
+    power: (s) => (s >= 3 ? 50 : 0),
     powerLabel: (p) => (p ? `corte duplo ${p}%` : 'sem corte duplo'),
   },
   diagTras: {
@@ -98,10 +98,10 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   salto: {
     id: 'salto',
     name: 'Salto Vendaval',
-    description: 'Anda até 3 casas e pode pular por cima de 1 unidade no caminho (aliada ou inimiga), caindo numa casa livre. Ataca com bônus no turno em que salta.',
+    description: 'Anda até 3 casas e pode saltar por cima de 1 inimigo no caminho, caindo numa casa livre. Ataca com bônus no turno em que salta (passar por aliados não conta como salto).',
     icon: '⤴',
     jump: true,
-    scaling: 'Movimento: sempre 3 casas (fixo, não aumenta com cor nem nível) · Bônus de investida: +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3).',
+    scaling: 'Movimento: sempre 3 casas (fixo, não aumenta com cor nem nível) · Bônus de investida (só ao saltar): +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3).',
     power: (s, l) => clamp(Math.max(0, s - 2) + (l >= 30 ? 1 : 0), 3),
     powerLabel: (p) => `investida +${p}`,
   },
@@ -126,8 +126,8 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     name: 'Feixe Perfurante',
     description: 'O feixe atravessa a fileira: acerta o inimigo mais próximo e também os que estão atrás dele no alcance (só na própria fileira).',
     icon: '⇶',
-    scaling: 'Dano nos de trás: 50% (Incomum) · 75% (Raro) · 100% (Épico).',
-    power: (s) => (s >= 4 ? 100 : s >= 3 ? 75 : 50),
+    scaling: 'Dano nos de trás: 50% (Incomum) · 75% (Raro em diante, máx.).',
+    power: (s) => (s >= 3 ? 75 : 50),
     powerLabel: (p) => `atrás ${p}%`,
   },
   retaguarda: {
@@ -187,7 +187,7 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   lotus: {
     id: 'lotus',
     name: 'Bênção do Lótus',
-    description: 'No início da sua ação, cura os aliados vizinhos (inclusive diagonais e a outra fileira).',
+    description: 'No início da sua ação, cura os 2 aliados vizinhos mais feridos (inclusive diagonais e a outra fileira).',
     icon: '✚',
     scaling: 'Cura 2 (Incomum–Raro) · 3 (Épico); +1 no nível 20 (máx. 4).',
     power: (s, l) => clamp((s >= 4 ? 3 : 2) + (l >= 20 ? 1 : 0), 4),

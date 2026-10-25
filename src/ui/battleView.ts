@@ -717,12 +717,11 @@ export class BattleView {
       case 'move': {
         const el = this.tokens.get(ev.uid);
         const through = ev.through ?? [];
-        const mover = ev.snap.units.find((x) => x.uid === ev.uid);
-        const leap = !!mover && mover.abilities.includes('salto');
-        this.showMoveTrail(ev.from, ev.to, ev.jumped, leap ? 'JUMP' : through.length ? 'PASSA' : 'MOVE');
+        // v0.15.1: JUMP só no salto de verdade (Salto Vendaval); passar por aliados = PASSA
+        this.showMoveTrail(ev.from, ev.to, ev.jumped, ev.jumped ? 'JUMP' : through.length ? 'PASSA' : 'MOVE');
         if (el) {
           // v0.15.0: passar por um aliado = pulinho por cima dele (só transform), e o aliado se abaixa
-          const cls = ev.jumped ? ['jumping', 'passing'] : ['moving'];
+          const cls = ev.jumped || through.length ? ['jumping', 'passing'] : ['moving'];
           el.classList.add(...cls);
           setTimeout(() => el.classList.remove(...cls), this.dur(430));
         }

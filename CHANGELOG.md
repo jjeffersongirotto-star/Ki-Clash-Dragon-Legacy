@@ -2,6 +2,14 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.15.1] — 25/10/2026 · PR #29 — Tetos em habilidades
+- **Feixe Perfurante (Lyra):** dano nos que estão atrás do alvo agora vai até **75%** (50% Incomum · 75% de Raro em diante). Antes chegava a 100% no Épico.
+- **Corte Diagonal (Nara):** o segundo alvo, na outra fileira, leva no máximo **50%** (antes 100% no Épico).
+- **Bênção do Lótus (Mei):** cura só os **2 aliados vizinhos mais feridos** (mesma quantidade de cura). Empate: quem tem menos vida, depois quem entrou em campo antes.
+- **Salto Vendaval (Riku):** a investida só vale quando ele **salta com a habilidade** (por cima de um inimigo). Passar por aliados é a regra comum de movimento e não conta como salto, nem para o Riku; a seta **JUMP** só aparece no salto de verdade (passar por aliado mostra **PASSA**).
+- Punho Espelhado sem mudança (forte de propósito). Emboscada e Prole Sombria ficam para depois.
+- Simulador (100 jogadores): vitória por fase praticamente igual (diferenças de 0 a 2 pontos).
+
 ## [0.15.0] — 25/10/2026 · PR #28 — Nova regra de movimento
 - **Sem passo da vitória:** quem derrota um inimigo agora fica onde está (não avança 1 casa).
 - **Atravessar aliados:** no movimento (até 2 casas) a unidade passa pelos aliados, mas só para em casa livre; ninguém termina numa casa ocupada. Se só houver aliados à frente, fica na última casa livre. O alcance é conferido a cada casa livre. Inimigos continuam bloqueando.

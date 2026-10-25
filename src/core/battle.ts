@@ -423,7 +423,7 @@ export function moveRange(u: Unit): number {
 }
 
 /**
- * Move a unidade (v0.15.0) e retorna true se ela passou por cima de alguma unidade (Salto: ativa a investida).
+ * Move a unidade (v0.15.0) e retorna true só se ela SALTOU com o Salto Vendaval (por cima de um inimigo; ativa a investida).
  * - Anda até `moveRange` casas para frente, na própria fileira.
  * - Atravessa ALIADOS livremente, mas só PARA em casa livre; se não houver casa livre alcançável,
  *   fica na última casa livre antes deles.
@@ -440,6 +440,8 @@ export function moveUnit(state: BattleState, ctx: Ctx, u: Unit): boolean {
   let enemyHops = canJump ? 1 : 0;
   let stop = start;
   const over: number[] = [];
+  /** casas de inimigos pulados com o Salto (o único "salto" de verdade) */
+  const hops: number[] = [];
   for (let k = 1; k <= steps; k++) {
     const c = start + k * d;
     if (!inBoard(state, u.row, c)) break;
@@ -451,7 +453,7 @@ export function moveUnit(state: BattleState, ctx: Ctx, u: Unit): boolean {
       }
       if (enemyHops > 0) {
         enemyHops--;
-        over.push(c);
+        hops.push(c);
         continue;
       }
       break;
@@ -461,21 +463,28 @@ export function moveUnit(state: BattleState, ctx: Ctx, u: Unit): boolean {
     if (findTarget(state, u)) break;
   }
   u.col = stop;
-  const passed = over.filter((c) => (c - start) * d > 0 && (stop - c) * d > 0);
-  const jumped = passed.length > 0;
+  const between = (c: number) => (c - start) * d > 0 && (stop - c) * d > 0;
+  const passed = over.filter(between);
+  // v0.15.1: só o pulo do Salto Vendaval por cima de um INIMIGO conta como salto (investida + seta JUMP);
+  // passar por aliados é a regra comum de movimento e não conta.
+  const jumped = hops.some(between);
   if (stop !== start) {
-    const how = canJump && jumped ? 'salta' : jumped ? 'passa pelos aliados e avança' : 'avança';
+    const how = jumped ? 'salta' : passed.length ? 'passa pelos aliados e avança' : 'avança';
     ctx.emit(state, { type: 'move', uid: u.uid, from, to: [u.row, stop], jumped, through: passed.map((c) => [u.row, c] as [number, number]), text: `${nameOf(u)} ${how} para a coluna ${stop + 1}.` });
   }
   return jumped;
 }
 
+/** Bênção do Lótus (v0.15.1): cura só os 2 aliados vizinhos mais feridos (mais vida perdida; empate: menos vida, depois quem entrou antes). */
+export const LOTUS_TARGETS = 2;
 function healNeighbors(state: BattleState, ctx: Ctx, u: Unit) {
   const amount = pw(u, 'lotus');
   if (!amount) return;
-  for (const a of state.units) {
-    if (a === u || a.side !== u.side || a.hp <= 0 || a.hp >= a.maxHp) continue;
-    if (Math.abs(a.row - u.row) > 1 || Math.abs(a.col - u.col) > 1) continue;
+  const hurt = state.units
+    .filter((a) => a !== u && a.side === u.side && a.hp > 0 && a.hp < a.maxHp && Math.abs(a.row - u.row) <= 1 && Math.abs(a.col - u.col) <= 1)
+    .sort((a, b) => b.maxHp - b.hp - (a.maxHp - a.hp) || a.hp - b.hp || a.uid - b.uid)
+    .slice(0, LOTUS_TARGETS);
+  for (const a of hurt) {
     const h = Math.min(amount, a.maxHp - a.hp);
     a.hp += h;
     ctx.emit(state, { type: 'heal', uid: a.uid, amount: h, text: `✚ ${nameOf(u)} cura ${nameOf(a)} em ${h}.` });
@@ -549,10 +558,8 @@ export function act(state: BattleState, ctx: Ctx, u: Unit) {
   }
   const jumped = moveUnit(state, ctx, u);
   t = findTarget(state, u);
-  if (t) strike(state, ctx, u, t, jumped && canLeap(u) ? pw(u, 'salto') : 0);
+  if (t) strike(state, ctx, u, t, jumped ? pw(u, 'salto') : 0);
 }
-
-const canLeap = (u: Unit) => !!has(u.abilities, (a) => a.jump);
 
 export function resolveSide(state: BattleState, ctx: Ctx, side: Side) {
   const order = state.units

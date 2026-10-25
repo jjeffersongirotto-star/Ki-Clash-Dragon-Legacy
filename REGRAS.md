@@ -82,12 +82,12 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 - **Efeito prático (aleatoriedade):** como a quantidade comprada por rodada varia com o número de cartas que você jogou, o número de cartas por compra muda a cada turno e a ordem **não fica presa num ciclo fixo** (na v0.7, com 1 carta por rodada, cada carta voltava sempre na 10ª compra). Agora uma carta pode voltar na 7ª, 8ª, 9ª ou 10ª compra de verdade, e partidas diferentes têm sequências diferentes. Quando você joga só 1 carta por rodada, o comportamento é o mesmo da v0.7.
 
 ## 5. Ação de cada unidade
-1. **Cura** (Mei: aliados vizinhos; Sora: o aliado mais ferido da própria fileira).
+1. **Cura** (Mei: os 2 aliados vizinhos mais feridos; Sora: o aliado mais ferido da própria fileira).
 2. Se houver **alvo no alcance**, ataca e **não anda**.
 3. Senão, **anda até 2 casas** para frente (parando assim que um alvo entra no alcance) e ataca se puder. O alcance é conferido a cada **casa livre** onde a unidade pode parar; passar por cima de um aliado não conta como parar ali.
 4. **Atravessar aliados (v0.15.0):** a unidade **passa pelos aliados** durante o movimento (dentro dos seus 2 passos), mas **só para em casa livre**: ninguém termina numa casa ocupada. Se as casas que ela alcança à frente estiverem ocupadas por aliados, ela fica na **última casa livre antes deles** (às vezes, parada). Exemplo: um arqueiro ataca e fica parado; o tanque atrás dele passa por ele e para na frente.
-5. **Inimigos bloqueiam:** ninguém atravessa um inimigo, exceto quem tem **Salto Vendaval** (Riku), que pode pular **1 unidade** (aliada ou inimiga) no caminho. Na prática o Riku ataca o inimigo que estiver logo à frente em vez de pulá-lo, porque atacar tem prioridade.
-6. **Salto Vendaval (Riku):** anda até **3 casas**, sempre: o movimento **não aumenta** com a cor nem com o nível. Cai sempre numa casa livre e, se passou por cima de alguém, ataca com o bônus de investida no mesmo turno.
+5. **Inimigos bloqueiam:** ninguém atravessa um inimigo, exceto quem tem **Salto Vendaval** (Riku), que pode **saltar 1 inimigo** no caminho. Na prática o Riku ataca o inimigo que estiver logo à frente em vez de saltá-lo, porque atacar tem prioridade.
+6. **Salto Vendaval (Riku):** anda até **3 casas**, sempre: o movimento **não aumenta** com a cor nem com o nível. Cai sempre numa casa livre. O bônus de investida vale **só quando ele salta de verdade com a habilidade** (por cima de um inimigo); **passar por aliados não conta como salto** (v0.15.1), nem para o Riku.
 7. **Sem passo da vitória (v0.15.0):** quem **derrota um inimigo fica onde está** (antes avançava 1 casa).
 
 ## 6. Alcance e alvos
@@ -300,11 +300,11 @@ Ataque/vida mostrados em Comum nível 1 (base) e, entre parênteses, na cor inic
 
 | Personagem | Raça | Categoria | Cores | "+" melhora | Custo | Ataque / Vida | Dano | Alcance | Resist. fís./mág. | Habilidade e evolução |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Riku Vendaval | 🌍 Humano | ⚔️ DPS | Comum → Épico+ | ataque | 2 | 3 / 6 (3 / 6 em Comum) | Físico | 1 | 0/0 | Salto Vendaval — Movimento: sempre 3 casas (fixo, não aumenta com cor nem nível) · Bônus de investida: +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3). |
-| Nara Lâmina-Lunar | 🪐 Extraterrestre | ⚔️ DPS | Comum → Épico+ | ataque | 2 | 3 / 6 (3 / 6 em Comum) | Físico | 1 | 0/0 | Corte Diagonal — Raro: ao bater em frente, também corta a diagonal com 50% do dano · Épico: 100%. |
+| Riku Vendaval | 🌍 Humano | ⚔️ DPS | Comum → Épico+ | ataque | 2 | 3 / 6 (3 / 6 em Comum) | Físico | 1 | 0/0 | Salto Vendaval — Movimento: sempre 3 casas (fixo, não aumenta com cor nem nível) · Bônus de investida (só ao saltar): +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3). |
+| Nara Lâmina-Lunar | 🪐 Extraterrestre | ⚔️ DPS | Comum → Épico+ | ataque | 2 | 3 / 6 (3 / 6 em Comum) | Físico | 1 | 0/0 | Corte Diagonal — Raro em diante: ao bater em frente, também corta a diagonal com 50% do dano (máx.). |
 | Toru Sombra-Reversa | 🤖 Androide | 🛡️ Tanque | Comum → Épico+ | vida | 3 | 2 / 11 (2 / 11 em Comum) | Físico | 1 | 1/0 | Golpe Reverso<br>Postura de Guarda — Raro: +1 de resistência física · Épico: +2 (máx.). |
 | Aiko Flecha-Celeste | 🪐 Extraterrestre | 🏹 Arqueiro | Incomum → Épico+ | ataque | 3 | 3 / 5 (3 / 6 em Incomum) | Físico | 3 | 0/0 | Flecha Dupla — Incomum: 2ª flecha de 1 · Raro: 2 · Épico: 3 (máx. 3); +1 no nível 25. |
-| Lyra Olho-de-Falcão | 🔮 Mago Arcano | 🪄 Mago | Incomum → Épico+ | ataque | 3 | 3 / 4 (3 / 5 em Incomum) | Mágico | 3 | 0/1 | Feixe Perfurante — Dano nos de trás: 50% (Incomum) · 75% (Raro) · 100% (Épico). |
+| Lyra Olho-de-Falcão | 🔮 Mago Arcano | 🪄 Mago | Incomum → Épico+ | ataque | 3 | 3 / 4 (3 / 5 em Incomum) | Mágico | 3 | 0/1 | Feixe Perfurante — Dano nos de trás: 50% (Incomum) · 75% (Raro em diante, máx.). |
 | Gorath Muralha-de-Ferro | 👹 Monstro | 🛡️ Tanque | Incomum → Épico+ | vida | 4 | 2 / 12 (2 / 14 em Incomum) | Físico | 1 | 2/0 | Inabalável — Raro: +1 de resistência física · Épico: também +1 de resistência mágica. |
 | Mei Lótus-Celeste | 🔮 Mago Arcano | ➕ Suporte | Incomum → Épico+ | vida | 3 | 2 / 5 (2 / 6 em Incomum) | Mágico | 3 | 0/1 | Bênção do Lótus — Cura 2 (Incomum–Raro) · 3 (Épico); +1 no nível 20 (máx. 4). |
 | Yume Caçadora | ☠️ Necromante | 💀 Assassino | Raro → Lendário+ | ataque | 3 | 4 / 4 (5 / 5 em Raro) | Físico | 1 | 0/0 | Instinto Predador — Execução: +1 em Raro, +2 em Épico, +3 em Lendário; +1 no nível 25 (máx. +3). |
@@ -326,14 +326,14 @@ Ataque/vida mostrados em Comum nível 1 (base) e, entre parênteses, na cor inic
 ✦ = **personagem único**: muito forte, já nasce em Lendário e só chega a Mítico+.
 
 Habilidades em detalhe:
-- **Salto Vendaval:** anda até **3 casas (fixo em todas as cores e níveis)** e pode pular 1 unidade no caminho (aliada ou inimiga), caindo numa casa livre. No turno em que salta, ataca com o bônus de investida (esse bônus continua crescendo: +1 Raro, +2 Épico, +1 no nível 30, máx. +3).
-- **Corte Diagonal:** ataca a diagonal logo à frente quando não há ninguém em frente. A partir de Raro, ao bater em frente também corta a diagonal (50%; 100% em Épico).
+- **Salto Vendaval:** anda até **3 casas (fixo em todas as cores e níveis)** e pode saltar 1 inimigo no caminho, caindo numa casa livre. Só no turno em que **salta com a habilidade** ataca com o bônus de investida; passar por aliados (regra comum de movimento) não conta (esse bônus continua crescendo: +1 Raro, +2 Épico, +1 no nível 30, máx. +3).
+- **Corte Diagonal:** ataca a diagonal logo à frente quando não há ninguém em frente. A partir de Raro, ao bater em frente também corta a diagonal com **50%** do dano (teto, v0.15.1).
 - **Golpe Reverso:** prioriza o inimigo na diagonal logo atrás.
 - **Postura de Guarda:** resistência física extra por cor.
 - **Flecha Dupla:** segunda flecha de dano fixo no mesmo alvo.
-- **Feixe Perfurante:** atravessa a fileira, ferindo também quem está atrás do alvo (dentro do alcance 3).
+- **Feixe Perfurante:** atravessa a fileira, ferindo também quem está atrás do alvo (dentro do alcance 3) com 50% (Incomum) ou **75% (Raro em diante, teto, v0.15.1)**.
 - **Inabalável:** não pode ser empurrado; ganha resistência em Raro/Épico.
-- **Bênção do Lótus:** cura os 8 vizinhos (inclusive a outra fileira) no início da ação.
+- **Bênção do Lótus:** no início da ação, cura **só os 2 aliados vizinhos mais feridos** (inclusive diagonais e a outra fileira; v0.15.1). Mais ferido = mais vida perdida; empate: quem tem menos vida, depois quem entrou em campo antes.
 - **Instinto Predador:** menor vida da fileira até 2 casas; dano extra em alvos com metade da vida ou menos.
 - **Emboscada:** mais distante da fileira até 2 casas; ignora parte da resistência.
 - **Punho Espelhado:** ao sofrer golpe físico corpo a corpo de frente, contra-ataca com ataque multiplicado e empurra o agressor 1 casa para trás.
@@ -464,3 +464,6 @@ Atravessar aliados, sem passo da vitória e Riku com 3 casas fixas. Vitória ao 
 | 10 | 26% → 36% | 50% → 58% | 5% → 10% |
 
 - As tropas chegam mais rápido à linha de frente (dos dois lados): as fases finais ficaram **mais fáceis** (+10 a +16 pontos nas fases 6, 8, 9 e 10), e os turnos inimigos fortes ficaram um pouco mais comuns. Nenhum valor de dificuldade foi mexido nesta versão.
+
+### v0.15.1 — tetos de habilidade (100 jogadores simulados)
+Feixe Perfurante máx. 75%, Corte Diagonal máx. 50%, Bênção do Lótus nos 2 mais feridos e investida só no salto de verdade. Vitória ao chegar, antes → depois: fase 1 99% → 99% · 2 96% → 95% · 3 93% → 93% · 4 57% → 59% · 5 80% → 80% · 6 41% → 42% · 7 78% → 79% · 8 45% → 47% · 9 74% → 74% · 10 36% → 36%. Praticamente sem mudança na campanha (diferenças dentro do ruído); o efeito aparece em cartas Épicas ou melhores dessas habilidades.
