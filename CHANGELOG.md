@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.14.0] — 25/10/2026 · PR #23 — Novo padrão de carta
+- **Todas as cartas seguem o modelo enviado:** moldura metálica na cor do tier, **gota azul com o custo** no topo esquerdo, **pílula "Nv N | ⚡Poder"** no topo direito, arte grande, **faixa escura com o nome** (cantos ornamentados, letra serifada, até 2 linhas) com gema e a **palavra da cor** embaixo, **cápsula com raça e categoria** no centro de baixo, **ataque** embaixo à esquerda, **coração com a vida** embaixo à direita e a **fileira de habilidades** (bolinhas separadas por pontos) embaixo da carta.
+- **Emblema de ataque por categoria** (explosão laranja + escudo + arma): DPS espadas cruzadas (as duas lâminas inteiras, com as duas pontas à mostra), Mago cajado com orbe, Arqueiro arco e flecha, Assassino adagas cruzadas, Tanque martelos de guerra, Suporte cetro de cristal.
+- **Saíram:** o medalhão de categoria do topo direito, a linha "👊 ataque ❤ vida + ícones" e a linha "RAÇA · COR · CATEGORIA".
+- **Cartas pequenas** (equipe, lista do Treinar, mão da batalha): primeiro nome, sem gema, sem palavra da cor e sem fileira de habilidades. Abaixo de 84 px de largura a cápsula raça/categoria também some. Na mão, ataque e vida ficam dentro da borda de baixo.
+- Gota, coração e emblemas são SVG estáticos (sem animação nem filtro): Coleção e batalha seguem a ~60 FPS. A arte dos personagens não mudou.
+
 ## [0.13.1] — 25/10/2026 · PR #22 — O herói principal agora se chama Comandante
 - **"Líder" e "herói" viraram "Comandante"** em todo texto do jogo:
   - painel de Coleção & Equipe ("👑 Comandante Bárbaro") e janela de Evoluir ("Evoluir o Comandante Bárbaro?", "Vida máxima do Comandante");

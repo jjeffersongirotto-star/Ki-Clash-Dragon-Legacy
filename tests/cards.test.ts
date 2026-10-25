@@ -4,9 +4,9 @@ import { portraitSVG, unitSpriteSVG } from '../src/ui/art';
 import { PLAYABLE, RACE_INFO, getChar } from '../src/core/characters';
 
 describe('visual das cartas', () => {
-  it('tem moldura, cenário, personagem separado, medalhões, estrelas e faixa com o nome', () => {
+  it('tem moldura, cenário, personagem separado, custo, nível/Poder, faixa com o nome, ataque e vida (padrão v0.14)', () => {
     const h = cardHTML({ charId: 'riku', level: 7, stars: 2 });
-    for (const cls of ['card-metal', 'card-frame', 'card-bg', 'card-aura', 'card-fig', 'card-cost', 'card-cat', 'card-lvl', 'card-ribbon', 'card-top', 'card-orb-atk', 'card-orb-hp']) expect(h).toContain(cls);
+    for (const cls of ['card-metal', 'card-frame', 'card-bg', 'card-aura', 'card-fig', 'ck-cost', 'ck-lvp', 'ck-banner', 'ck-rar', 'ck-icons', 'ck-atk', 'ck-hp', 'ck-abil']) expect(h).toContain(cls);
     expect(h).toContain('Riku Vendaval');
     expect(h).toMatch(/class="card s2/);
   });
@@ -20,7 +20,7 @@ describe('visual das cartas', () => {
   });
   it('carta bloqueada não tem faíscas; versão compacta não mostra status', () => {
     expect(cardHTML({ charId: 'vorax', level: 1, stars: 6 }, { locked: true })).not.toContain('class="spk"');
-    expect(cardHTML({ charId: 'riku', level: 1, stars: 1 }, { compact: true })).not.toContain('card-stats');
+    expect(cardHTML({ charId: 'riku', level: 1, stars: 1 }, { compact: true })).not.toContain('ck-abil');
   });
   it('camadas do retrato: fundo sem personagem e personagem sem fundo', () => {
     const d = getChar('nara');
