@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="st" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f7fb"/><stop offset=".45" stop-color="#b9c2cf"/><stop offset="1" stop-color="#6d7686"/></linearGradient><linearGradient id="sh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a6"/><stop offset="1" stop-color="#c8962e"/></linearGradient></defs>
+<path d="M13 13 L24 8 Q32 17 40 8 L51 13 L55 24 Q48 27 47 35 L47 50 Q32 59 17 50 L17 35 Q16 27 9 24 Z" fill="url(#st)" stroke="#232833" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M24 8 Q32 17 40 8" fill="none" stroke="url(#sh)" stroke-width="3.2" stroke-linecap="round"/>
+<path d="M32 17 L32 55" stroke="#4a5262" stroke-width="2" stroke-linecap="round"/>
+<path d="M18 40 Q32 45 46 40" fill="none" stroke="#4a5262" stroke-width="1.8"/><path d="M18 46 Q32 51 46 46" fill="none" stroke="#4a5262" stroke-width="1.8"/>
+<path d="M21 20 Q26 28 25 36" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2" stroke-linecap="round"/>
+<circle cx="14.5" cy="17" r="1.6" fill="#232833"/><circle cx="49.5" cy="17" r="1.6" fill="#232833"/></svg>

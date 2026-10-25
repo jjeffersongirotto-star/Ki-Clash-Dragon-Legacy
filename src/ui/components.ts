@@ -1,10 +1,18 @@
 import { ABILITIES } from '../core/abilities';
 import { CATEGORY_INFO, RACE_INFO, STAR_COLORS, getChar } from '../core/characters';
 import { statsFor, tierLabel } from '../core/progression';
-import type { CardInstance, CharacterDef } from '../core/types';
+import type { AbilityId, CardInstance, CharacterDef } from '../core/types';
 import { portraitImg } from './art';
 import { gridArtHTML } from './gridArt';
 import { cardPower } from '../core/power';
+import peitoralUrl from '../assets/card/ab-peitoral.svg';
+
+/** v0.14.2: ícone de habilidade — a Resistência Física (Postura de Guarda) usa o peitoral de armadura (SVG) no lugar do 🛡. */
+const ABILITY_SVG: Record<string, string> = { guarda: peitoralUrl };
+export function abilityIconHTML(id: AbilityId): string {
+  const svg = ABILITY_SVG[id];
+  return svg ? `<img class="ab-svg" src="${svg}" alt="" draggable="false">` : ABILITIES[id].icon;
+}
 
 export const esc = (s: string) => s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]!);
 
@@ -73,7 +81,10 @@ export function cardHTML(
   // v0.14.1: fileira de habilidades (bolinhas separadas por pontos) DENTRO da moldura, no centro de baixo
   const abil = opts.compact
     ? ''
-    : `<div class="ck-abil">${def.abilities.map((a) => `<span class="ck-ab" title="${esc(ABILITIES[a].name)}">${ABILITIES[a].icon}</span>`).join('<i class="ck-dot"></i>')}</div>`;
+    : `<div class="ck-sep"><i></i><i></i><i></i></div><div class="ck-abil">${def.abilities.map((a) => `<span class="ck-ab" title="${esc(ABILITIES[a].name)}">${abilityIconHTML(a)}</span>`).join('<i class="ck-dot"></i>')}</div>`;
+  // v0.14.2: nomes com uma palavra muito comprida (ex.: "Tambor-de-Guerra") encolhem um pouco para caber inteiros
+  const longest = Math.max(...def.name.split(' ').map((w) => w.length));
+  const nfit = longest > 14 ? ` style="--nfit:${(13.6 / longest).toFixed(3)}"` : '';
   return `<div class="card s${t} race-${def.race} cat-${def.category} ${opts.compact ? 'compact' : 'ab'} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}${ga ? ` grid-card${ga.baked ? ' baked' : ''}` : ''}" style="${ga && opts.locked ? LOCKED_GRID_STYLE : `${starStyle(t)};--ac:${def.palette.aura};--race-c:${race.color}`}" ${opts.attrs ?? ''}>
     <div class="card-metal"><div class="card-frame">
       <div class="card-art">
@@ -83,16 +94,17 @@ export function cardHTML(
       </div>
       <div class="card-fig">${ga ? ga.fg : portraitImg(def, { stars: t, layer: 'fg' })}</div>
       <div class="ck-cost" title="Custo de energia"><span>${def.cost}</span></div>
-      <div class="ck-lvp"><span class="ck-lv" title="Nível"><small>Nv</small> ${card.level}</span><span class="ck-pow" title="Poder">⚡${power}</span></div>
+      <div class="ck-pow" title="Poder">⚡${power}</div>
+      <div class="ck-star" title="Nível"><small>Nv.</small><b>${card.level}</b></div>
       ${opts.badge ? `<div class="card-badge">${opts.badge}</div>` : ''}
-      <div class="ck-banner"><span class="ck-name"><span class="full">${esc(def.name).replace(/-/g, '\u2011')}</span><span class="short">${esc(def.name.split(' ')[0])}</span></span><i class="ck-gem"></i></div>
-      <div class="ck-rar">${tier}</div>
-      <div class="ck-foot">
+      <div class="ck-banner"><span class="ck-name"${nfit}><span class="full">${esc(def.name).replace(/-/g, '\u2011')}</span><span class="short">${esc(def.name.split(' ')[0])}</span></span><i class="ck-gem"></i></div>
+      <div class="ck-panel">
         <div class="ck-atk ${def.damageType}" title="Ataque: ${st.atk} (${def.damageType === 'fisico' ? 'físico' : 'mágico'})"><span>${st.atk}</span></div>
-        <div class="ck-icons"><span title="${race.label}">${race.icon}</span><span title="${cat.label}">${cat.icon}</span></div>
+        <div class="ck-rar">${tier}</div>
+        <div class="ck-foot"><div class="ck-icons"><span title="${race.label}">${race.icon}</span><span title="${cat.label}">${cat.icon}</span></div></div>
+        ${abil}
         <div class="ck-hp" title="Vida: ${st.hp}"><span>${st.hp}</span></div>
       </div>
-      ${abil}
       ${sparks}
     </div></div>
   </div>`;
@@ -106,9 +118,9 @@ export function abilityListHTML(def: CharacterDef, stars?: number, level?: numbe
     const ab = ABILITIES[a];
     const p = ab.power?.(s, l);
     const now = ab.powerLabel && p != null ? ` <span class="ab-now">agora: ${esc(ab.powerLabel(p))}</span>` : '';
-    return `<li><b>${ab.icon} ${esc(ab.name)}</b> — ${esc(ab.description)}${now}${ab.scaling ? `<div class="ab-scale">🎨 Por cor: ${esc(ab.scaling)}</div>` : ''}</li>`;
+    return `<li><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> — ${esc(ab.description)}${now}${ab.scaling ? `<div class="ab-scale">🎨 Por cor: ${esc(ab.scaling)}</div>` : ''}</li>`;
   });
-  if (def.physRes) rows.push(`<li><b>🛡 Resistência física ${def.physRes}</b> — reduz cada golpe físico em ${def.physRes}.</li>`);
+  if (def.physRes) rows.push(`<li><b>${abilityIconHTML('guarda')} Resistência física ${def.physRes}</b> — reduz cada golpe físico em ${def.physRes}.</li>`);
   if (def.magRes) rows.push(`<li><b>🔰 Resistência mágica ${def.magRes}</b> — reduz cada golpe mágico em ${def.magRes}.</li>`);
   return `<ul class="abilities">${rows.join('')}</ul>`;
 }

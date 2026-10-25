@@ -168,34 +168,37 @@ Desde a v0.10 **não há mais estrelas**: a **cor da carta é o tier** do person
 - O "+" também libera **+5 níveis máximos** (ver seção 11).
 - **Habilidades só melhoram quando a cor muda** (a escala de cada habilidade é por cor, ver seção 12).
 
-### Visual das cartas — padrão v0.14
+### Visual das cartas — padrão v0.14 (acabamento v0.14.2)
 Todas as cartas (mão, coleção, equipe, treino, troca de equipe, detalhes, inspeção em batalha e recompensas) seguem o mesmo padrão:
 - **Moldura metálica** na cor do tier (Comum prata/cinza, Incomum verde, Raro azul, Épico roxo, Lendário laranja, Mítico vermelho).
-- **Topo esquerdo:** grande **gota azul brilhante com o custo** de energia, passando por cima do canto da moldura.
-- **Topo direito:** pílula arredondada com **"Nv N"** (dourado, metade cinza) e **"⚡Poder"** (metade escura).
-- **Centro:** a arte grande do personagem (fundo, aura e personagem; rostos e cabelos iguais aos de antes).
-- **Faixa do nome:** larga e escura, com cantos ornamentados e o nome em branco, letra serifada em negrito (até 2 linhas; nomes com hífen não quebram no hífen). Embaixo, uma **gema** na cor do tier e a **palavra da cor** (ex.: "Comum", "Raro+") em letra pequena.
-- **Embaixo, no centro:** cápsula escura com o **ícone da raça** (ex.: 🤖 Androide) e o **ícone da categoria** (ex.: 🛡️ Tanque), sem círculos.
-- **Embaixo à esquerda: Ataque**, o número sobre um emblema com explosão laranja, escudo e a **arma da categoria**:
+- **Topo esquerdo:** grande **gota azul com o custo** de energia, passando por cima do canto da moldura. O número tem **contorno preto grosso**, sombra forte e um leve **brilho azul neon**.
+- **Topo, no centro:** pílula escura só com o **⚡Poder**. A largura acompanha o número (47, 100, 1000, 10000…) e ela fica sempre centralizada, sem encostar na gota nem na estrela.
+- **Topo direito:** **estrela dourada metálica com asinhas** mostrando o **nível** ("Nv." em cima do número), passando por cima do canto da moldura como a gota. Nas cartas pequenas (até 104 px) só o número aparece, maior, para continuar legível.
+- **Centro:** a arte grande do personagem (fundo, aura e personagem). Nas cartas com habilidades a arte é mais alta e o personagem fica um pouco mais para cima (peito e colar aparecem acima da faixa). O personagem fica **preso na janela da arte**: nada sai da carta (ex.: a lâmina reversa do Toru).
+- **Faixa do nome:** degradê vertical (mais escura embaixo) com **borda prata fina e brilhante** e cantos ornamentados; nome em branco, serifado, negrito, até 2 linhas, um pouco acima da **gema** para não encostar nela. Nomes com hífen não quebram no hífen; nomes com uma palavra muito comprida (ex.: "Tambor-de-Guerra", "Muralha-de-Ferro") ficam com a letra um pouco menor para caber inteiros.
+- **Palavra da cor** (ex.: "Comum", "Raro+") em branco/prata, logo abaixo da gema, sem encostar nela.
+- **Painel escuro de baixo** (de cima para baixo, no centro): palavra da cor → **cápsula com o ícone da raça e o da categoria** (ícones um pouco menores) → **linha fina com pontinhos brilhantes** → **fileira de habilidades** (bolinhas separadas por pontinhos brilhantes). Nada encosta na borda prata de baixo.
+- **Ataque** (esquerda) e **Vida** (direita) ficam nas laterais do painel escuro, **centralizados na altura do painel**, podendo passar um pouco da borda lateral. Os números têm contorno preto grosso e sombra forte; o coração tem um brilho vermelho suave.
+- **Emblema de ataque por categoria** — todos no mesmo estilo: base com **fundo laranja liso**, **aro dourado** e **contorno preto grosso**, **sem explosão de pontas**; as **armas da categoria cruzadas na frente da base**, com os cabos à mostra por cima dela; o número por cima de tudo:
 
-| Categoria | Emblema de ataque |
-|---|---|
-| ⚔️ DPS | duas espadas cruzadas, lâminas inteiras com as duas pontas à mostra |
-| 🪄 Mago | cajado com orbe roxo brilhante |
-| 🏹 Arqueiro | arco com flecha |
-| 💀 Assassino | duas adagas escuras cruzadas |
-| 🛡️ Tanque | dois martelos de guerra cruzados |
-| ➕ Suporte | cetro com cristal azul brilhante |
+| Categoria | Base | Armas cruzadas (na frente) |
+|---|---|---|
+| ⚔️ DPS | medalhão redondo | duas espadas inteiras, as duas pontas à mostra |
+| 🪄 Mago | círculo de runas | dois cajados com orbe roxo |
+| 🏹 Arqueiro | alvo | arco e flecha |
+| 💀 Assassino | losango | duas adagas escuras |
+| 🛡️ Tanque | placa octogonal rebitada | dois martelos de guerra |
+| ➕ Suporte | cristal/flor de seis pontas | dois cetros com cristal azul |
 
-- **Embaixo à direita: Vida**, o número sobre um **coração vermelho** brilhante.
-- **Habilidades dentro da carta (v0.14.1):** no centro de baixo, abaixo da cápsula raça/categoria, fica uma fileira de **bolinhas com os ícones das habilidades** (uma por habilidade), separadas por pontinhos. A moldura (borda prata/da cor e fundo escuro) **desce e envolve a fileira**: as habilidades fazem parte da carta, não ficam embaixo dela. O ataque e o coração continuam nos cantos de baixo, um pouco acima, sem encostar na fileira.
-- **Onde aparece a fileira:** carta grande (detalhes da Coleção, Treinar, inspeção em batalha) e **cartas da grade "Seus personagens" da Coleção**. Fica escondida nas cartas pequenas (equipe, lista do Treinar, troca rápida) e na **mão da batalha**, onde as bolinhas ficariam com ~10 px e ilegíveis; ali as habilidades aparecem ao tocar na carta (inspeção).
-- **Removidos:** o medalhão de categoria no topo direito, a linha "👊 ataque ❤ vida + ícones" e a linha "RAÇA · COR · CATEGORIA" (a raça e a categoria ficam na cápsula; a cor, embaixo do nome). Não há estrelas.
-- **Cartas pequenas** (equipe na Coleção, lista do Treinar, mão da batalha):
+- **Ícones de habilidade:** a **Resistência Física (Postura de Guarda)** usa um **peitoral de armadura** (desenho próprio) no lugar do 🛡 — na carta e na lista de habilidades. O 🛡️ continua sendo o ícone da categoria Tanque.
+- **Onde aparece a fileira de habilidades (e a linha com pontinhos):** carta grande (detalhes da Coleção, Treinar, inspeção em batalha, carta nova na troca) e **cartas da grade "Seus personagens" da Coleção**. Fica escondida nas cartas pequenas (equipe, lista do Treinar, troca rápida) e na **mão da batalha**, onde as bolinhas ficariam ilegíveis; ali as habilidades aparecem ao tocar na carta.
+- **Removidos:** o medalhão de categoria, a linha "👊 ataque ❤ vida + ícones", a linha "RAÇA · COR · CATEGORIA" e a pílula "Nv | ⚡Poder" (o nível foi para a estrela). Não há estrelas de raridade.
+- **Cartas pequenas** (equipe na Coleção, lista do Treinar, mão da batalha, troca rápida):
+  - arte na proporção antiga (mais baixa), para a mão da batalha continuar com a mesma altura;
   - mostram só o primeiro nome, em 1 linha, sem a gema, sem a palavra da cor e sem a fileira de habilidades;
   - em cartas com menos de 84 px de largura, a cápsula raça/categoria também some;
-  - na mão, o ataque e o coração ficam dentro da borda de baixo, para não serem cortados.
-- **Desempenho:** a gota, o coração e os 6 emblemas de ataque são imagens SVG estáticas, decodificadas uma vez e reaproveitadas por todas as cartas. Sem animação nem filtro novos. Nas cartas bloqueadas esses elementos ficam apagados (só opacidade).
+  - ataque, vida e estrela um pouco menores, dentro da carta.
+- **Desempenho:** gota, coração, estrela, peitoral e os 6 emblemas são imagens SVG estáticas, decodificadas uma vez e reaproveitadas por todas as cartas. Contornos e brilhos são feitos com contorno de texto, sombra de texto e degradês (sem `filter` nem animação novos). Nas cartas bloqueadas esses elementos ficam apagados (só opacidade).
 - Quanto mais alta a cor, mais brilho: Raro reflexo de luz passando; Épico aura pulsando com raios girando; **Lendário e Mítico premium** com borda dourada, brilho pulsante e faíscas; Mítico ainda com metal em movimento e raios mais rápidos.
 - **Nomes:** cartas grandes (detalhes da coleção, treino e janela de inspeção em batalha) mostram o **nome completo**, quebrando em 2 linhas se precisar. Só as cartas pequenas (mão no celular, equipe) mostram o primeiro nome. Cartas bloqueadas ficam cinza e sem animação.
 - **Detalhes da carta (Coleção):** mostra a carta, o **visual do lutador na arena** e um **seletor de cor** com as cores da faixa do personagem (da inicial à máxima), para ver a evolução de roupa, armadura, armas e poder em cada cor. A cor atual fica marcada como "(atual)" (com "+" se você já tiver). Só visualiza — não muda a carta. (Antes era o seletor de estrelas da v0.9.)

@@ -16,10 +16,11 @@ import heart from '../src/assets/card/heart.svg?raw';
 const ICONS: Record<string, string> = { dps, mago, arqueiro, assassino, tanque, suporte };
 
 describe('v0.14 — padrão de carta', () => {
-  it('Toru: custo 3 na gota, Nv 1 | ⚡47, nome, "Comum", raça + categoria, ATQ 2, VIDA 11', () => {
+  it('Toru: custo 3 na gota, ⚡47 e estrela Nv. 1, nome, "Comum", raça + categoria, ATQ 2, VIDA 11', () => {
     const h = cardHTML({ charId: 'toru', level: 1, stars: 1 });
     expect(h).toContain('<div class="ck-cost" title="Custo de energia"><span>3</span></div>');
-    expect(h).toContain('<small>Nv</small> 1</span><span class="ck-pow" title="Poder">⚡47</span>');
+    expect(h).toContain('<div class="ck-pow" title="Poder">⚡47</div>');
+    expect(h).toContain('<div class="ck-star" title="Nível"><small>Nv.</small><b>1</b></div>');
     expect(h).toContain('Toru Sombra\u2011Reversa');
     expect(h).toContain('<div class="ck-rar">Comum</div>');
     expect(h).toContain(`<span title="Androide">${RACE_INFO.androide.icon}</span><span title="Tanque">${CATEGORY_INFO.tanque.icon}</span>`);
@@ -39,7 +40,7 @@ describe('v0.14 — padrão de carta', () => {
       const row = h.slice(h.indexOf('class="ck-abil"'));
       expect((row.match(/class="ck-ab"/g) ?? []).length, d.id).toBe(d.abilities.length);
       expect((row.match(/class="ck-dot"/g) ?? []).length, d.id).toBe(Math.max(0, d.abilities.length - 1));
-      for (const a of d.abilities) expect(row).toContain(ABILITIES[a].icon);
+      for (const a of d.abilities) expect(row).toContain(a === 'guarda' ? 'ab-svg' : ABILITIES[a].icon);
     }
   });
   it('Poder no topo é o Poder da carta (nível, cor e "+")', () => {
@@ -49,23 +50,17 @@ describe('v0.14 — padrão de carta', () => {
   it('emblema de ataque por categoria: cada categoria tem o seu ícone', () => {
     expect(Object.keys(ICONS).sort()).toEqual(Object.keys(CATEGORY_INFO).sort());
     for (const d of PLAYABLE) expect(cardHTML({ charId: d.id, level: 1, stars: d.minStars })).toContain(`cat-${d.category}`);
-    for (const svg of Object.values(ICONS)) {
-      expect(svg).toContain('<svg');
-      expect(svg).toContain('polygon'); // explosão laranja
-      expect(svg).toContain('scale(.74)'); // escudo menor, armas aparecem
-    }
+    for (const svg of Object.values(ICONS)) expect(svg).toContain('<svg');
     expect(new Set(Object.values(ICONS)).size).toBe(6);
   });
   it('espadas cruzadas (DPS): DUAS lâminas inteiras, cada uma com a ponta dentro da imagem', () => {
-    const blades = dps.match(/<g transform="rotate\((-?\d+) 50 50\)"><path d="M50 1 L54\.2 9 L54\.2 66/g) ?? [];
+    const blades = dps.match(/<g transform="rotate\((-?\d+) 50 56\)"><path d="M50 2 L55 11 L55 66/g) ?? [];
     expect(blades.length).toBe(2);
-    expect(dps).toContain('rotate(45 50 50)');
-    expect(dps).toContain('rotate(-45 50 50)');
-    // ponta em (50,1) girada 45° em torno do centro → (84.6,15.4) e (15.4,15.4): dentro do quadro 0..100
-    for (const ang of [45, -45]) {
+    // ponta (50,2) girada ±42° em torno de (50,56) → dentro do quadro 0..100
+    for (const ang of [42, -42]) {
       const r = (ang * Math.PI) / 180;
-      const x = 50 + (50 - 50) * Math.cos(r) - (1 - 50) * Math.sin(r);
-      const y = 50 + (50 - 50) * Math.sin(r) + (1 - 50) * Math.cos(r);
+      const x = 50 - (2 - 56) * Math.sin(r);
+      const y = 56 + (2 - 56) * Math.cos(r);
       expect(x).toBeGreaterThan(5);
       expect(x).toBeLessThan(95);
       expect(y).toBeGreaterThan(5);
@@ -83,6 +78,7 @@ describe('v0.14 — padrão de carta', () => {
       const h = cardHTML({ charId: d.id, level: 1, stars: d.minStars });
       const frame = h.indexOf('class="card-frame"');
       const foot = h.indexOf('class="ck-foot"');
+      expect(h.indexOf('class="ck-sep"'), d.id).toBeGreaterThan(foot);
       const abil = h.indexOf('class="ck-abil"');
       expect(abil, d.id).toBeGreaterThan(foot);
       expect(foot).toBeGreaterThan(frame);

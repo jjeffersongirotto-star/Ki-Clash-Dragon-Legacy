@@ -13,8 +13,8 @@
 import type { CharacterDef } from '../core/types';
 import { portraitImg, portraitSVG } from './art';
 
-/** proporção da arte da carta (`.card-art { aspect-ratio: .82 }`) */
-const ART_RATIO = 0.82;
+/** proporção da arte da carta alta (`.card.ab .card-art { aspect-ratio: .72 }`, v0.14.2); nas cartas baixas (.82) o fundo é recortado com object-fit: cover */
+const ART_RATIO = 0.72;
 /** opacidade da aura por cor (mesmos valores do CSS) */
 const AURA_OPACITY = [0, 0.4, 0.55, 0.7, 0.85, 0.85, 0.85];
 
@@ -130,7 +130,7 @@ async function bake(def: CharacterDef, t: number, locked: boolean): Promise<void
   const key = gridKey(def, t, locked);
   const W = bitmapWidth();
   const H = Math.round(W / ART_RATIO);
-  const FW = Math.round(W * 1.08);
+  const FW = Math.round(W * 1.23); // personagem da carta alta: 112cqw sobre 91cqw de arte (v0.14.2)
   const [bgImg, fgImg] = await Promise.all([
     loadImg(svgWithSize(portraitSVG(def, { stars: t, layer: 'bg' }), W, H)),
     loadImg(svgWithSize(portraitSVG(def, { stars: t, layer: 'fg' }), FW, FW, 'shadow')),
