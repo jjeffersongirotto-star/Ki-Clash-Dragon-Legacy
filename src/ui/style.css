@@ -875,3 +875,17 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
   .battle .hero-svg { height: var(--lead-h); width: calc(var(--lead-h) / 1.2); }
   .battle .hero-hp span { font-size: 12px; }
 }
+
+/* =====================================================================
+   v0.12.0 — Líder do jogador: bárbaro (WebP animado, respiração)
+   ===================================================================== */
+/* a imagem anima sozinha: sem animação CSS e sem filtro (filtro em imagem animada = repintura a cada quadro) */
+.hero-img { display: block; filter: none !important; animation: none !important; height: calc(var(--cell) * 2 - 22px); width: auto; max-width: 100%; object-fit: contain; object-position: 50% 100%; margin: 0 auto; image-rendering: auto; -webkit-user-drag: none; user-select: none; pointer-events: none; }
+.hero-p { background: radial-gradient(ellipse 80% 16% at 50% 97%, rgba(0,245,212,.42), rgba(47,184,255,.12) 60%, transparent 72%), linear-gradient(180deg, transparent 0%, rgba(8,11,26,.55) 100%); }
+.hero-p .hero-fig { position: relative; }
+@media (max-width: 640px) {
+  .hero-img { height: max(60px, calc(var(--cell) * 2 - 18px)); width: auto; }
+}
+@media (orientation: landscape) {
+  .battle .hero-img { height: calc(var(--cell) * 2 - 18px); width: auto; max-width: calc(var(--hero-w) - 4px); }
+}

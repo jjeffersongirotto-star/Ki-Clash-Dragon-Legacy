@@ -1,5 +1,24 @@
 import type { CharacterDef, Side } from '../core/types';
 import { sceneSVG } from './scenes';
+import leaderPlayerUrl from '../assets/leader-player.webp';
+
+/** v0.12.0: arte do Líder do jogador (bárbaro, animação de respiração, WebP animado com fundo transparente). */
+export const LEADER_PLAYER_URL: string = leaderPlayerUrl;
+
+/** Líder do jogador em batalha: imagem animada própria (sem filtro por quadro; o brilho fica no piso da coluna). */
+export function playerLeaderImg(): string {
+  return `<img class="hero-svg hero-leader-player hero-img" src="${LEADER_PLAYER_URL}" width="271" height="512" alt="Líder Aliado" decoding="async" draggable="false">`;
+}
+
+let leaderWarm: HTMLImageElement | null = null;
+/** Baixa e decodifica a arte do Líder antes da primeira batalha (evita travada ao entrar na luta). */
+export function warmLeader(): void {
+  if (leaderWarm || typeof Image === 'undefined') return;
+  leaderWarm = new Image();
+  leaderWarm.src = LEADER_PLAYER_URL;
+  leaderWarm.decode?.().catch(() => {});
+}
+
 
 /**
  * Retratos e sprites de batalha em estilo anime gerados proceduralmente em SVG.
