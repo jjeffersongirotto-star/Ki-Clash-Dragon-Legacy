@@ -5,7 +5,7 @@ import leaderEnemyUrl from '../assets/leader-enemy.webp';
 
 /** v0.12.0: arte do Líder do jogador (bárbaro, animação de respiração, WebP animado com fundo transparente). */
 export const LEADER_PLAYER_URL: string = leaderPlayerUrl;
-/** v0.12.1: arte do Líder adversário (minotauro, respiração, WebP animado transparente). */
+/** v0.12.1/v0.12.2: arte do Líder adversário (minotauro com o machado no ombro, respiração, WebP animado transparente). */
 export const LEADER_ENEMY_URL: string = leaderEnemyUrl;
 
 /** Líder do jogador em batalha: imagem animada própria (sem filtro por quadro; o brilho fica no piso da coluna). */
@@ -13,9 +13,9 @@ export function playerLeaderImg(): string {
   return `<img class="hero-svg hero-leader-player hero-img" src="${LEADER_PLAYER_URL}" width="271" height="512" alt="Líder Aliado" decoding="async" draggable="false">`;
 }
 
-/** Líder adversário: minotauro (sem espelhar: o machado já aponta para a arena). */
+/** Líder adversário: minotauro (sem espelhar: o machado fica no ombro do lado de fora, rosto voltado para a arena). */
 export function enemyLeaderImg(): string {
-  return `<img class="hero-svg hero-leader-enemy hero-img" src="${LEADER_ENEMY_URL}" width="463" height="512" alt="Líder Adversário" decoding="async" draggable="false">`;
+  return `<img class="hero-svg hero-leader-enemy hero-img" src="${LEADER_ENEMY_URL}" width="286" height="512" alt="Líder Adversário" decoding="async" draggable="false">`;
 }
 
 let leaderWarm: HTMLImageElement[] | null = null;

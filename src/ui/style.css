@@ -891,20 +891,13 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .hero-p { background: radial-gradient(ellipse 80% 16% at 50% 97%, rgba(0,245,212,.42), rgba(47,184,255,.12) 60%, transparent 72%), linear-gradient(180deg, transparent 0%, rgba(8,11,26,.55) 100%); }
 .hero-e { background: radial-gradient(ellipse 80% 16% at 50% 97%, rgba(255,77,109,.42), rgba(181,23,158,.12) 60%, transparent 72%), linear-gradient(180deg, transparent 0%, rgba(8,11,26,.55) 100%); }
 .hero { min-height: calc(var(--cell) * 2 + 8px); }
-/* celular em pé: bárbaro é estreito, minotauro é largo — colunas proporcionais */
-@media (max-width: 640px) {
-  .hero-p { width: 42px; flex-basis: 42px; }
-  .hero-e { width: 58px; flex-basis: 58px; }
-}
+/* v0.12.2: os dois Líderes têm pose estreita — colunas iguais de novo.
+   A figura tem a ALTURA DA ARENA: a caixa da imagem mede as 2 fileiras (+8px de margem transparente da arte),
+   de pé no piso, com a barra e os números de vida logo abaixo. */
+.hero { justify-content: flex-end; }
+.hero-fig { flex: 0 0 auto; height: calc(var(--cell) * 2 + 8px); }
 @media (orientation: landscape) {
-  .battle-screen {
-    --hero-wp: clamp(58px, 12.5vw, 190px);
-    --hero-we: clamp(78px, 19vw, 290px);
-    --hero-w: var(--hero-we);
-    --cell: clamp(30px, min(calc((100vw - var(--hero-wp) - var(--hero-we) - 40px) / 7), calc((100dvh - var(--hud-h) - var(--bottom-h) - 44px) / 2)), 170px);
-  }
-  /* coluna do Líder ocupa toda a altura da arena (o nome saiu: a figura cresce) */
+  .battle-screen { --hero-w: clamp(64px, 13.5vw, 210px); }
   .battle .hero { align-self: stretch; min-height: calc(var(--cell) * 2 + 16px); padding: 0 2px 3px; }
-  .battle .hero-p { width: var(--hero-wp); flex: 0 0 var(--hero-wp); }
-  .battle .hero-e { width: var(--hero-we); flex: 0 0 var(--hero-we); }
+  .battle .hero-fig { flex: 0 0 auto; height: calc(var(--cell) * 2 + 8px); }
 }

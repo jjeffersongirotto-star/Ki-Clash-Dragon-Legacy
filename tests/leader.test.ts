@@ -19,7 +19,7 @@ import battleSrc from '../src/ui/battleView.ts?raw';
 describe('v0.12.1 — Líder adversário (minotauro) e aura', () => {
   it('usa a imagem animada do minotauro, sem espelhar e sem filtro inline', () => {
     const html = enemyLeaderImg();
-    expect(html).toContain('width="463" height="512"');
+    expect(html).toContain('width="286" height="512"');
     expect(html).not.toContain('style=');
     expect(LEADER_ENEMY_URL).toMatch(/leader-enemy.*\.webp/);
   });
