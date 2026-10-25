@@ -2,7 +2,7 @@ import './ui/style.css';
 import { CATEGORY_INFO, CHAR_BY_ID, PLAYABLE, RACE_INFO, STAR_COLORS, getChar, isComingSoon } from './core/characters';
 import { STAGES } from './core/campaign';
 import { TIER_NAMES, XP_ITEMS, ascend, ascendCost, ascendCostFor, canAscend, cardMaxLevel, cardXpToNext, feedXp, maxLevel, newOwned, nextTier, statsFor, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
-import { portraitImg, portraitSVG, unitSpriteSVG, warmPortraits } from './ui/art';
+import { portraitImg, portraitSVG, unitSpriteSVG, warmLeader, warmPortraits } from './ui/art';
 import { BattleView } from './ui/battleView';
 import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, starStyle, tierHTML } from './ui/components';
 import { gameAlert, gameConfirm, showDialog } from './ui/dialog';
@@ -513,6 +513,7 @@ function bakeAllGrid() {
 }
 home();
 void bakeAllGrid();
+warmLeader();
 warmPortraits([
   ...PLAYABLE.map((def) => ({ def, stars: save.cards[def.id]?.stars ?? def.minStars })),
   // miniaturas dos inimigos da Aventura

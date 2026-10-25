@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.12.0] — 24/10/2026 · PR #18 — Novo Líder Aliado: o bárbaro
+- **O seu Líder (coluna da esquerda) agora é o bárbaro** enviado: cabelo e barba pretos, machado de duas lâminas, saiote de pele, braçadeiras, botas e tatuagem. Substitui o Líder azul e dourado em SVG. O Líder Inimigo não mudou.
+- **Animação mantida:** o GIF tinha 17 quadros de respiração (1,6 s em loop, fundo já transparente). Virou um **WebP animado de 266 KB** (o GIF tinha 1,2 MB), no tamanho original (271×512), sem fundo.
+- Mesma proporção da v0.11.1: o Líder fica de pé no piso da coluna, com ~2 fileiras de altura e a barra de vida logo abaixo, deitado e em pé. Olha para a frente (o machado fica do lado de fora), sem espelhar.
+- **Desempenho:** a imagem é baixada e decodificada ao abrir o jogo (antes da 1ª batalha). Ela não tem filtro nem animação CSS (o brilho de antes, um filtro, repintaria a cada quadro da animação). O brilho agora é um piso ciano fixo. Batalha Auto a ~60 FPS.
+- O tremor ao levar dano continua na coluna do Líder.
+
 ## [0.11.3] — 24/10/2026 · PR #17 — Mesmo rosto na carta e na arena
 - **Os lutadores da arena agora têm o rosto da própria carta.** Antes todos usavam o mesmo olho redondo genérico, a mesma boca e sobrancelhas simples; as cartas tinham olhos anime puxados, cor de íris, presas, barba, marcas e acessórios próprios.
 - Agora existe **uma definição de rosto por personagem** (`faceParts`), usada pela carta e pela arena — não dá mais para um ficar diferente do outro: formato do olho, íris (inclusive a cor de Épico+ e os olhos escuros dos Necromantes), sobrancelhas, boca/presas, barba (Gorath, Daichi), marcas de raça e de personagem (pintura do Tobi, chama do Kael, tiara da Suri, óculos do Jin, lenço do Ren, orelhas do Kuro, pena da Hana, faixa do Daichi, faixas de Riku/Kenji/Toru/Tobi), máscara do Toru (Incomum+) e visor do Zarek.
