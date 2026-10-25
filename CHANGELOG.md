@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.14.1] — 25/10/2026 · PR #24 — Habilidades dentro da carta
+- **A fileira de habilidades agora fica dentro da carta:** a moldura (borda prata/da cor e fundo escuro) desce e envolve as bolinhas de habilidade no centro de baixo, abaixo da cápsula raça/categoria — antes elas ficavam soltas embaixo da carta.
+- Ataque (canto esquerdo) e coração (canto direito) continuam nos cantos de baixo, um pouco mais acima, sem tocar a fileira.
+- Vale para a carta grande (detalhes, Treinar, inspeção) e para as cartas da grade da Coleção. Na mão da batalha (cartas de ~60–98 px) a fileira continua escondida porque ficaria ilegível; as habilidades aparecem ao tocar na carta.
+- Só CSS/HTML estático, sem animação nova: Coleção e batalha seguem a ~60 FPS. Nenhuma outra mudança visual.
+
 ## [0.14.0] — 25/10/2026 · PR #23 — Novo padrão de carta
 - **Todas as cartas seguem o modelo enviado:** moldura metálica na cor do tier, **gota azul com o custo** no topo esquerdo, **pílula "Nv N | ⚡Poder"** no topo direito, arte grande, **faixa escura com o nome** (cantos ornamentados, letra serifada, até 2 linhas) com gema e a **palavra da cor** embaixo, **cápsula com raça e categoria** no centro de baixo, **ataque** embaixo à esquerda, **coração com a vida** embaixo à direita e a **fileira de habilidades** (bolinhas separadas por pontos) embaixo da carta.
 - **Emblema de ataque por categoria** (explosão laranja + escudo + arma): DPS espadas cruzadas (as duas lâminas inteiras, com as duas pontas à mostra), Mago cajado com orbe, Arqueiro arco e flecha, Assassino adagas cruzadas, Tanque martelos de guerra, Suporte cetro de cristal.
