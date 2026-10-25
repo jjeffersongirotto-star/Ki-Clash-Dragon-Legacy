@@ -34,7 +34,7 @@ describe('v0.15.0 — atravessar aliados', () => {
     act(s, ctx, tank);
     expect(tank.col).toBe(2);
     const mv = moves(ctx)[0];
-    expect(mv.jumped).toBe(true);
+    expect(mv.jumped).toBe(false); // v0.15.1: passar por aliado não é salto
     expect(mv.through).toEqual([[0, 1]]);
   });
   it('nunca termina numa casa ocupada: com 2 aliados à frente, para na última casa livre (fica parado)', () => {
@@ -121,7 +121,7 @@ describe('v0.15.0 — Salto Vendaval (Riku): 3 casas fixas', () => {
     moveUnit(s, new Ctx(), u);
     expect(u.col).toBe(0);
   });
-  it('atravessa aliados e ganha a investida no turno', () => {
+  it('atravessa aliados SEM investida (v0.15.1: só o salto da habilidade conta)', () => {
     const s = empty();
     const u = placeUnit(s, c('riku', 1, 4), 'player', 0, 0);
     placeUnit(s, c('gorath'), 'player', 0, 1);
@@ -130,6 +130,6 @@ describe('v0.15.0 — Salto Vendaval (Riku): 3 casas fixas', () => {
     act(s, ctx, u);
     expect(u.col).toBe(2);
     const hit = ctx.events.find((x) => x.type === 'damage' && x.uid === e.uid) as { amount: number } | undefined;
-    expect(hit!.amount).toBe(u.atk + 2); // investida +2 no Épico
+    expect(hit!.amount).toBe(u.atk);
   });
 });

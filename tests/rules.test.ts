@@ -137,7 +137,7 @@ describe('só a própria fileira (exceto diagonais)', () => {
     const dg = placeUnit(s, c('riku'), 'enemy', 1, 3, { hp: 50 });
     act(s, new Ctx(), n);
     expect(f.hp).toBeLessThan(50);
-    expect(dg.hp).toBe(46);
+    expect(dg.hp).toBe(48); // v0.15.1: 50% máx. (ceil(4 × 50%) = 2)
     const s2 = empty();
     const n2 = placeUnit(s2, c('nara', 1, 1), 'player', 0, 2, { atk: 4 });
     placeUnit(s2, c('gorath'), 'enemy', 0, 3, { hp: 50 });
@@ -190,14 +190,14 @@ describe('habilidades por estrela/nível (com teto)', () => {
     expect(abilityPower('flechaDupla', 3, 1)).toBe(2);
     expect(abilityPower('flechaDupla', 4, 1)).toBe(3);
   });
-  it('Salto: bônus de investida no turno em que salta', () => {
+  it('Salto: passar por um aliado NÃO é salto (sem investida, v0.15.1)', () => {
     const s = empty();
     const r = placeUnit(s, c('riku', 1, 4), 'player', 0, 0, { atk: 3 });
     placeUnit(s, c('gorath'), 'player', 0, 1);
     const e = placeUnit(s, c('nara'), 'enemy', 0, 3, { hp: 50 });
     act(s, new Ctx(), r);
     expect(r.col).toBe(2);
-    expect(e.hp).toBe(50 - 5);
+    expect(e.hp).toBe(50 - 3);
   });
   it('Bênção do Lótus cura aliados vizinhos (inclusive outra fileira)', () => {
     const s = empty();
