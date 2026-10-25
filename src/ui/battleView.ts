@@ -8,6 +8,7 @@ import { PLAYER_HERO_HP } from '../core/campaign';
 import { enemyLeaderImg, playerLeaderImg, unitSpriteSVG } from './art';
 import { gameConfirm } from './dialog';
 import { requestLandscape } from './orientation';
+import { dropAction, ghostTransform, shouldStartDrag } from './drag';
 import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, starStyle, tierHTML } from './components';
 
 export interface BattleCallbacks {
@@ -225,22 +226,72 @@ export class BattleView {
       .join('') || '<div class="empty-hand">Sem cartas na mão</div>';
     hand.querySelectorAll<HTMLElement>('.hand-card').forEach((el) => {
       const i = +el.dataset.i!;
-      // segurar a carta (~0,5 s) abre os detalhes; tocar seleciona; tocar de novo tira a seleção
+      // segurar a carta (~0,5 s) abre os detalhes; tocar seleciona; tocar de novo tira a seleção;
+      // v0.14.4: ARRASTAR a carta até uma casa da sua zona também invoca (toque e mouse)
       let timer: ReturnType<typeof setTimeout> | undefined;
       const cancel = () => clearTimeout(timer);
-      el.addEventListener('pointerdown', () => {
+      let drag: { id: number; x0: number; y0: number; gx: number; gy: number; ghost?: HTMLElement; over?: HTMLElement | null } | null = null;
+      el.addEventListener('pointerdown', (ev) => {
         cancel();
         this.suppressClick = false;
         timer = setTimeout(() => {
           const c = s.decks.player.hand[i];
-          if (!c) return;
+          if (!c || drag?.ghost) return;
+          drag = null;
           this.suppressClick = true;
           this.openCardModal(c, 'player');
         }, 500);
+        drag = null;
+        if (this.busy || s.winner || s.active !== 'player' || (ev.pointerType === 'mouse' && ev.button !== 0)) return;
+        const r = el.getBoundingClientRect();
+        drag = { id: ev.pointerId, x0: ev.clientX, y0: ev.clientY, gx: ev.clientX - r.left, gy: ev.clientY - r.top };
       });
-      el.addEventListener('pointerup', cancel);
-      el.addEventListener('pointerleave', cancel);
-      el.addEventListener('pointercancel', cancel);
+      el.addEventListener('pointermove', (ev) => {
+        if (!drag || ev.pointerId !== drag.id) return;
+        if (!drag.ghost) {
+          if (!shouldStartDrag(ev.clientX - drag.x0, ev.clientY - drag.y0)) return;
+          cancel();
+          try {
+            el.setPointerCapture(ev.pointerId);
+          } catch {
+            /* sem captura: segue pelos eventos do próprio elemento */
+          }
+          drag.ghost = this.makeDragGhost(el);
+          el.classList.add('dragging');
+          this.highlightDeploy();
+        }
+        ev.preventDefault();
+        drag.ghost.style.transform = ghostTransform(ev.clientX, ev.clientY, drag.gx, drag.gy);
+        const cell = this.cellAt(ev.clientX, ev.clientY);
+        if (cell !== drag.over) {
+          drag.over?.classList.remove('drop-over');
+          if (cell?.classList.contains('can')) cell.classList.add('drop-over');
+          drag.over = cell;
+        }
+      });
+      const end = (ev: PointerEvent, dropped: boolean) => {
+        cancel();
+        if (!drag || ev.pointerId !== drag.id) return;
+        const d = drag;
+        drag = null;
+        if (!d.ghost) return;
+        this.suppressClick = true;
+        d.over?.classList.remove('drop-over');
+        const cell = dropped ? this.cellAt(ev.clientX, ev.clientY) : null;
+        if (dropAction(cell ? { valid: cell.classList.contains('can') } : null) === 'deploy' && cell) {
+          d.ghost.parentElement!.remove();
+          el.classList.remove('dragging');
+          void this.dropCard(i, +cell.dataset.r!, +cell.dataset.c!);
+        } else {
+          this.returnDragGhost(d.ghost, el);
+          this.highlight();
+        }
+      };
+      el.addEventListener('pointerup', (ev) => end(ev, true));
+      el.addEventListener('pointercancel', (ev) => end(ev, false));
+      el.addEventListener('pointerleave', () => {
+        if (!drag?.ghost) cancel();
+      });
       el.addEventListener('contextmenu', (e) => e.preventDefault());
       el.addEventListener('click', () => {
         if (this.suppressClick) {
@@ -279,6 +330,66 @@ export class BattleView {
       el.classList.add('bump');
     }
     if (sel === '#pileDead') el.classList.toggle('empty', n === 0);
+  }
+
+  /** v0.14.4: cópia da carta que segue o dedo (dentro de um invólucro .hand para manter o visual da mão; só transform) */
+  makeDragGhost(el: HTMLElement): HTMLElement {
+    const r = el.getBoundingClientRect();
+    const wrap = document.createElement('div');
+    wrap.className = 'hand drag-ghost-wrap';
+    const g = el.cloneNode(true) as HTMLElement;
+    g.classList.remove('sel', 'dragging');
+    g.classList.add('drag-ghost');
+    g.style.width = `${r.width}px`;
+    g.style.flex = 'none';
+    g.style.transform = `translate3d(${Math.round(r.left)}px, ${Math.round(r.top)}px, 0)`;
+    wrap.appendChild(g);
+    this.root.appendChild(wrap);
+    return g;
+  }
+
+  /** soltou fora de uma casa válida: a carta volta para a mão (animação só de transform) */
+  returnDragGhost(g: HTMLElement, el: HTMLElement) {
+    const r = el.getBoundingClientRect();
+    g.style.transition = 'transform .16s ease-out';
+    g.style.transform = `translate3d(${Math.round(r.left)}px, ${Math.round(r.top)}px, 0)`;
+    setTimeout(() => {
+      g.parentElement?.remove();
+      el.classList.remove('dragging');
+    }, 170);
+  }
+
+  /** casa do campo embaixo do dedo (a carta fantasma não recebe toques) */
+  cellAt(x: number, y: number): HTMLElement | null {
+    const hit = document.elementFromPoint(x, y) as HTMLElement | null;
+    const cell = hit?.closest<HTMLElement>('.cell') ?? null;
+    return cell && this.root.contains(cell) ? cell : null;
+  }
+
+  /** durante o arrasto: destaca as mesmas casas que o toque destaca (casas livres da sua zona) */
+  highlightDeploy() {
+    const cells = this.root.querySelectorAll<HTMLElement>('.cell');
+    cells.forEach((c) => c.classList.remove('can'));
+    if (this.busy) return;
+    for (const [r, c] of deployCells(this.state, 'player')) {
+      this.root.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`)?.classList.add('can');
+    }
+  }
+
+  /** v0.14.4: soltar a carta arrastada numa casa — mesmas regras do toque (energia, zona, casa livre) */
+  async dropCard(i: number, r: number, c: number) {
+    if (this.busy) return;
+    const res = deploy(this.state, 'player', i, r, c);
+    if (!res.ok) {
+      this.toast(res.reason ?? 'Inválido');
+      this.renderHand();
+      this.highlight();
+      return;
+    }
+    this.selected = null;
+    this.highlight();
+    await this.play(res.events);
+    this.renderHand();
   }
 
   /** Tira a seleção da carta da mão e volta o painel de informações ao texto inicial. */
