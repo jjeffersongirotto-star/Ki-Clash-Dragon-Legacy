@@ -3,11 +3,11 @@
 > Documento oficial com **todas** as regras atuais do jogo. Toda mudança de regra deve atualizar este arquivo e o [CHANGELOG.md](CHANGELOG.md).
 
 ## 1. Objetivo
-Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói (Líder) do jogador: **20** de vida no nível 1, até **110** no nível 10 (ver seção 15). Líder inimigo: de **12** (fase 1) a **75** (fase 10).
+Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandante do jogador: **20** de vida no nível 1, até **110** no nível 10 (ver seção 15). Comandante inimigo: de **12** (fase 1) a **75** (fase 10).
 
 ## 2. Arena e Lutadores Interativos
 - **2 fileiras × 7 colunas.** Você fica à esquerda, o inimigo à direita.
-- Cada Líder (Herói) aparece em **corpo inteiro** logo **depois da última coluna** do seu lado (com barra de vida no topo da tela e nos pés). Ele conta como uma unidade parada numa **coluna virtual** após o fim da arena, alcançável pelas **duas fileiras**.
+- Cada Comandante aparece em **corpo inteiro** logo **depois da última coluna** do seu lado (com barra de vida no topo da tela e nos pés). Ele conta como uma unidade parada numa **coluna virtual** após o fim da arena, alcançável pelas **duas fileiras**.
 - **Zona de invocação:** as **3 primeiras colunas** do seu lado (colunas 1–3). A IA usa as 3 do lado dela (colunas 5–7).
 - **Unidades na Arena:** cada carta invocada entra em campo como um **lutador anime de corpo inteiro** sobre um círculo tático de invocação, exibindo `ATQ | VIDA` nos pés e animando cada ação:
   - **Caminhada (`MOVE` / `JUMP`):** pernas articuladas andando/correndo pelas casas com nuvens de poeira e seta indicadora `MOVE`.
@@ -22,7 +22,7 @@ Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói (Líde
 4. Ao tocar **LUTAR** (ou ativar o botão **Auto**), suas unidades agem sozinhas, da mais avançada para a mais recuada. Depois o inimigo compra, invoca e age.
 
 ### Tela de batalha
-- **HUD superior VS:** no topo da tela, as barras de vida do seu Líder (**Você**) e do Líder inimigo (com o nome da fase), frente a frente, e o **turno atual** (T) no centro.
+- **HUD superior VS:** no topo da tela, as barras de vida do seu Comandante (**Você**) e do Comandante inimigo (com o nome da fase), frente a frente, e o **turno atual** (T) no centro.
 - **Botão Auto (`Auto: OFF` / `Auto: ON`):** com o Auto ligado, o jogo **invoca suas cartas sozinho** (com a mesma lógica de invocação da IA) e toca **LUTAR** a cada turno, até a batalha acabar ou você desligar. Ele desliga sozinho ao fim da batalha ou ao sair (cancelar a saída não desliga).
 - **Contador `Em campo (N)`:** mostra quantas unidades suas estão vivas na arena.
 - **Selecionar carta da mão:** tocar seleciona (e mostra as informações no painel); **tocar de novo na mesma carta tira a seleção**.
@@ -35,8 +35,8 @@ Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói (Líde
 ### Layout da batalha deitada (paisagem) — v0.11.0
 - **Quando:** sempre que a tela está **mais larga que alta** (celular deitado, tablet ou computador). Só a tela de batalha muda; os menus continuam pensados para o celular em pé e também funcionam deitados.
 - **Sem rolagem:** a batalha ocupa exatamente a altura visível (`100dvh`, acompanha a barra de endereço do Chrome) e respeita os recortes da tela (safe-area). Nenhuma parte da tela rola.
-- **Topo:** HUD VS fino (vida dos dois Líderes, turno), com **Sair**, **Auto**, velocidade, **Em campo (N)** e **📜** (registro) à direita.
-- **Centro:** a arena 2×7 fica **o maior possível**, com as colunas dos Líderes visíveis nas pontas.
+- **Topo:** HUD VS fino (vida dos dois Comandantes, turno), com **Sair**, **Auto**, velocidade, **Em campo (N)** e **📜** (registro) à direita.
+- **Centro:** a arena 2×7 fica **o maior possível**, com as colunas dos Comandantes visíveis nas pontas.
 - **Embaixo, numa linha só:** **Baralho** à esquerda, as **6 cartas da mão inteiras** no meio, **Necropolis (Derrotadas)**, a **energia ⚡** e o botão **LUTAR** na ponta direita.
 - **Painel de informações:** vira uma **janela sobreposta** sobre a metade inimiga da arena (com **✕** para fechar). Ela abre ao selecionar uma carta/unidade e **fecha sozinha ao tocar LUTAR** (não cobre a luta). Se o texto for longo, rola só por dentro da janela.
 - **Registro da batalha:** fica escondido; o botão **📜** abre/fecha uma gaveta lateral.
@@ -44,10 +44,10 @@ Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói (Líde
 - **Celular em pé na batalha:** aparece o aviso do jogo **"Gire o celular para jogar deitado"** (ícone de girar). **⟳ Tela cheia deitada** tenta entrar em tela cheia e travar a tela deitada; **Jogar em pé** fecha o aviso (até fechar o jogo) e usa o layout em pé de sempre. Girar o celular também resolve.
 - **Tela cheia e trava de orientação:** ao entrar numa batalha pelo toque, no celular (tela de toque) o jogo **tenta** abrir em tela cheia e travar deitado (`screen.orientation.lock`). Se o navegador não permitir, nada quebra e o jogo segue normal. Ao sair da batalha (vitória, derrota ou Sair), a tela é destravada e sai da tela cheia (se foi o jogo que entrou). No computador não entra em tela cheia.
 - **App na tela inicial:** o jogo tem um manifesto (nome, ícones, `display: fullscreen`) para **"Adicionar à tela inicial"** abrir como app em tela cheia. A orientação **não** é forçada no manifesto (menus em pé continuam valendo).
-- **Proporção na arena (v0.11.1, como na referência):** os **Líderes são as maiores figuras da arena** — corpo inteiro com cerca de **2 fileiras de altura**, em pé na sua ponta, com a barra de vida logo abaixo. As **unidades invocadas cabem dentro da própria casa** (não invadem as casas vizinhas), com a placa ATQ | VIDA e a barra de vida legíveis. No celular em pé a coluna do Líder também ficou maior.
-- **Líder Aliado (v0.12.0):** o seu Líder, na coluna da esquerda, é o **bárbaro** (cabelo e barba pretos, machado de duas lâminas, saiote de pele): arte animada própria com **respiração em loop**, de pé sobre o piso da coluna, com cerca de 2 fileiras de altura e a barra de vida logo abaixo. Vale deitado e em pé. Ao levar dano, a coluna treme como antes. 
-- **Líder Adversário (v0.12.1):** o Líder da direita é o **minotauro** (pelo marrom, chifres, machado de pedra com runas laranja), também animado com respiração. Fica sem espelhar: o machado já aponta para a arena. Os textos "Líder Aliado"/"Líder Inimigo" saíram: as figuras ocupam a altura toda da coluna, de pé no piso, com a barra e os números de vida embaixo. Atrás de cada Líder há uma **aura fixa**: azul/ciano do seu lado, rosa/magenta do adversário.
-- **Altura dos Líderes (v0.12.2):** o minotauro agora segura o machado apoiado no ombro (pose estreita, sem espelhar). As duas colunas voltaram a ter a **mesma largura**, e os dois Líderes têm a **altura da arena**: dos pés à cabeça, a figura mede o mesmo que as 2 fileiras. Barra e números de vida embaixo, aura e piso brilhante mantidos.
+- **Proporção na arena (v0.11.1, como na referência):** os **Comandantes são as maiores figuras da arena** — corpo inteiro com cerca de **2 fileiras de altura**, em pé na sua ponta, com a barra de vida logo abaixo. As **unidades invocadas cabem dentro da própria casa** (não invadem as casas vizinhas), com a placa ATQ | VIDA e a barra de vida legíveis. No celular em pé a coluna do Comandante também ficou maior.
+- **Comandante Aliado (v0.12.0):** o seu Comandante, na coluna da esquerda, é o **bárbaro** (cabelo e barba pretos, machado de duas lâminas, saiote de pele): arte animada própria com **respiração em loop**, de pé sobre o piso da coluna, com cerca de 2 fileiras de altura e a barra de vida logo abaixo. Vale deitado e em pé. Ao levar dano, a coluna treme como antes. 
+- **Comandante Adversário (v0.12.1):** o Comandante da direita é o **minotauro** (pelo marrom, chifres, machado de pedra com runas laranja), também animado com respiração. Fica sem espelhar: o machado já aponta para a arena. Os textos "Comandante Aliado"/"Comandante Inimigo" saíram: as figuras ocupam a altura toda da coluna, de pé no piso, com a barra e os números de vida embaixo. Atrás de cada Comandante há uma **aura fixa**: azul/ciano do seu lado, rosa/magenta do adversário.
+- **Altura dos Comandantes (v0.12.2):** o minotauro agora segura o machado apoiado no ombro (pose estreita, sem espelhar). As duas colunas voltaram a ter a **mesma largura**, e os dois Comandantes têm a **altura da arena**: dos pés à cabeça, a figura mede o mesmo que as 2 fileiras. Barra e números de vida embaixo, aura e piso brilhante mantidos.
 - **Desempenho:** o layout deitado não adiciona animações contínuas; a batalha continua a 60 FPS.
 
 ## 4. Mão e baralho
@@ -99,19 +99,19 @@ Zerar a vida do **herói inimigo** antes que o inimigo zere a sua. Herói (Líde
   - **Feixe Perfurante (Lyra):** o mais próximo e também **os que estão atrás dele** no alcance 3.
   - **Corte Diagonal (Nara):** a casa diagonal logo à frente, se não houver ninguém em frente.
   - **Golpe Reverso (Toru):** prioriza a casa diagonal logo atrás.
-- **Herói:** se não houver unidade inimiga válida, a unidade ataca o herói com seu alcance normal:
+- **Comandante:** se não houver unidade inimiga válida, a unidade ataca o Comandante com seu alcance normal:
   - corpo a corpo: da **última coluna**;
   - Zarek, Yume, Ren e Kuro (mira 2) e a Cria Sombria (alcance 2): da **penúltima**;
   - longo alcance (3): a partir da **antepenúltima**.
-- Unidades inimigas no alcance sempre têm **prioridade** sobre o herói.
+- Unidades inimigas no alcance sempre têm **prioridade** sobre o Comandante.
 
 ## 7. Dano
 - **Físico 👊** é reduzido pela **resistência física**; **Mágico ✨** pela **resistência mágica**. Exemplo: 3 de dano físico contra resistência física 1 = 2.
 - **Dano mínimo: 1** por golpe.
-- O herói não tem resistência.
+- O Comandante não tem resistência.
 
 ## 8. Fúria de batalha 🔥
-A partir do **turno 8**, todas as unidades dos dois lados ganham **+1 de ataque**, e mais +1 a cada **3 turnos** (turno 8: +1, 11: +2, 14: +3…). Isso evita lutas travadas. No **turno 40**, vence quem tiver mais vida (em %) no herói; se for igual, empate.
+A partir do **turno 8**, todas as unidades dos dois lados ganham **+1 de ataque**, e mais +1 a cada **3 turnos** (turno 8: +1, 11: +2, 14: +3…). Isso evita lutas travadas. No **turno 40**, vence quem tiver mais vida (em %) no Comandante; se for igual, empate.
 
 ## 9. Categorias e Raças/Origens
 ### Categorias de combate (ícone no canto superior direito da carta)
@@ -201,8 +201,8 @@ Cada **mudança de cor** muda o visual do personagem tanto na carta quanto no lu
 - **Lendário:** armadura e espinhos dourados, diadema/coroa real, cabelo energizado com brilho, partículas de Ki.
 - **Mítico:** forma suprema — cabelo radiante, halo dourado, raios e aura dupla.
 - O físico cresce a cada cor (ombros mais largos).
-- **Cabelo preso à cabeça (v0.11.2):** o cabelo tem o **mesmo tamanho em todas as cores** e é desenhado sobre o crânio: cobre o alto da cabeça, a franja fica na testa e as mechas descem rente às têmporas, sem vão nem "peruca" de cabeça maior. A cor mostra a evolução pelo brilho (Lendário) e pelo cabelo radiante (Mítico), não pelo tamanho. Vale para a carta, o lutador da arena, os Líderes, a Base e a janela de detalhes. Na arena o cabelo faz parte do grupo da cabeça e se move junto com ela.
-- **Mesmo rosto na carta e na arena (v0.11.3):** cada personagem tem **um rosto só**, usado pela carta e pelo lutador da arena: mesmo formato de olho, cor da íris (que muda em Épico+), sobrancelhas, boca/presas, barba, marcas da raça e do personagem (pintura, cicatrizes, tiara, óculos, lenço, orelhas, chama na testa) e acessórios do rosto (máscara do Toru a partir de Incomum, visor do Zarek). Na arena só a íris fica um pouco maior para ler no tamanho pequeno, e o visor da Nyx não pisca (sem animação nova). Vale para todas as cores e para a Cria Sombria. Os Líderes não têm carta e seguem com o próprio rosto.
+- **Cabelo preso à cabeça (v0.11.2):** o cabelo tem o **mesmo tamanho em todas as cores** e é desenhado sobre o crânio: cobre o alto da cabeça, a franja fica na testa e as mechas descem rente às têmporas, sem vão nem "peruca" de cabeça maior. A cor mostra a evolução pelo brilho (Lendário) e pelo cabelo radiante (Mítico), não pelo tamanho. Vale para a carta, o lutador da arena, os Comandantes, a Base e a janela de detalhes. Na arena o cabelo faz parte do grupo da cabeça e se move junto com ela.
+- **Mesmo rosto na carta e na arena (v0.11.3):** cada personagem tem **um rosto só**, usado pela carta e pelo lutador da arena: mesmo formato de olho, cor da íris (que muda em Épico+), sobrancelhas, boca/presas, barba, marcas da raça e do personagem (pintura, cicatrizes, tiara, óculos, lenço, orelhas, chama na testa) e acessórios do rosto (máscara do Toru a partir de Incomum, visor do Zarek). Na arena só a íris fica um pouco maior para ler no tamanho pequeno, e o visor da Nyx não pisca (sem animação nova). Vale para todas as cores e para a Cria Sombria. Os Comandantes não têm carta e seguem com o próprio rosto.
 - Ao Despertar, uma animação mostra o visual antigo virando o novo (**DESPERTAR!**).
 
 ### Cenário de fundo de cada personagem
@@ -290,7 +290,7 @@ Ataque/vida mostrados em Comum nível 1 (base) e, entre parênteses, na cor inic
 | Sora Brisa-Serena | 🔮 Mago Arcano | ➕ Suporte | Comum → Épico+ | vida | 2 | 1 / 5 | Mágico | 3 | 0/1 | Sopro Restaurador — cura 1 (Comum–Incomum) · 2 (Raro) · 3 (Épico). |
 | Tobi Tambor-de-Guerra | 👹 Monstro | ➕ Suporte | Comum → Épico+ | vida | 3 | 2 / 7 | Físico | 1 | 0/0 | Tambor de Guerra — vizinhos +1 de ataque (Comum–Raro) · +2 (Épico). |
 | Kael Chama-Rubra | 🔮 Mago Arcano | 🪄 Mago | Comum → Épico+ | ataque | 3 | 3 / 4 | Mágico | 3 | 0/1 | Explosão de Brasas — explosão de 1 (Comum–Incomum) · 2 (Raro–Épico). |
-| Suri Maré-Gélida | 🪐 Extraterrestre | 🪄 Mago | Comum → Épico+ | vida | 2 | 2 / 5 | Mágico | 3 | 0/1 | Maré Implacável — +1 no herói (Comum–Incomum) · +2 (Raro) · +3 (Épico). |
+| Suri Maré-Gélida | 🪐 Extraterrestre | 🪄 Mago | Comum → Épico+ | vida | 2 | 2 / 5 | Mágico | 3 | 0/1 | Maré Implacável — +1 no Comandante (Comum–Incomum) · +2 (Raro) · +3 (Épico). |
 | Hana Pena-Veloz | 🌍 Humano | 🏹 Arqueiro | Comum → Épico+ | ataque | 2 | 2 / 5 | Físico | 3 | 0/0 | Tiro Certeiro — ignora 1 de resistência física (Comum–Incomum) · 2 (Raro–Épico). |
 | Jin Arco-Trovão | 🤖 Androide | 🏹 Arqueiro | Comum → Épico+ | ataque | 3 | 3 / 5 | Físico | 3 | 0/0 | Olho de Águia — +1 de dano a 2–3 casas (Comum–Incomum) · +2 (Raro–Épico). |
 | Ren Presa-Oculta | 🌍 Humano | 💀 Assassino | Comum → Épico+ | ataque | 2 | 3 / 5 | Físico | 1 (mira 2) | 0/0 | Caça-Conjuradores — +1 de dano em quem ataca de longe (Comum–Incomum) · +2 (Raro–Épico). |
@@ -317,12 +317,12 @@ Habilidades em detalhe:
 - **Sopro Restaurador (Sora):** no início da ação, cura o aliado **mais ferido da própria fileira**, a qualquer distância. Sora ataca à distância (alcance 3, mágico).
 - **Tambor de Guerra (Tobi):** enquanto Tobi estiver em campo, os aliados nos **8 vizinhos** (inclusive a outra fileira) ganham ataque. Vários tambores **não se somam** (vale o maior); bônus de aliados tem teto de **+2**. Crias não recebem.
 - **Explosão de Brasas (Kael):** ao acertar uma unidade, a explosão causa dano mágico fixo no inimigo da **mesma coluna na outra fileira** (habilidade lateral).
-- **Maré Implacável (Suri):** dano extra quando ataca o **herói** inimigo.
+- **Maré Implacável (Suri):** dano extra quando ataca o **Comandante** inimigo.
 - **Tiro Certeiro (Hana):** ignora parte da **resistência física** do alvo.
 - **Olho de Águia (Jin):** dano extra em unidades a **2 ou 3 casas** (colado, só o dano normal).
 - **Caça-Conjuradores (Ren):** prioriza inimigos de longo alcance da fileira até 2 casas e causa dano extra neles.
 - **Ataque Surpresa (Kuro):** mira o inimigo de maior ataque da fileira até 2 casas; dano extra se o alvo estiver com a **vida cheia**.
-- **Disparo Sombrio (Cria):** ataque **mágico** no inimigo **mais próximo até 2 casas à frente** na própria fileira (como as unidades de longo alcance, mas com alcance 2), inclusive o herói a partir da penúltima coluna. Não avança quando pode atacar.
+- **Disparo Sombrio (Cria):** ataque **mágico** no inimigo **mais próximo até 2 casas à frente** na própria fileira (como as unidades de longo alcance, mas com alcance 2), inclusive o Comandante a partir da penúltima coluna. Não avança quando pode atacar.
 
 ## 13. Equipe e janelas do jogo
 - A equipe é o seu baralho e precisa ter **exatamente 10 personagens diferentes** para lutar (cada um vale 4 cópias). Dá para tirar alguém e ficar com menos de 10 enquanto monta a equipe, mas aí a batalha fica bloqueada: o jogo avisa ao tirar, a tela de Coleção mostra "faltam N" em vermelho, a Aventura mostra um aviso com **Completar equipe**, e **Lutar** abre a janela **Equipe incompleta** com **Ir para a equipe**.
@@ -330,8 +330,8 @@ Habilidades em detalhe:
 - **Saves antigos (migração da v0.8, uma única vez):** você **mantém todos os personagens, níveis, cores, itens e fases** que já tinha — inclusive **Kenji e Vorax**, se já tinham sido obtidos (ninguém perde progresso). Todo save também ganha os **9 novos personagens Comuns**. Se a equipe tiver menos de 10, ela é completada com os seus personagens mais fortes que estavam fora dela.
 - **Saves antigos (migração da v0.10, uma única vez):** as estrelas viram a cor de mesmo número (1★ Comum, 2★ Incomum, 3★ Raro, 4★ Épico, 5★ Lendário, 6★ Mítico), sempre na **cor base** (sem "+"). Cada personagem mantém a cor que já tinha, o nível e o XP (o nível máximo da cor base é o mesmo do antigo nível máximo).
 - Com a equipe cheia, **Colocar na equipe** abre a janela de **troca**: todas as cartas da equipe começam marcadas; toque nas que vão **sair** (ficam cinza com ✖). **Trocar** só libera quando o número certo estiver desmarcado; **Cancelar** não muda nada.
-- **Saves antigos (migração da v0.13):** todo save ganha o **Líder Bárbaro no nível 1** (20 de vida, como antes). Cartas, itens e fases não mudam.
-- Todas as confirmações e avisos (sair da batalha, apagar progresso, equipe incompleta, evoluir o Líder) usam janelas do próprio jogo, no tema escuro/dourado.
+- **Saves antigos (migração da v0.13):** todo save ganha o **Comandante Bárbaro no nível 1** (20 de vida, como antes). Cartas, itens e fases não mudam.
+- Todas as confirmações e avisos (sair da batalha, apagar progresso, equipe incompleta, evoluir o Comandante) usam janelas do próprio jogo, no tema escuro/dourado.
 
 ## 13.1 Progressão de personagens
 - **Começo:** só personagens de **Comum** (os 12 iniciais).
@@ -343,11 +343,11 @@ Habilidades em detalhe:
 - **Desbloqueios (primeira vitória):** fase 1 → **Aiko** (Incomum) · fase 2 → **Mei** (Incomum) · fase 3 → **Lyra** (Incomum) · fase 4 → **Gorath** (Incomum) · fase 5 → **Yume** (Raro) · fase 6 → **Zarek** (Raro) · fase 8 → **Nyx-07** (Épico). Kenji e Vorax: em breve.
 - **Baralho da IA:** toda fase tem **10 personagens diferentes**. Fases 1 e 2 usam só personagens Comuns (a fase 1 sem tanques); a partir da 3 entram os de Incomum, Raro e Épico; Kenji (fases 8 e 9) e Vorax (fase 10) só aparecem como inimigos.
 - **Nível dos inimigos:** fase 1 = nível 1, fase 2 = nível 2 e depois 1 + 1,5 × (fase − 1), arredondado (fase 10 = nível 15, com +Comum).
-- **Vida do Líder inimigo (v0.13):** 12 + 7 × (fase − 1) → 12, 19, 26, 33, 40, 47, 54, 61, 68, 75. Antes era 12 + 2 × (fase − 1); os +5 por fase a mais são **metade** do acréscimo de vida do seu Líder no nível esperado daquela fase (ver seção 15).
+- **Vida do Comandante inimigo (v0.13):** 12 + 7 × (fase − 1) → 12, 19, 26, 33, 40, 47, 54, 61, 68, 75. Antes era 12 + 2 × (fase − 1); os +5 por fase a mais são **metade** do acréscimo de vida do seu Comandante no nível esperado daquela fase (ver seção 15).
 - Derrota dá 1 Pergaminho de Ki de consolo.
 - Progresso salvo no navegador (localStorage).
 
-## 15. Poder ⚡ e Líder 👑 (v0.13)
+## 15. Poder ⚡ e Comandante 👑 (v0.13)
 ### Poder da carta
 - **Poder = arredondar( 10 × peso da habilidade × √(ataque × vida) )**, com o ataque e a vida **atuais** da carta (nível, cor e "+" já aplicados). Por isso o Poder **sobe a cada nível, no "+" e a cada cor**.
 - **Peso da habilidade** = valor de combate medido de cada personagem (média 1,00). Ele inclui o efeito das **habilidades** e do **custo** de energia:
@@ -373,39 +373,40 @@ Habilidades em detalhe:
 - O Poder aparece num selo ⚡ em cada carta da **Coleção**, da **Equipe** e na janela de detalhes (com o valor também na linha de status). O selo é texto por cima do quadro congelado da carta (não muda o bitmap).
 
 ### Poder do baralho
-- **Soma do Poder das 10 cartas da equipe**, em destaque em **Coleção & Equipe** (painel do Líder e título da equipe) e na **Aventura**.
+- **Soma do Poder das 10 cartas da equipe**, em destaque em **Coleção & Equipe** (painel do Comandante e título da equipe) e na **Aventura**.
 - Baralhos da IA: fase 1 ⚡346 · 2 ⚡388 · 3 ⚡461 · 4 ⚡567 · 5 ⚡558 · 6 ⚡703 · 7 ⚡713 · 8 ⚡925 · 9 ⚡936 · 10 ⚡1134.
 
-### Nível do Líder
-- Painel do Líder em **Coleção & Equipe**: arte animada, nível, vida máxima, Poder do baralho, barra até o próximo requisito e o botão **⬆ Evoluir**. O botão abre uma janela do jogo com nível, vida e Poder (atual / necessário). Sem Poder suficiente, a janela mostra quanto falta.
+### Nível do Comandante
+- Painel do Comandante em **Coleção & Equipe**: arte animada, nível, vida máxima, Poder do baralho, barra até o próximo requisito e o botão **⬆ Evoluir**. O botão abre uma janela do jogo com nível, vida e Poder (atual / necessário). Sem Poder suficiente, a janela mostra quanto falta.
 - **Evoluir é grátis** e sobe **1 nível por vez**: a única trava é o **Poder do baralho ≥ requisito do próximo nível**, conferido **só na hora de evoluir**.
-- **O Líder nunca perde nível.** Depois de evoluir você pode trocar cartas à vontade, mesmo ficando abaixo do requisito.
-- Cada nível dá **+10 de vida máxima**. A batalha começa com o Líder na vida máxima do nível atual.
+- **O Comandante nunca perde nível.** Depois de evoluir você pode trocar cartas à vontade, mesmo ficando abaixo do requisito.
+- Cada nível dá **+10 de vida máxima**. A batalha começa com o Comandante na vida máxima do nível atual.
 
-| Nível do Líder | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+| Nível do Comandante | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
 |---|---|---|---|---|---|---|---|---|---|---|
 | Poder do baralho necessário | — | 480 | 510 | 560 | 610 | 660 | 760 | 840 | 930 | 980 |
 | Vida máxima | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 90 | 100 | 110 |
 
-- Os requisitos são o **Poder típico com que o jogador chega à fase de mesmo número** (mediana do simulador): o Líder chega ao nível N por volta da fase N.
-- **Vários Líderes no futuro:** os Líderes são uma lista (id, categoria, arte, curva de vida, requisitos, habilidades). Haverá 1 por categoria, cada um com habilidades especiais que também evoluem. Por enquanto só o **Bárbaro** está disponível (sem tela de escolha). Cada Líder guarda o próprio nível.
+- Os requisitos são o **Poder típico com que o jogador chega à fase de mesmo número** (mediana do simulador): o Comandante chega ao nível N por volta da fase N.
+- **Aparência por faixa de nível (regra futura):** como no jogo de referência, o Comandante **muda levemente de aparência a cada 10 níveis** — nova aparência ao chegar aos níveis **11, 21, 31…** (níveis 1–10 = 1ª aparência, 11–20 = 2ª, e assim por diante). Hoje o nível máximo é **10**, então todos usam a aparência atual; as novas artes entram quando o nível máximo passar de 10.
+- **Vários Comandantes no futuro:** os Comandantes são uma lista (id, categoria, arte, curva de vida, requisitos, habilidades). Haverá 1 por categoria, cada um com habilidades especiais que também evoluem. Por enquanto só o **Bárbaro** está disponível (sem tela de escolha). Cada Comandante guarda o próprio nível.
 
 ### Por que +10 por nível (simulação)
-- `scripts/balance/schedules.ts` e `final.ts`: 30–40 jogadores simulados começam um save novo e seguem a campanha. Antes de cada tentativa gastam todo o XP na equipe (menor nível primeiro), despertam quem está no teto, usam as 10 cartas de maior Poder e evoluem o Líder quando podem. Se perdem, ganham +1 Pergaminho, repetem a última fase vencida (50%) e tentam de novo. Em cada fase, 40 batalhas medem a vitória **no momento em que chegam** e o maior dano que o Líder leva num único turno inimigo (sem cortar em 0).
-- **One-shot** = um turno inimigo tirar **100% ou mais** da vida máxima do Líder.
+- `scripts/balance/schedules.ts` e `final.ts`: 30–40 jogadores simulados começam um save novo e seguem a campanha. Antes de cada tentativa gastam todo o XP na equipe (menor nível primeiro), despertam quem está no teto, usam as 10 cartas de maior Poder e evoluem o Comandante quando podem. Se perdem, ganham +1 Pergaminho, repetem a última fase vencida (50%) e tentam de novo. Em cada fase, 40 batalhas medem a vitória **no momento em que chegam** e o maior dano que o Comandante leva num único turno inimigo (sem cortar em 0).
+- **One-shot** = um turno inimigo tirar **100% ou mais** da vida máxima do Comandante.
 
-| Curva (Líder inimigo +metade do acréscimo) | Maior turno ÷ vida (pior fase) | Fases com risco de one-shot | Turnos ≥ 50% da vida na fase 10 | Vitória ao chegar: fase 6 / 8 / 10 |
+| Curva (Comandante inimigo +metade do acréscimo) | Maior turno ÷ vida (pior fase) | Fases com risco de one-shot | Turnos ≥ 50% da vida na fase 10 | Vitória ao chegar: fase 6 / 8 / 10 |
 |---|---|---|---|---|
 | Hoje (20 fixo, inimigo 12 + 2·i) | 190% | 3 a 10 | 63% | 32% / 30% / 27% |
 | A: +5 por nível (20 → 65) | 123% | 3 a 8 e 10 | 21% | 32% / 27% / 26% |
 | C: +3, +5, +10 (20 → 74) | 128% | 3 a 8 e 10 | 21% | 28% / 31% / 27% |
 | **B: +10 por nível (20 → 110)** | **97%** | **nenhuma** | **6%** | **31% / 29% / 25%** |
 
-- Só a **B** tira o one-shot em todas as fases. A **A** e a **C** ainda deixam um turno inimigo derrubar o Líder de vida cheia.
-- **Líder inimigo:** testado sem mudar (12 + 2·i), com **metade** do acréscimo e com o acréscimo **inteiro**. Com a B e o inimigo sem mudar, as fases ficavam mais fáceis (fase 9: 52% → 68%). Com o acréscimo inteiro ficavam mais difíceis que hoje (fase 10: 27% → 21%). **Metade** (12 + 7·i) mantém a dificuldade de hoje.
+- Só a **B** tira o one-shot em todas as fases. A **A** e a **C** ainda deixam um turno inimigo derrubar o Comandante de vida cheia.
+- **Comandante inimigo:** testado sem mudar (12 + 2·i), com **metade** do acréscimo e com o acréscimo **inteiro**. Com a B e o inimigo sem mudar, as fases ficavam mais fáceis (fase 9: 52% → 68%). Com o acréscimo inteiro ficavam mais difíceis que hoje (fase 10: 27% → 21%). **Metade** (12 + 7·i) mantém a dificuldade de hoje.
 
 ### Resultado por fase (v0.13, 40 jogadores simulados)
-| Fase | Poder ao chegar | Nível do Líder ao chegar | Vida do Líder | Líder inimigo | Vitória ao chegar (antes → agora) | Tentativas até vencer | Maior turno ÷ vida (antes → agora) | Maior ataque de uma unidade inimiga |
+| Fase | Poder ao chegar | Nível do Comandante ao chegar | Vida do Comandante | Comandante inimigo | Vitória ao chegar (antes → agora) | Tentativas até vencer | Maior turno ÷ vida (antes → agora) | Maior ataque de uma unidade inimiga |
 |---|---|---|---|---|---|---|---|---|
 | 1 | 447 | 1 | 20 | 12 | 99% → 100% | 1,0 | 60% → 45% | 3 |
 | 2 | 485 | 2 | 30 | 19 | 97% → 97% | 1,0 | 90% → 60% | 3 |

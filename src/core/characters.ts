@@ -396,7 +396,7 @@ export const CHARACTERS: CharacterDef[] = [
     abilities: ['longoAlcance', 'mare'],
     palette: { primary: '#023e8a', secondary: '#90e0ef', hair: '#caf0f8', aura: '#48cae4', skin: '#d8f3ff', eyes: '#00b4d8' },
     hairStyle: 1,
-    lore: 'Habitante dos oceanos congelados de Europa: invoca lanças e marés criogênicas que quebram as defesas do herói inimigo.',
+    lore: 'Habitante dos oceanos congelados de Europa: invoca lanças e marés criogênicas que quebram as defesas do Comandante inimigo.',
   },
   {
     ...base,

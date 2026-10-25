@@ -15,7 +15,7 @@ export interface BattleCallbacks {
   setSpeed: (s: number) => void;
   onFinish: (winner: Side | 'empate') => void;
   onExit: () => void;
-  /** v0.13: vida do Líder do jogador (nível do Líder). Sem informar: nível 1 */
+  /** v0.13: vida do Comandante do jogador (nível do Comandante). Sem informar: nível 1 */
   playerHeroHp?: number;
 }
 
@@ -327,7 +327,7 @@ export class BattleView {
           ${cardHTML(card)}
         </div>
         <div class="bcm-right">
-          <div class="bcm-leader">Líder: ${side === 'player' ? 'Você' : esc(this.stage.name)}</div>
+          <div class="bcm-leader">Comandante: ${side === 'player' ? 'Você' : esc(this.stage.name)}</div>
           <h3 class="bcm-title">${esc(def.name)}</h3>
           <div class="bcm-sub">${esc(def.title)} · ${race.icon} ${race.label}</div>
           <div class="bcm-tags">${categoryHTML(def, true)} ${tierHTML(card.stars, !!card.plus)}</div>

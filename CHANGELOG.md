@@ -2,6 +2,15 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.13.1] — 25/10/2026 · PR #22 — O herói principal agora se chama Comandante
+- **"Líder" e "herói" viraram "Comandante"** em todo texto do jogo:
+  - painel de Coleção & Equipe ("👑 Comandante Bárbaro") e janela de Evoluir ("Evoluir o Comandante Bárbaro?", "Vida máxima do Comandante");
+  - Aventura ("Seu Comandante", "Comandante inimigo ❤");
+  - batalha: registro ("ataca o Comandante inimigo", "Comandante aliado sofre…", "O Comandante inimigo caiu"), janela de carta ("Comandante: Você"), textos alternativos das artes;
+  - habilidades que citavam o herói ("inclusive o Comandante", Maré Implacável "Comandante +N"), história da Suri e o Como jogar.
+- REGRAS.md e README atualizados com o novo nome. Nova regra futura: o Comandante muda levemente de aparência a cada 10 níveis (níveis 11, 21, 31…). Como hoje o máximo é o nível 10, nenhuma arte nova por enquanto.
+- Nada muda nas regras, no visual das cartas, nem no save (os campos internos continuam os mesmos; saves antigos carregam normalmente).
+
 ## [0.13.0] — 25/10/2026 · PR #21 — Poder das cartas e do baralho, Líder com níveis
 - **Poder ⚡ em cada carta:** 10 × peso da habilidade × √(ataque × vida). Sobe a cada nível, no "+" e a cada cor. O peso de cada personagem (de 0,78 a 1,39, média 1) foi medido em 30 000 batalhas IA × IA. Aparece num selo na Coleção, na Equipe e na janela de detalhes.
 - **Poder do baralho** = soma das 10 cartas da equipe, em destaque em Coleção & Equipe e na Aventura.

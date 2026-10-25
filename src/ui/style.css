@@ -172,7 +172,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .vs-inf { font-size: 16px; font-weight: 900; color: #fff; }
 .vs-center small { font-size: 10px; color: var(--gold); font-weight: 800; }
 
-/* Campo e Líderes nas pontas */
+/* Campo e Comandantes nas pontas */
 .field { display: flex; align-items: stretch; justify-content: center; gap: 6px; padding-top: 8px; }
 .hero { width: 68px; flex: 0 0 68px; min-height: calc(var(--cell) * 2); display: flex; flex-direction: column; justify-content: flex-end; text-align: center; position: relative; border-radius: 12px; background: linear-gradient(180deg, color-mix(in srgb, var(--hc) 26%, rgba(16,24,52,.8)), rgba(8,11,26,.9)); border: 1.5px solid color-mix(in srgb, var(--hc) 65%, transparent); padding: 4px 3px 6px; box-shadow: 0 6px 20px rgba(0,0,0,.5); }
 .hero-fig { flex: 1; display: flex; align-items: center; justify-content: center; }
@@ -749,7 +749,7 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 
 /* =====================================================================
    v0.11.0 — Batalha DEITADA (paisagem): celular deitado e computador
-   HUD fino no topo · arena 2×7 ocupando a largura (com os líderes nas pontas) ·
+   HUD fino no topo · arena 2×7 ocupando a largura (com os comandantes nas pontas) ·
    faixa de baixo numa linha só: Baralho | 6 cartas | Derrotadas | energia + LUTAR.
    Sem rolagem: tudo cabe em 100dvh (a barra do Chrome não quebra o layout).
    ===================================================================== */
@@ -836,14 +836,14 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
   .rp-msg { color: #c9d1f5; font-size: 14px; margin: 0 0 14px; }
   .rp-btns { display: grid; gap: 8px; }
 }
-/* menus deitados (celular): heróis da Base cabem pela altura, o menu aparece sem rolar tanto */
+/* menus deitados (celular): Comandantes da Base cabem pela altura, o menu aparece sem rolar tanto */
 @media (orientation: landscape) and (max-height: 500px) {
   .home-hero { width: clamp(64px, 26dvh, 130px); }
   .logo-ki { font-size: clamp(36px, 14dvh, 72px); }
 }
 
 /* =====================================================================
-   v0.11.1 — Proporção da referência: Líderes GRANDES nas pontas,
+   v0.11.1 — Proporção da referência: Comandantes GRANDES nas pontas,
    unidades invocadas cabem dentro da própria casa
    ===================================================================== */
 /* unidades: o lutador fica dentro da casa (antes saía 24% para cima e 8% para os lados) */
@@ -851,12 +851,12 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .unit.minion .u-portrait { inset: 6% 12% 22% 12%; }
 .u-stat-plate { bottom: 4px; }
 
-/* Líder: figura de corpo inteiro com ~2 fileiras de altura, em pé sobre um piso na ponta da arena */
+/* Comandante: figura de corpo inteiro com ~2 fileiras de altura, em pé sobre um piso na ponta da arena */
 .hero { background: radial-gradient(ellipse 90% 34% at 50% 100%, color-mix(in srgb, var(--hc) 30%, transparent), transparent 75%), linear-gradient(180deg, transparent 0%, rgba(8,11,26,.55) 100%); border-color: color-mix(in srgb, var(--hc) 40%, transparent); }
 .hero-fig { align-items: flex-end; min-height: 0; }
 .hero-hp .bar { height: 8px; }
 
-/* celular em pé (fallback): coluna do Líder um pouco mais larga e figura pela altura da arena */
+/* celular em pé (fallback): coluna do Comandante um pouco mais larga e figura pela altura da arena */
 @media (max-width: 640px) {
   :root { --cell: clamp(34px, calc((100vw - 108px) / 7), 64px); }
   .hero { width: 49px; flex-basis: 49px; padding: 2px 1px 3px; }
@@ -866,9 +866,9 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 
 @media (orientation: landscape) {
   .battle-screen {
-    /* coluna do Líder mais larga (antes 7vw) */
+    /* coluna do Comandante mais larga (antes 7vw) */
     --hero-w: clamp(64px, 13.5vw, 210px);
-    /* altura da figura do Líder: até 2 fileiras da arena (menos a placa de vida) */
+    /* altura da figura do Comandante: até 2 fileiras da arena (menos a placa de vida) */
     --lead-h: min(calc(var(--hero-w) * 1.2), calc(var(--cell) * 2 - 26px));
   }
   .battle .hero { min-height: calc(var(--cell) * 2 + 16px); padding: 0 2px 3px; justify-content: flex-end; }
@@ -877,13 +877,13 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 }
 
 /* =====================================================================
-   v0.12.0 / v0.12.1 — Líderes animados: bárbaro (aliado) e minotauro (adversário)
+   v0.12.0 / v0.12.1 — Comandantes animados: bárbaro (aliado) e minotauro (adversário)
    ===================================================================== */
 /* as imagens animam sozinhas: sem animação CSS e sem filtro (filtro em imagem animada = repintura a cada quadro).
    A imagem preenche a coluna (acima da barra de vida), de pé no piso, sem distorcer. */
 .hero-fig { position: relative; flex: 1 1 auto; min-height: 0; }
 .battle .hero-img, .hero-img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; max-width: none; object-fit: contain; object-position: 50% 100%; margin: 0; display: block; filter: none !important; animation: none !important; image-rendering: auto; -webkit-user-drag: none; user-select: none; pointer-events: none; z-index: 1; }
-/* aura atrás do Líder: camada FIXA (gradiente), elemento separado, sem filtro */
+/* aura atrás do Comandante: camada FIXA (gradiente), elemento separado, sem filtro */
 .hero-aura { position: absolute; left: -4%; right: -4%; top: 2%; bottom: 0; z-index: 0; pointer-events: none;
   background: radial-gradient(ellipse 52% 48% at 50% 56%, color-mix(in srgb, var(--ha) 50%, transparent) 0%, color-mix(in srgb, var(--ha2) 24%, transparent) 55%, transparent 74%); }
 .hero-p { --ha: #00f5d4; --ha2: #2fb8ff; }
@@ -891,7 +891,7 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .hero-p { background: radial-gradient(ellipse 80% 16% at 50% 97%, rgba(0,245,212,.42), rgba(47,184,255,.12) 60%, transparent 72%), linear-gradient(180deg, transparent 0%, rgba(8,11,26,.55) 100%); }
 .hero-e { background: radial-gradient(ellipse 80% 16% at 50% 97%, rgba(255,77,109,.42), rgba(181,23,158,.12) 60%, transparent 72%), linear-gradient(180deg, transparent 0%, rgba(8,11,26,.55) 100%); }
 .hero { min-height: calc(var(--cell) * 2 + 8px); }
-/* v0.12.2: os dois Líderes têm pose estreita — colunas iguais de novo.
+/* v0.12.2: os dois Comandantes têm pose estreita — colunas iguais de novo.
    A figura tem a ALTURA DA ARENA: a caixa da imagem mede as 2 fileiras (+8px de margem transparente da arte),
    de pé no piso, com a barra e os números de vida logo abaixo. */
 .hero { justify-content: flex-end; }
@@ -902,7 +902,7 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
   .battle .hero-fig { flex: 0 0 auto; height: calc(var(--cell) * 2 + 8px); }
 }
 
-/* ---- v0.13.0: Poder ⚡ e painel do Líder 👑 (tudo estático: sem animação contínua nova) ---- */
+/* ---- v0.13.0: Poder ⚡ e painel do Comandante 👑 (tudo estático: sem animação contínua nova) ---- */
 .card-power { position: absolute; z-index: 7; left: 1cqw; top: 21cqw; background: linear-gradient(180deg, #2a2200, #120e00); border: 1px solid #ffcf4a; color: #ffe27a; font-size: max(8.5px, 8.6cqw); font-weight: 900; padding: .6cqw 2.4cqw; border-radius: 3cqw; white-space: nowrap; line-height: 1.15; box-shadow: 0 1px 3px rgba(0,0,0,.7); pointer-events: none; }
 .card.compact .card-power { font-size: max(8px, 10cqw); top: 22cqw; }
 .card.grid-card.locked .card-power { display: none; }

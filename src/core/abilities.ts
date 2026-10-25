@@ -44,7 +44,7 @@ export interface AbilityDef {
   allyAtkAura?: boolean;
   /** ao acertar uma unidade: `power` de dano na unidade inimiga da mesma coluna na outra fileira */
   splashOtherRow?: boolean;
-  /** `power` de dano extra contra o herói */
+  /** `power` de dano extra contra o Comandante */
   heroBonus?: boolean;
   /** ignora `power` de resistência */
   pierce?: boolean;
@@ -108,7 +108,7 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   longoAlcance: {
     id: 'longoAlcance',
     name: 'Longo Alcance',
-    description: 'Ataca o inimigo mais próximo até 3 casas à frente na sua fileira (inclusive o herói). Não avança quando consegue atacar.',
+    description: 'Ataca o inimigo mais próximo até 3 casas à frente na sua fileira (inclusive o Comandante). Não avança quando consegue atacar.',
     icon: '🎯',
     rangeBonus: 2,
   },
@@ -205,7 +205,7 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   disparoSombrio: {
     id: 'disparoSombrio',
     name: 'Disparo Sombrio',
-    description: 'Ataque mágico no inimigo mais próximo até 2 casas à frente na sua fileira (inclusive o herói). Não avança quando consegue atacar.',
+    description: 'Ataque mágico no inimigo mais próximo até 2 casas à frente na sua fileira (inclusive o Comandante). Não avança quando consegue atacar.',
     icon: '🌑',
     rangeBonus: 1,
   },
@@ -253,12 +253,12 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   mare: {
     id: 'mare',
     name: 'Maré Implacável',
-    description: 'Causa dano extra ao atacar o herói inimigo.',
+    description: 'Causa dano extra ao atacar o Comandante inimigo.',
     icon: '🌊',
     heroBonus: true,
-    scaling: '+1 no herói (Comum–Incomum) · +2 (Raro) · +3 (Épico, máx.).',
+    scaling: '+1 no Comandante (Comum–Incomum) · +2 (Raro) · +3 (Épico, máx.).',
     power: (s) => (s >= 4 ? 3 : s >= 3 ? 2 : 1),
-    powerLabel: (p) => `herói +${p}`,
+    powerLabel: (p) => `Comandante +${p}`,
   },
   precisao: {
     id: 'precisao',

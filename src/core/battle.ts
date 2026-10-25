@@ -250,8 +250,8 @@ export function distanceToEnemyHero(state: BattleState, u: Unit): number {
  * - Ninguém ataca unidades da OUTRA fileira, exceto as habilidades diagonais (Corte Diagonal / Golpe Reverso).
  * - Básico: inimigo na casa logo à frente (alcance 1). Longo alcance: o inimigo MAIS PRÓXIMO até 3 casas à frente.
  * - Miras especiais (retaguarda = mais distante; menor vida) olham só a própria fileira até `reach` casas.
- * - Herói: funciona como uma unidade numa coluna virtual logo após o fim da arena, alcançável pelas duas
- *   fileiras. Sem unidade inimiga válida, qualquer unidade ataca o herói com seu alcance.
+ * - Comandante: funciona como uma unidade numa coluna virtual logo após o fim da arena, alcançável pelas duas
+ *   fileiras. Sem unidade inimiga válida, qualquer unidade ataca o Comandante com seu alcance.
  */
 export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
   const enemies = state.units.filter((e) => e.hp > 0 && e.side !== u.side);
@@ -303,7 +303,7 @@ function checkWinner(state: BattleState, ctx: Ctx) {
   if (state.heroes.enemy.hp <= 0) state.winner = 'player';
   else if (state.heroes.player.hp <= 0) state.winner = 'enemy';
   if (state.winner)
-    ctx.emit(state, { type: 'end', winner: state.winner, text: state.winner === 'player' ? '🏆 Vitória! O herói inimigo caiu.' : '💀 Derrota... seu herói caiu.' });
+    ctx.emit(state, { type: 'end', winner: state.winner, text: state.winner === 'player' ? '🏆 Vitória! O Comandante inimigo caiu.' : '💀 Derrota... seu Comandante caiu.' });
 }
 
 export interface AttackOpts {
@@ -329,9 +329,9 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   if (target === 'hero') {
     if (!opts.counter && !opts.secondary) atk += pw(u, 'mare');
     const side = enemyOf(u.side);
-    ctx.emit(state, { type: 'attack', uid: u.uid, target: 'hero', targetSide: side, ranged: true, damageType: u.damageType, text: `${nameOf(u)} ${verb} o herói ${side === 'enemy' ? 'inimigo' : 'aliado'}!` });
+    ctx.emit(state, { type: 'attack', uid: u.uid, target: 'hero', targetSide: side, ranged: true, damageType: u.damageType, text: `${nameOf(u)} ${verb} o Comandante ${side === 'enemy' ? 'inimigo' : 'aliado'}!` });
     state.heroes[side].hp = Math.max(0, state.heroes[side].hp - atk);
-    ctx.emit(state, { type: 'hero', side, amount: atk, text: `Herói ${side === 'enemy' ? 'inimigo' : 'aliado'} sofre ${atk} de dano (${state.heroes[side].hp}/${state.heroes[side].maxHp}).` });
+    ctx.emit(state, { type: 'hero', side, amount: atk, text: `Comandante ${side === 'enemy' ? 'inimigo' : 'aliado'} sofre ${atk} de dano (${state.heroes[side].hp}/${state.heroes[side].maxHp}).` });
     checkWinner(state, ctx);
     return;
   }

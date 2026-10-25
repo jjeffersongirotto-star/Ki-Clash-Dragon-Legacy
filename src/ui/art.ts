@@ -3,23 +3,23 @@ import { sceneSVG } from './scenes';
 import leaderPlayerUrl from '../assets/leader-player.webp';
 import leaderEnemyUrl from '../assets/leader-enemy.webp';
 
-/** v0.12.0: arte do Líder do jogador (bárbaro, animação de respiração, WebP animado com fundo transparente). */
+/** v0.12.0: arte do Comandante do jogador (bárbaro, animação de respiração, WebP animado com fundo transparente). */
 export const LEADER_PLAYER_URL: string = leaderPlayerUrl;
-/** v0.12.1/v0.12.2: arte do Líder adversário (minotauro com o machado no ombro, respiração, WebP animado transparente). */
+/** v0.12.1/v0.12.2: arte do Comandante adversário (minotauro com o machado no ombro, respiração, WebP animado transparente). */
 export const LEADER_ENEMY_URL: string = leaderEnemyUrl;
 
-/** Líder do jogador em batalha: imagem animada própria (sem filtro por quadro; o brilho fica no piso da coluna). */
+/** Comandante do jogador em batalha: imagem animada própria (sem filtro por quadro; o brilho fica no piso da coluna). */
 export function playerLeaderImg(): string {
-  return `<img class="hero-svg hero-leader-player hero-img" src="${LEADER_PLAYER_URL}" width="271" height="512" alt="Líder Aliado" decoding="async" draggable="false">`;
+  return `<img class="hero-svg hero-leader-player hero-img" src="${LEADER_PLAYER_URL}" width="271" height="512" alt="Comandante Aliado" decoding="async" draggable="false">`;
 }
 
-/** Líder adversário: minotauro (sem espelhar: o machado fica no ombro do lado de fora, rosto voltado para a arena). */
+/** Comandante adversário: minotauro (sem espelhar: o machado fica no ombro do lado de fora, rosto voltado para a arena). */
 export function enemyLeaderImg(): string {
-  return `<img class="hero-svg hero-leader-enemy hero-img" src="${LEADER_ENEMY_URL}" width="286" height="512" alt="Líder Adversário" decoding="async" draggable="false">`;
+  return `<img class="hero-svg hero-leader-enemy hero-img" src="${LEADER_ENEMY_URL}" width="286" height="512" alt="Comandante Adversário" decoding="async" draggable="false">`;
 }
 
 let leaderWarm: HTMLImageElement[] | null = null;
-/** Baixa e decodifica as artes dos dois Líderes antes da primeira batalha (evita travada ao entrar na luta). */
+/** Baixa e decodifica as artes dos dois Comandantes antes da primeira batalha (evita travada ao entrar na luta). */
 export function warmLeader(): void {
   if (leaderWarm || typeof Image === 'undefined') return;
   leaderWarm = [LEADER_PLAYER_URL, LEADER_ENEMY_URL].map((src) => {
@@ -533,7 +533,7 @@ export function unitSpriteSVG(def: CharacterDef, opts: { flip?: boolean; stars?:
 </svg>`;
 }
 
-/** Líderes de equipe (Heróis) em corpo inteiro nas pontas da arena */
+/** Comandantes de equipe (Comandantes) em corpo inteiro nas pontas da arena */
 export function heroSVG(side: 'player' | 'enemy'): string {
   const isP = side === 'player';
   const primary = isP ? '#0077b6' : '#7209b7';
