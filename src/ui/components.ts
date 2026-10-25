@@ -53,7 +53,7 @@ const LOCKED_GRID_STYLE = '--rc:#535559;--rg:#7b7d80;--ac:#55575a;--race-c:#5557
 
 export function cardHTML(
   card: CardInstance,
-  opts: { extraClass?: string; attrs?: string; locked?: boolean; badge?: string; compact?: boolean; grid?: boolean } = {},
+  opts: { extraClass?: string; attrs?: string; locked?: boolean; badge?: string; compact?: boolean; grid?: boolean; power?: number } = {},
 ): string {
   const def = getChar(card.charId);
   const st = statsFor(def, card.level, card.stars, !!card.plus);
@@ -81,6 +81,7 @@ export function cardHTML(
       <div class="medal card-cat" title="${race.label} · ${cat.label}">${cat.icon}</div>
       <div class="medal card-lvl" title="Nível"><small>Nv</small>${card.level}</div>
       ${opts.badge ? `<div class="card-badge">${opts.badge}</div>` : ''}
+      ${opts.power != null ? `<div class="card-power" title="Poder">⚡${opts.power}</div>` : ''}
       <div class="card-bottom-bar">
         <div class="card-orb-atk ${def.damageType}" title="Ataque: ${st.atk}"><span>${st.atk}</span></div>
         <div class="card-ribbon"><span class="card-name"><span class="full">${esc(def.name)}</span><span class="short">${esc(def.name.split(' ')[0])}</span></span></div>

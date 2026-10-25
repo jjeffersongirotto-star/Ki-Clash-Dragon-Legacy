@@ -2,7 +2,9 @@ import './ui/style.css';
 import { CATEGORY_INFO, CHAR_BY_ID, PLAYABLE, RACE_INFO, STAR_COLORS, getChar, isComingSoon } from './core/characters';
 import { STAGES } from './core/campaign';
 import { TIER_NAMES, XP_ITEMS, ascend, ascendCost, ascendCostFor, canAscend, cardMaxLevel, cardXpToNext, feedXp, maxLevel, newOwned, nextTier, statsFor, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
-import { portraitImg, portraitSVG, unitSpriteSVG, warmLeader, warmPortraits } from './ui/art';
+import { playerLeaderImg, portraitImg, portraitSVG, unitSpriteSVG, warmLeader, warmPortraits } from './ui/art';
+import { cardPower, deckPower } from './core/power';
+import { canEvolve, evolveLeader, getLeader, leaderHp, leaderMaxLevel, nextRequirement } from './core/leaders';
 import { BattleView } from './ui/battleView';
 import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, starStyle, tierHTML } from './ui/components';
 import { gameAlert, gameConfirm, showDialog } from './ui/dialog';
@@ -18,6 +20,72 @@ let raceFilter: string = 'all';
 
 const persist = () => writeSave(save);
 const unlockStage = (charId: string) => STAGES.find((s) => s.unlock === charId)?.id;
+
+// ---------------- v0.13: PODER e LÍDER ----------------
+const teamCards = () => save.deck.filter((id) => save.cards[id]).map((id) => save.cards[id]);
+/** Poder do baralho = soma do Poder das cartas da equipe */
+const teamPower = () => deckPower(teamCards());
+const activeLeader = () => getLeader(save.activeLeader);
+const leaderLevel = () => Math.max(1, save.leaders?.[activeLeader().id]?.level ?? 1);
+const fmt = (n: number) => n.toLocaleString('pt-BR');
+
+function leaderPanelHTML(): string {
+  const def = activeLeader();
+  const lv = leaderLevel();
+  const max = leaderMaxLevel(def);
+  const hp = leaderHp(def, lv);
+  const power = teamPower();
+  const req = nextRequirement(def, lv);
+  const ready = canEvolve(def, lv, power);
+  const prev = def.thresholds[lv - 1];
+  const pct = req == null ? 100 : Math.max(0, Math.min(100, ((power - prev) / Math.max(1, req - prev)) * 100));
+  return `<section class="leader-panel ${ready ? 'ready' : ''}">
+    <div class="lp-fig"><div class="hero-aura"></div>${playerLeaderImg()}</div>
+    <div class="lp-info">
+      <div class="lp-name"><b>👑 ${esc(def.name)}</b> <span class="lp-lvl">Nv.${lv}/${max}</span></div>
+      <div class="lp-hp">❤ <b>${hp}</b> de vida máxima${req != null ? ` <small>→ ${leaderHp(def, lv + 1)} no Nv.${lv + 1}</small>` : ''}</div>
+      <div class="lp-power"><span class="lp-power-label">Poder do baralho</span><span class="lp-power-val">⚡ ${fmt(power)}</span></div>
+      ${req != null
+        ? `<div class="lp-req"><div class="lp-bar"><i style="width:${pct.toFixed(1)}%"></i></div><small>${ready ? `Pronto! Requisito do Nv.${lv + 1}: ⚡ ${fmt(req)}` : `Próximo nível: ⚡ ${fmt(req)} <span class="warn">(faltam ${fmt(req - power)})</span>`}</small></div>`
+        : '<div class="lp-req"><small>Nível máximo!</small></div>'}
+      <button class="btn small ${ready ? 'primary' : ''}" id="lpEvolve" ${req == null ? 'disabled' : ''}>⬆ Evoluir</button>
+    </div>
+  </section>`;
+}
+
+async function evolveDialog() {
+  const def = activeLeader();
+  const lv = leaderLevel();
+  const power = teamPower();
+  const req = nextRequirement(def, lv);
+  if (req == null) return;
+  const ready = canEvolve(def, lv, power);
+  const v = await showDialog({
+    title: ready ? `Evoluir ${def.name}?` : 'Poder insuficiente',
+    html: `<div class="evo-leader">
+        <div class="lp-fig evo-fig"><div class="hero-aura"></div>${playerLeaderImg()}</div>
+        <div class="evo-rows">
+          <div class="evo-row"><span>Nível</span><b>${lv}</b><i>→</i><b class="up">${lv + 1}</b></div>
+          <div class="evo-row"><span>❤ Vida</span><b>${leaderHp(def, lv)}</b><i>→</i><b class="up">${leaderHp(def, lv + 1)}</b></div>
+          <div class="evo-row"><span>⚡ Poder</span><b class="${ready ? 'up' : 'warn'}">${fmt(power)}</b><i>/</i><b>${fmt(req)}</b></div>
+        </div>
+      </div>
+      <p class="dialog-msg">${ready
+        ? 'O Poder do baralho só é conferido <b>agora</b>. Depois de evoluir, pode trocar cartas à vontade: o Líder <b>nunca perde o nível</b>. Evoluir é grátis.'
+        : `Faltam <b>⚡ ${fmt(req - power)}</b> de Poder na equipe. Treine e desperte as cartas (ou coloque cartas mais fortes na equipe) e volte aqui.`}</p>`,
+    icon: ready ? '👑' : '⚡',
+    buttons: ready
+      ? [{ label: 'Agora não', value: 'cancel', kind: 'ghost' }, { label: '⬆ Evoluir', value: 'ok', kind: 'primary' }]
+      : [{ label: 'Entendi', value: 'cancel', kind: 'primary' }],
+  });
+  if (v !== 'ok') return;
+  const r = evolveLeader(def, lv, teamPower());
+  if (!r.ok) return;
+  save.leaders = { ...(save.leaders ?? {}), [def.id]: { level: Math.max(lv, r.level) } };
+  persist();
+  collection();
+  await gameAlert(`${def.name} Nv.${r.level}!`, `Vida máxima do Líder: ${leaderHp(def, r.level)}.`, '👑');
+}
 
 function topbar(title: string, back = true) {
   return `<header class="topbar">
@@ -72,6 +140,7 @@ function home() {
 function adventure() {
   leaveBattleMode();
   app.innerHTML = `<div class="screen">${topbar('Aventura')}
+    <p class="hint">Seu Líder: <b>${esc(activeLeader().name)} Nv.${leaderLevel()}</b> ❤${leaderHp(activeLeader(), leaderLevel())} · Poder do baralho <b>⚡ ${fmt(teamPower())}</b></p>
     <p class="hint">Sua equipe (${save.deck.length}/${DECK_REQUIRED}): ${save.deck.map((id) => esc(getChar(id).name)).join(', ')}</p>
     ${teamReady(save) ? '' : `<p class="warn-bar">⚠ A equipe precisa de ${DECK_REQUIRED} personagens para lutar. <button class="btn small" data-nav="collection">Completar equipe</button></p>`}
     <div class="stages">${STAGES.map((s, i) => {
@@ -126,6 +195,7 @@ function startBattle(stageId: number) {
     },
     onExit: () => adventure(),
     onFinish: (winner) => finishBattle(stageId, winner),
+    playerHeroHp: leaderHp(activeLeader(), leaderLevel()),
   });
 }
 
@@ -175,7 +245,7 @@ function collection() {
   void bakeAllGrid();
   const byPower = (a: string, b: string) => {
     const A = save.cards[a], B = save.cards[b];
-    return B.stars - A.stars || Number(!!B.plus) - Number(!!A.plus) || B.level - A.level || getChar(a).cost - getChar(b).cost;
+    return cardPower(B) - cardPower(A) || B.stars - A.stars || B.level - A.level || getChar(a).cost - getChar(b).cost;
   };
   const matchRace = (id: string) => raceFilter === 'all' || getChar(id).race === raceFilter;
   const owned = PLAYABLE.filter((d) => save.cards[d.id] && matchRace(d.id)).map((d) => d.id).sort(byPower);
@@ -184,11 +254,12 @@ function collection() {
   const lockBadge = (id: string) => (isComingSoon(getChar(id)) ? '🔒 Em breve' : `🔒 Fase ${unlockStage(id) ?? '?'}`);
   const missing = DECK_REQUIRED - save.deck.length;
   app.innerHTML = `<div class="screen">${topbar('Coleção & Equipe')}
+    ${leaderPanelHTML()}
     <section class="deck-bar">
-      <div class="deck-title">Equipe = baralho <b>${save.deck.length}/${DECK_MAX}</b> <small>(cada carta vale 4 cópias · ${missing > 0 ? `<span class="warn">faltam ${missing}: sem ${DECK_REQUIRED} não dá para lutar</span>` : '40 cartas'})</small></div>
+      <div class="deck-title"><span class="deck-power" title="Poder do baralho = soma do Poder das ${DECK_MAX} cartas da equipe">⚡ ${fmt(teamPower())}</span> Equipe = baralho <b>${save.deck.length}/${DECK_MAX}</b> <small>(cada carta vale 4 cópias · ${missing > 0 ? `<span class="warn">faltam ${missing}: sem ${DECK_REQUIRED} não dá para lutar</span>` : '40 cartas'})</small></div>
       <div class="deck-slots">${Array.from({ length: DECK_MAX }, (_, i) => {
         const id = save.deck[i];
-        return id ? cardHTML(save.cards[id], { compact: true, grid: true, attrs: `data-card="${id}"` }) : '<div class="slot">+</div>';
+        return id ? cardHTML(save.cards[id], { compact: true, grid: true, attrs: `data-card="${id}"`, power: cardPower(save.cards[id]) }) : '<div class="slot">+</div>';
       }).join('')}</div>
     </section>
     <div class="race-filters">
@@ -197,7 +268,7 @@ function collection() {
     </div>
     <p class="hint">Toque numa carta para inspecionar a evolução visual de cor em cor (Comum → Mítico), ver o sprite de arena e editar a equipe.</p>
     <h3 class="sec-title">Seus personagens <small>(${owned.length})</small></h3>
-    <div class="card-grid">${owned.map((id) => cardHTML(save.cards[id], { grid: true, attrs: `data-card="${id}"`, badge: save.deck.includes(id) ? '✔ Equipe' : undefined, extraClass: save.deck.includes(id) ? 'in-deck' : '' })).join('')}</div>
+    <div class="card-grid">${owned.map((id) => cardHTML(save.cards[id], { grid: true, power: cardPower(save.cards[id]), attrs: `data-card="${id}"`, badge: save.deck.includes(id) ? '✔ Equipe' : undefined, extraClass: save.deck.includes(id) ? 'in-deck' : '' })).join('')}</div>
     ${locked.length ? `<div class="divider"><span>🔒 Ainda não obtidos (${locked.length})</span></div>
     <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, level: 1, stars: def.minStars }, { locked: true, grid: true, extraClass: isComingSoon(def) ? 'soon' : '', attrs: `data-card="${def.id}"`, badge: lockBadge(def.id) })).join('')}</div>
     ${locked.some(isComingSoon) ? `<p class="hint soon-note">🔒 <b>Em breve:</b> ${locked.filter(isComingSoon).map((d) => esc(d.name)).join(' e ')} ${locked.filter(isComingSoon).length > 1 ? 'começam' : 'começa'} em Lendário e ainda não ${locked.filter(isComingSoon).length > 1 ? 'podem' : 'pode'} ser obtidos. A forma de conseguir será revelada numa atualização futura.</p>` : ''}` : ''}
@@ -210,6 +281,7 @@ function collection() {
     }),
   );
   app.querySelectorAll<HTMLElement>('[data-card]').forEach((el) => el.addEventListener('click', () => cardDetail(el.dataset.card!)));
+  app.querySelector('#lpEvolve')?.addEventListener('click', () => void evolveDialog());
 }
 
 function cardDetail(id: string, previewStars?: number) {
@@ -222,6 +294,7 @@ function cardDetail(id: string, previewStars?: number) {
   // a prévia de outra cor mostra a cor base; a cor atual mostra o "+" se você já tiver
   const plus = stars === curStars && curPlus;
   const st = statsFor(def, lvl, stars, plus);
+  const pow = cardPower({ charId: id, level: lvl, stars, plus });
   const inDeck = save.deck.includes(id);
   const starTabs: string[] = [];
   for (let s = def.minStars; s <= def.maxStars; s++) {
@@ -229,7 +302,7 @@ function cardDetail(id: string, previewStars?: number) {
   }
   modal(`<div class="detail" style="${starStyle(stars)}">
     <div class="detail-left">
-      ${cardHTML({ charId: id, level: lvl, stars, plus }, { extraClass: 'detail-card', locked: !owned && previewStars == null })}
+      ${cardHTML({ charId: id, level: lvl, stars, plus }, { extraClass: 'detail-card', locked: !owned && previewStars == null, power: pow })}
       <div class="detail-sprite-box">
         <div class="ds-sprite">${unitSpriteSVG(def, { stars, side: 'player' })}</div>
         <div class="ds-label">Visual na Arena (${tierLabel(stars, plus)})<br><small>ATQ ${st.atk} | VIDA ${st.hp}</small></div>
@@ -243,7 +316,7 @@ function cardDetail(id: string, previewStars?: number) {
         <span class="sp-label">👁 Ver evolução por cor (roupa/poder):</span>
         <div class="sp-tabs">${starTabs.join('')}</div>
       </div>
-      <div class="stat-row"><span>Custo <b>${def.cost}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${reachLabel(def)}</b></span><span>Movimento <b>${def.move}</b></span></div>
+      <div class="stat-row"><span class="pow-stat" title="Poder = 10 × peso da habilidade × √(ataque × vida)">Poder <b>⚡ ${fmt(pow)}</b></span><span>Custo <b>${def.cost}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${reachLabel(def)}</b></span><span>Movimento <b>${def.move}</b></span></div>
       ${abilityListHTML(def, stars, lvl)}
       <p class="lore">${esc(def.lore)}</p>
     </div></div>
@@ -486,6 +559,7 @@ function help() {
     <h3>Dano</h3><p><b>Físico 👊</b> é reduzido pela resistência física; <b>Mágico ✨</b> pela resistência mágica. Ex.: 3 de dano físico contra resistência 1 = 2 de dano.</p>
     <h3>Cores das cartas e Despertar</h3><p>${[1, 2, 3, 4, 5, 6].map((n) => `<span class="rar-chip" style="--rc:${STAR_COLORS[n].color}">${TIER_NAMES[n]} (${STAR_COLORS[n].label})</span>`).join(' ')}</p>
     <p>A <b>cor da carta é o tier</b> do personagem — não há mais estrelas. Cada cor tem dois degraus: <b>base</b> e <b>"+"</b> (ex.: Raro → <b>Raro+</b> → Épico). No nível máximo, o <b>Despertar</b> leva da cor ao "+" e, no seguinte, do "+" à próxima cor. O "+" dá só um pequeno bônus de vida ou ataque; <b>habilidades, roupa, armadura, armas e aura de Ki</b> evoluem só quando a <b>cor muda</b>. Do "+" para a próxima cor custa <b>50% a mais</b> de XP e Essências.</p>
+    <h3>Poder ⚡ e Líder 👑</h3><p>Cada carta tem um <b>Poder</b> que sobe com o nível, a cor e o "+", com um bônus pela habilidade do personagem. O <b>Poder do baralho</b> é a soma das 10 cartas da equipe. Em <b>Coleção & Equipe</b>, quando o Poder do baralho alcança o requisito, toque em <b>Evoluir</b> no painel do Líder: cada nível dá <b>+10 de vida máxima</b> (20 → 110). O Poder só é conferido na hora de evoluir — trocar cartas depois <b>nunca</b> tira o nível do Líder. Os Líderes inimigos também ficam mais resistentes a cada fase.</p>
     <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.values(CATEGORY_INFO).map((c) => `<li><b>${c.icon} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
   </div></div>`;
   bindNav();

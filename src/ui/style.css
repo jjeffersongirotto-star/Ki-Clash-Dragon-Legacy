@@ -901,3 +901,34 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
   .battle .hero { align-self: stretch; min-height: calc(var(--cell) * 2 + 16px); padding: 0 2px 3px; }
   .battle .hero-fig { flex: 0 0 auto; height: calc(var(--cell) * 2 + 8px); }
 }
+
+/* ---- v0.13.0: Poder ⚡ e painel do Líder 👑 (tudo estático: sem animação contínua nova) ---- */
+.card-power { position: absolute; z-index: 7; left: 1cqw; top: 21cqw; background: linear-gradient(180deg, #2a2200, #120e00); border: 1px solid #ffcf4a; color: #ffe27a; font-size: max(8.5px, 8.6cqw); font-weight: 900; padding: .6cqw 2.4cqw; border-radius: 3cqw; white-space: nowrap; line-height: 1.15; box-shadow: 0 1px 3px rgba(0,0,0,.7); pointer-events: none; }
+.card.compact .card-power { font-size: max(8px, 10cqw); top: 22cqw; }
+.card.grid-card.locked .card-power { display: none; }
+.deck-power { display: inline-block; background: linear-gradient(180deg, #3a2e00, #1a1400); border: 1px solid #ffcf4a; color: #ffe27a; border-radius: 10px; padding: 3px 10px; font-weight: 900; font-size: 18px; margin-right: 6px; vertical-align: middle; box-shadow: 0 0 10px rgba(255,190,40,.25); }
+.pow-stat { border: 1px solid #ffcf4a; color: #ffe27a; }
+.leader-panel { display: flex; gap: 12px; align-items: stretch; background: linear-gradient(180deg, #17204a, #0e1330); border: 1px solid #2f8fff; border-radius: 14px; padding: 10px 12px; margin-bottom: 10px; }
+.leader-panel.ready { border-color: #ffcf4a; box-shadow: 0 0 14px rgba(255,200,60,.3); }
+.lp-fig { --ha: #00f5d4; --ha2: #2fb8ff; position: relative; flex: 0 0 auto; width: 86px; height: 150px; }
+.lp-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; text-align: left; justify-content: center; }
+.lp-name { font-size: 17px; }
+.lp-lvl { background: #2f8fff; color: #fff; border-radius: 8px; padding: 1px 8px; font-weight: 900; font-size: 14px; margin-left: 4px; }
+.lp-hp { font-size: 14px; color: #ffb0bf; } .lp-hp b { color: #fff; font-size: 16px; } .lp-hp small { color: #7dff9a; }
+.lp-power { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.lp-power-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; font-weight: 800; }
+.lp-power-val { font-size: 26px; font-weight: 900; color: #ffe27a; text-shadow: 0 0 8px rgba(255,190,40,.45); line-height: 1; }
+.lp-req small { color: #cfd6ff; font-size: 12px; } .lp-req .warn { color: #ff8f8f; font-weight: 700; }
+.lp-bar { height: 8px; border-radius: 6px; background: rgba(255,255,255,.1); overflow: hidden; margin-bottom: 3px; }
+.lp-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb020, #ffe27a); border-radius: 6px; }
+.leader-panel #lpEvolve { align-self: flex-start; margin-top: 2px; }
+.evo-leader { display: flex; gap: 12px; align-items: center; justify-content: center; margin: 4px 0 8px; }
+.evo-fig { width: 78px; height: 136px; }
+.evo-rows { display: flex; flex-direction: column; gap: 6px; }
+.evo-row { display: grid; grid-template-columns: 74px auto 18px auto; align-items: center; gap: 6px; background: rgba(255,255,255,.06); border-radius: 8px; padding: 5px 10px; font-size: 15px; text-align: left; }
+.evo-row span { color: var(--muted); font-size: 13px; font-weight: 700; } .evo-row b { font-size: 17px; } .evo-row i { font-style: normal; color: var(--muted); text-align: center; }
+.evo-row .up { color: #7dff9a; } .evo-row .warn { color: #ff8f8f; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .lp-fig { width: 70px; height: 120px; }
+  .lp-power-val { font-size: 22px; }
+}

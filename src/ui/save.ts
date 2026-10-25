@@ -1,5 +1,6 @@
 import { CHAR_BY_ID, STARTER_IDS } from '../core/characters';
 import { DECK_SLOTS } from '../core/deck';
+import { DEFAULT_LEADER, LEADERS } from '../core/leaders';
 import { newOwned, type OwnedCard, type XpItemId } from '../core/progression';
 
 export interface SaveData {
@@ -16,6 +17,12 @@ export interface SaveData {
   v8?: boolean;
   /** migração v0.10: estrelas viraram cores; toda carta antiga fica na cor BASE correspondente (sem "+") */
   v10?: boolean;
+  /** v0.13: nível de cada Líder (nunca diminui) */
+  leaders?: Record<string, { level: number }>;
+  /** v0.13: Líder em uso (por enquanto só o Bárbaro) */
+  activeLeader?: string;
+  /** migração v0.13: saves antigos começam com o Líder no nível 1 */
+  v13?: boolean;
 }
 
 const KEY = 'kicdl-save-v1';
@@ -39,7 +46,31 @@ export function defaultSave(): SaveData {
     team10: true,
     v8: true,
     v10: true,
+    leaders: defaultLeaders(),
+    activeLeader: DEFAULT_LEADER,
+    v13: true,
   };
+}
+
+export function defaultLeaders(): Record<string, { level: number }> {
+  return Object.fromEntries(LEADERS.map((l) => [l.id, { level: 1 }]));
+}
+
+/**
+ * Migração para a v0.13 (uma única vez): todo save antigo ganha os Líderes no nível 1
+ * (o Bárbaro ativo). Níveis que já existam e sejam válidos são mantidos.
+ */
+export function migrateV13(d: SaveData): SaveData {
+  const cur = d.leaders && typeof d.leaders === 'object' ? d.leaders : {};
+  const out = defaultLeaders();
+  for (const id of Object.keys(out)) {
+    const lv = Math.floor(Number(cur[id]?.level));
+    if (lv >= 1) out[id].level = Math.min(lv, LEADERS.find((l) => l.id === id)!.hpByLevel.length);
+  }
+  d.leaders = out;
+  if (!LEADERS.some((l) => l.id === d.activeLeader && l.available)) d.activeLeader = DEFAULT_LEADER;
+  d.v13 = true;
+  return d;
 }
 
 /**
@@ -82,6 +113,8 @@ export function loadSave(): SaveData {
     for (const id of Object.keys(merged.cards)) if (!CHAR_BY_ID[id]) delete merged.cards[id];
     if (!d.v8) migrateV8(merged);
     if (!d.v10) migrateV10(merged);
+    // sempre normaliza os Líderes (save antigo sem o campo, ou campo corrompido)
+    migrateV13(merged);
     return merged;
   } catch {
     return defaultSave();
