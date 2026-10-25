@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.12.1] — 24/10/2026 · PR #19 — Minotauro como Líder adversário, Líderes maiores
+- **Líder adversário (direita) agora é o minotauro** enviado: pelo marrom, chifres, machado de pedra com runas laranja, tanga e braçadeira. Arte animada com respiração (17 quadros, 1,6 s, fundo transparente), convertida em **WebP animado de 288 KB** (o GIF tinha 1,5 MB). Sem espelhar: ele já segura o machado apontado para a arena.
+- **Textos "Líder Aliado" e "Líder Inimigo" removidos**: os dois Líderes ocupam a altura toda da coluna, de pé no piso, com a barra e os números de vida embaixo. Em 915×412 o bárbaro passou de 161 px para 202 px e o minotauro tem 186 px. A coluna do minotauro é mais larga e a do bárbaro mais estreita (as casas ficaram um pouco menores, 90 → 84 px).
+- **Aura atrás de cada Líder** de volta: azul/ciano no seu lado, rosa/magenta no adversário, mais o piso brilhante na mesma cor. É uma camada fixa (gradiente) atrás da imagem, sem filtro na imagem animada.
+- As duas artes são baixadas e decodificadas ao abrir o jogo. Tremor ao levar dano mantido. Batalha Auto a ~60 FPS.
+
 ## [0.12.0] — 24/10/2026 · PR #18 — Novo Líder Aliado: o bárbaro
 - **O seu Líder (coluna da esquerda) agora é o bárbaro** enviado: cabelo e barba pretos, machado de duas lâminas, saiote de pele, braçadeiras, botas e tatuagem. Substitui o Líder azul e dourado em SVG. O Líder Inimigo não mudou.
 - **Animação mantida:** o GIF tinha 17 quadros de respiração (1,6 s em loop, fundo já transparente). Virou um **WebP animado de 266 KB** (o GIF tinha 1,2 MB), no tamanho original (271×512), sem fundo.

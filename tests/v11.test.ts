@@ -32,6 +32,7 @@ describe('v0.11.1 — proporção Líder × unidades', () => {
     expect(battleSrc).toContain('id="hero-player"');
     expect(battleSrc).toContain('id="hero-enemy"');
     expect(battleSrc).toContain('playerLeaderImg()');
-    expect(battleSrc).toContain("heroSVG('enemy')");
+    expect(battleSrc).toContain('enemyLeaderImg()');
+    expect(battleSrc).not.toContain('hero-name');
   });
 });
