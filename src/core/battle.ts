@@ -423,26 +423,52 @@ export function moveRange(u: Unit): number {
 }
 
 /**
- * Move a unidade (v0.15.0) e retorna true só se ela SALTOU com o Salto Vendaval (por cima de um inimigo; ativa a investida).
- * - Anda até `moveRange` casas para frente, na própria fileira.
- * - Atravessa ALIADOS livremente, mas só PARA em casa livre; se não houver casa livre alcançável,
- *   fica na última casa livre antes deles.
- * - Inimigos bloqueiam; só o Salto Vendaval pula 1 unidade inimiga por movimento (aterrissando em casa livre).
- * - Para assim que um alvo entra no alcance (checado só nas casas livres onde ela pode parar).
+ * Salto Vendaval (v0.15.4): o movimento do Riku É o salto. Casa de pouso = a 3ª casa à frente;
+ * se estiver ocupada ou fora do campo, a 2ª; se também, a 1ª; se as três estiverem ocupadas (ou fora), ele fica.
+ * Passa por cima de quem estiver no caminho (aliado ou inimigo). Nunca vai além da 3ª e não anda depois de cair.
  */
-export function moveUnit(state: BattleState, ctx: Ctx, u: Unit, opts: { leapFront?: boolean } = {}): boolean {
+export function leapLanding(state: BattleState, u: Unit): number | null {
   const d = dir(u.side);
-  const canJump = !!has(u.abilities, (a) => a.jump);
+  for (const k of [SALTO_MOVE, 2, 1]) {
+    const c = u.col + k * d;
+    if (inBoard(state, u.row, c) && !unitAt(state, u.row, c)) return c;
+  }
+  return null;
+}
+
+function leapMove(state: BattleState, ctx: Ctx, u: Unit): boolean {
+  const land = leapLanding(state, u);
+  if (land == null) return false;
+  const d = dir(u.side);
   const start = u.col;
   const from: [number, number] = [u.row, start];
-  if (!(opts.leapFront && canJump) && findTarget(state, u)) return false;
-  const steps = moveRange(u);
-  let enemyHops = canJump ? 1 : 0;
+  const through: [number, number][] = [];
+  for (let c = start + d; (land - c) * d > 0; c += d) {
+    const o = unitAt(state, u.row, c);
+    if (o && o.side === u.side) through.push([u.row, c]);
+  }
+  u.col = land;
+  ctx.emit(state, { type: 'move', uid: u.uid, from, to: [u.row, land], jumped: true, through, text: `${nameOf(u)} salta para a coluna ${land + 1}.` });
+  return true;
+}
+
+/**
+ * Move a unidade. Retorna true só quando o Riku salta (Salto Vendaval: seta JUMP + investida).
+ * Demais (v0.15.0): andam até `move` casas, atravessam ALIADOS mas só param em casa livre (senão ficam na
+ * última casa livre antes deles); inimigos bloqueiam; param assim que um alvo entra no alcance (checado nas casas livres).
+ */
+export function moveUnit(state: BattleState, ctx: Ctx, u: Unit, opts: { leapFront?: boolean } = {}): boolean {
+  if (has(u.abilities, (a) => a.jump)) {
+    if (!opts.leapFront && findTarget(state, u)) return false;
+    return leapMove(state, ctx, u);
+  }
+  const d = dir(u.side);
+  const start = u.col;
+  const from: [number, number] = [u.row, start];
+  if (findTarget(state, u)) return false;
   let stop = start;
   const over: number[] = [];
-  /** casas de inimigos pulados com o Salto (o único "salto" de verdade) */
-  const hops: number[] = [];
-  for (let k = 1; k <= steps; k++) {
+  for (let k = 1; k <= u.move; k++) {
     const c = start + k * d;
     if (!inBoard(state, u.row, c)) break;
     const occ = unitAt(state, u.row, c);
@@ -451,30 +477,19 @@ export function moveUnit(state: BattleState, ctx: Ctx, u: Unit, opts: { leapFron
         over.push(c);
         continue;
       }
-      if (enemyHops > 0) {
-        enemyHops--;
-        hops.push(c);
-        continue;
-      }
       break;
     }
     stop = c;
     u.col = c;
-    // v0.15.3: depois de saltar por cima de alguém, o Riku cai 2 casas à frente e PARA (não anda a 3ª casa)
-    if (hops.length) break;
     if (findTarget(state, u)) break;
   }
   u.col = stop;
-  const between = (c: number) => (c - start) * d > 0 && (stop - c) * d > 0;
-  const passed = over.filter(between);
-  // v0.15.1: só o pulo do Salto Vendaval por cima de um INIMIGO conta como salto (investida + seta JUMP);
-  // passar por aliados é a regra comum de movimento e não conta.
-  const jumped = hops.some(between);
+  const passed = over.filter((c) => (c - start) * d > 0 && (stop - c) * d > 0);
   if (stop !== start) {
-    const how = jumped ? 'salta' : passed.length ? 'passa pelos aliados e avança' : 'avança';
-    ctx.emit(state, { type: 'move', uid: u.uid, from, to: [u.row, stop], jumped, through: passed.map((c) => [u.row, c] as [number, number]), text: `${nameOf(u)} ${how} para a coluna ${stop + 1}.` });
+    const how = passed.length ? 'passa pelos aliados e avança' : 'avança';
+    ctx.emit(state, { type: 'move', uid: u.uid, from, to: [u.row, stop], jumped: false, through: passed.map((c) => [u.row, c] as [number, number]), text: `${nameOf(u)} ${how} para a coluna ${stop + 1}.` });
   }
-  return jumped;
+  return false;
 }
 
 /** Bênção do Lótus (v0.15.1): cura só os 2 aliados vizinhos mais feridos (mais vida perdida; empate: menos vida, depois quem entrou antes). */
@@ -549,15 +564,13 @@ function strike(state: BattleState, ctx: Ctx, u: Unit, t: Unit | 'hero', bonus =
 }
 
 /**
- * Salto Vendaval (v0.15.2): o alvo é o inimigo logo à frente na mesma fileira e a casa atrás dele
- * existe e está livre → o Riku salta por cima dele em vez de atacá-lo.
+ * Salto Vendaval (v0.15.4): o alvo é o inimigo logo à frente (corpo a corpo) e existe casa de pouso livre
+ * (3ª, senão 2ª) → o Riku salta por cima dele em vez de atacá-lo e ataca com investida quem estiver à frente ao cair.
  */
 export function canLeapOver(state: BattleState, u: Unit, t: Unit | 'hero'): boolean {
   if (t === 'hero' || !has(u.abilities, (a) => a.jump)) return false;
-  const d = dir(u.side);
-  if (t.row !== u.row || t.col !== u.col + d) return false;
-  const land = u.col + 2 * d;
-  return inBoard(state, u.row, land) && !unitAt(state, u.row, land);
+  if (t.row !== u.row || t.col !== u.col + dir(u.side)) return false;
+  return leapLanding(state, u) != null;
 }
 
 /** Ação automática: (cura) → ataca se houver alvo; senão anda e tenta atacar. */
@@ -567,7 +580,7 @@ export function act(state: BattleState, ctx: Ctx, u: Unit) {
   healRow(state, ctx, u);
   let t = findTarget(state, u);
   if (t && canLeapOver(state, u, t)) {
-    // v0.15.2: Salto Vendaval por cima do inimigo da frente (casa de trás livre) e ataque com investida
+    // Salto Vendaval (v0.15.2/v0.15.4): salta por cima do inimigo da frente e ataca com investida ao cair
     const jumped = moveUnit(state, ctx, u, { leapFront: true });
     t = findTarget(state, u);
     if (t) strike(state, ctx, u, t, jumped ? pw(u, 'salto') : 0);

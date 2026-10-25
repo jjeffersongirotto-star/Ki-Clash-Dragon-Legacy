@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { act, createBattle, Ctx, LOTUS_TARGETS, moveUnit, placeUnit } from '../src/core/battle';
 import { ABILITIES, abilityPower } from '../src/core/abilities';
-import type { BattleState, CardInstance, RecordedEvent } from '../src/core/types';
+import type { BattleState, CardInstance } from '../src/core/types';
 
 const c = (charId: string, level = 1, stars = 1): CardInstance => ({ charId, level, stars });
 const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
@@ -64,17 +64,6 @@ describe('v0.15.1 — Bênção do Lótus: só os 2 mais feridos', () => {
 });
 
 describe('v0.15.1 — salto só com a habilidade', () => {
-  it('Riku passando por aliado: sem JUMP (jumped=false) e sem investida', () => {
-    const s = empty();
-    const r = placeUnit(s, c('riku', 30, 4), 'player', 1, 0);
-    placeUnit(s, c('gorath'), 'player', 1, 1);
-    const ctx = new Ctx();
-    expect(moveUnit(s, ctx, r)).toBe(false);
-    const mv = ctx.events.find((e) => e.type === 'move') as Extract<RecordedEvent, { type: 'move' }>;
-    expect(mv.jumped).toBe(false);
-    expect(mv.through).toEqual([[1, 1]]);
-    expect(r.col).toBe(3);
-  });
   it('unidade comum passando por aliado também não é salto', () => {
     const s = empty();
     const u = placeUnit(s, c('nara'), 'player', 0, 0);
