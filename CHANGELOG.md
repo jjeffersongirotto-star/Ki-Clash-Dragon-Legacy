@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.12.2] — 24/10/2026 · PR #20 — Minotauro com machado no ombro, Líderes na altura da arena
+- **Novo minotauro** (Líder adversário): mesma criatura, de pé, com o machado apoiado no ombro direito (pose estreita). Arte animada com respiração (17 quadros, 1,6 s, transparente), **WebP animado de 235 KB** (o GIF tinha 1,29 MB). Sem espelhar: o machado fica no ombro do lado de fora da tela, e o rosto já está virado para a arena.
+- **Colunas dos Líderes iguais de novo** (13,5% da largura cada): as casas da arena voltam ao tamanho da v0.12.0 (84 → 90 px em 915×412).
+- **Os dois Líderes têm a altura da arena:** dos pés à cabeça a figura mede o mesmo que as 2 fileiras (915×412: arena 179 px, bárbaro 179 px, que antes tinha 193 px; minotauro 181 px). A barra e os números de vida ficam embaixo; aura azul/rosa, piso brilhante e fundo das colunas mantidos.
+- Tremor ao levar dano mantido. Batalha Auto a ~60 FPS.
+
 ## [0.12.1] — 24/10/2026 · PR #19 — Minotauro como Líder adversário, Líderes maiores
 - **Líder adversário (direita) agora é o minotauro** enviado: pelo marrom, chifres, machado de pedra com runas laranja, tanga e braçadeira. Arte animada com respiração (17 quadros, 1,6 s, fundo transparente), convertida em **WebP animado de 288 KB** (o GIF tinha 1,5 MB). Sem espelhar: ele já segura o machado apontado para a arena.
 - **Textos "Líder Aliado" e "Líder Inimigo" removidos**: os dois Líderes ocupam a altura toda da coluna, de pé no piso, com a barra e os números de vida embaixo. Em 915×412 o bárbaro passou de 161 px para 202 px e o minotauro tem 186 px. A coluna do minotauro é mais larga e a do bárbaro mais estreita (as casas ficaram um pouco menores, 90 → 84 px).
