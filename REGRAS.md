@@ -168,14 +168,33 @@ Desde a v0.10 **não há mais estrelas**: a **cor da carta é o tier** do person
 - O "+" também libera **+5 níveis máximos** (ver seção 11).
 - **Habilidades só melhoram quando a cor muda** (a escala de cada habilidade é por cor, ver seção 12).
 
-### Visual das cartas (estilo Anime TCG)
-Todas as cartas (mão, coleção, equipe, treino, troca de equipe, detalhes e recompensas) seguem o padrão Anime TCG:
-- **Moldura metálica chanfrada** na cor do tier.
-- **Topo:** medalhão de **Custo** de energia à esquerda, barra escura chanfrada com o **nome do tier** (ex.: **RARO+**) ao centro e orbe da **Categoria** à direita (a raça aparece ao passar o mouse e no texto da carta). Não há mais estrelas na carta.
-- **Medalhão de nível** (dourado, à esquerda da arte).
-- **Arte vertical anime:** cenário evolutivo do personagem ao fundo, com raios de velocidade e esferas estelares, **aura de Ki** na cor do personagem e o personagem em **pose de ação com sua arma/poder**.
-- **Barra inferior:** emblema explosivo de **Ataque** à esquerda, **placa metálica chanfrada com o Nome** no centro e **gota rubra de Vida** à direita — visíveis inclusive na mão de batalha.
-- Nas cartas grandes, abaixo da barra: ataque (👊 físico / ✨ mágico), vida, ícones das habilidades e a linha **raça · tier · categoria**.
+### Visual das cartas — padrão v0.14
+Todas as cartas (mão, coleção, equipe, treino, troca de equipe, detalhes, inspeção em batalha e recompensas) seguem o mesmo padrão:
+- **Moldura metálica** na cor do tier (Comum prata/cinza, Incomum verde, Raro azul, Épico roxo, Lendário laranja, Mítico vermelho).
+- **Topo esquerdo:** grande **gota azul brilhante com o custo** de energia, passando por cima do canto da moldura.
+- **Topo direito:** pílula arredondada com **"Nv N"** (dourado, metade cinza) e **"⚡Poder"** (metade escura).
+- **Centro:** a arte grande do personagem (fundo, aura e personagem; rostos e cabelos iguais aos de antes).
+- **Faixa do nome:** larga e escura, com cantos ornamentados e o nome em branco, letra serifada em negrito (até 2 linhas; nomes com hífen não quebram no hífen). Embaixo, uma **gema** na cor do tier e a **palavra da cor** (ex.: "Comum", "Raro+") em letra pequena.
+- **Embaixo, no centro:** cápsula escura com o **ícone da raça** (ex.: 🤖 Androide) e o **ícone da categoria** (ex.: 🛡️ Tanque), sem círculos.
+- **Embaixo à esquerda: Ataque**, o número sobre um emblema com explosão laranja, escudo e a **arma da categoria**:
+
+| Categoria | Emblema de ataque |
+|---|---|
+| ⚔️ DPS | duas espadas cruzadas, lâminas inteiras com as duas pontas à mostra |
+| 🪄 Mago | cajado com orbe roxo brilhante |
+| 🏹 Arqueiro | arco com flecha |
+| 💀 Assassino | duas adagas escuras cruzadas |
+| 🛡️ Tanque | dois martelos de guerra cruzados |
+| ➕ Suporte | cetro com cristal azul brilhante |
+
+- **Embaixo à direita: Vida**, o número sobre um **coração vermelho** brilhante.
+- **Abaixo da carta:** fileira centralizada de **bolinhas com os ícones das habilidades** (uma por habilidade), separadas por pontinhos.
+- **Removidos:** o medalhão de categoria no topo direito, a linha "👊 ataque ❤ vida + ícones" e a linha "RAÇA · COR · CATEGORIA" (a raça e a categoria ficam na cápsula; a cor, embaixo do nome). Não há estrelas.
+- **Cartas pequenas** (equipe na Coleção, lista do Treinar, mão da batalha):
+  - mostram só o primeiro nome, em 1 linha, sem a gema, sem a palavra da cor e sem a fileira de habilidades;
+  - em cartas com menos de 84 px de largura, a cápsula raça/categoria também some;
+  - na mão, o ataque e o coração ficam dentro da borda de baixo, para não serem cortados.
+- **Desempenho:** a gota, o coração e os 6 emblemas de ataque são imagens SVG estáticas, decodificadas uma vez e reaproveitadas por todas as cartas. Sem animação nem filtro novos. Nas cartas bloqueadas esses elementos ficam apagados (só opacidade).
 - Quanto mais alta a cor, mais brilho: Raro reflexo de luz passando; Épico aura pulsando com raios girando; **Lendário e Mítico premium** com borda dourada, brilho pulsante e faíscas; Mítico ainda com metal em movimento e raios mais rápidos.
 - **Nomes:** cartas grandes (detalhes da coleção, treino e janela de inspeção em batalha) mostram o **nome completo**, quebrando em 2 linhas se precisar. Só as cartas pequenas (mão no celular, equipe) mostram o primeiro nome. Cartas bloqueadas ficam cinza e sem animação.
 - **Detalhes da carta (Coleção):** mostra a carta, o **visual do lutador na arena** e um **seletor de cor** com as cores da faixa do personagem (da inicial à máxima), para ver a evolução de roupa, armadura, armas e poder em cada cor. A cor atual fica marcada como "(atual)" (com "+" se você já tiver). Só visualiza — não muda a carta. (Antes era o seletor de estrelas da v0.9.)
@@ -370,7 +389,7 @@ Habilidades em detalhe:
 | Vitória de quem começa | 27% | 44% | 56% | 64% | 73% | 82% | 91% |
 
 - Exemplos: Riku Comum Nv.1 = ⚡44 · Toru Comum Nv.1 = ⚡47 · equipe inicial = **⚡377**.
-- O Poder aparece num selo ⚡ em cada carta da **Coleção**, da **Equipe** e na janela de detalhes (com o valor também na linha de status). O selo é texto por cima do quadro congelado da carta (não muda o bitmap).
+- O Poder aparece na **pílula do topo direito de toda carta** ("Nv N | ⚡Poder", v0.14) e na linha de status da janela de detalhes. É texto por cima do quadro congelado da carta (não muda o bitmap).
 
 ### Poder do baralho
 - **Soma do Poder das 10 cartas da equipe**, em destaque em **Coleção & Equipe** (painel do Comandante e título da equipe) e na **Aventura**.

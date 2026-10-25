@@ -4,6 +4,7 @@ import { statsFor, tierLabel } from '../core/progression';
 import type { CardInstance, CharacterDef } from '../core/types';
 import { portraitImg } from './art';
 import { gridArtHTML } from './gridArt';
+import { cardPower } from '../core/power';
 
 export const esc = (s: string) => s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]!);
 
@@ -40,6 +41,10 @@ export function dmgLabel(def: CharacterDef) {
 }
 
 /**
+ * v0.14 — PADRÃO DE CARTA (referência do jogador): gota azul de custo (topo esq.), pílula Nv | ⚡Poder (topo dir.),
+ * arte grande, faixa escura com o nome e cantos ornamentados, gema + palavra da cor, cápsula com raça e
+ * categoria, ataque (emblema da CATEGORIA) embaixo à esquerda, coração de vida embaixo à direita e a
+ * fileira de habilidades embaixo da carta. Texto antigo abaixo mantido como histórico.
  * Carta estilo Anime TCG (inspirada em Legend of Dragon):
  * - Moldura metálica chanfrada na cor do tier (Comum cinza, Incomum verde, Raro azul, Épico roxo, Lendário laranja, Mítico vermelho)
  * - Topo: Medalhão espinhoso verde de custo à esquerda, barra escura chanfrada com o NOME DO TIER (ex.: "Raro+") no centro,
@@ -61,14 +66,15 @@ export function cardHTML(
   const cat = CATEGORY_INFO[def.category];
   const race = RACE_INFO[def.race];
   const t = Math.max(1, Math.min(6, card.stars));
+  const power = opts.power ?? cardPower(card);
   // v0.10.2: carta de grade = quadro congelado (bitmaps prontos, sem animação/filtro/blend)
   const ga = opts.grid ? gridArtHTML(def, t, !!opts.locked) : null;
   const sparks = t >= 5 && !opts.locked ? Array.from({ length: t === 6 ? 7 : 4 }, (_, i) => `<i class="spk" style="--i:${i}"></i>`).join('') : '';
-  const stats = opts.compact
+  // v0.14: fileira de habilidades (bolinhas separadas por pontos), embaixo da carta
+  const abil = opts.compact
     ? ''
-    : `<div class="card-stats"><span class="atk ${def.damageType}" title="Ataque">${def.damageType === 'fisico' ? '👊' : '✨'}${st.atk}</span><span class="hp" title="Vida">❤${st.hp}</span><span class="ab">${def.abilities.map((a) => ABILITIES[a].icon).join('')}</span></div>
-      <div class="card-rarity">${race.icon} ${race.label} · ${tier} · ${cat.label}</div>`;
-  return `<div class="card s${t} race-${def.race} ${opts.compact ? 'compact' : ''} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}${ga ? ` grid-card${ga.baked ? ' baked' : ''}` : ''}" style="${ga && opts.locked ? LOCKED_GRID_STYLE : `${starStyle(t)};--ac:${def.palette.aura};--race-c:${race.color}`}" ${opts.attrs ?? ''}>
+    : `<div class="ck-abil">${def.abilities.map((a) => `<span class="ck-ab" title="${esc(ABILITIES[a].name)}">${ABILITIES[a].icon}</span>`).join('<i class="ck-dot"></i>')}</div>`;
+  return `<div class="card s${t} race-${def.race} cat-${def.category} ${opts.compact ? 'compact' : ''} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}${ga ? ` grid-card${ga.baked ? ' baked' : ''}` : ''}" style="${ga && opts.locked ? LOCKED_GRID_STYLE : `${starStyle(t)};--ac:${def.palette.aura};--race-c:${race.color}`}" ${opts.attrs ?? ''}>
     <div class="card-metal"><div class="card-frame">
       <div class="card-art">
         <div class="card-bg">${ga ? ga.bg : portraitImg(def, { stars: t, layer: 'bg' })}</div>
@@ -76,20 +82,19 @@ export function cardHTML(
         ${t >= 3 && !ga ? '<div class="card-shine"></div>' : ''}
       </div>
       <div class="card-fig">${ga ? ga.fg : portraitImg(def, { stars: t, layer: 'fg' })}</div>
-      <div class="card-top"><span class="card-tier">${tier}</span></div>
-      <div class="medal card-cost" title="Custo de energia">${def.cost}</div>
-      <div class="medal card-cat" title="${race.label} · ${cat.label}">${cat.icon}</div>
-      <div class="medal card-lvl" title="Nível"><small>Nv</small>${card.level}</div>
+      <div class="ck-cost" title="Custo de energia"><span>${def.cost}</span></div>
+      <div class="ck-lvp"><span class="ck-lv" title="Nível"><small>Nv</small> ${card.level}</span><span class="ck-pow" title="Poder">⚡${power}</span></div>
       ${opts.badge ? `<div class="card-badge">${opts.badge}</div>` : ''}
-      ${opts.power != null ? `<div class="card-power" title="Poder">⚡${opts.power}</div>` : ''}
-      <div class="card-bottom-bar">
-        <div class="card-orb-atk ${def.damageType}" title="Ataque: ${st.atk}"><span>${st.atk}</span></div>
-        <div class="card-ribbon"><span class="card-name"><span class="full">${esc(def.name)}</span><span class="short">${esc(def.name.split(' ')[0])}</span></span></div>
-        <div class="card-orb-hp" title="Vida: ${st.hp}"><span>${st.hp}</span></div>
+      <div class="ck-banner"><span class="ck-name"><span class="full">${esc(def.name).replace(/-/g, '\u2011')}</span><span class="short">${esc(def.name.split(' ')[0])}</span></span><i class="ck-gem"></i></div>
+      <div class="ck-rar">${tier}</div>
+      <div class="ck-foot">
+        <div class="ck-atk ${def.damageType}" title="Ataque: ${st.atk} (${def.damageType === 'fisico' ? 'físico' : 'mágico'})"><span>${st.atk}</span></div>
+        <div class="ck-icons"><span title="${race.label}">${race.icon}</span><span title="${cat.label}">${cat.icon}</span></div>
+        <div class="ck-hp" title="Vida: ${st.hp}"><span>${st.hp}</span></div>
       </div>
-      ${stats}
       ${sparks}
     </div></div>
+    ${abil}
   </div>`;
 }
 
