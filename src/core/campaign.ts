@@ -47,10 +47,10 @@ const POOLS: string[][] = [
 export const UNLOCKS: Record<number, string> = { 1: 'aiko', 2: 'mei', 3: 'lyra', 4: 'gorath', 5: 'yume', 6: 'zarek', 8: 'nyx' };
 
 /**
- * v0.13.0 — vida do Líder inimigo por fase (índice 0 = fase 1).
- * Antes: 12 + 2·i. Agora soma METADE do acréscimo de vida que o Líder do jogador tem no nível
+ * v0.13.0 — vida do Comandante inimigo por fase (índice 0 = fase 1).
+ * Antes: 12 + 2·i. Agora soma METADE do acréscimo de vida que o Comandante do jogador tem no nível
  * esperado para aquela fase (nível = número da fase, +10 por nível → +5 por fase): 12 + 7·i.
- * Assim o Líder do jogador deixa de ser derrubado num turno só, sem a campanha ficar fácil.
+ * Assim o Comandante do jogador deixa de ser derrubado num turno só, sem a campanha ficar fácil.
  */
 export function enemyLeaderHp(i: number): number {
   return 12 + 2 * i + Math.round((LEADER_HP[Math.min(i, LEADER_HP.length - 1)] - LEADER_HP[0]) / 2);
@@ -77,5 +77,5 @@ export const STAGES: Stage[] = NAMES.map((name, i) => {
   };
 });
 
-/** Vida do Líder do jogador no nível 1 (v0.13: sobe com o nível do Líder — ver leaders.ts). */
+/** Vida do Comandante do jogador no nível 1 (v0.13: sobe com o nível do Comandante — ver leaders.ts). */
 export const PLAYER_HERO_HP = LEADER_HP[0];

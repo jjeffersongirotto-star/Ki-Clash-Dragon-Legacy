@@ -162,3 +162,21 @@ describe('v0.13 — campanha e batalha', () => {
     expect(mainSrc).not.toMatch(/\b(window\.)?(alert|confirm|prompt)\(/);
   });
 });
+
+describe('v0.13.1 — herói principal se chama Comandante', () => {
+  const files = import.meta.glob(['../src/**/*.ts', '../src/ui/style.css'], { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
+  it('nenhum texto do jogo usa "Líder" ou "herói"', () => {
+    expect(Object.keys(files).length).toBeGreaterThan(10);
+    for (const [f, src] of Object.entries(files)) expect(src, f).not.toMatch(/L[íi]der|LÍDER|[Hh]er[óo]i(s)?\b|HERÓI/);
+  });
+  it('painel, janela de evoluir e batalha falam em Comandante', () => {
+    expect(mainSrc).toContain('👑 Comandante ${esc(def.name)}');
+    expect(mainSrc).toContain('Evoluir o Comandante');
+    expect(battleSrc).toContain('Comandante: ');
+    expect(getLeader('barbaro').title).toBe('Comandante Aliado');
+  });
+  it('o save continua com as mesmas chaves (leaders/activeLeader)', () => {
+    const s = defaultSave();
+    expect(Object.keys(s)).toEqual(expect.arrayContaining(['leaders', 'activeLeader', 'v13']));
+  });
+});

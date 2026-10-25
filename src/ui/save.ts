@@ -17,11 +17,11 @@ export interface SaveData {
   v8?: boolean;
   /** migração v0.10: estrelas viraram cores; toda carta antiga fica na cor BASE correspondente (sem "+") */
   v10?: boolean;
-  /** v0.13: nível de cada Líder (nunca diminui) */
+  /** v0.13: nível de cada Comandante (nunca diminui) */
   leaders?: Record<string, { level: number }>;
-  /** v0.13: Líder em uso (por enquanto só o Bárbaro) */
+  /** v0.13: Comandante em uso (por enquanto só o Bárbaro) */
   activeLeader?: string;
-  /** migração v0.13: saves antigos começam com o Líder no nível 1 */
+  /** migração v0.13: saves antigos começam com o Comandante no nível 1 */
   v13?: boolean;
 }
 
@@ -57,7 +57,7 @@ export function defaultLeaders(): Record<string, { level: number }> {
 }
 
 /**
- * Migração para a v0.13 (uma única vez): todo save antigo ganha os Líderes no nível 1
+ * Migração para a v0.13 (uma única vez): todo save antigo ganha os Comandantes no nível 1
  * (o Bárbaro ativo). Níveis que já existam e sejam válidos são mantidos.
  */
 export function migrateV13(d: SaveData): SaveData {
@@ -113,7 +113,7 @@ export function loadSave(): SaveData {
     for (const id of Object.keys(merged.cards)) if (!CHAR_BY_ID[id]) delete merged.cards[id];
     if (!d.v8) migrateV8(merged);
     if (!d.v10) migrateV10(merged);
-    // sempre normaliza os Líderes (save antigo sem o campo, ou campo corrompido)
+    // sempre normaliza os Comandantes (save antigo sem o campo, ou campo corrompido)
     migrateV13(merged);
     return merged;
   } catch {
