@@ -1014,7 +1014,17 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .ck-atk span, .ck-hp span { font-size: 13.5cqw; }
 .ck-hp span { text-shadow: 0 1.1cqw 0 #000, 0 1.8cqw 2.2cqw rgba(0,0,0,.85), 0 0 3cqw rgba(255,120,120,.6); }
 /* ---- cartas "baixas": mão da batalha, equipe/Treinar (compactas), troca rápida ---- */
-.card.compact .ck-rar, .card.compact .ck-gem, .hand .ck-rar, .hand .ck-gem, .hand .ck-abil, .hand .ck-sep, .swap-grid .ck-abil, .swap-grid .ck-sep { display: none; }
+.card.compact .ck-rar, .card.compact .ck-gem, .hand .ck-rar, .hand .ck-gem, .hand .ck-sep, .swap-grid .ck-sep { display: none; }
+/* v0.14.3: nas cartas baixas a fileira de habilidades ocupa o espaço entre o ataque e a vida (no lugar da cápsula raça/categoria) */
+.card.compact .ck-foot, .hand .ck-foot, .swap-grid .ck-foot { display: none; }
+.card.compact .ck-abil, .hand .ck-abil, .swap-grid .ck-abil { gap: 1cqw; min-height: 0; }
+.card.compact .ck-ab, .hand .ck-ab, .swap-grid .ck-ab { width: 13cqw; height: 13cqw; font-size: 8.6cqw; border-width: .5cqw; box-shadow: 0 .5cqw 1cqw rgba(0,0,0,.6); }
+.card.compact .ck-dot, .hand .ck-dot, .swap-grid .ck-dot { width: 1.6cqw; height: 1.6cqw; }
+/* 3 ou mais habilidades: bolinhas menores em vez de esconder alguma */
+.card.compact .ck-abil.n3 .ck-ab, .hand .ck-abil.n3 .ck-ab, .card.compact .ck-abil.n4 .ck-ab, .hand .ck-abil.n4 .ck-ab { width: 11cqw; height: 11cqw; font-size: 7.4cqw; }
+.ck-abil.n4 { gap: .6cqw; }
+.swap-grid .ck-ab { width: 10.5cqw; height: 10.5cqw; font-size: 7cqw; }
+.swap-grid .ck-abil { margin-top: .6cqw; }
 .card.compact .ck-banner, .hand .ck-banner { padding: 2.4cqw 4cqw 2.8cqw; }
 .card.compact .ck-name, .hand .ck-name { -webkit-line-clamp: 1; }
 .card.compact .ck-panel, .hand .ck-panel { min-height: 21cqw; justify-content: center; padding-bottom: 1cqw; }

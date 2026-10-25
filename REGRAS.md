@@ -191,12 +191,12 @@ Todas as cartas (mão, coleção, equipe, treino, troca de equipe, detalhes, ins
 | ➕ Suporte | cristal/flor de seis pontas | dois cetros com cristal azul |
 
 - **Ícones de habilidade:** a **Resistência Física (Postura de Guarda)** usa um **peitoral de armadura** (desenho próprio) no lugar do 🛡 — na carta e na lista de habilidades. O 🛡️ continua sendo o ícone da categoria Tanque.
-- **Onde aparece a fileira de habilidades (e a linha com pontinhos):** carta grande (detalhes da Coleção, Treinar, inspeção em batalha, carta nova na troca) e **cartas da grade "Seus personagens" da Coleção**. Fica escondida nas cartas pequenas (equipe, lista do Treinar, troca rápida) e na **mão da batalha**, onde as bolinhas ficariam ilegíveis; ali as habilidades aparecem ao tocar na carta.
+- **Onde aparece a fileira de habilidades:** em **todas as cartas**. Na carta grande (detalhes da Coleção, Treinar, inspeção em batalha, carta nova na troca) e nas cartas da grade "Seus personagens" ela fica abaixo da cápsula raça/categoria, depois da linha com pontinhos. **Nas cartas pequenas (v0.14.3)** — mão da batalha, equipe na Coleção, lista do Treinar, troca rápida e carta de personagem novo — ela ocupa o **espaço entre o ataque e a vida**, no lugar da cápsula raça/categoria (que continua na carta grande e na inspeção), com os mesmos ícones e pontinhos da carta grande e sem deixar a carta mais alta (a mão continua com a mesma altura). Com 3 ou mais habilidades as bolinhas ficam menores em vez de alguma sumir.
 - **Removidos:** o medalhão de categoria, a linha "👊 ataque ❤ vida + ícones", a linha "RAÇA · COR · CATEGORIA" e a pílula "Nv | ⚡Poder" (o nível foi para a estrela). Não há estrelas de raridade.
 - **Cartas pequenas** (equipe na Coleção, lista do Treinar, mão da batalha, troca rápida):
   - arte na proporção antiga (mais baixa), para a mão da batalha continuar com a mesma altura;
-  - mostram só o primeiro nome, em 1 linha, sem a gema, sem a palavra da cor e sem a fileira de habilidades;
-  - em cartas com menos de 84 px de largura, a cápsula raça/categoria também some;
+  - mostram só o primeiro nome, em 1 linha, sem a gema e sem a palavra da cor;
+  - entre o ataque e a vida fica a fileira de habilidades (a cápsula raça/categoria fica só nas cartas grandes);
   - ataque, vida e estrela um pouco menores, dentro da carta.
 - **Desempenho:** gota, coração, estrela, peitoral e os 6 emblemas são imagens SVG estáticas, decodificadas uma vez e reaproveitadas por todas as cartas. Contornos e brilhos são feitos com contorno de texto, sombra de texto e degradês (sem `filter` nem animação novos). Nas cartas bloqueadas esses elementos ficam apagados (só opacidade).
 - Quanto mais alta a cor, mais brilho: Raro reflexo de luz passando; Épico aura pulsando com raios girando; **Lendário e Mítico premium** com borda dourada, brilho pulsante e faíscas; Mítico ainda com metal em movimento e raios mais rápidos.

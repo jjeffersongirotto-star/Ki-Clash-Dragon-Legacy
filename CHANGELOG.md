@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.14.3] — 25/10/2026 · PR #26 — Habilidades também nas cartas pequenas
+- Na **mão da batalha**, na **equipe da Coleção**, na lista do **Treinar**, na **troca rápida** e na carta de personagem novo, o espaço vazio **entre o ataque e a vida** agora mostra os **ícones das habilidades** do personagem (os mesmos da carta grande, com o peitoral da Resistência Física), separados por pontinhos.
+- As bolinhas são dimensionadas para caber entre o emblema de ataque e o coração sem encostar em nenhum dos dois; as cartas **não ficaram mais altas** (a mão continua com 110 px de altura no celular deitado). Com 3 ou mais habilidades as bolinhas ficam menores em vez de esconder alguma.
+- Nessas cartas pequenas a fileira ocupa o lugar da cápsula raça/categoria (que segue na carta grande e na inspeção ao tocar na carta). Só HTML/CSS estático: continua a ~60 FPS.
+
 ## [0.14.2] — 25/10/2026 · PR #25 — Acabamento da carta (prévia v14.2f)
 - **Topo:** o **⚡Poder** fica sozinho numa pílula centralizada (a largura acompanha o número, testado com 47, 100, 1000 e 10000) e o **nível** virou uma **estrela dourada com asinhas** no canto direito, com "Nv." em cima do número (como a gota no canto esquerdo).
 - **Números mais fortes:** custo, ataque e vida com contorno preto grosso e sombra forte; brilho azul neon na gota e vermelho suave no coração.
