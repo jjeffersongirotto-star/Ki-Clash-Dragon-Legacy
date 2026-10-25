@@ -11,7 +11,7 @@ const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], p
 describe('sem passo da vitória (v0.15.0)', () => {
   it('quem derrota NÃO avança, mesmo com a casa livre', () => {
     const s = empty();
-    const u = placeUnit(s, c('riku'), 'player', 0, 2, { atk: 9 });
+    const u = placeUnit(s, c('toru'), 'player', 0, 2, { atk: 9 });
     placeUnit(s, c('nara'), 'enemy', 0, 3, { hp: 1 });
     act(s, new Ctx(), u);
     expect(s.units.filter((x) => x.side === 'enemy')).toHaveLength(0);
