@@ -79,9 +79,8 @@ export function cardHTML(
   const ga = opts.grid ? gridArtHTML(def, t, !!opts.locked) : null;
   const sparks = t >= 5 && !opts.locked ? Array.from({ length: t === 6 ? 7 : 4 }, (_, i) => `<i class="spk" style="--i:${i}"></i>`).join('') : '';
   // v0.14.1: fileira de habilidades (bolinhas separadas por pontos) DENTRO da moldura, no centro de baixo
-  const abil = opts.compact
-    ? ''
-    : `<div class="ck-sep"><i></i><i></i><i></i></div><div class="ck-abil">${def.abilities.map((a) => `<span class="ck-ab" title="${esc(ABILITIES[a].name)}">${abilityIconHTML(a)}</span>`).join('<i class="ck-dot"></i>')}</div>`;
+  // v0.14.3: as cartas pequenas (compactas, mão) também mostram a fileira, entre o ataque e a vida
+  const abil = `${opts.compact ? '' : '<div class="ck-sep"><i></i><i></i><i></i></div>'}<div class="ck-abil n${def.abilities.length}">${def.abilities.map((a) => `<span class="ck-ab" title="${esc(ABILITIES[a].name)}">${abilityIconHTML(a)}</span>`).join('<i class="ck-dot"></i>')}</div>`;
   // v0.14.2: nomes com uma palavra muito comprida (ex.: "Tambor-de-Guerra") encolhem um pouco para caber inteiros
   const longest = Math.max(...def.name.split(' ').map((w) => w.length));
   const nfit = longest > 14 ? ` style="--nfit:${(13.6 / longest).toFixed(3)}"` : '';

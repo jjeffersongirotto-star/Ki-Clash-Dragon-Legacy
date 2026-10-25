@@ -37,7 +37,7 @@ describe('v0.14 — padrão de carta', () => {
   it('fileira de habilidades: 1 bolinha por habilidade, separadas por pontos', () => {
     for (const d of PLAYABLE) {
       const h = cardHTML({ charId: d.id, level: 1, stars: d.minStars });
-      const row = h.slice(h.indexOf('class="ck-abil"'));
+      const row = h.slice(h.indexOf('class="ck-abil'));
       expect((row.match(/class="ck-ab"/g) ?? []).length, d.id).toBe(d.abilities.length);
       expect((row.match(/class="ck-dot"/g) ?? []).length, d.id).toBe(Math.max(0, d.abilities.length - 1));
       for (const a of d.abilities) expect(row).toContain(a === 'guarda' ? 'ab-svg' : ABILITIES[a].icon);
@@ -69,8 +69,8 @@ describe('v0.14 — padrão de carta', () => {
   it('gota de custo e coração de vida são SVG estáticos (sem animação)', () => {
     for (const svg of [drop, heart, ...Object.values(ICONS)]) expect(svg).not.toMatch(/<animate|@keyframes|filter=/);
   });
-  it('cartas pequenas (compacta) sem fileira de habilidades', () => {
-    expect(cardHTML({ charId: 'riku', level: 1, stars: 1 }, { compact: true })).not.toContain('ck-abil');
+  it('v0.14.3: cartas pequenas (compacta) também têm a fileira de habilidades', () => {
+    expect(cardHTML({ charId: 'riku', level: 1, stars: 1 }, { compact: true })).toContain('class="ck-abil n1"');
     expect(getChar('riku').abilities.length).toBeGreaterThan(0);
   });
   it('v0.14.1: fileira de habilidades fica DENTRO da moldura, depois da cápsula', () => {
@@ -79,7 +79,7 @@ describe('v0.14 — padrão de carta', () => {
       const frame = h.indexOf('class="card-frame"');
       const foot = h.indexOf('class="ck-foot"');
       expect(h.indexOf('class="ck-sep"'), d.id).toBeGreaterThan(foot);
-      const abil = h.indexOf('class="ck-abil"');
+      const abil = h.indexOf('class="ck-abil');
       expect(abil, d.id).toBeGreaterThan(foot);
       expect(foot).toBeGreaterThan(frame);
       // a moldura só fecha depois da fileira

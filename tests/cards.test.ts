@@ -20,7 +20,7 @@ describe('visual das cartas', () => {
   });
   it('carta bloqueada não tem faíscas; versão compacta não mostra status', () => {
     expect(cardHTML({ charId: 'vorax', level: 1, stars: 6 }, { locked: true })).not.toContain('class="spk"');
-    expect(cardHTML({ charId: 'riku', level: 1, stars: 1 }, { compact: true })).not.toContain('ck-abil');
+    expect(cardHTML({ charId: 'riku', level: 1, stars: 1 }, { compact: true })).toContain('ck-abil'); // v0.14.3: a compacta também mostra as habilidades
   });
   it('camadas do retrato: fundo sem personagem e personagem sem fundo', () => {
     const d = getChar('nara');
