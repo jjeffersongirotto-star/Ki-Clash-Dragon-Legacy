@@ -98,7 +98,7 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   salto: {
     id: 'salto',
     name: 'Salto Vendaval',
-    description: 'Anda até 3 casas. Se o inimigo logo à frente tem a casa de trás livre, salta por cima dele, cai atrás e ataca com bônus quem estiver à frente. Passar por aliados não conta como salto.',
+    description: 'Anda até 3 casas. Se o inimigo logo à frente tem a casa de trás livre, salta por cima dele, cai 2 casas à frente e para ali, atacando com bônus quem estiver no alcance. Passar por aliados não conta como salto.',
     icon: '⤴',
     jump: true,
     scaling: 'Movimento: sempre 3 casas (fixo, não aumenta com cor nem nível) · Bônus de investida (só ao saltar): +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3).',
