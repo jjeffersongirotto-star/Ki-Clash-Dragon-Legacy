@@ -4,7 +4,13 @@
 > Quando um item for feito, ele sai daqui e vai para o [CHANGELOG.md](CHANGELOG.md) (e as regras para o [REGRAS.md](REGRAS.md)).
 
 ## 🔜 Próxima atualização (decidido, falta fazer)
-_Nada pendente. Os itens 1 a 9 entraram na v0.20.0 (ver [CHANGELOG.md](CHANGELOG.md))._
+Roteiro aprovado em 26/10/2026 (pergunta 23), uma versão por vez, cada uma com PR e merge:
+1. **v0.21.0:** ⭐ estrelas por fase (3 objetivos) + Repetir só nas fases com 3 ⭐ + "raridade" no lugar de "cor".
+2. **v0.22.0:** 🔮 Orbes por raridade (no lugar de 📜 e 💎) + XP por jogar.
+3. **v0.23.0:** itens de ascensão + degraus "+"/"++" + carta sem nível numerado (a maior: conversão dos saves e simulação).
+4. **v0.24.0:** energia (antes, perguntas sobre como ela funciona).
+
+Antes de cada versão, perguntas só do que faltar decidir, uma por vez.
 
 ## ❓ A decidir (perguntas abertas)
 - **Ajuste fino das dificuldades:** hoje Normal = +3 níveis e Difícil = +6 níveis nos inimigos, sem cartas trocadas, e a mesma recompensa nas três. Você vai dizer como ajustar (níveis, quais cartas trocar em cada fase, recompensa maior no Normal/Difícil?).
