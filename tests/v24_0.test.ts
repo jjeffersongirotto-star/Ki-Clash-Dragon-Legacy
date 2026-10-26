@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { GEAR, GEAR_CATEGORIES, GEAR_DROP, GEAR_SETS, STAGE_GEAR, addGear, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor, normalizeGear, stageGearDrop, type GearBag } from '../src/core/gear';
+import { GEAR, GEAR_CATEGORIES, GEAR_DROP, GEAR_RARE_CHANCE, GEAR_SETS, STAGE_GEAR, addGear, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor, normalizeGear, stageGearDrop, type GearBag } from '../src/core/gear';
 import { CHAR_BY_ID, PLAYABLE, getChar } from '../src/core/characters';
-import { rewardsFor } from '../src/core/adventure';
+import { FIRST_WIN_XP_MULT, rewardsFor } from '../src/core/adventure';
 import { STEP_BAR, cardBarXp, migrateBarV24, newOwned, stepXp } from '../src/core/progression';
 import { STAGES } from '../src/core/campaign';
 import { adminSave } from '../src/ui/accounts';
@@ -87,13 +87,14 @@ describe('v0.24.0 — itens de ascensão', () => {
     }
   });
 
-  it('cor do item 80/20: Fácil cinza/verde · Normal azul/roxo · Difícil roxo/laranja', () => {
+  it('cor do item: Fácil cinza/verde 60/40 · Normal azul/roxo 80/20 · Difícil roxo/laranja 80/20', () => {
     expect(GEAR_DROP).toEqual({ facil: [1, 2], normal: [3, 4], dificil: [4, 5] });
     for (const d of ['facil', 'normal', 'dificil'] as const) {
       const [lo, hi] = GEAR_DROP[d];
-      expect(stageGearDrop(1, d, () => 0.5).map((g) => g.rarity)).toEqual([lo, lo, lo]);
+      expect(stageGearDrop(1, d, () => 0.7).map((g) => g.rarity)).toEqual([lo, lo, lo]);
       expect(stageGearDrop(1, d, () => 0.1).map((g) => g.rarity)).toEqual([hi, hi, hi]);
     }
+    expect(GEAR_RARE_CHANCE).toEqual({ facil: 0.4, normal: 0.2, dificil: 0.2 });
     let seed = 1;
     const rng = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
     let rare = 0;
@@ -138,5 +139,14 @@ describe('v0.24.0 — barras de XP 3 / 6 / 10', () => {
     expect(half.xp / cardBarXp(half)).toBeCloseTo(0.5, 2);
     const full = migrateBarV24({ charId: 'riku', stars: 1, plus: 0, xp: old });
     expect(full.xp).toBe(cardBarXp(full));
+  });
+});
+
+describe('v0.24.1 — bônus da primeira vitória', () => {
+  it('primeira vitória: XP por jogar em dobro e itens da fase 2 vezes (recompensa + bônus)', () => {
+    expect(FIRST_WIN_XP_MULT).toBe(2);
+    const bag: GearBag = {};
+    for (const g of [...rewardsFor(3, 'facil', () => 0.9).gear, ...stageGearDrop(3, 'facil', () => 0.9)]) addGear(bag, g.id, g.rarity);
+    for (const id of STAGE_GEAR[2]) expect(gearCount(bag, id, 1)).toBe(2);
   });
 });

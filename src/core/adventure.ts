@@ -154,6 +154,9 @@ export function addStars(p: StarProgress, diff: Difficulty, stageId: number, mas
 
 // ---------- v0.22.0: Orbes por dificuldade ----------
 
+/** v0.24.1: na primeira vitória de cada fase, os itens da fase saem 2 vezes e o XP por jogar vem multiplicado por isto. */
+export const FIRST_WIN_XP_MULT = 2;
+
 /** Chances no Difícil, por vitória ou Repetir (independentes). */
 export const HARD_LEGENDARY_CHANCE = 0.1;
 export const HARD_MYTHIC_CHANCE = 0.02;
@@ -167,7 +170,7 @@ export function rewardsFor(stageId: number, diff: Difficulty, rng: () => number 
   return { ...orbRewards(stageId, diff, rng), gear: stageGearDrop(stageId, diff, rng) };
 }
 
-/** v0.24.0: a recompensa também traz os 3 itens de ascensão da fase (cor sorteada 80/20 pela dificuldade, ver gear.ts). */
+/** v0.24.0: a recompensa também traz os 3 itens de ascensão da fase (cor sorteada pela dificuldade: Fácil 60/40, Normal e Difícil 80/20, ver gear.ts). */
 export interface StageReward {
   essencias: number;
   orbs: OrbBag;

@@ -14,8 +14,8 @@ import { simulate } from './sim';
 import { STAGES, UNLOCKS } from '../../src/core/campaign';
 import { STARTER_IDS } from '../../src/core/characters';
 import { newOwned, feedXp, ascend, canAscend, ascendCost, barFull, isMaxTier, stepIndex, xpProgress, XP_ITEMS, playXp, type OwnedCard } from '../../src/core/progression';
-import { rewardsFor } from '../../src/core/adventure';
-import { addGear, hasGearFor, spendGearFor, type GearBag } from '../../src/core/gear';
+import { FIRST_WIN_XP_MULT, rewardsFor } from '../../src/core/adventure';
+import { addGear, hasGearFor, spendGearFor, stageGearDrop, type GearBag } from '../../src/core/gear';
 import { cardPower, deckPower } from '../../src/core/power';
 import type { CardInstance } from '../../src/core/types';
 import { autoDeck, deckMaxFor, profileLevelFor } from '../../src/core/deckbuild';
@@ -74,13 +74,14 @@ function reward(p: Player, i: number, first: boolean, repeatMult = 0.5) {
   for (const [id, k] of Object.entries(r.orbs)) p.items[id] = (p.items[id] ?? 0) + Math.floor((k ?? 0) * f);
   p.ess += Math.floor(r.essencias * f);
   if (f >= 1) for (const g of r.gear) addGear(p.gear, g.id, g.rarity); // v0.24.0: itens só com recompensa inteira
+  if (first) for (const g of stageGearDrop(i + 1, 'facil')) addGear(p.gear, g.id, g.rarity); // v0.24.1: bônus da 1ª vitória
   if (first && UNLOCKS[i + 1] && !p.cards[UNLOCKS[i + 1]]) p.cards[UNLOCKS[i + 1]] = newOwned(UNLOCKS[i + 1]);
 }
 
 /** v0.22.0: XP por jogar — ao vencer jogando, a equipe ganha XP (SIM_PLAYXP=0 desliga, para comparar). */
 const SIM_PLAYXP = process.env.SIM_PLAYXP !== '0';
-function winXp(p: Player, i: number) {
-  if (SIM_PLAYXP) for (const c of team(p)) feedXp(c, playXp(i + 1));
+function winXp(p: Player, i: number, first = false) {
+  if (SIM_PLAYXP) for (const c of team(p)) feedXp(c, playXp(i + 1) * (first ? FIRST_WIN_XP_MULT : 1));
 }
 
 function levelUp(p: Player, sc: Schedule) {
@@ -122,7 +123,7 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
         attempts++;
         spend(p); levelUp(p, sc);
         const r = simulate(battleDeck(p, i), STAGES[i].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i), seed++);
-        if (r.winner === 'player') { reward(p, i, true, repeatMult); winXp(p, i); break; }
+        if (r.winner === 'player') { reward(p, i, true, repeatMult); winXp(p, i, true); break; }
         p.items.orbe1 = (p.items.orbe1 ?? 0) + 1;
         if (attempts > 300) break;
         if (i > 0) {
