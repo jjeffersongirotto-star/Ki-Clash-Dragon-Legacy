@@ -2,6 +2,15 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [Próxima versão] — Ajustes de layout das telas
+- **Batalha em pé:** os Comandantes sobem para uma faixa acima da arena e a arena usa a largura toda (casas ~50% maiores no celular). Nomes do placar ficam numa linha com "…" em vez de quebrar por sílaba. A mão esmaece na borda quando tem mais cartas para rolar.
+- **Batalha no tablet em pé:** as 6 cartas cabem numa linha, energia e LUTAR ficam embaixo e o registro ocupa o resto da tela.
+- **Batalha deitada e no monitor:** cartas da mão um pouco maiores; no monitor, Comandantes mais estreitos e mão maior; a mão mostra só o primeiro nome.
+- **Base:** o botão ⬇ Baixar tem texto branco (estava azul de link); sem rolagem no celular pequeno (Baixar ao lado de "Apagar progresso") e no monitor; em telas altas o conteúdo fica centrado na altura.
+- **Aventura:** a fase que passa da borda de cima do mapa some num degradê; abas e nomes bloqueados mais legíveis.
+- **Coleção:** cartas de "Seus personagens" em tamanho parecido em todas as telas (3 por linha no celular, 5 no tablet), nomes compridos cabem inteiros, filtros numa linha no tablet, "→ 30 no Nv.2" não quebra mais.
+- **Barra de topo:** título centrado de verdade nas telas largas.
+
 ## [0.20.0] — 26/10/2026 · PR #39 — Aventura em mapa, dificuldades e limite diário
 - **Mapa da Aventura:** as fases viram bolinhas num caminho pontilhado (fase 1 embaixo), com o Comandante inimigo em cima de cada uma, se movimentando. Vencidas douradas e acesas, a próxima em azul, bloqueadas escuras. Saiu o texto do topo (Comandante, Poder e baralho).
 - **Dificuldades Fácil / Normal / Difícil** no topo, ao centro: mesmas fases, inimigos com +3 / +6 níveis (provisório), progresso separado. Normal abre com a fase 10 no Fácil; Difícil com a fase 10 no Normal.
