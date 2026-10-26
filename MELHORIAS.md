@@ -31,6 +31,15 @@
   - O limite de 5 por dia (item 2) é separado para cada dificuldade?
   - A recompensa muda conforme a dificuldade?
 
+### 4. Aventura: fases num mapa com caminho pontilhado
+- As fases deixam de ser uma lista de cartões e viram um **mapa**: cada fase é uma **bolinha**, ligada à seguinte por um **caminho pontilhado**.
+- Em cima da bolinha de cada fase aparece o **Comandante**.
+- Fases e caminhos começam **escuros** e vão **se iluminando** conforme o jogador vence as fases.
+- **A decidir (perguntar antes de fazer):**
+  - O Comandante em cima de cada bolinha é o **inimigo daquela fase** (cada fase com o seu) ou o **seu Bárbaro**, marcando onde você está?
+  - Ao tocar numa bolinha, abre uma janela com as informações da fase e os botões **Jogar / Repetir** (e o contador "3/5")?
+  - O caminho sobe na tela (fase 1 embaixo, como nos jogos de mapa) ou desce (fase 1 em cima)?
+
 ## 💡 Ideias para o futuro (ainda sem data)
 
 ### Energia
