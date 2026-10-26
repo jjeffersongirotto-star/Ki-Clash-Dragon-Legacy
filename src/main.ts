@@ -15,7 +15,7 @@ import { enterBattleMode, leaveBattleMode } from './ui/orientation';
 import { bakeGridArt } from './ui/gridArt';
 import { DECK_MIN, MAX_COPIES, addToDeck, rawSaveHas, copiesIn, deckCards, deckCount, deckIssue, deckMax, hasSave, loadSave, migrateV17, profileLevel, removeFromDeck, resetSave, setCopies, setSaveKey, teamReady, writeSave, type SaveData } from './ui/save';
 import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from './ui/update';
-import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, DIFFICULTY_LABEL, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, useDaily, type Difficulty } from './core/adventure';
+import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, DIFFICULTY_LABEL, STAR_GOALS, addStars, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from './core/adventure';
 import { LEADER_ENEMY_URL } from './ui/art';
 import { adminSave, createAccount, loadAccounts, login, logout, saveKeyFor, NAME_MAX, PASS_MIN } from './ui/accounts';
 
@@ -37,8 +37,10 @@ function openAccountSave(): SaveData {
   }
   const d = loadSave();
   // v0.20.0: a ADM tem todas as fases vencidas em todas as dificuldades
-  if (id && accounts.accounts[id]?.admin && !d.clearedDiff?.dificil?.length) {
-    d.clearedDiff = adminSave().clearedDiff;
+  if (id && accounts.accounts[id]?.admin && (!d.clearedDiff?.dificil?.length || Object.values(d.stars ?? {}).some((v) => v !== 7))) {
+    const a = adminSave();
+    d.clearedDiff = a.clearedDiff;
+    d.stars = a.stars; // v0.21.0: ADM com 3 ⭐ em tudo
     writeSave(d);
   }
   return d;
@@ -252,6 +254,9 @@ const MAP_STEP = 168;
 const MAP_BOTTOM = 92;
 const MAP_TOP = 150;
 const advDiff = (): Difficulty => save.difficulty ?? 'facil';
+/** v0.21.0: ⭐ da fase (cheias = conquistadas, vazias = faltam); `fresh` destaca as recém-ganhas */
+const starsHTML = (mask: number, fresh = 0) =>
+  `<span class="stars-row" aria-label="${starCount(mask)} de ${STAR_GOALS.length} estrelas">${STAR_GOALS.map((_, i) => `<i class="${mask & (1 << i) ? 'on' : ''} ${fresh & (1 << i) ? 'new' : ''}">★</i>`).join('')}</span>`;
 type NodeState = 'done' | 'next' | 'lock';
 const nodeState = (diff: Difficulty, id: number): NodeState => (isCleared(save, diff, id) ? 'done' : stageUnlocked(save, diff, id) ? 'next' : 'lock');
 
@@ -308,6 +313,7 @@ function drawMap(scrollToNext = false) {
       return `<button class="adv-node ${state}" data-st="${st.id}" style="left:${pos[i][0]}px;top:${pos[i][1]}px" aria-label="Fase ${st.id}: ${esc(st.name)}">
         <img class="adv-cmd" src="${LEADER_ENEMY_URL}" alt="" draggable="false" style="animation-delay:-${(i * 0.37).toFixed(2)}s">
         <span class="adv-ball">${state === 'done' ? '✓' : state === 'next' ? st.id : '🔒'}</span>
+        ${state === 'done' ? `<span class="adv-stars">${starsHTML(starsOf(save, diff, st.id))}</span>` : ''}
         <span class="adv-name">${st.id}. ${esc(st.name)}</span>
         ${state === 'done' ? `<span class="adv-left ${left ? '' : 'out'}">${left}/${DAILY_LIMIT} hoje</span>` : ''}
         ${state === 'next' ? '<span class="adv-tag">PRÓXIMA</span>' : ''}
@@ -342,6 +348,8 @@ function stageDialog(stageId: number) {
   const left = dailyLeft(save.daily, diff, stageId);
   const play = canPlay(save, save.daily, diff, stageId);
   const repeat = canRepeat(save, save.daily, diff, stageId);
+  const mask = starsOf(save, diff, stageId);
+  const full = starCount(mask) === STAR_GOALS.length;
   void showDialog({
     title: `Fase ${st.id} · ${st.name}`,
     html: `<button class="stage-close" data-x aria-label="Fechar">✕</button>
@@ -349,11 +357,13 @@ function stageDialog(stageId: number) {
       <p class="stage-diff">Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
       <p class="stage-line">Comandante inimigo ❤${st.enemyHeroHp} · Nível inimigo até ${Math.max(...foes.map((c) => c.level))}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</p>
       <p class="stage-line">Recompensa: ✴${r.essencias} 📜${r.pergaminho}${r.cristal ? ` 💎${r.cristal}` : ''}${r.orbe ? ` 🔮${r.orbe}` : ''}${!done && st.unlock && !save.cards[st.unlock] ? ` · desbloqueia <b>${esc(getChar(st.unlock).name)}</b>` : ''}</p>
+      <ul class="stage-goals">${STAR_GOALS.map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}</li>`).join('')}</ul>
       ${done ? `<p class="stage-left ${left ? '' : 'out'}">${left ? `Hoje: <b>${left}/${DAILY_LIMIT}</b> restantes` : 'Limite de hoje atingido. Volta amanhã.'}</p>` : ''}
       <div class="stage-actions">
         <button class="btn primary big" data-act="play" ${play ? '' : 'disabled'}>⚔ Jogar</button>
         ${done ? `<button class="btn big" data-act="repeat" ${repeat ? '' : 'disabled'}>⟲ Repetir</button>` : ''}
-      </div>`,
+      </div>
+      ${done && !full ? `<p class="stage-note">⟲ Repetir libera com as ${STAR_GOALS.length} ⭐ desta fase.</p>` : ''}`,
     buttons: [],
     onMount: (root, close) => {
       root.querySelector('.dialog')?.classList.add('stage-dialog');
@@ -436,7 +446,7 @@ function startBattle(stageId: number, diff: Difficulty = advDiff()) {
       persist();
     },
     onExit: () => adventure(),
-    onFinish: (winner) => finishBattle(stageId, diff, winner),
+    onFinish: (winner, end) => finishBattle(stageId, diff, winner, end),
     playerHeroHp: leaderHp(activeLeader(), leaderLevel()),
   });
 }
@@ -445,7 +455,7 @@ function startBattle(stageId: number, diff: Difficulty = advDiff()) {
  * Fim da batalha. Vitória: recompensa inteira; a primeira vitória da fase (nesta dificuldade) não gasta
  * o limite do dia, as outras gastam 1. Derrota/empate: não gasta (e dá 1 Pergaminho de consolo).
  */
-function finishBattle(stageId: number, diff: Difficulty, winner: string) {
+function finishBattle(stageId: number, diff: Difficulty, winner: string, end?: { playerHp: number; playerMaxHp: number; turn: number }) {
   const stage = stageFor(stageId, diff);
   const first = !isCleared(save, diff, stageId);
   let html = '';
@@ -454,6 +464,10 @@ function finishBattle(stageId: number, diff: Difficulty, winner: string) {
     const maxBefore = deckMax(save);
     if (first) markCleared(save, diff, stageId);
     else save.daily = useDaily(save.daily, diff, stageId);
+    // v0.21.0: ⭐ dos objetivos cumpridos nesta vitória (somam aos que a fase já tinha)
+    const fresh = addStars(save, diff, stageId, end ? starsForWin(end) : 1);
+    const mask = starsOf(save, diff, stageId);
+    const starsLine = `<div class="win-stars">${starsHTML(mask, fresh)}</div><ul class="stage-goals">${STAR_GOALS.map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}${fresh & (1 << i) ? ' <b class="new-tag">nova!</b>' : ''}</li>`).join('')}</ul>${fresh && starCount(mask) === STAR_GOALS.length ? '<p class="hint">⟲ Repetir liberado nesta fase!</p>' : ''}`;
     const grew = deckMax(save) > maxBefore;
     let unlocked = '';
     if (stage.unlock && !save.cards[stage.unlock]) {
@@ -464,7 +478,7 @@ function finishBattle(stageId: number, diff: Difficulty, winner: string) {
     }
     const opened = first && stageId === STAGES.length && DIFFICULTIES[DIFFICULTIES.indexOf(diff) + 1];
     html = `<h2 class="win">🏆 Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : `Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.`}</p>
-      ${got}${grew ? `<p class="hint">⬆ Nível de perfil <b>${profileLevel(save)}</b>: o baralho agora aceita até <b>${deckMax(save)}</b> cartas.</p>` : ''}${opened ? `<p class="hint">🔓 Dificuldade <b>${DIFFICULTY_LABEL[opened]}</b> liberada!</p>` : ''}${unlocked}`;
+      ${starsLine}${got}${grew ? `<p class="hint">⬆ Nível de perfil <b>${profileLevel(save)}</b>: o baralho agora aceita até <b>${deckMax(save)}</b> cartas.</p>` : ''}${opened ? `<p class="hint">🔓 Dificuldade <b>${DIFFICULTY_LABEL[opened]}</b> liberada!</p>` : ''}${unlocked}`;
   } else {
     save.items.pergaminho += 1;
     html = `<h2 class="lose">${winner === 'empate' ? '⏱ Empate' : '💀 Derrota'}</h2><p>Treine seus personagens com itens de XP e tente de novo! (+1 📜)</p>`;
@@ -506,7 +520,7 @@ function collection() {
       <button class="rf-btn ${raceFilter === 'all' ? 'active' : ''}" data-rf="all">🌟 Todos (${PLAYABLE.length})</button>
       ${Object.entries(RACE_INFO).map(([k, r]) => `<button class="rf-btn ${raceFilter === k ? 'active' : ''}" data-rf="${k}" style="--race-c:${r.color}">${r.icon} ${r.label}</button>`).join('')}
     </div>
-    <p class="hint">Toque numa carta para inspecionar a evolução visual de cor em cor (Comum → Mítico), ver o sprite de arena e editar a equipe.</p>
+    <p class="hint">Toque numa carta para inspecionar a evolução visual de raridade em raridade (Comum → Mítico), ver o sprite de arena e editar a equipe.</p>
     <h3 class="sec-title">Seus personagens <small>(${owned.length})</small></h3>
     <div class="card-grid">${owned.map((id) => cardHTML(save.cards[id], { grid: true, power: cardPower(save.cards[id]), attrs: `data-card="${id}"`, badge: save.deck.includes(id) ? `✔ ×${copiesIn(save, id)}` : undefined, extraClass: save.deck.includes(id) ? 'in-deck' : '' })).join('')}</div>
     <h3 class="sec-title">✦ Feitiços <small>(${SPELLS.length} · ocupam vagas do baralho; precisam de um aliado da categoria em campo)</small></h3>
@@ -566,7 +580,7 @@ function cardDetail(id: string, previewStars?: number) {
       <h2>${esc(def.name)}</h2><div class="subtitle">${esc(def.title)}</div>
       <div><small>Faixa: ${tierLabel(def.minStars)} a ${tierLabel(def.maxStars, true)}</small> · Nv.${lvl}/${maxLevel(stars, plus)}</div>
       <div class="star-preview-bar">
-        <span class="sp-label">👁 Ver evolução por cor (roupa/poder):</span>
+        <span class="sp-label">👁 Ver evolução por raridade (roupa/poder):</span>
         <div class="sp-tabs">${starTabs.join('')}</div>
       </div>
       <div class="stat-row"><span class="pow-stat" title="Poder = 10 × peso da habilidade × √(ataque × vida)">Poder <b>⚡ ${fmt(pow)}</b></span><span title="Rodadas que a carta espera na mão até poder ser invocada">Espera <b>⏳ ${waitFor(def.id)}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${reachLabel(def)}</b></span><span>Movimento <b>${def.move}</b></span></div>
@@ -633,12 +647,12 @@ function ladderHTML(card: { charId: string; stars: number; plus?: boolean; level
       const isCur = s === cur.s && p === cur.p;
       const done = s < cur.s || (s === cur.s && !p && cur.p);
       const last = s === def.maxStars && p;
-      const up = last ? '—' : `✴ ${ascendCostFor(s, p)} → ${p ? `<b>${tierLabel(s + 1)}</b> <small>(nova cor: habilidades e visual)</small>` : `<b>${tierLabel(s, true)}</b> <small>(+${def.plusStat === 'atk' ? 'ataque' : 'vida'})</small>`}`;
+      const up = last ? '—' : `✴ ${ascendCostFor(s, p)} → ${p ? `<b>${tierLabel(s + 1)}</b> <small>(nova raridade: habilidades e visual)</small>` : `<b>${tierLabel(s, true)}</b> <small>(+${def.plusStat === 'atk' ? 'ataque' : 'vida'})</small>`}`;
       rows.push(`<tr class="${isCur ? 'cur' : done ? 'done' : ''}" style="${starStyle(s)}"><td><span class="tier-dot"></span>${tierLabel(s, p)}${isCur ? ' <small>(atual)</small>' : ''}</td><td>${maxLevel(s, p)}</td><td>${stepXp(s, p).toLocaleString('pt-BR')}${p ? ' <small>(+50%)</small>' : ''}</td><td>${up}</td></tr>`);
     }
   }
   return `<details class="ladder" open><summary>🪜 Escada de Despertar</summary><table><thead><tr><th>Degrau</th><th>Nível máx.</th><th>XP do degrau</th><th>Despertar</th></tr></thead><tbody>${rows.join('')}</tbody></table>
-    <p class="hint">O <b>"+"</b> dá só um pequeno bônus de ${def.plusStat === 'atk' ? '<b>ataque</b>' : '<b>vida</b>'} (+10%, mín. +1). Habilidades e visual mudam só na <b>nova cor</b>. Do "+" para a próxima cor custa <b>50% a mais</b> de XP e de Essências.</p></details>`;
+    <p class="hint">O <b>"+"</b> dá só um pequeno bônus de ${def.plusStat === 'atk' ? '<b>ataque</b>' : '<b>vida</b>'} (+10%, mín. +1). Habilidades e visual mudam só na <b>nova raridade</b>. Do "+" para a próxima raridade custa <b>50% a mais</b> de XP e de Essências.</p></details>`;
 }
 
 function train() {
@@ -657,8 +671,8 @@ function train() {
   const ntLabel = nt ? tierLabel(nt.stars, nt.plus) : '';
   const ascendBtn = nt
     ? `<button class="btn primary" id="ascend" ${atCap && canAscend(card) && save.essencias >= ascendCost(card) ? '' : 'disabled'}>✨ Despertar para ${ntLabel} (✴ ${ascendCost(card)})</button>
-       <p class="hint">${atCap ? '' : `Chegue ao <b>nível ${cap}</b> para despertar. `}${nt.plus ? `${ntLabel} dá +10% de ${def.plusStat === 'atk' ? 'ataque' : 'vida'} e +5 níveis máximos (sem mudar habilidades nem visual).` : `${ntLabel} é uma <b>nova cor</b>: evolui roupa, armadura, aura, habilidades e status.`}${save.essencias < ascendCost(card) ? ` <span class="warn">Você tem ✴ ${save.essencias}.</span>` : ''}</p>`
-    : '<p class="hint">Cor máxima com "+": este personagem chegou ao topo!</p>';
+       <p class="hint">${atCap ? '' : `Chegue ao <b>nível ${cap}</b> para despertar. `}${nt.plus ? `${ntLabel} dá +10% de ${def.plusStat === 'atk' ? 'ataque' : 'vida'} e +5 níveis máximos (sem mudar habilidades nem visual).` : `${ntLabel} é uma <b>nova raridade</b>: evolui roupa, armadura, aura, habilidades e status.`}${save.essencias < ascendCost(card) ? ` <span class="warn">Você tem ✴ ${save.essencias}.</span>` : ''}</p>`
+    : '<p class="hint">Raridade máxima com "+": este personagem chegou ao topo!</p>';
   app.innerHTML = `<div class="screen">${topbar('Treinar')}
     <div class="train-list">${Object.values(save.cards)
       .map((c) => cardHTML(c, { compact: true, grid: true, extraClass: `train-pick ${c.charId === trainSel ? 'sel' : ''}`, attrs: `data-sel="${c.charId}"` }))
@@ -742,7 +756,7 @@ function evolutionReveal(charId: string, from: { stars: number; plus: boolean },
     </div>
     <div class="evo-name">${esc(def.name)}</div>
     <div class="evo-stars">${tierHTML(from.stars, from.plus)} <span>➜</span> ${tierHTML(to.stars, to.plus)}</div>
-    <div class="evo-stats">${newColour ? `Ataque <b>${st.atk}</b> · Vida <b>${st.hp}</b> · nova cor: habilidades e visual evoluem` : `${gain} · habilidades e visual iguais`} · Nível máx. <b>${maxLevel(to.stars, to.plus)}</b></div>
+    <div class="evo-stats">${newColour ? `Ataque <b>${st.atk}</b> · Vida <b>${st.hp}</b> · nova raridade: habilidades e visual evoluem` : `${gain} · habilidades e visual iguais`} · Nível máx. <b>${maxLevel(to.stars, to.plus)}</b></div>
     <button class="btn primary">Continuar</button>
   </div>`;
   document.body.appendChild(bg);
@@ -782,9 +796,9 @@ function help() {
     <h3>Fúria de batalha 🔥</h3><p>A partir do <b>turno 8</b>, todas as unidades dos dois lados ganham <b>+1 de ataque a cada 3 turnos</b>, para a luta não travar. Se chegar ao turno 40, vence quem tiver mais vida (em %) no Comandante.</p>
     <h3>Dano e efeitos</h3><p><b>Físico 👊</b> é reduzido pela resistência física; <b>Mágico ✨</b> pela resistência mágica (resistência só vem de habilidades). Ex.: 3 de dano físico contra resistência 1 = 2 de dano.</p>
     <p>Selos no lutador: <b>🧪 veneno</b> (dano por rodada, ignora resistência), <b>🔥 queimadura</b>, <b>💫 atordoado</b>, <b>🛡 escudo</b> (absorve antes da vida), <b>👼 Anjo da Guarda</b>, <b>🥁</b> recebendo o Tambor e <b>🌀</b> drenado pelo Sifão.</p>
-    <h3>Cores das cartas e Despertar</h3><p>${[1, 2, 3, 4, 5, 6].map((n) => `<span class="rar-chip" style="--rc:${STAR_COLORS[n].color}">${TIER_NAMES[n]} (${STAR_COLORS[n].label})</span>`).join(' ')}</p>
-    <p>A <b>cor da carta é o tier</b> do personagem — não há mais estrelas. Cada cor tem dois degraus: <b>base</b> e <b>"+"</b> (ex.: Raro → <b>Raro+</b> → Épico). No nível máximo, o <b>Despertar</b> leva da cor ao "+" e, no seguinte, do "+" à próxima cor. O "+" dá só um pequeno bônus de vida ou ataque; <b>habilidades, roupa, armadura, armas e aura de Ki</b> evoluem só quando a <b>cor muda</b>. Do "+" para a próxima cor custa <b>50% a mais</b> de XP e Essências.</p>
-    <h3>Poder ⚡ e Comandante 👑</h3><p>Cada carta tem um <b>Poder</b> que sobe com o nível, a cor e o "+", com um bônus pela habilidade do personagem. O <b>Poder do baralho</b> é a soma dos personagens do baralho (cada um uma vez). Em <b>Coleção & Baralho</b>, quando o Poder do baralho alcança o requisito, toque em <b>Evoluir</b> no painel do Comandante: cada nível dá <b>+10 de vida máxima</b> (20 → 110). O Poder só é conferido na hora de evoluir — trocar cartas depois <b>nunca</b> tira o nível do Comandante. Os Comandantes inimigos também ficam mais resistentes a cada fase.</p>
+    <h3>Raridades das cartas e Despertar</h3><p>${[1, 2, 3, 4, 5, 6].map((n) => `<span class="rar-chip" style="--rc:${STAR_COLORS[n].color}">${TIER_NAMES[n]} (${STAR_COLORS[n].label})</span>`).join(' ')}</p>
+    <p>A <b>raridade da carta</b> (mostrada pela cor) é o tier do personagem — não há mais estrelas. Cada raridade tem dois degraus: <b>base</b> e <b>"+"</b> (ex.: Raro → <b>Raro+</b> → Épico). No nível máximo, o <b>Despertar</b> leva da raridade ao "+" e, no seguinte, do "+" à próxima raridade. O "+" dá só um pequeno bônus de vida ou ataque; <b>habilidades, roupa, armadura, armas e aura de Ki</b> evoluem só quando a <b>raridade muda</b>. Do "+" para a próxima raridade custa <b>50% a mais</b> de XP e Essências.</p>
+    <h3>Poder ⚡ e Comandante 👑</h3><p>Cada carta tem um <b>Poder</b> que sobe com o nível, a raridade e o "+", com um bônus pela habilidade do personagem. O <b>Poder do baralho</b> é a soma dos personagens do baralho (cada um uma vez). Em <b>Coleção & Baralho</b>, quando o Poder do baralho alcança o requisito, toque em <b>Evoluir</b> no painel do Comandante: cada nível dá <b>+10 de vida máxima</b> (20 → 110). O Poder só é conferido na hora de evoluir — trocar cartas depois <b>nunca</b> tira o nível do Comandante. Os Comandantes inimigos também ficam mais resistentes a cada fase.</p>
     <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.values(CATEGORY_INFO).map((c) => `<li><b>${c.icon} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
   </div></div>`;
   bindNav();

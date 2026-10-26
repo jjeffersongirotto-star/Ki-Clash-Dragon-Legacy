@@ -82,6 +82,8 @@ describe('v0.20.0 — limite de 5 por dia, por fase', () => {
     expect(canPlay(p, undefined, 'facil', 1, NOON)).toBe(true);
     expect(canRepeat(p, undefined, 'facil', 1, NOON)).toBe(false);
     markCleared(p, 'facil', 1);
+    // v0.21.0: o Repetir pede as 3 ⭐ da fase
+    (p as AdventureProgress & { stars?: Record<string, number> }).stars = { 'facil:1': 7 };
     let d = freshDaily(undefined, NOON);
     expect(dailyLeft(d, 'facil', 1, NOON)).toBe(DAILY_LIMIT);
     for (let k = 0; k < DAILY_LIMIT; k++) {

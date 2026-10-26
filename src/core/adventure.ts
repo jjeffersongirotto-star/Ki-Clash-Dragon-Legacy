@@ -5,6 +5,7 @@
  *   baralhos inimigos com as cartas em nível mais alto e, quando configurado, 1 ou 2 cartas trocadas.
  *   Os números ainda são provisórios (o ajuste fino da dificuldade vem depois).
  * - Cada dificuldade tem o próprio progresso. O Normal abre ao vencer a fase 10 no Fácil; o Difícil, a fase 10 no Normal.
+ * - v0.21.0: ⭐ estrelas por fase e dificuldade (3 objetivos); o Repetir só fica liberado com 3 ⭐.
  * - Limite diário por fase e dificuldade: DAILY_LIMIT vezes por dia. Gastam 1: cada "Repetir" e cada vitória em
  *   fase já vencida. A primeira vitória e as derrotas não gastam. Volta à meia-noite de Brasília (UTC−3).
  */
@@ -111,6 +112,40 @@ export function canPlay(p: AdventureProgress, d: DailyUse | undefined, diff: Dif
   return !isCleared(p, diff, stageId) || dailyLeft(d, diff, stageId, now) > 0;
 }
 
-/** O jogador pode tocar em Repetir nesta fase? (só fase vencida e com vezes no dia) */
-export const canRepeat = (p: AdventureProgress, d: DailyUse | undefined, diff: Difficulty, stageId: number, now = Date.now()) =>
-  isCleared(p, diff, stageId) && dailyLeft(d, diff, stageId, now) > 0;
+/** O jogador pode tocar em Repetir nesta fase? (fase com 3 ⭐ nesta dificuldade e com vezes no dia — v0.21.0) */
+export const canRepeat = (p: AdventureProgress & StarProgress, d: DailyUse | undefined, diff: Difficulty, stageId: number, now = Date.now()) =>
+  isCleared(p, diff, stageId) && starCount(starsOf(p, diff, stageId)) === STAR_GOALS.length && dailyLeft(d, diff, stageId, now) > 0;
+
+// ---------- v0.21.0: estrelas por fase ----------
+
+/** Os 3 objetivos (cada um vale 1 ⭐ e pode ser cumprido em vitórias diferentes). */
+export const STAR_HP_PCT = 50;
+export const STAR_MAX_TURNS = 15;
+export const STAR_GOALS = [
+  { id: 'win', text: 'Vencer a fase' },
+  { id: 'hp', text: `Vencer com o seu Comandante com ${STAR_HP_PCT}% ou mais da vida` },
+  { id: 'fast', text: `Vencer em até ${STAR_MAX_TURNS} turnos` },
+] as const;
+
+/** Estrelas guardadas como bits por "dificuldade:fase" (bit 0 vencer, bit 1 vida, bit 2 turnos). */
+export interface StarProgress {
+  stars?: Record<string, number>;
+}
+const starKey = (diff: Difficulty, stageId: number) => `${diff}:${stageId}`;
+export const starsOf = (p: StarProgress, diff: Difficulty, stageId: number) => p.stars?.[starKey(diff, stageId)] ?? 0;
+export const starCount = (mask: number) => STAR_GOALS.filter((_, i) => mask & (1 << i)).length;
+
+/** Objetivos cumpridos numa vitória. */
+export function starsForWin(r: { playerHp: number; playerMaxHp: number; turn: number }): number {
+  let m = 1;
+  if (r.playerHp * 100 >= r.playerMaxHp * STAR_HP_PCT) m |= 2;
+  if (r.turn <= STAR_MAX_TURNS) m |= 4;
+  return m;
+}
+
+/** Soma os objetivos desta vitória aos que a fase já tinha. Retorna a máscara das estrelas NOVAS. */
+export function addStars(p: StarProgress, diff: Difficulty, stageId: number, mask: number): number {
+  const before = starsOf(p, diff, stageId);
+  (p.stars ??= {})[starKey(diff, stageId)] = before | mask;
+  return mask & ~before;
+}

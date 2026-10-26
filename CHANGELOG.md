@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.21.0] — 26/10/2026 · PR #42 — Estrelas por fase e "raridade"
+- **⭐ Estrelas por fase:** 3 objetivos por fase e por dificuldade: vencer · vencer com o Comandante com 50%+ da vida · vencer em até 15 turnos. Somam entre vitórias e aparecem no mapa, na janela da fase e na vitória ("nova!").
+- **⟲ Repetir só com 3 ⭐** naquela fase e dificuldade.
+- **Saves antigos:** fases já vencidas começam com 1 ⭐. ADM com 3 ⭐ em tudo.
+- **"Raridade" no lugar de "cor"** nos textos das telas (Treinar, Coleção, Como jogar, habilidades) e no REGRAS.
+
 ## [0.20.1] — 26/10/2026 · PR #41 — Correção do Reflexo, simulação da economia e plano do projeto
 - **Correção (Reflexo de Magia):** a Nyx-07 derrotada pelo golpe não devolve mais dano (antes devolvia mesmo caída). Se ela continuar de pé, reflete como antes.
 - **Simulação da economia da v0.20.0** (`scripts/balance/v20.ts`): com 5 Repetir de recompensa inteira antes de cada fase nova, o jogador simulado chega com **100%** de vitória da fase 2 à 10 (antes: 89 → 62%). Decidido manter o Repetir com recompensa inteira; o equilíbrio virá da energia, dos itens de ascensão e do Repetir só em fases com 3 ⭐ (planejado no MELHORIAS.md).

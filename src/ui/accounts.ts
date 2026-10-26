@@ -121,6 +121,8 @@ export function adminSave(): SaveData {
   d.cards = cards;
   d.cleared = STAGES.map((s) => s.id);
   d.clearedDiff = { normal: STAGES.map((s) => s.id), dificil: STAGES.map((s) => s.id) };
+  // v0.21.0: 3 ⭐ em todas as fases, nas 3 dificuldades
+  d.stars = Object.fromEntries(['facil', 'normal', 'dificil'].flatMap((diff) => STAGES.map((s) => [`${diff}:${s.id}`, 7])));
   // v0.17: baralho de 40 (máximo) com os 10 mais fortes × 3 e 10 cartas de feitiço
   const deck = autoDeck(Object.values(cards).map((c) => ({ charId: c.charId, level: c.level, stars: c.stars, plus: c.plus })), deckMaxFor(PROFILE_MAX_LEVEL), 10);
   d.deck = deck.map((c) => c.charId);

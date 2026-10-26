@@ -113,7 +113,7 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     description: 'Move-se sempre saltando para a 3ª casa à frente, por cima de aliados ou inimigos (2ª ou 1ª se a de cima estiver ocupada). Salta também por cima do inimigo da frente. Ao cair, ataca com bônus.',
     icon: '⤴',
     jump: true,
-    scaling: 'Salto: sempre até a 3ª casa (fixo, não aumenta com cor nem nível) · Bônus de investida (logo depois do salto): +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3).',
+    scaling: 'Salto: sempre até a 3ª casa (fixo, não aumenta com raridade nem nível) · Bônus de investida (logo depois do salto): +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3).',
     power: (s, l) => clamp(Math.max(0, s - 2) + (l >= 30 ? 1 : 0), 3),
     powerLabel: (p) => `investida +${p}`,
   },
