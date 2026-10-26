@@ -5,6 +5,7 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
 ## [0.19.0] — 26/10/2026 · PR #37 — App Android (APK)
 - **APK Android:** o jogo agora tem um app para celular (`Ki-Clash-0.19.0.apk`), o mesmo jogo web empacotado com o Capacitor, em tela cheia, com ícone e tela de abertura do jogo. Funciona sem internet; o progresso fica no próprio app.
 - **Download automático:** a cada versão na `main`, a CI gera o APK e o publica na página de Releases do GitHub. Toda versão é assinada com a mesma chave privada (guardada nos segredos do repositório, nunca no código), então instala por cima da anterior sem perder o progresso.
+- **Botão ⟳ de atualização:** botão redondo no canto superior direito da Base, com a versão atual ao lado. No app, procura a última versão na página de Releases e, se houver uma nova, abre o APK para baixar e instalar por cima. No site, compara com a versão publicada e recarrega a página. O progresso continua nos dois casos.
 - O progresso do app e o do site são separados (cada um guarda o seu no aparelho).
 
 ## [0.18.0] — 26/10/2026 · PR #36 — Dificuldade crescente, feitiços da IA e partidas verificáveis

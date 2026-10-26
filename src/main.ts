@@ -14,6 +14,7 @@ import { installPerfGuards } from './ui/perf';
 import { enterBattleMode, leaveBattleMode } from './ui/orientation';
 import { bakeGridArt } from './ui/gridArt';
 import { DECK_MIN, MAX_COPIES, addToDeck, rawSaveHas, copiesIn, deckCards, deckCount, deckIssue, deckMax, hasSave, loadSave, migrateV17, profileLevel, removeFromDeck, resetSave, setCopies, setSaveKey, teamReady, writeSave, type SaveData } from './ui/save';
+import { APP_VERSION, checkForUpdate } from './ui/update';
 import { adminSave, createAccount, loadAccounts, login, logout, saveKeyFor, NAME_MAX, PASS_MIN } from './ui/accounts';
 
 const app = document.getElementById('app')!;
@@ -139,7 +140,9 @@ function home() {
   app.innerHTML = `<div class="screen home">
     <div class="account-box">${acc
       ? `<span class="acc-name" title="Conta local deste aparelho">👤 <b>${esc(acc.name)}</b>${acc.admin ? ' <small>teste</small>' : ''}</span><button class="btn small ghost" id="accOut">Sair</button>`
-      : `<button class="btn small" id="accIn">👤 Entrar / Criar conta</button>`}</div>
+      : `<button class="btn small" id="accIn">👤 Entrar / Criar conta</button>`}
+      <span class="app-version">v${APP_VERSION}</span>
+      <button class="btn small upd-btn" id="updBtn" title="Procurar atualização" aria-label="Procurar atualização">⟳</button></div>
     <div class="logo">
       <div class="logo-ki">KI-CLASH</div>
       <div class="logo-sub">DRAGON LEGACY</div>
@@ -156,6 +159,7 @@ function home() {
   </div>`;
   bindNav();
   app.querySelector('#accIn')?.addEventListener('click', accountDialog);
+  app.querySelector('#updBtn')!.addEventListener('click', (e) => searchUpdate(e.currentTarget as HTMLButtonElement));
   app.querySelector('#accOut')?.addEventListener('click', () => {
     persist();
     logout(accounts);
@@ -170,6 +174,28 @@ function home() {
       home();
     }
   });
+}
+
+/** v0.19.0: botão ⟳ — procura uma versão nova (app: Releases do GitHub; site: version.json publicado). */
+async function searchUpdate(btn: HTMLButtonElement) {
+  if (btn.classList.contains('checking')) return;
+  btn.classList.add('checking');
+  const r = await checkForUpdate();
+  btn.classList.remove('checking');
+  if (r.status === 'latest') return gameAlert('Tudo atualizado', `Você já está na versão mais nova (${r.version}).`, '✅');
+  if (r.status === 'none') return gameAlert('Nenhuma versão publicada', 'Ainda não há versão do app publicada para baixar. Tente de novo mais tarde.', 'ℹ️');
+  if (r.status === 'error') return gameAlert('Sem conexão', 'Não deu para procurar atualização agora. Confira a internet e toque em ⟳ de novo.', '📡');
+  const ok = await gameConfirm(
+    `Versão ${r.version} disponível`,
+    r.native
+      ? `Você está na versão ${APP_VERSION}. Toque em Baixar: o APK novo abre no navegador. Depois de baixar, abra o arquivo e instale por cima; seu progresso continua.`
+      : `Você está na versão ${APP_VERSION}. Toque em Atualizar para carregar a versão nova; seu progresso continua.`,
+    r.native ? 'Baixar' : 'Atualizar',
+  );
+  if (!ok) return;
+  persist();
+  if (r.native) window.location.href = r.url;
+  else location.reload();
 }
 
 /** v0.16.0: janela do jogo para entrar ou criar uma conta local (nome + senha). */

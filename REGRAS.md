@@ -660,3 +660,12 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 - Funciona **sem internet**. O progresso (e as contas locais) fica guardado **no app**, separado do progresso do site no navegador.
 - Toda versão do APK tem a **mesma assinatura**: instalar uma versão nova por cima mantém o progresso. Desinstalar o app apaga o progresso.
 - Requer Android 7.0 ou mais novo.
+
+### Botão ⟳ Procurar atualização
+- Fica no **canto superior direito da Base**, redondo, com a **versão atual** ao lado (ex.: `v0.19.0`). Vale no app e no site.
+- Ao tocar, ele gira enquanto procura e mostra uma janela do jogo:
+  - **Já atualizado:** "Você já está na versão mais nova".
+  - **Versão nova (app):** mostra a versão e o botão **Baixar**: o APK novo abre no navegador do celular; depois é só abrir o arquivo e instalar por cima. O progresso continua.
+  - **Versão nova (site):** botão **Atualizar** recarrega a página com a versão nova. O progresso continua.
+  - **Sem internet** ou **nenhuma versão publicada ainda:** avisa e nada muda.
+- O app procura na página de **Releases** do GitHub; o site compara com o arquivo `version.json` publicado junto com ele. Nada é baixado sem você tocar em Baixar/Atualizar.
