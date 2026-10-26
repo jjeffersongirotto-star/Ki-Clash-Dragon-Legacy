@@ -36,7 +36,7 @@
 - Em cima da bolinha de cada fase aparece o **Comandante**, um pouco acima da bolinha (sem encostar nela), com uma **faixa de luz nos pés** (dourada nas fases vencidas, azul na próxima, apagada nas bloqueadas) e **se movimentando** (respirando) como na batalha.
 - A próxima fase fica em **azul** com a etiqueta **PRÓXIMA**; as vencidas ficam **douradas** com ✓ e o contador do dia (ex.: "3/5 hoje").
 - Ao tocar numa fase vencida, abre uma janela com as informações e os botões **⚔ Jogar** e **⟲ Repetir** (sem texto explicativo entre parênteses).
-- Protótipo aprovado em construção (imagem e GIF enviados na conversa de 26/10/2026).
+- Protótipo (imagem e GIF) enviado na conversa de 26/10/2026, ainda em ajuste.
 - Fases e caminhos começam **escuros** e vão **se iluminando** conforme o jogador vence as fases.
 - **A decidir (perguntar antes de fazer):**
   - O Comandante em cima de cada bolinha é o **inimigo daquela fase** (cada fase com o seu) ou o **seu Bárbaro**, marcando onde você está?
