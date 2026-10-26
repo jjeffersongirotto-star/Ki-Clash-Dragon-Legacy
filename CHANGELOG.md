@@ -4,6 +4,7 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
 
 ## [0.17.1] — 26/10/2026 — Escudo, Anjo da Guarda e documentação
 - **🛡 Escudo temporário (Muralha):** a duração agora conta os **turnos do adversário**. A Muralha de 2 rodadas lançada no seu turno protege contra os 2 turnos inimigos seguintes; antes perdia 1 rodada já no fim do seu próprio turno e cobria só 1 turno inimigo. O atordoado não mudou.
+- **Conferidos os outros efeitos com duração** (Flecha Envenenada, Veneno Mortal, Bola de Fogo, Tremor, Raio Paralisante): já estavam certos, porque contam os turnos da unidade atingida, que é inimiga de quem lança. Veneno de 3 rodadas faz dano 3 vezes, queimadura de 2 faz 2 vezes e o atordoar tira exatamente 1 ação, lançados pelo jogador ou pelo inimigo (testes novos no ciclo real de turnos).
 - **👼 Anjo da Guarda (feitiço):** o texto da carta agora diz que o efeito **dura até ser usado** (já funcionava assim).
 - **Documentação:** o resumo do README estava na versão antiga (arena 2×7, baralho 10 × 4, alcance 3, passo da vitória) e foi atualizado; comentários antigos no código (arena 2×7, baralho 10 × 4) corrigidos.
 
