@@ -2,12 +2,12 @@ import { waitFor } from './core/battle';
 import './ui/style.css';
 import { CATEGORY_INFO, PLAYABLE, RACE_INFO, STAR_COLORS, getChar, isComingSoon } from './core/characters';
 import { STAGES, type Stage } from './core/campaign';
-import { MAX_STEP, TIER_NAMES, XP_ITEMS, playXp, ascend, ascendCost, ascendCostFor, barFull, canAscend, cardBarXp, feedXp, isMaxTier, newOwned, nextTier, statsFor, stepOf, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
+import { MAX_STEP, TIER_NAMES, XP_ITEMS, playXp, ascendCost, ascendCostFor, barFull, canAscend, cardBarXp, feedXp, isMaxTier, newOwned, nextTier, statsFor, stepOf, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
 import { playerLeaderImg, portraitImg, portraitSVG, unitSpriteSVG, warmLeader, warmPortraits } from './ui/art';
 import { cardPower, deckPower } from './core/power';
 import { canEvolve, evolveLeader, getLeader, leaderHp, leaderMaxLevel, nextRequirement } from './core/leaders';
 import { BattleView } from './ui/battleView';
-import { abilityListHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from './ui/components';
+import { abilityListHTML, gearHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from './ui/components';
 import { SPELLS, getSpell, isSpell } from './core/spells';
 import { gameAlert, gameConfirm, showDialog } from './ui/dialog';
 import { installPerfGuards } from './ui/perf';
@@ -15,6 +15,7 @@ import { enterBattleMode, leaveBattleMode } from './ui/orientation';
 import { bakeGridArt } from './ui/gridArt';
 import { DECK_MIN, MAX_COPIES, addToDeck, rawSaveHas, copiesIn, deckCards, deckCount, deckIssue, deckMax, hasSave, loadSave, migrateV17, profileLevel, removeFromDeck, resetSave, setCopies, setSaveKey, teamReady, writeSave, type SaveData } from './ui/save';
 import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from './ui/update';
+import { GEAR_CATEGORIES, GEAR_DROP, GEAR_PER_STEP, GEAR_RARE_CHANCE, GEAR_RARITIES, GEAR_SETS, STAGE_GEAR, reqRarity, addGear, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor } from './core/gear';
 import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, DIFFICULTY_LABEL, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_GOALS, addStars, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from './core/adventure';
 import { LEADER_ENEMY_URL } from './ui/art';
 import { adminSave, createAccount, loadAccounts, login, logout, saveKeyFor, NAME_MAX, PASS_MIN } from './ui/accounts';
@@ -362,6 +363,7 @@ function stageDialog(stageId: number) {
       <p class="stage-diff">Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
       <p class="stage-line">Comandante inimigo ❤${st.enemyHeroHp} · Inimigos até ${(() => { const top = foes.reduce((a, c) => (c.stars * 3 + stepOf(c) > a.stars * 3 + stepOf(a) ? c : a)); return tierHTML(top.stars, stepOf(top)); })()}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</p>
       <p class="stage-line">Recompensa: ✴${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && st.unlock && !save.cards[st.unlock] ? ` · desbloqueia <b>${esc(getChar(st.unlock).name)}</b>` : ''}</p>
+      <p class="stage-line">Itens: ${STAGE_GEAR[stageId - 1].map((id) => gearHTML(id, GEAR_DROP[diff][0])).join(' ')} <small>${100 - GEAR_RARE_CHANCE * 100}% ${STAR_COLORS[GEAR_DROP[diff][0]].label} · ${GEAR_RARE_CHANCE * 100}% ${STAR_COLORS[GEAR_DROP[diff][1]].label}</small></p>
       <ul class="stage-goals">${STAR_GOALS.map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}</li>`).join('')}</ul>
       ${done ? `<p class="stage-left ${left ? '' : 'out'}">${left ? `Hoje: <b>${left}/${DAILY_LIMIT}</b> restantes` : 'Limite de hoje atingido. Volta amanhã.'}</p>` : ''}
       <div class="stage-actions">
@@ -390,7 +392,8 @@ function grantRewards(st: Stage, diff: Difficulty) {
   const r = rewardsFor(st.id, diff);
   for (const o of XP_ITEMS) save.items[o.id] += r.orbs[o.id] ?? 0;
   save.essencias += r.essencias;
-  return `<div class="res big"><span>✴ +${r.essencias}</span>${XP_ITEMS.filter((o) => r.orbs[o.id]).map((o) => `<span class="orb-pill">${orbHTML(o.id, `+${r.orbs[o.id]}`)}</span>`).join('')}</div>`;
+  for (const g of r.gear) addGear((save.gear ??= {}), g.id, g.rarity);
+  return `<div class="res big"><span>✴ +${r.essencias}</span>${XP_ITEMS.filter((o) => r.orbs[o.id]).map((o) => `<span class="orb-pill">${orbHTML(o.id, `+${r.orbs[o.id]}`)}</span>`).join('')}${r.gear.map((g) => gearHTML(g.id, g.rarity, '+1')).join('')}</div>`;
 }
 
 /** v0.22.0: XP por jogar — ao vencer jogando, todo o baralho ganha XP. */
@@ -657,12 +660,25 @@ function ladderHTML(card: { charId: string; stars: number; plus?: number | boole
       const isCur = s === cur.s && p === cur.p;
       const done = s < cur.s || (s === cur.s && p < cur.p);
       const last = s === def.maxStars && p === MAX_STEP;
-      const up = last ? '—' : `✴ ${ascendCostFor(s, p)} → ${p === MAX_STEP ? `<b>${tierLabel(s + 1)}</b> <small>(nova raridade: habilidades e visual)</small>` : `<b>${tierLabel(s, p + 1)}</b>`}`;
+      const up = last ? '—' : `✴ ${ascendCostFor(s, p)} + ${GEAR_PER_STEP[p]} itens → ${p === MAX_STEP ? `<b>${tierLabel(s + 1)}</b> <small>(nova raridade: habilidades e visual)</small>` : `<b>${tierLabel(s, p + 1)}</b>`}`;
       rows.push(`<tr class="${isCur ? 'cur' : done ? 'done' : ''}" style="${starStyle(s)}"><td><span class="tier-dot"></span>${tierLabel(s, p)}${isCur ? ' <small>(atual)</small>' : ''}</td><td>${last ? '—' : stepXp(s, p).toLocaleString('pt-BR')}</td><td>${up}</td></tr>`);
     }
   }
   return `<details class="ladder" open><summary>🪜 Escada de Despertar</summary><table><thead><tr><th>Degrau</th><th>Barra de XP</th><th>Despertar</th></tr></thead><tbody>${rows.join('')}</tbody></table>
-    <p class="hint">Cada degrau (<b>"+"</b>, <b>"++"</b> e cada nova raridade) dá <b>+17%</b> de ataque e de vida. Habilidades e visual mudam na <b>nova raridade</b>. Encher a barra não aumenta os status: ela libera o Despertar.</p></details>`;
+    <p class="hint">Itens de ascensão de ${esc(getChar(card.charId).name)} na raridade ${TIER_NAMES[card.stars]} (1 de cada; alguns são da raridade <b>um acima</b> da carta): <b>"+"</b> ${charGear(card.charId).plus.map((r) => gearHTML(r.id, reqRarity(r, card.stars))).join('')} · <b>"++"</b> ${charGear(card.charId).plus2.map((r) => gearHTML(r.id, reqRarity(r, card.stars))).join('')} · <b>nova raridade</b> ${charGear(card.charId).awaken.map((r) => gearHTML(r.id, reqRarity(r, card.stars))).join('')}</p>
+    <p class="hint">As barras ficam na proporção <b>3 / 6 / 10</b> ("+" / "++" / nova raridade). Cada degrau (<b>"+"</b>, <b>"++"</b> e cada nova raridade) dá <b>+17%</b> de ataque e de vida. Habilidades e visual mudam na <b>nova raridade</b>. Encher a barra não aumenta os status: ela libera o Despertar.</p></details>`;
+}
+
+/** v0.24.0: mochila de itens de ascensão, por categoria (só os que o jogador tem). */
+function gearBagDialog() {
+  const bag = save.gear ?? {};
+  const rows = GEAR_CATEGORIES.map((cat) => {
+    const owned = GEAR_SETS[cat].flatMap((g) => GEAR_RARITIES.filter((r) => gearCount(bag, g.id, r) > 0).map((r) => gearHTML(g.id, r, gearCount(bag, g.id, r))));
+    return `<div class="gear-cat">${CATEGORY_INFO[cat].icon} ${CATEGORY_INFO[cat].label}: <small>${GEAR_SETS[cat].map((g) => g.name).join(', ')}</small></div><div class="gear-bag">${owned.join('') || '<small>nenhum ainda</small>'}</div>`;
+  }).join('');
+  modal(`<h2>🎒 Itens de ascensão</h2><p class="hint">Cada fase dá 3 itens. A cor do fundo é a raridade (cinza, verde, azul, roxo, laranja). Cada degrau pede 3 / 4 / 5 itens ("+" / "++" / nova raridade): 1 / 2 / 3 deles da raridade <b>um acima</b> da carta e 2 da raridade dela (cartas Lendárias e Míticas: só laranja). ${DIFFICULTIES.map((d) => `${DIFFICULTY_LABEL[d]}: ${STAR_COLORS[GEAR_DROP[d][0]].label} ${100 - GEAR_RARE_CHANCE * 100}% / ${STAR_COLORS[GEAR_DROP[d][1]].label} ${GEAR_RARE_CHANCE * 100}%`).join(' · ')}.</p>${rows}<div class="row"><button class="btn primary" data-m="close">Fechar</button></div>`, (m) => {
+    m.querySelector('[data-m=close]')!.addEventListener('click', closeModal);
+  });
 }
 
 function train() {
@@ -679,11 +695,17 @@ function train() {
   const nt = nextTier(card);
   const ntLabel = nt ? tierLabel(nt.stars, nt.plus) : '';
   const nextSt = nt ? statsFor(def, nt.stars, nt.plus) : st;
+  const need = gearNeeded(card);
+  const gearOk = hasGearFor(save.gear, card);
+  const needHTML = need.length
+    ? `<div class="gear-need"><span>Itens (${need.length}):</span>${need.map((n) => gearHTML(n.id, n.rarity, `${Math.min(1, gearCount(save.gear, n.id, n.rarity))}/1`, gearCount(save.gear, n.id, n.rarity) < 1)).join('')}</div>`
+    : '';
   const ascendBtn = nt
-    ? `<button class="btn primary" id="ascend" ${canAscend(card) && save.essencias >= ascendCost(card) ? '' : 'disabled'}>✨ Subir para ${ntLabel} (✴ ${ascendCost(card)})</button>
-       <p class="hint">${full ? '' : 'Encha a barra de XP para subir o degrau. '}${nt.stars === card.stars ? `${ntLabel} dá +17% de ataque e de vida (habilidades e visual iguais).` : `${ntLabel} é uma <b>nova raridade</b>: evolui roupa, armadura, aura, habilidades e status.`}${save.essencias < ascendCost(card) ? ` <span class="warn">Você tem ✴ ${save.essencias}.</span>` : ''}</p>`
+    ? `${needHTML}<button class="btn primary" id="ascend" ${canAscend(card) && gearOk && save.essencias >= ascendCost(card) ? '' : 'disabled'}>✨ Subir para ${ntLabel} (✴ ${ascendCost(card)})</button>
+       <p class="hint">${full ? '' : 'Encha a barra de XP para subir o degrau. '}${gearOk ? '' : '<span class="warn">Faltam itens de ascensão (as fases dão itens; veja quais em 🎒 Itens).</span> '}${nt.stars === card.stars ? `${ntLabel} dá +17% de ataque e de vida (habilidades e visual iguais).` : `${ntLabel} é uma <b>nova raridade</b>: evolui roupa, armadura, aura, habilidades e status.`}${save.essencias < ascendCost(card) ? ` <span class="warn">Você tem ✴ ${save.essencias}.</span>` : ''}</p>`
     : '<p class="hint">Raridade máxima com "++": este personagem chegou ao topo!</p>';
   app.innerHTML = `<div class="screen">${topbar('Treinar')}
+    <div class="row"><button class="btn small" id="gearBag">🎒 Itens de ascensão</button></div>
     <div class="train-list">${Object.values(save.cards)
       .map((c) => cardHTML(c, { compact: true, grid: true, extraClass: `train-pick ${c.charId === trainSel ? 'sel' : ''}`, attrs: `data-sel="${c.charId}"` }))
       .join('')}</div>
@@ -732,10 +754,11 @@ function train() {
       }
     }),
   );
+  app.querySelector('#gearBag')?.addEventListener('click', gearBagDialog);
   app.querySelector('#ascend')?.addEventListener('click', () => {
     const from = { stars: card.stars, plus: stepOf(card) };
     const before = statsFor(def, card.stars, stepOf(card));
-    const r = ascend(card, save.essencias);
+    const r = ascendWithGear(card, save.essencias, (save.gear ??= {}));
     if (r.ok) {
       save.essencias -= r.cost;
       persist();
@@ -807,7 +830,7 @@ function help() {
     <p>Selos no lutador: <b>🧪 veneno</b> (dano por rodada, ignora resistência), <b>🔥 queimadura</b>, <b>💫 atordoado</b>, <b>🛡 escudo</b> (absorve antes da vida), <b>👼 Anjo da Guarda</b>, <b>🥁</b> recebendo o Tambor e <b>🌀</b> drenado pelo Sifão.</p>
     <h3>Raridades das cartas e Despertar</h3><p>${[1, 2, 3, 4, 5, 6].map((n) => `<span class="rar-chip" style="--rc:${STAR_COLORS[n].color}">${TIER_NAMES[n]} (${STAR_COLORS[n].label})</span>`).join(' ')}</p>
     <p>A <b>raridade da carta</b> (mostrada pela cor) é o tier do personagem. A carta <b>não tem nível</b>: cada raridade tem três degraus, <b>base</b>, <b>"+"</b> e <b>"++"</b> (ex.: Raro → <b>Raro+</b> → <b>Raro++</b> → Épico). O degrau aparece na estrela dourada da carta.</p>
-    <p>Cada degrau tem uma <b>barra de XP</b> (vista só em <b>Treinar</b>). A barra enche com <b>Orbes 🔮</b> e com o <b>XP por jogar</b>. Com a barra cheia, o <b>Despertar</b> sobe o degrau gastando <b>Essências ✴</b>. Cada degrau dá <b>+17% de ataque e de vida</b>; encher a barra não aumenta os status. <b>Habilidades, roupa, armadura, armas e aura de Ki</b> evoluem quando a <b>raridade muda</b>.</p>
+    <p>Cada degrau tem uma <b>barra de XP</b> (vista só em <b>Treinar</b>). A barra enche com <b>Orbes 🔮</b> e com o <b>XP por jogar</b>. Com a barra cheia, o <b>Despertar</b> sobe o degrau gastando <b>Essências ✴</b> e <b>itens de ascensão 🎒</b> (3 no "+", 4 no "++" e 5 na nova raridade; 1 / 2 / 3 deles da raridade um acima da carta e 2 da raridade dela; cada fase dá 3 itens). Cada degrau dá <b>+17% de ataque e de vida</b>; encher a barra não aumenta os status. <b>Habilidades, roupa, armadura, armas e aura de Ki</b> evoluem quando a <b>raridade muda</b>.</p>
     <h3>Poder ⚡ e Comandante 👑</h3><p>Cada carta tem um <b>Poder</b> que sobe com a raridade e o degrau ("+" e "++"), com um bônus pela habilidade do personagem. O <b>Poder do baralho</b> é a soma dos personagens do baralho (cada um uma vez). Em <b>Coleção & Baralho</b>, quando o Poder do baralho alcança o requisito, toque em <b>Evoluir</b> no painel do Comandante: cada nível dá <b>+10 de vida máxima</b> (20 → 110). O Poder só é conferido na hora de evoluir — trocar cartas depois <b>nunca</b> tira o nível do Comandante. Os Comandantes inimigos também ficam mais resistentes a cada fase.</p>
     <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.values(CATEGORY_INFO).map((c) => `<li><b>${c.icon} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
   </div></div>`;

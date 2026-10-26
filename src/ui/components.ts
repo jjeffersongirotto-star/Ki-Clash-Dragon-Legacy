@@ -2,6 +2,7 @@ import { ABILITIES } from '../core/abilities';
 import { CATEGORY_INFO, RACE_INFO, STAR_COLORS, getChar } from '../core/characters';
 import { XP_ITEMS, statsFor, stepIndex, stepOf, tierLabel, type OrbBag, type XpItemId } from '../core/progression';
 import type { AbilityId, CardInstance, CharacterDef } from '../core/types';
+import { GEAR_BY_ID, GEAR_RARITY_NAMES } from '../core/gear';
 import { portraitImg } from './art';
 import { gridArtHTML } from './gridArt';
 import { cardPower } from '../core/power';
@@ -172,3 +173,10 @@ export function orbHTML(id: XpItemId, count?: number | string): string {
 /** Os Orbes de uma recompensa, da raridade mais baixa para a mais alta. */
 export const orbBagHTML = (bag: OrbBag, prefix = '') =>
   XP_ITEMS.filter((o) => (bag[o.id] ?? 0) > 0).map((o) => orbHTML(o.id, `${prefix}${bag[o.id]}`)).join('');
+
+/** v0.24.0: ícone de item de ascensão; a raridade aparece só na cor do fundo. */
+export function gearHTML(id: string, rarity: number, count?: number | string, missing = false): string {
+  const g = GEAR_BY_ID[id];
+  const label = `${g.name} ${GEAR_RARITY_NAMES[rarity]} (${STAR_COLORS[rarity].label})`;
+  return `<span class="gear${missing ? ' missing' : ''}" style="--gc:${STAR_COLORS[rarity].color}" title="${label}" aria-label="${label}"><i>${g.icon}</i>${count != null ? `<b>${count}</b>` : ''}</span>`;
+}

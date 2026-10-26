@@ -2,6 +2,14 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.24.0] — 26/10/2026 · PR #45 — Itens de ascensão
+- **🎒 Itens de ascensão:** 30 itens, 5 por categoria (Tanque: elmo, armadura, escudo, manoplas, botas de ferro · Suporte: tiara, túnica, amuleto, bastão, sandálias · DPS: bandana, colete, espada, luvas, botas · Mago: chapéu, manto, cajado, cristal, anel · Arqueiro: capuz, jaqueta, arco, aljava, botas leves · Assassino: máscara, capa, adagas, cinto, diamante negro). A raridade aparece só na cor do fundo do ícone (cinza, verde, azul, roxo, laranja).
+- **Despertar pede itens:** barra cheia + Essências + 1 de cada item: **3 no "+"**, **4 no "++"** e **5 na nova raridade**. Desses, **1 / 2 / 3 são da raridade um acima** da carta e 2 da raridade dela (Comum: "+" = 2 cinza + 1 verde). Cartas Lendárias e Míticas pedem só laranja. Os itens de cada personagem são fixos e variam entre personagens da mesma categoria. O Treinar mostra os itens do próximo degrau (os que faltam ficam apagados) e os de cada degrau.
+- **Barras 3 / 6 / 10:** a barra do "+" tem 30% e a do "++" 60% do XP do Despertar; o XP total por raridade não mudou. Saves mantêm a fração da barra.
+- **Fases dão itens:** cada fase dá sempre os mesmos 3 itens (de categorias diferentes) em toda vitória e Repetir; as 10 fases cobrem os 30. Raridade 80/20: Fácil cinza/verde · Normal azul/roxo · Difícil roxo/laranja. A janela da fase mostra os itens e as chances.
+- **Mochila** em Treinar → 🎒 Itens de ascensão. Saves antigos começam com ela vazia; ADM com 99 de cada item em cada raridade.
+- Simulação (Fácil, sem Repetir): vitória ao chegar 71/87/88/65/65/62/62/48/50/46% (v0.23.0: 74/90/95/81/86/78/84/72/74/69%). Os itens seguram a evolução; o reequilíbrio vem com o tutorial e a energia (REGRAS seção 23).
+
 ## [0.23.0] — 26/10/2026 · PR #44 — Carta sem nível e degraus + / ++
 - **Sem nível numerado:** a carta não tem mais "Nv." nem nível máximo. Cada raridade tem 3 degraus: **base → "+" → "++"** → próxima raridade. O topo de cada personagem é a raridade máxima "++".
 - **Estrela dourada da carta** mostra o degrau ("+" ou "++"; nada no degrau base).

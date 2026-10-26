@@ -15,6 +15,7 @@ import { STAGES, UNLOCKS } from '../../src/core/campaign';
 import { STARTER_IDS } from '../../src/core/characters';
 import { newOwned, feedXp, ascend, canAscend, ascendCost, barFull, isMaxTier, stepIndex, xpProgress, XP_ITEMS, playXp, type OwnedCard } from '../../src/core/progression';
 import { rewardsFor } from '../../src/core/adventure';
+import { addGear, hasGearFor, spendGearFor, type GearBag } from '../../src/core/gear';
 import { cardPower, deckPower } from '../../src/core/power';
 import type { CardInstance } from '../../src/core/types';
 import { autoDeck, deckMaxFor, profileLevelFor } from '../../src/core/deckbuild';
@@ -23,7 +24,11 @@ export interface Schedule { name: string; hp: number[]; thresholds: number[]; en
 
 const XP = Object.fromEntries(XP_ITEMS.map((i) => [i.id, i.xp])) as Record<string, number>;
 
-interface Player { cards: Record<string, OwnedCard>; items: Record<string, number>; ess: number; cleared: number; leader: number }
+interface Player { cards: Record<string, OwnedCard>; items: Record<string, number>; ess: number; cleared: number; leader: number; gear: GearBag }
+
+/** v0.24.0: o Despertar pede itens de ascensão (SIM_GEAR=0 desliga, para comparar). */
+const SIM_GEAR = process.env.SIM_GEAR !== '0';
+const gearOk = (p: Player, c: OwnedCard) => !SIM_GEAR || hasGearFor(p.gear, c);
 
 function team(p: Player): OwnedCard[] {
   return Object.values(p.cards).sort((a, b) => cardPower(b) - cardPower(a)).slice(0, 10);
@@ -47,8 +52,8 @@ function spend(p: Player) {
   for (let guard = 0; guard < 2000; guard++) {
     const t = team(p);
     // desperta quem está com a barra cheia (mais barato primeiro)
-    const asc = t.filter((c) => canAscend(c) && p.ess >= ascendCost(c)).sort((a, b) => ascendCost(a) - ascendCost(b))[0];
-    if (asc) { p.ess -= ascend(asc, p.ess).cost; continue; }
+    const asc = t.filter((c) => canAscend(c) && p.ess >= ascendCost(c) && gearOk(p, c)).sort((a, b) => ascendCost(a) - ascendCost(b))[0];
+    if (asc) { if (SIM_GEAR) spendGearFor(p.gear, asc); p.ess -= ascend(asc, p.ess).cost; continue; }
     // v0.23.0: alimenta uma barra por vez — o menor degrau e, no empate, a barra mais cheia (o XP que passa do cheio
     // se perde, então não alimenta barra cheia; espalhar o XP deixaria todas as barras pela metade, sem subir degrau)
     const g = (c: OwnedCard) => stepIndex(c.stars, c.plus) - xpProgress(c) * 0.99;
@@ -68,6 +73,7 @@ function reward(p: Player, i: number, first: boolean, repeatMult = 0.5) {
   const f = first ? 1 : repeatMult;
   for (const [id, k] of Object.entries(r.orbs)) p.items[id] = (p.items[id] ?? 0) + Math.floor((k ?? 0) * f);
   p.ess += Math.floor(r.essencias * f);
+  if (f >= 1) for (const g of r.gear) addGear(p.gear, g.id, g.rarity); // v0.24.0: itens só com recompensa inteira
   if (first && UNLOCKS[i + 1] && !p.cards[UNLOCKS[i + 1]]) p.cards[UNLOCKS[i + 1]] = newOwned(UNLOCKS[i + 1]);
 }
 
@@ -95,7 +101,7 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
   const stats: StageStat[] = STAGES.map(() => ({ arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [] }));
   let seed = 7;
   for (let pi = 0; pi < players; pi++) {
-    const p: Player = { cards: {}, items: { orbe1: 10, orbe3: 3 }, ess: 10, cleared: 0, leader: 1 };
+    const p: Player = { cards: {}, items: { orbe1: 10, orbe3: 3 }, ess: 10, cleared: 0, leader: 1, gear: {} };
     for (const id of STARTER_IDS) p.cards[id] = newOwned(id);
     for (let i = 0; i < STAGES.length; i++) {
       if (i > 0) for (let k = 0; k < repeats; k++) reward(p, i - 1, false, repeatMult);

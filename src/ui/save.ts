@@ -4,7 +4,8 @@ import { deckMaxFor, profileLevelFor } from '../core/deckbuild';
 import { isSpell } from '../core/spells';
 import type { CardInstance } from '../core/types';
 import { DEFAULT_LEADER, LEADERS } from '../core/leaders';
-import { LEGACY_ITEM_TO_ORB, XP_ITEMS, migrateOldCard, newOwned, stepOf, type OwnedCard, type XpItemId } from '../core/progression';
+import { LEGACY_ITEM_TO_ORB, XP_ITEMS, migrateBarV24, migrateOldCard, newOwned, stepOf, type OwnedCard, type XpItemId } from '../core/progression';
+import { normalizeGear, type GearBag } from '../core/gear';
 import { DIFFICULTIES, clearedIn, type DailyUse, type Difficulty } from '../core/adventure';
 
 export interface SaveData {
@@ -41,6 +42,10 @@ export interface SaveData {
   stars?: Record<string, number>;
   /** migração v0.23.0: o nível numerado acabou; cada carta virou raridade + degrau (0, "+", "++") + barra de XP */
   v23?: boolean;
+  /** v0.24.0: itens de ascensão ("item:raridade" → quantidade). Saves antigos começam vazios. */
+  gear?: GearBag;
+  /** migração v0.24.0: barras na proporção 3 / 6 / 10 (a fração de progresso de cada carta é mantida) */
+  v24?: boolean;
 }
 
 /** Carta como era salva até a v0.22.0 (com nível numerado e `plus` verdadeiro/falso). */
@@ -111,6 +116,8 @@ export function defaultSave(): SaveData {
     copies: {},
     v17: true,
     v23: true,
+    v24: true,
+    gear: {},
     clearedDiff: { normal: [], dificil: [] },
     difficulty: 'facil',
   };
@@ -244,12 +251,14 @@ export function loadSave(): SaveData {
     if (!d.v8) migrateV8(merged);
     if (!d.v10) migrateV10(merged);
     merged.v23 = !!d.v23; // o padrão (defaultSave) já vem convertido; vale o que estava salvo
+    merged.v24 = !!d.v24;
     migrateV23(merged);
     // sempre normaliza os Comandantes (save antigo sem o campo, ou campo corrompido)
     migrateV13(merged);
     migrateV17(merged);
     normalizeV20(merged);
     merged.items = migrateOrbs(d.items as Record<string, unknown>);
+    merged.gear = normalizeGear(d.gear); // v0.24.0: save sem itens de ascensão começa com a mochila vazia
     return merged;
   } catch {
     return defaultSave();
@@ -264,9 +273,13 @@ export function loadSave(): SaveData {
 export function migrateV23(d: SaveData): SaveData {
   for (const [id, c] of Object.entries(d.cards)) {
     const old = c as unknown as LegacyCard;
-    d.cards[id] = migrateOldCard(d.v23 ? { charId: old.charId ?? id, stars: old.stars, plus: old.plus, xp: old.xp } : { ...old, charId: old.charId ?? id });
+    const charId = old.charId ?? id;
+    if (!d.v23) d.cards[id] = migrateOldCard({ ...old, charId });
+    else if (!d.v24) d.cards[id] = migrateBarV24({ ...migrateOldCard({ charId, stars: old.stars, plus: old.plus, xp: 0 }), xp: Math.max(0, Math.floor(old.xp ?? 0)) });
+    else d.cards[id] = migrateOldCard({ charId, stars: old.stars, plus: old.plus, xp: old.xp });
   }
   d.v23 = true;
+  d.v24 = true;
   return d;
 }
 

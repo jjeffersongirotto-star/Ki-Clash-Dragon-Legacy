@@ -4,6 +4,7 @@
  * e a senha da conta de teste ADM está visível no código. Serve só para separar o progresso de
  * pessoas que dividem o mesmo aparelho e para testes.
  */
+import { GEAR, GEAR_RARITIES, gearKey } from '../core/gear';
 import { CHAR_BY_ID, PLAYABLE } from '../core/characters';
 import { autoDeck, deckMaxFor, PROFILE_MAX_LEVEL } from '../core/deckbuild';
 import { LEADERS } from '../core/leaders';
@@ -128,6 +129,8 @@ export function adminSave(): SaveData {
   d.deck = deck.map((c) => c.charId);
   d.copies = Object.fromEntries(deck.map((c) => [c.charId, c.copies ?? 3]));
   d.items = { orbe1: 999, orbe2: 999, orbe3: 999, orbe4: 999, orbe5: 999, orbe6: 999 };
+  // v0.24.0: 99 de cada item de ascensão em cada raridade
+  d.gear = Object.fromEntries(GEAR.flatMap((g) => GEAR_RARITIES.map((r) => [gearKey(g.id, r), 99])));
   d.essencias = 99999;
   d.leaders = Object.fromEntries(LEADERS.map((l) => [l.id, { level: l.hpByLevel.length }]));
   return d;

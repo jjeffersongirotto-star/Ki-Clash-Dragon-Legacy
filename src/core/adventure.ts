@@ -12,6 +12,7 @@
 import { ENEMY_SPELLS, ENEMY_STEPS, STAGES, enemyDeckFor, type Stage } from './campaign';
 import type { CardInstance } from './types';
 import { bagXp, type OrbBag } from './progression';
+import { stageGearDrop } from './gear';
 
 export type Difficulty = 'facil' | 'normal' | 'dificil';
 export const DIFFICULTIES: Difficulty[] = ['facil', 'normal', 'dificil'];
@@ -162,7 +163,18 @@ export const HARD_MYTHIC_CHANCE = 0.02;
  * Fácil = Comum e Incomum (campaign.ts) · Normal = Raro (60% do XP) e Épico (40%) · Difícil = Épicos,
  * mais 10% de chance de 1 Lendário e 2% de 1 Mítico. `rng` decide as chances (Math.random no jogo).
  */
-export function rewardsFor(stageId: number, diff: Difficulty, rng: () => number = Math.random): { essencias: number; orbs: OrbBag } {
+export function rewardsFor(stageId: number, diff: Difficulty, rng: () => number = Math.random): StageReward {
+  return { ...orbRewards(stageId, diff, rng), gear: stageGearDrop(stageId, diff, rng) };
+}
+
+/** v0.24.0: a recompensa também traz os 3 itens de ascensão da fase (cor sorteada 80/20 pela dificuldade, ver gear.ts). */
+export interface StageReward {
+  essencias: number;
+  orbs: OrbBag;
+  gear: { id: string; rarity: number }[];
+}
+
+function orbRewards(stageId: number, diff: Difficulty, rng: () => number): { essencias: number; orbs: OrbBag } {
   const base = STAGES[stageId - 1].rewards;
   if (diff === 'facil') return { essencias: base.essencias, orbs: { ...base.orbs } };
   const xp = bagXp(base.orbs);
