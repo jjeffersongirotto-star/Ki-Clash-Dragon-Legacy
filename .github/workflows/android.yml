@@ -1,0 +1,71 @@
+name: APK Android
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22  # o Capacitor 8 exige Node 22+
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync android
+      - name: Chave de assinatura (segredos do repositório)
+        id: key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KICLASH_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/kiclash.keystore"
+            echo "KICLASH_KEYSTORE=$RUNNER_TEMP/kiclash.keystore" >> "$GITHUB_ENV"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Sem o segredo KICLASH_KEYSTORE_BASE64: o APK sai com a chave de depuração e não é publicado em Releases."
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Gerar o APK
+        working-directory: android
+        env:
+          KICLASH_KEYSTORE_PASSWORD: ${{ secrets.KICLASH_KEYSTORE_PASSWORD }}
+        run: ./gradlew --no-daemon assembleRelease
+      - name: Nome do APK com a versão
+        id: apk
+        run: |
+          v=$(node -p "require('./package.json').version")
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          cp android/app/build/outputs/apk/release/app-release.apk "Ki-Clash-$v.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ki-Clash-${{ steps.apk.outputs.version }}-apk
+          path: Ki-Clash-${{ steps.apk.outputs.version }}.apk
+      - name: Publicar na página de Releases
+        if: github.ref == 'refs/heads/main' && steps.key.outputs.signed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v=${{ steps.apk.outputs.version }}
+          if gh release view "v$v" >/dev/null 2>&1; then
+            gh release upload "v$v" "Ki-Clash-$v.apk" --clobber
+          else
+            gh release create "v$v" "Ki-Clash-$v.apk" --target "$GITHUB_SHA" --title "Ki-Clash $v" \
+              --notes "APK Android da versão $v. Novidades no CHANGELOG.md. Para instalar: baixe o arquivo .apk no celular e permita instalar apps desta fonte."
+          fi
