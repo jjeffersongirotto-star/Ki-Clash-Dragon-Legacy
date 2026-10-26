@@ -33,8 +33,13 @@ _Respostas às perguntas 3 a 15. Substitui a ideia "Equipamentos para ascender p
 - **Status:** ataque e vida sobem **só nos degraus e ao ascender**: "+" dá +10%, "++" mais +10% e a nova cor dá o bônus da cor (como hoje). Encher a barra de XP não aumenta status.
 - **De onde vêm:** cada fase dá **sempre o mesmo item** (sem sorteio do tipo). Cai **1 item por vitória ou Repetir**, com a **cor sorteada pela dificuldade**:
   - **Fácil:** cinza 70% ou verde 30% · **Normal:** azul 70% ou roxo 30% · **Difícil:** roxo 70% ou laranja 30%.
+- **De onde vem o XP (pergunta 16):** de **três fontes juntas**: Orbes (no Treinar), **cópias repetidas** do personagem (com chance de 1,5×, decisões 5 e 38 do plano) e **XP por jogar** (o personagem ganha XP nas batalhas).
+- **Orbes 🔮 (pergunta 17):** o Orbe **substitui o 📜 Pergaminho e o 💎 Cristal**. Existe nas **6 raridades** (Comum, Incomum, Raro, Épico, Lendário, Mítico), cada uma com a sua cor, e dá **mais XP quanto mais rara**. Os Pergaminhos e Cristais que o jogador já tem viram Orbes.
 - **Junto com isso:** diminuir os bônus das recompensas atuais.
 - **A conferir quando for fazer:** isso muda a regra do plano "crescimento de ataque e vida fica como está" (hoje o status também sobe por nível) e as habilidades que melhoram no nível 20/25/30. Os saves antigos precisam de uma conversão (nível atual → barra de XP).
+
+### "Raridade" no lugar de "cor" (pergunta 18)
+- Em todo o jogo (telas, REGRAS e textos), quando falar das cartas, usar **raridade** em vez de **cor** (ex.: "evolui de raridade", "raridade atual"). As cores continuam no visual; só o nome muda.
 
 ### Combinados de trabalho (26/10/2026)
 - Depois que a CI passa, **eu mesmo faço o merge** do PR.
