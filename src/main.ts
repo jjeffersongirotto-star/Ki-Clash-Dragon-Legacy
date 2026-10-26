@@ -1,7 +1,7 @@
 import { waitFor } from './core/battle';
 import './ui/style.css';
 import { CATEGORY_INFO, PLAYABLE, RACE_INFO, STAR_COLORS, getChar, isComingSoon } from './core/characters';
-import { STAGES } from './core/campaign';
+import { STAGES, type Stage } from './core/campaign';
 import { TIER_NAMES, XP_ITEMS, ascend, ascendCost, ascendCostFor, canAscend, cardMaxLevel, cardXpToNext, feedXp, maxLevel, newOwned, nextTier, statsFor, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
 import { playerLeaderImg, portraitImg, portraitSVG, unitSpriteSVG, warmLeader, warmPortraits } from './ui/art';
 import { cardPower, deckPower } from './core/power';
@@ -14,7 +14,9 @@ import { installPerfGuards } from './ui/perf';
 import { enterBattleMode, leaveBattleMode } from './ui/orientation';
 import { bakeGridArt } from './ui/gridArt';
 import { DECK_MIN, MAX_COPIES, addToDeck, rawSaveHas, copiesIn, deckCards, deckCount, deckIssue, deckMax, hasSave, loadSave, migrateV17, profileLevel, removeFromDeck, resetSave, setCopies, setSaveKey, teamReady, writeSave, type SaveData } from './ui/save';
-import { APP_VERSION, checkForUpdate } from './ui/update';
+import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from './ui/update';
+import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, DIFFICULTY_LABEL, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, useDaily, type Difficulty } from './core/adventure';
+import { LEADER_ENEMY_URL } from './ui/art';
 import { adminSave, createAccount, loadAccounts, login, logout, saveKeyFor, NAME_MAX, PASS_MIN } from './ui/accounts';
 
 const app = document.getElementById('app')!;
@@ -33,7 +35,13 @@ function openAccountSave(): SaveData {
     writeSave(d);
     return d;
   }
-  return loadSave();
+  const d = loadSave();
+  // v0.20.0: a ADM tem todas as fases vencidas em todas as dificuldades
+  if (id && accounts.accounts[id]?.admin && !d.clearedDiff?.dificil?.length) {
+    d.clearedDiff = adminSave().clearedDiff;
+    writeSave(d);
+  }
+  return d;
 }
 let save: SaveData = openAccountSave();
 const firstChar = () => save.deck.find((id) => !isSpell(id) && save.cards[id]) ?? Object.keys(save.cards)[0];
@@ -152,10 +160,11 @@ function home() {
     <nav class="menu">
       <button class="btn primary" data-nav="adventure">⚔ Aventura <small>${next ? `Fase ${next.id}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
       <button class="btn" data-nav="collection">🃏 Coleção & Baralho <small>${Object.keys(save.cards).length}/${PLAYABLE.length} personagens</small></button>
-      <button class="btn" data-nav="train">🔥 Treinar & Despertar <small>Suba nível e evolua de cor</small></button>
+      <button class="btn" data-nav="train">🔥 Treinar & Despertar</button>
       <button class="btn ghost" data-nav="help">❓ Como jogar</button>
     </nav>
     <button class="link-btn" id="reset">Apagar progresso</button>
+    ${isNativeApp() ? '' : `<a class="btn download-btn" href="${APK_DOWNLOAD_URL}" rel="noopener" title="Baixar o app Android (APK)">⬇ Baixar</a>`}
   </div>`;
   bindNav();
   app.querySelector('#accIn')?.addEventListener('click', accountDialog);
@@ -237,30 +246,161 @@ async function accountDialog() {
 }
 
 // ---------------- AVENTURA ----------------
+/** v0.20.0: posição de cada fase no mapa (fração da largura), da fase 1 (embaixo) à 10 (em cima) */
+const MAP_X = [0.27, 0.72, 0.3, 0.7, 0.28, 0.72, 0.31, 0.69, 0.28, 0.5];
+const MAP_STEP = 168;
+const MAP_BOTTOM = 92;
+const MAP_TOP = 150;
+const advDiff = (): Difficulty => save.difficulty ?? 'facil';
+type NodeState = 'done' | 'next' | 'lock';
+const nodeState = (diff: Difficulty, id: number): NodeState => (isCleared(save, diff, id) ? 'done' : stageUnlocked(save, diff, id) ? 'next' : 'lock');
+
+/** v0.20.0: Aventura em mapa — abas de dificuldade no topo e as fases como bolinhas num caminho pontilhado. */
 function adventure() {
   leaveBattleMode();
-  app.innerHTML = `<div class="screen">${topbar('Aventura')}
-    <p class="hint">Seu Comandante: <b>${esc(activeLeader().name)} Nv.${leaderLevel()}</b> ❤${leaderHp(activeLeader(), leaderLevel())} · Poder do baralho <b>⚡ ${fmt(teamPower())}</b></p>
-    <p class="hint">Nível de perfil <b>${profileLevel(save)}</b> · Seu baralho (<b>${deckCount(save)}/${deckMax(save)}</b>): ${save.deck.map((id) => `${esc(entryName(id))} ×${copiesIn(save, id)}`).join(', ')}</p>
+  const diff = advDiff();
+  app.innerHTML = `<div class="screen adventure">${topbar('Aventura')}
+    <div class="diff-tabs" role="tablist">${DIFFICULTIES.map((d) => {
+      const open = difficultyUnlocked(save, d);
+      return `<button class="diff-tab ${d === diff ? 'on' : ''} ${open ? '' : 'locked'}" role="tab" aria-selected="${d === diff}" data-diff="${d}">${open ? DIFFICULTY_ICON[d] : '🔒'} ${DIFFICULTY_LABEL[d]}</button>`;
+    }).join('')}</div>
     ${teamReady(save) ? '' : `<p class="warn-bar">⚠ Baralho inválido: ${esc(deckIssue(save) ?? '')}. <button class="btn small" data-nav="collection">Arrumar baralho</button></p>`}
-    <div class="stages">${STAGES.map((s, i) => {
-      const unlocked = i === 0 || save.cleared.includes(STAGES[i - 1].id);
-      const done = save.cleared.includes(s.id);
-      // v0.18.0: o baralho da IA também tem feitiços
-      const foes = s.enemyDeck.filter((c) => !isSpell(c.charId));
-      const foeSpells = s.enemyDeck.filter((c) => isSpell(c.charId)).map((c) => getSpell(c.charId));
-      return `<div class="stage ${unlocked ? '' : 'locked'} ${done ? 'done' : ''}">
-        <div class="stage-num">${s.id}</div>
-        <div class="stage-info"><b>${esc(s.name)}</b>
-          <small>Comandante inimigo ❤${s.enemyHeroHp} · Nível inimigo até ${Math.max(...foes.map((c) => c.level))}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</small>
-          <small>Recompensa: ✴${s.rewards.essencias} 📜${s.rewards.pergaminho}${s.rewards.cristal ? ` 💎${s.rewards.cristal}` : ''}${s.rewards.orbe ? ` 🔮${s.rewards.orbe}` : ''}${s.unlock && !save.cards[s.unlock] ? ` · desbloqueia <b>${esc(getChar(s.unlock).name)}</b>` : ''}</small>
-        </div>
-        <div class="stage-enemies">${foes.filter((c, k, a) => a.findIndex((x) => x.charId === c.charId) === k).slice(0, 5).map((c) => `<span class="mini" style="${starStyle(c.stars)}">${portraitImg(getChar(c.charId), { stars: c.stars })}</span>`).join('')}</div>
-        <button class="btn small ${unlocked ? 'primary' : ''}" data-stage="${s.id}" ${unlocked ? '' : 'disabled'}>${done ? 'Repetir' : unlocked ? 'Lutar' : '🔒'}</button>
-      </div>`;
-    }).join('')}</div></div>`;
+    <div class="adv-map" id="advMap"><div class="adv-track" id="advTrack"></div></div>
+  </div>`;
   bindNav();
-  app.querySelectorAll<HTMLElement>('[data-stage]').forEach((el) => el.addEventListener('click', () => startBattle(+el.dataset.stage!)));
+  app.querySelectorAll<HTMLElement>('[data-diff]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const d = el.dataset.diff as Difficulty;
+      if (!difficultyUnlocked(save, d)) {
+        const prev = DIFFICULTIES[DIFFICULTIES.indexOf(d) - 1];
+        void gameAlert(`${DIFFICULTY_LABEL[d]} bloqueado`, `Vença a fase ${STAGES.length} no ${DIFFICULTY_LABEL[prev]} para liberar o ${DIFFICULTY_LABEL[d]}.`, '🔒');
+        return;
+      }
+      save.difficulty = d;
+      persist();
+      adventure();
+    }),
+  );
+  drawMap(true);
+}
+
+/** Desenha o caminho e as fases com a largura atual (de novo ao girar/redimensionar a tela). */
+function drawMap(scrollToNext = false) {
+  const map = app.querySelector<HTMLElement>('#advMap');
+  const track = app.querySelector<HTMLElement>('#advTrack');
+  if (!map || !track) return;
+  const diff = advDiff();
+  const w = track.clientWidth || 360;
+  const h = MAP_TOP + MAP_STEP * (STAGES.length - 1) + MAP_BOTTOM;
+  const pos = STAGES.map((_, i) => [Math.round(MAP_X[i] * w), h - MAP_BOTTOM - i * MAP_STEP] as const);
+  const states = STAGES.map((st) => nodeState(diff, st.id));
+  const segs = pos.slice(0, -1).map(([x1, y1], i) => {
+    const [x2, y2] = pos[i + 1];
+    const my = (y1 + y2) / 2;
+    // o trecho acende quando a fase de baixo já foi vencida
+    return `<path class="adv-path ${states[i] === 'done' ? 'lit' : ''}" d="M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}"/>`;
+  });
+  track.style.height = `${h}px`;
+  track.innerHTML = `<svg class="adv-paths" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">${segs.join('')}</svg>
+    ${STAGES.map((st, i) => {
+      const state = states[i];
+      const left = state === 'done' ? dailyLeft(save.daily, diff, st.id) : 0;
+      return `<button class="adv-node ${state}" data-st="${st.id}" style="left:${pos[i][0]}px;top:${pos[i][1]}px" aria-label="Fase ${st.id}: ${esc(st.name)}">
+        <img class="adv-cmd" src="${LEADER_ENEMY_URL}" alt="" draggable="false" style="animation-delay:-${(i * 0.37).toFixed(2)}s">
+        <span class="adv-ball">${state === 'done' ? '✓' : state === 'next' ? st.id : '🔒'}</span>
+        <span class="adv-name">${st.id}. ${esc(st.name)}</span>
+        ${state === 'done' ? `<span class="adv-left ${left ? '' : 'out'}">${left}/${DAILY_LIMIT} hoje</span>` : ''}
+        ${state === 'next' ? '<span class="adv-tag">PRÓXIMA</span>' : ''}
+      </button>`;
+    }).join('')}`;
+  track.querySelectorAll<HTMLElement>('[data-st]').forEach((el) => el.addEventListener('click', () => stageDialog(+el.dataset.st!)));
+  if (scrollToNext) {
+    // a próxima fase (ou a última vencida) fica visível, mais para baixo da tela
+    const k = Math.max(0, states.indexOf('next') >= 0 ? states.indexOf('next') : states.lastIndexOf('done'));
+    map.scrollTop = Math.max(0, pos[k][1] - map.clientHeight * 0.62);
+  }
+}
+let mapResize = 0;
+window.addEventListener('resize', () => {
+  clearTimeout(mapResize);
+  mapResize = window.setTimeout(() => drawMap(), 150);
+});
+
+/** Janela da fase: informações, Jogar (em cima) e Repetir (embaixo), com o limite do dia. */
+function stageDialog(stageId: number) {
+  const diff = advDiff();
+  const state = nodeState(diff, stageId);
+  if (state === 'lock') {
+    void gameAlert('Fase bloqueada', `Vença a fase ${stageId - 1} no ${DIFFICULTY_LABEL[diff]} para liberar esta.`, '🔒');
+    return;
+  }
+  const st = stageFor(stageId, diff);
+  const foes = st.enemyDeck.filter((c) => !isSpell(c.charId));
+  const foeSpells = st.enemyDeck.filter((c) => isSpell(c.charId)).map((c) => getSpell(c.charId));
+  const r = st.rewards;
+  const done = state === 'done';
+  const left = dailyLeft(save.daily, diff, stageId);
+  const play = canPlay(save, save.daily, diff, stageId);
+  const repeat = canRepeat(save, save.daily, diff, stageId);
+  void showDialog({
+    title: `Fase ${st.id} · ${st.name}`,
+    html: `<button class="stage-close" data-x aria-label="Fechar">✕</button>
+      <img class="stage-cmd" src="${LEADER_ENEMY_URL}" alt="">
+      <p class="stage-diff">Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
+      <p class="stage-line">Comandante inimigo ❤${st.enemyHeroHp} · Nível inimigo até ${Math.max(...foes.map((c) => c.level))}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</p>
+      <p class="stage-line">Recompensa: ✴${r.essencias} 📜${r.pergaminho}${r.cristal ? ` 💎${r.cristal}` : ''}${r.orbe ? ` 🔮${r.orbe}` : ''}${!done && st.unlock && !save.cards[st.unlock] ? ` · desbloqueia <b>${esc(getChar(st.unlock).name)}</b>` : ''}</p>
+      ${done ? `<p class="stage-left ${left ? '' : 'out'}">${left ? `Hoje: <b>${left}/${DAILY_LIMIT}</b> restantes` : 'Limite de hoje atingido. Volta amanhã.'}</p>` : ''}
+      <div class="stage-actions">
+        <button class="btn primary big" data-act="play" ${play ? '' : 'disabled'}>⚔ Jogar</button>
+        ${done ? `<button class="btn big" data-act="repeat" ${repeat ? '' : 'disabled'}>⟲ Repetir</button>` : ''}
+      </div>`,
+    buttons: [],
+    onMount: (root, close) => {
+      root.querySelector('.dialog')?.classList.add('stage-dialog');
+      root.querySelector('[data-x]')!.addEventListener('click', () => close('cancel'));
+      root.querySelector('[data-act=play]')!.addEventListener('click', () => {
+        close('play');
+        startBattle(stageId, diff);
+      });
+      root.querySelector('[data-act=repeat]')?.addEventListener('click', () => {
+        close('repeat');
+        repeatStage(stageId, diff);
+      });
+    },
+  });
+}
+
+/** Dá a recompensa inteira da fase (vitória ou Repetir). */
+function grantRewards(st: Stage) {
+  const r = st.rewards;
+  save.items.pergaminho += r.pergaminho;
+  save.items.cristal += r.cristal;
+  save.items.orbe += r.orbe;
+  save.essencias += r.essencias;
+  return `<div class="res big"><span>✴ +${r.essencias}</span><span>📜 +${r.pergaminho}</span>${r.cristal ? `<span>💎 +${r.cristal}</span>` : ''}${r.orbe ? `<span>🔮 +${r.orbe}</span>` : ''}</div>`;
+}
+
+/** Repetir: recompensa na hora, sem jogar a batalha (gasta 1 vez do dia). */
+function repeatStage(stageId: number, diff: Difficulty) {
+  if (!canRepeat(save, save.daily, diff, stageId)) return;
+  const st = stageFor(stageId, diff);
+  save.daily = useDaily(save.daily, diff, stageId);
+  const got = grantRewards(st);
+  persist();
+  resultModal(`<h2 class="win">⟲ Fase ${st.id} repetida</h2><p>${esc(st.name)} · ${DIFFICULTY_LABEL[diff]}</p>${got}<p class="hint">Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.</p>`);
+}
+
+function resultModal(html: string) {
+  modal(`${html}<div class="row"><button class="btn primary" data-m="adv">Continuar</button><button class="btn" data-m="train">Treinar</button></div>`, (m) => {
+    m.querySelector('[data-m=adv]')!.addEventListener('click', () => {
+      closeModal();
+      adventure();
+    });
+    m.querySelector('[data-m=train]')!.addEventListener('click', () => {
+      closeModal();
+      train();
+    });
+  });
 }
 
 /** Regra v0.17: o baralho precisa ter de 20 ao máximo do nível de perfil (janela do jogo, nunca alerta do navegador). */
@@ -278,12 +418,13 @@ async function teamWarning(): Promise<void> {
   if (v === 'team') collection();
 }
 
-function startBattle(stageId: number) {
+function startBattle(stageId: number, diff: Difficulty = advDiff()) {
   if (!teamReady(save)) {
     void teamWarning();
     return;
   }
-  const stage = STAGES.find((s) => s.id === stageId)!;
+  if (!canPlay(save, save.daily, diff, stageId)) return;
+  const stage = stageFor(stageId, diff);
   const deck = deckCards(save);
   window.scrollTo(0, 0);
   enterBattleMode();
@@ -295,25 +436,24 @@ function startBattle(stageId: number) {
       persist();
     },
     onExit: () => adventure(),
-    onFinish: (winner) => finishBattle(stageId, winner),
+    onFinish: (winner) => finishBattle(stageId, diff, winner),
     playerHeroHp: leaderHp(activeLeader(), leaderLevel()),
   });
 }
 
-function finishBattle(stageId: number, winner: string) {
-  const stage = STAGES.find((s) => s.id === stageId)!;
-  const first = !save.cleared.includes(stageId);
+/**
+ * Fim da batalha. Vitória: recompensa inteira; a primeira vitória da fase (nesta dificuldade) não gasta
+ * o limite do dia, as outras gastam 1. Derrota/empate: não gasta (e dá 1 Pergaminho de consolo).
+ */
+function finishBattle(stageId: number, diff: Difficulty, winner: string) {
+  const stage = stageFor(stageId, diff);
+  const first = !isCleared(save, diff, stageId);
   let html = '';
   if (winner === 'player') {
-    const mult = first ? 1 : 0.5;
-    const r = stage.rewards;
-    const got = { pergaminho: Math.ceil(r.pergaminho * mult), cristal: Math.floor(r.cristal * mult), orbe: first ? r.orbe : 0, essencias: Math.ceil(r.essencias * mult) };
-    save.items.pergaminho += got.pergaminho;
-    save.items.cristal += got.cristal;
-    save.items.orbe += got.orbe;
-    save.essencias += got.essencias;
+    const got = grantRewards(stage);
     const maxBefore = deckMax(save);
-    if (first) save.cleared.push(stageId);
+    if (first) markCleared(save, diff, stageId);
+    else save.daily = useDaily(save.daily, diff, stageId);
     const grew = deckMax(save) > maxBefore;
     let unlocked = '';
     if (stage.unlock && !save.cards[stage.unlock]) {
@@ -322,23 +462,15 @@ function finishBattle(stageId: number, winner: string) {
       const joined = addToDeck(save, def.id) > 0;
       unlocked = `<div class="unlock" style="${starStyle(def.minStars)}">${cardHTML(save.cards[def.id], { compact: true })}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${raceHTML(def)} ${categoryHTML(def, true)} · ${tierHTML(def.minStars)}${joined ? '<br><small>Entrou direto na sua equipe.</small>' : ''}</div></div>`;
     }
-    html = `<h2 class="win">🏆 Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : 'Recompensa de repetição (50%).'}</p>
-      <div class="res big"><span>✴ +${got.essencias}</span><span>📜 +${got.pergaminho}</span>${got.cristal ? `<span>💎 +${got.cristal}</span>` : ''}${got.orbe ? `<span>🔮 +${got.orbe}</span>` : ''}</div>${grew ? `<p class="hint">⬆ Nível de perfil <b>${profileLevel(save)}</b>: o baralho agora aceita até <b>${deckMax(save)}</b> cartas.</p>` : ''}${unlocked}`;
+    const opened = first && stageId === STAGES.length && DIFFICULTIES[DIFFICULTIES.indexOf(diff) + 1];
+    html = `<h2 class="win">🏆 Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : `Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.`}</p>
+      ${got}${grew ? `<p class="hint">⬆ Nível de perfil <b>${profileLevel(save)}</b>: o baralho agora aceita até <b>${deckMax(save)}</b> cartas.</p>` : ''}${opened ? `<p class="hint">🔓 Dificuldade <b>${DIFFICULTY_LABEL[opened]}</b> liberada!</p>` : ''}${unlocked}`;
   } else {
     save.items.pergaminho += 1;
     html = `<h2 class="lose">${winner === 'empate' ? '⏱ Empate' : '💀 Derrota'}</h2><p>Treine seus personagens com itens de XP e tente de novo! (+1 📜)</p>`;
   }
   persist();
-  modal(`${html}<div class="row"><button class="btn primary" data-m="adv">Continuar</button><button class="btn" data-m="train">Treinar</button></div>`, (m) => {
-    m.querySelector('[data-m=adv]')!.addEventListener('click', () => {
-      closeModal();
-      adventure();
-    });
-    m.querySelector('[data-m=train]')!.addEventListener('click', () => {
-      closeModal();
-      train();
-    });
-  });
+  resultModal(html);
 }
 
 // ---------------- COLEÇÃO ----------------

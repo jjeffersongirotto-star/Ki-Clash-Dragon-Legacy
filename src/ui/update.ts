@@ -9,6 +9,8 @@ import { Capacitor } from '@capacitor/core';
 export const APP_VERSION = __APP_VERSION__;
 export const RELEASES_API = 'https://api.github.com/repos/jjeffersongirotto-star/Ki-Clash-Dragon-Legacy/releases/latest';
 export const RELEASES_PAGE = 'https://github.com/jjeffersongirotto-star/Ki-Clash-Dragon-Legacy/releases/latest';
+/** v0.20.0: botão Baixar do site — o APK da última versão, publicado também com nome fixo pela CI */
+export const APK_DOWNLOAD_URL = 'https://github.com/jjeffersongirotto-star/Ki-Clash-Dragon-Legacy/releases/latest/download/Ki-Clash.apk';
 
 /** > 0 se `a` for mais nova que `b` ("0.19.1" > "0.19.0"; aceita "v" na frente). */
 export function compareVersions(a: string, b: string): number {

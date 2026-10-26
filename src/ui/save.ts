@@ -5,6 +5,7 @@ import { isSpell } from '../core/spells';
 import type { CardInstance } from '../core/types';
 import { DEFAULT_LEADER, LEADERS } from '../core/leaders';
 import { newOwned, type OwnedCard, type XpItemId } from '../core/progression';
+import { DIFFICULTIES, type DailyUse, type Difficulty } from '../core/adventure';
 
 export interface SaveData {
   version: 1;
@@ -30,6 +31,12 @@ export interface SaveData {
   copies?: Record<string, number>;
   /** migração v0.17 */
   v17?: boolean;
+  /** v0.20.0: fases vencidas no Normal e no Difícil (o Fácil é `cleared`) */
+  clearedDiff?: { normal?: number[]; dificil?: number[] };
+  /** v0.20.0: vezes usadas hoje em cada fase/dificuldade (limite diário) */
+  daily?: DailyUse;
+  /** v0.20.0: última dificuldade escolhida na Aventura */
+  difficulty?: Difficulty;
 }
 
 let KEY = 'kicdl-save-v1';
@@ -80,6 +87,8 @@ export function defaultSave(): SaveData {
     v13: true,
     copies: {},
     v17: true,
+    clearedDiff: { normal: [], dificil: [] },
+    difficulty: 'facil',
   };
 }
 
@@ -213,10 +222,21 @@ export function loadSave(): SaveData {
     // sempre normaliza os Comandantes (save antigo sem o campo, ou campo corrompido)
     migrateV13(merged);
     migrateV17(merged);
+    normalizeV20(merged);
     return merged;
   } catch {
     return defaultSave();
   }
+}
+
+/** v0.20.0: garante os campos da Aventura (dificuldade, progresso por dificuldade, limite diário) bem formados. */
+export function normalizeV20(d: SaveData): SaveData {
+  const ids = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is number => Number.isInteger(x) && x >= 1) : []);
+  const cd = d.clearedDiff && typeof d.clearedDiff === 'object' ? d.clearedDiff : {};
+  d.clearedDiff = { normal: ids(cd.normal), dificil: ids(cd.dificil) };
+  if (!d.daily || typeof d.daily.day !== 'string' || typeof d.daily.used !== 'object' || !d.daily.used) d.daily = undefined;
+  if (!DIFFICULTIES.includes(d.difficulty as Difficulty)) d.difficulty = 'facil';
+  return d;
 }
 
 export function writeSave(d: SaveData) {

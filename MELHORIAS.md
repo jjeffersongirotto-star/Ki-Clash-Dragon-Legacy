@@ -4,68 +4,14 @@
 > Quando um item for feito, ele sai daqui e vai para o [CHANGELOG.md](CHANGELOG.md) (e as regras para o [REGRAS.md](REGRAS.md)).
 
 ## 🔜 Próxima atualização (decidido, falta fazer)
+_Nada pendente. Os itens 1 a 9 entraram na v0.20.0 (ver [CHANGELOG.md](CHANGELOG.md))._
 
-### 1. Aventura: tirar o texto do topo
-- Sai o texto acima da lista de fases: "Seu Comandante: Bárbaro Nv.10 · ❤110 · Poder do baralho…" e "Nível de perfil… · Seu baralho (40/40): …".
-- Ficam o botão **← Base** e a linha de recursos (✴ 📜 💎 🔮).
-
-### 2. Aventura: botões "Jogar" e "Repetir" nas fases já vencidas
-- Em cada fase vencida, **Jogar** fica em cima e **Repetir** embaixo.
-- **Jogar:** joga a batalha da fase normalmente.
-- **Repetir:** não joga a batalha. Entrega na hora a **recompensa inteira** da fase, como se tivesse vencido de novo.
-- **Limite de 5 por dia, POR FASE.** Cada "Repetir" gasta 1, e cada "Jogar" **vencido** gasta 1.
-  - A **primeira vitória** de uma fase não gasta.
-  - **Perder** não gasta.
-  - Quando as 5 acabam, a fase fica **bloqueada (Jogar e Repetir) até o dia seguinte**.
-  - As 5 vezes **voltam à meia-noite (horário de Brasília)**.
-  - Cada fase mostra quantas vezes ainda restam no dia, por exemplo **"3/5"**.
-- **Por quê:** o jogador não fica ganhando recompensas sem fim.
-- Hoje repetir uma fase dá metade da recompensa; com esta mudança passa a dar a recompensa inteira.
-
-### 3. Aventura: dificuldades Fácil, Normal e Difícil
-- **Onde:** 3 opções no **topo da tela, no centro**: **Fácil · Normal · Difícil**.
-- **Como funciona:** a escolhida vale para a lista de fases. Cada dificuldade tem **as mesmas fases**, mas com os personagens inimigos **mais fortes (com mais nível)** e, às vezes, **1 ou 2 cartas diferentes** no baralho inimigo para dificultar.
-- **Nesta atualização:** criar só os 3 botões e a lógica (cada fase com uma versão Fácil, Normal e Difícil). O **ajuste da dificuldade** de cada uma fica para depois, quando você pedir.
-- **A decidir (perguntar antes de fazer):**
-  - Normal e Difícil começam liberadas, ou só depois de vencer a fase no modo anterior?
-  - O limite de 5 por dia (item 2) é separado para cada dificuldade?
-  - A recompensa muda conforme a dificuldade?
-
-### 4. Aventura: fases num mapa com caminho pontilhado
-- As fases deixam de ser uma lista de cartões e viram um **mapa**: cada fase é uma **bolinha**, ligada à seguinte por um **caminho pontilhado**.
-- Em cima da bolinha de cada fase aparece o **Comandante**, um pouco acima da bolinha (sem encostar nela), com uma **faixa de luz nos pés** (dourada nas fases vencidas, azul na próxima, apagada nas bloqueadas) e **se movimentando** (respirando) como na batalha.
-- A próxima fase fica em **azul** com a etiqueta **PRÓXIMA**; as vencidas ficam **douradas** com ✓ e o contador do dia (ex.: "3/5 hoje").
-- Ao tocar numa fase vencida, abre uma janela com as informações e os botões **⚔ Jogar** e **⟲ Repetir** (sem texto explicativo entre parênteses).
-- Protótipo (imagem e GIF) enviado na conversa de 26/10/2026, ainda em ajuste.
-- Fases e caminhos começam **escuros** e vão **se iluminando** conforme o jogador vence as fases.
-- **A decidir (perguntar antes de fazer):**
-  - O Comandante em cima de cada bolinha é o **inimigo daquela fase** (cada fase com o seu) ou o **seu Bárbaro**, marcando onde você está?
-  - Ao tocar numa bolinha, abre uma janela com as informações da fase e os botões **Jogar / Repetir** (e o contador "3/5")?
-  - O caminho sobe na tela (fase 1 embaixo, como nos jogos de mapa) ou desce (fase 1 em cima)?
-
-### 5. Tirar as explicações de dentro dos botões
-- Botões ficam só com o nome da ação, sem texto explicativo (em parênteses ou em letra pequena).
-- Encontrados no jogo hoje:
-  - Base → **🔥 Treinar & Despertar** "Suba nível e evolua de cor" — explicação: **sai**.
-  - Base → **⚔ Aventura** "Fase 4: Deserto Rubro" e **🃏 Coleção & Baralho** "11/13 personagens" — informação, não explicação: **a decidir**.
-  - Detalhes da carta → aba da cor com **"(atual)"** — **a decidir**.
-  - Treinar → **✨ Despertar para … (✴ 120)** — é o custo, não explicação: **a decidir**.
-  - Coleção → filtro **🌟 Todos (13)** — é a contagem: **a decidir**.
-
-### 6. Batalha: Comandantes maiores
-- Com a arena de 12 colunas, os Comandantes ficaram pequenos dentro dos retângulos das pontas.
-- Aumentar o Comandante (Bárbaro e minotauro) para **ocupar a altura do retângulo**, sem ficar destoante do resto da tela (deitado no celular e no computador).
-
-### 7. Batalha: deitar a tela sozinho
-- Ao começar a batalha, **deitar a tela automaticamente**, em vez de mostrar o aviso "Gire o celular para jogar deitado".
-- **No app (APK):** dá para travar a tela deitada na batalha e voltar a ficar livre ao sair, sempre.
-- **No site (navegador):** o navegador só deixa travar a tela deitada em tela cheia. O jogo já tenta isso ao entrar na batalha; quando o navegador não deixar, o aviso continua aparecendo como plano B.
-
-### 8. Design responsivo em qualquer plataforma
-- Todas as telas (Base, Aventura com o mapa, Coleção, Treinar, batalha e janelas) devem se ajustar bem a **qualquer tamanho de tela**: celular pequeno e grande (em pé e deitado), tablet, computador e monitor grande.
-- Nada cortado, sobreposto ou pequeno demais para tocar; textos legíveis; aproveitar o espaço em telas grandes (sem ficar tudo esticado ou perdido no meio).
-- **Como conferir:** abrir cada tela numa lista de tamanhos de referência (ex.: 360×640, 412×915, 915×412, 768×1024, 1024×768, 1366×768, 1920×1080, 2560×1440), tirar fotos de todas e corrigir o que estiver ruim.
-- **A decidir:** há alguma tela ou aparelho específico em que você já viu problema?
+## ❓ A decidir (perguntas abertas)
+- **Ajuste fino das dificuldades:** hoje Normal = +3 níveis e Difícil = +6 níveis nos inimigos, sem cartas trocadas, e a mesma recompensa nas três. Você vai dizer como ajustar (níveis, quais cartas trocar em cada fase, recompensa maior no Normal/Difícil?).
+- **Liberação das dificuldades:** hoje o Normal abre ao vencer a fase 10 no Fácil (e o Difícil, a fase 10 no Normal). Manter assim?
+- **Limite diário:** hoje é separado por dificuldade (5 no Fácil + 5 no Normal + 5 no Difícil, em cada fase). Manter assim?
+- **Comandante em cima de cada fase:** hoje é o inimigo da fase (o minotauro em todas, porque as fases ainda usam a mesma arte). Quando houver Comandantes diferentes por fase, cada fase mostra o seu.
+- **Informações dentro dos botões (não são explicações):** "Fase 4: Deserto Rubro" no ⚔ Aventura, "11/13 personagens" no 🃏 Coleção & Baralho, "(atual)" na aba da cor da carta, o custo "(✴ 120)" no ✨ Despertar e a contagem em 🌟 Todos (13). Tirar também?
 
 ## 💡 Ideias para o futuro (ainda sem data)
 
