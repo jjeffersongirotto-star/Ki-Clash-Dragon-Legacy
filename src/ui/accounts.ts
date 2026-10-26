@@ -11,6 +11,7 @@ import { LEADERS } from '../core/leaders';
 import { STAGES } from '../core/campaign';
 import { MAX_STEP, type OwnedCard } from '../core/progression';
 import { defaultSave, type SaveData } from './save';
+import { TUT_DONE } from '../core/tutorial';
 
 export const ACCOUNTS_KEY = 'kicdl-accounts-v1';
 /** chave do progresso sem conta (o progresso antigo de quem já jogava continua aqui) */
@@ -132,6 +133,7 @@ export function adminSave(): SaveData {
   // v0.24.0: 99 de cada item de ascensão em cada raridade
   d.gear = Object.fromEntries(GEAR.flatMap((g) => GEAR_RARITIES.map((r) => [gearKey(g.id, r), 99])));
   d.essencias = 99999;
+  d.tutorial = TUT_DONE; // v0.25.0: a ADM pula o tutorial
   d.leaders = Object.fromEntries(LEADERS.map((l) => [l.id, { level: l.hpByLevel.length }]));
   return d;
 }

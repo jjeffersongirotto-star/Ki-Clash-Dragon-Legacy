@@ -58,7 +58,8 @@ describe('v0.13 — Poder das cartas', () => {
     const team = STARTER_IDS.slice(0, 10).map((id) => ({ charId: id, stars: 1 }));
     expect(deckPower(team)).toBe(team.reduce((s, c) => s + cardPower(c), 0));
     expect(deckPower(team)).toBe(377);
-    expect(deckPower(defaultSave().deck.map((id) => defaultSave().cards[id]))).toBe(377);
+    // v0.25.0: o save novo começa só com o Riku (os 10 de Comum vinham no save novo até a v0.24)
+    expect(defaultSave().deck).toEqual(['riku']);
   });
 });
 

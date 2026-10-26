@@ -77,16 +77,23 @@ export const copiesOf = (c: CardInstance) => Math.max(1, Math.min(MAX_COPIES, Ma
 export const deckSize = (cards: CardInstance[]) => cards.reduce((n, c) => n + copiesOf(c), 0);
 
 /**
- * Regra v0.17.0: cada carta aparece uma vez na lista (com 1 a 3 cópias) e o baralho tem de
- * DECK_MIN a `max` cartas (o máximo cresce com o nível de perfil). Retorna o motivo quando não vale.
+ * v0.25.0: mínimo do baralho = 3 × personagens (até DECK_MIN). Quem tem só 3 personagens (logo depois do
+ * tutorial) luta com 9 cartas; com 7 ou mais personagens o mínimo volta a ser 20.
  */
-export function deckProblem(cards: CardInstance[], max = DECK_ABS_MAX): string | null {
+export const deckMinFor = (characters: number) => Math.max(1, Math.min(DECK_MIN, MAX_COPIES * Math.floor(characters)));
+
+/**
+ * Regra v0.17.0: cada carta aparece uma vez na lista (com 1 a 3 cópias) e o baralho tem de
+ * `min` a `max` cartas (o máximo cresce com o nível de perfil). Retorna o motivo quando não vale.
+ * v0.25.0: `min` padrão = 3 × personagens do próprio baralho (até DECK_MIN); a tela usa os personagens que o jogador TEM.
+ */
+export function deckProblem(cards: CardInstance[], max = DECK_ABS_MAX, min = deckMinFor(cards.filter((c) => !c.charId.startsWith('f-')).length)): string | null {
   const distinct = new Set(cards.map((c) => c.charId)).size;
   if (distinct !== cards.length) return 'há cartas repetidas na lista (use as cópias)';
   if (cards.some((c) => (c.copies ?? MAX_COPIES) > MAX_COPIES || (c.copies ?? 1) < 1)) return `cada carta pode ter de 1 a ${MAX_COPIES} cópias`;
   if (!cards.some((c) => !c.charId.startsWith('f-'))) return 'o baralho precisa de pelo menos 1 personagem';
   const n = deckSize(cards);
-  if (n < DECK_MIN) return `o baralho tem ${n} de no mínimo ${DECK_MIN} cartas`;
+  if (n < min) return `o baralho tem ${n} de no mínimo ${min} cartas`;
   if (n > max) return `o baralho passou do máximo de ${max} cartas`;
   return null;
 }

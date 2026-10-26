@@ -257,9 +257,9 @@ describe('mão e baralho', () => {
     expect(s.decks.player.step).toBe(step + 1);
     expect(s.decks.player.hand.slice(0, 3).map((x) => x.charId)).toEqual(before);
   });
-  it('v0.17: só começa a batalha com baralho de 20 a 40 cartas, sem entradas repetidas', () => {
-    const six = deck10.slice(0, 6); // 6 × 3 = 18
-    expect(() => createBattle({ playerDeck: six, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow(/18 de no mínimo 20/);
+  it('v0.17: só começa a batalha com baralho de 20 a 40 cartas, sem entradas repetidas (v0.25.0: mínimo 3 × personagens, até 20)', () => {
+    const six = deck10.slice(0, 6).map((x) => ({ ...x, copies: 2 })); // 6 × 2 = 12 (mínimo 6 × 3 = 18)
+    expect(() => createBattle({ playerDeck: six, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow(/12 de no mínimo 18/);
     expect(() => createBattle({ playerDeck: deck10, enemyDeck: six, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow();
     expect(() => createBattle({ playerDeck: deck10.slice(0, 9).concat([c('riku')]), enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow(/repetidas/);
     expect(() => createBattle({ playerDeck: deck10.slice(0, 7), enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).not.toThrow();

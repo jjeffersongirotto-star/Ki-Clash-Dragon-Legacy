@@ -63,7 +63,7 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 
 ## 4. Mão e baralho
 ### Baralho (v0.17.0: até 3 cópias e limite pelo nível de perfil)
-- **v0.17.0 (decisão 6):** cada carta (personagem **ou feitiço**) entra no baralho com **1 a 3 cópias** (antes eram sempre 4). O baralho precisa ter **de 20 cartas até o máximo do seu nível de perfil** e **pelo menos 1 personagem**. Detalhes na seção 16.
+- **v0.17.0 (decisão 6):** cada carta (personagem **ou feitiço**) entra no baralho com **1 a 3 cópias** (antes eram sempre 4). O baralho precisa ter **de 20 cartas até o máximo do seu nível de perfil** e **pelo menos 1 personagem**. Detalhes na seção 16. (**v0.25.0:** o mínimo é **3 × personagens que você tem**, até 20 — ver seção 24.)
 - **Máximo = 28 + 2 × nível de perfil, até 40:** nível 1 = 30 · nível 2 = 32 · … · nível 6 ou mais = 40. **Nível de perfil (por enquanto) = 1 + fases vencidas** (máx. 11; a fase 3 do plano traz o nível de perfil completo).
 - A IA joga com os 10 personagens da fase × **3 cópias = 30** e, **desde a v0.18.0**, os feitiços da fase com 2 cópias cada (fases 3 e 5 em diante; ver seção 17).
 - *Histórico (v0.8–v0.16): equipe de exatamente 10 cartas diferentes × 4 cópias = 40.*
@@ -381,7 +381,7 @@ Habilidades em detalhe:
 ## 13. Equipe e janelas do jogo
 - **v0.17.0:** a tela **Coleção & Baralho** mostra o baralho com **N/máximo**, cada carta com os botões **− ×N +** de cópias, e uma seção **✦ Feitiços**. **Colocar no baralho** põe a carta com o máximo de cópias que couber (até 3); com o baralho cheio aparece a janela **Baralho cheio** (não há mais janela de troca). Tirar uma carta que deixa o baralho inválido mostra um aviso. As regras abaixo sobre "10 personagens" e "troca" valem até a v0.16.
 - *(até a v0.16)* A equipe é o seu baralho e precisa ter **exatamente 10 personagens diferentes** para lutar (cada um vale 4 cópias). Dá para tirar alguém e ficar com menos de 10 enquanto monta a equipe, mas aí a batalha fica bloqueada: o jogo avisa ao tirar, a tela de Coleção mostra "faltam N" em vermelho, a Aventura mostra um aviso com **Completar equipe**, e **Lutar** abre a janela **Equipe incompleta** com **Ir para a equipe**.
-- **Novo jogo:** você começa **só com personagens Comuns** — os **12 iniciais** (2 de cada categoria). A equipe começa com 10 deles; os outros 2 ficam na coleção para trocar. Ao desbloquear um personagem, ele **entra direto na equipe** se houver vaga.
+- **Novo jogo (até a v0.24.0; desde a v0.25.0 o jogo novo começa pelo tutorial, seção 24):** você começa **só com personagens Comuns** — os **12 iniciais** (2 de cada categoria). A equipe começa com 10 deles; os outros 2 ficam na coleção para trocar. Ao desbloquear um personagem, ele **entra direto na equipe** se houver vaga.
 - **Saves antigos (migração da v0.8, uma única vez):** você **mantém todos os personagens, níveis, cores, itens e fases** que já tinha — inclusive **Kenji e Vorax**, se já tinham sido obtidos (ninguém perde progresso). Todo save também ganha os **9 novos personagens Comuns**. Se a equipe tiver menos de 10, ela é completada com os seus personagens mais fortes que estavam fora dela.
 - **Saves antigos (migração da v0.10, uma única vez):** as estrelas viram a cor de mesmo número (1★ Comum, 2★ Incomum, 3★ Raro, 4★ Épico, 5★ Lendário, 6★ Mítico), sempre na **cor base** (sem "+"). Cada personagem mantém a cor que já tinha, o nível e o XP (o nível máximo da cor base é o mesmo do antigo nível máximo).
 - Com a equipe cheia, **Colocar na equipe** abre a janela de **troca**: todas as cartas da equipe começam marcadas; toque nas que vão **sair** (ficam cinza com ✖). **Trocar** só libera quando o número certo estiver desmarcado; **Cancelar** não muda nada.
@@ -617,7 +617,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 - Conjurador obrigatório da categoria; força pelo ataque do conjurador; espera dos feitiços = custo − 1.
 - Feitiço lançado volta ao Baralho com a fila recomeçando.
 - Fila de compra proporcional ao número de cartas diferentes (igual à antiga com 10).
-- Baralho mínimo 20, máximo 28 + 2 × nível (até 40), nível = 1 + fases vencidas.
+- Baralho mínimo 20 (v0.25.0: 3 × personagens que você tem, até 20), máximo 28 + 2 × nível (até 40), nível = 1 + fases vencidas.
 - Inimigos com 3 cópias (v0.18.0: e feitiços a partir da fase 3, seção 17).
 - Não adotado ainda (perguntas abertas da proposta): reformulação das habilidades em %, "Escudo" como reserva de pontos, bônus de nível, teto da Emboscada e a regra nova da Prole.
 
@@ -744,7 +744,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 | Lendário (laranja) | 1.500 |
 | Mítico (vermelho) | 3.000 |
 
-- **Conversão dos saves (sem perder XP):** 📜 Pergaminho → **Orbe Comum**, 💎 Cristal → **Orbe Raro**, 🔮 Orbe do Dragão Ancestral → **Orbe Lendário**. Save novo começa com **10 Orbes Comuns e 3 Raros** (o mesmo XP de antes).
+- **Conversão dos saves (sem perder XP):** 📜 Pergaminho → **Orbe Comum**, 💎 Cristal → **Orbe Raro**, 🔮 Orbe do Dragão Ancestral → **Orbe Lendário**. Save novo começa com **10 Orbes Comuns e 3 Raros** (o mesmo XP de antes; desde a v0.25.0 eles vêm na recompensa do tutorial).
 - Usados no **Treinar** (um botão por raridade). Nas barras de recursos aparecem só os Orbes que o jogador tem.
 
 ### Orbes nas fases (pela dificuldade)
@@ -910,3 +910,39 @@ Cada categoria de personagem tem o seu **conjunto de 5 itens**:
 
 - Os itens **seguram a evolução**: só sobe de degrau quem tem os itens certos, e o Fácil dá mais cinza (o verde, que todo degrau pede, sai em 40% desde a v0.24.1). Repetir a **mesma** fase ajuda pouco, porque ela dá sempre os mesmos 3 itens: o jogador precisa escolher **em quais fases** jogar.
 - O reequilíbrio vem nas próximas etapas: **tutorial** (XP para começar) e **energia**. (`SIM_GEAR=0` desliga os itens no simulador, para comparar.)
+
+## 24. 🎓 Tutorial e pacotes de personagens (v0.25.0)
+- **Jogo novo começa pelo tutorial**, uma fase **só do tutorial**, antes da fase 1 (a fase 1 não mudou). A Base só abre depois dele.
+  1. **Batalha 1:** você começa só com o **Riku Vendaval** e luta 1 contra 1 (um Kuro, Comandante inimigo com ❤6). Feita para você vencer.
+  2. **Pacote grátis:** toque no 🎁 e ganhe a **Sora Brisa-Serena** (suporte que ataca de longe e cura) e a **Nara Lâmina-Lunar** (Corte Diagonal). Entram direto no baralho.
+  3. **Batalha 2:** Riku, Sora e Nara contra **Daichi, Hana e Tobi** (Comandante inimigo com ❤10), para conhecer as habilidades.
+- **Caixinhas de dica** aparecem por cima da batalha, uma por vez (objetivo, onde invocar, LUTAR, vida dos Comandantes, habilidades da Sora e da Nara, dos inimigos e o Auto). Dá para passar (**Próxima ›**) ou fechar (✕).
+- Perdeu uma batalha do tutorial? É só tentar de novo. **Pular tutorial** dá os personagens e a recompensa do mesmo jeito. O botão **👤 Já tenho conta** fica na tela do tutorial.
+- **Recompensa do tutorial:** **10 Orbes Comuns e 3 Raros** (o começo de antes, 2.200 XP: enche a barra do "+" dos 3), **✴12 Essências** (o Despertar do "+" dos 3) e os **itens do "+"** dos 3. Assim os 3 sobem para **Comum+** no Treinar.
+- **Pacote da primeira vitória de cada fase** (no Fácil): o desbloqueio de sempre (Aiko, Mei, Lyra, Gorath, Yume, Zarek, Nyx) **e um personagem de Comum**:
+
+| Fase | Pacote |
+|---|---|
+| 1 | Aiko, Daichi |
+| 2 | Mei, Hana |
+| 3 | Lyra, Tobi |
+| 4 | Gorath, Kael |
+| 5 | Yume, Toru |
+| 6 | Zarek, Jin |
+| 7 | Suri |
+| 8 | Nyx, Ren |
+| 9 | Kuro |
+| 10 | — (só faltariam Kenji e Vorax, "em breve") |
+
+- **Mínimo do baralho = 3 × personagens que você tem**, até 20 (com 3 personagens: 9 cartas; com 7 ou mais: 20). Na batalha, vale 3 × personagens do baralho.
+- **Saves antigos** (de antes desta versão) **pulam o tutorial** e ficam com tudo o que tinham. A conta **ADM** também pula.
+
+### Simulação (100 jogadores, `scripts/balance/move15.ts`; Fácil, sem Repetir; jogador que acabou o tutorial)
+| Vitória ao chegar | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| v0.24.1 (começo antigo: 12 de Comum) | 71% | 87% | 89% | 66% | 65% | 65% | 64% | 51% | 47% | 46% |
+| **v0.25.0**, baralho só de personagens (como o do jogador novo) | 93% | 92% | 95% | 63% | 59% | 56% | 61% | 62% | 52% | 52% |
+| v0.25.0 com 4 cartas de feitiço no baralho | 100% | 100% | 99% | 76% | 73% | 72% | 74% | 60% | 47% | 49% |
+
+- Um baralho **pequeno e forte** (só os 3 personagens, já em Comum+) vence as primeiras fases: a **fase 1 fica em 93%**. Da fase 4 em diante a dificuldade volta (os itens seguram a evolução; o reequilíbrio continua com a energia). `SIM_OLD_START=1` simula o começo antigo.
+

@@ -13,11 +13,12 @@ import { gameAlert, gameConfirm, showDialog } from './ui/dialog';
 import { installPerfGuards } from './ui/perf';
 import { enterBattleMode, leaveBattleMode } from './ui/orientation';
 import { bakeGridArt } from './ui/gridArt';
-import { DECK_MIN, MAX_COPIES, addToDeck, rawSaveHas, copiesIn, deckCards, deckCount, deckIssue, deckMax, hasSave, loadSave, migrateV17, profileLevel, removeFromDeck, resetSave, setCopies, setSaveKey, teamReady, writeSave, type SaveData } from './ui/save';
+import { MAX_COPIES, addToDeck, deckMin, tutorialDone, rawSaveHas, copiesIn, deckCards, deckCount, deckIssue, deckMax, hasSave, loadSave, migrateV17, profileLevel, removeFromDeck, resetSave, setCopies, setSaveKey, teamReady, writeSave, type SaveData } from './ui/save';
 import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from './ui/update';
 import { GEAR_CATEGORIES, GEAR_DROP, GEAR_PER_STEP, GEAR_RARE_CHANCE, GEAR_RARITIES, GEAR_SETS, STAGE_GEAR, reqRarity, addGear, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor, stageGearDrop } from './core/gear';
 import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_GOALS, addStars, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from './core/adventure';
 import { LEADER_ENEMY_URL } from './ui/art';
+import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_PACK, TUTORIAL_REWARD, TUTORIAL_STARTER, TUTORIAL_TIPS, TUT_BATTLE1, TUT_BATTLE2, TUT_DONE, TUT_PACK, tutorialGear } from './core/tutorial';
 import { adminSave, createAccount, loadAccounts, login, logout, saveKeyFor, NAME_MAX, PASS_MIN } from './ui/accounts';
 
 const app = document.getElementById('app')!;
@@ -57,7 +58,7 @@ let trainSel: string = firstChar();
 let raceFilter: string = 'all';
 
 const persist = () => writeSave(save);
-const unlockStage = (charId: string) => STAGES.find((s) => s.unlock === charId)?.id;
+const unlockStage = (charId: string) => STAGES.find((s) => s.pack.includes(charId))?.id;
 
 // ---------------- v0.13: PODER e COMANDANTE ----------------
 /** v0.17: o Poder do baralho soma cada personagem uma vez (cópias e feitiços não contam) */
@@ -149,7 +150,8 @@ function go(screen: string) {
 }
 
 // ---------------- BASE ----------------
-function home() {
+function home(): void {
+  if (!tutorialDone(save)) return tutorial(); // v0.25.0: o jogador novo começa pelo tutorial
   leaveBattleMode();
   const next = STAGES.find((s) => !save.cleared.includes(s.id));
   const acc = accounts.current ? accounts.accounts[accounts.current] : null;
@@ -362,7 +364,7 @@ function stageDialog(stageId: number) {
       <img class="stage-cmd" src="${LEADER_ENEMY_URL}" alt="">
       <p class="stage-diff">Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
       <p class="stage-line">Comandante inimigo ❤${st.enemyHeroHp} · Inimigos até ${(() => { const top = foes.reduce((a, c) => (c.stars * 3 + stepOf(c) > a.stars * 3 + stepOf(a) ? c : a)); return tierHTML(top.stars, stepOf(top)); })()}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</p>
-      <p class="stage-line">Recompensa: ✴${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && st.unlock && !save.cards[st.unlock] ? ` · desbloqueia <b>${esc(getChar(st.unlock).name)}</b>` : ''}</p>
+      <p class="stage-line">Recompensa: ✴${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && st.pack.some((id) => !save.cards[id]) ? ` · 🎁 pacote: <b>${st.pack.filter((id) => !save.cards[id]).map((id) => esc(getChar(id).name)).join(', ')}</b>` : ''}</p>
       <p class="stage-line">Itens: ${STAGE_GEAR[stageId - 1].map((id) => gearHTML(id, GEAR_DROP[diff][0])).join(' ')} <small>${100 - GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[GEAR_DROP[diff][0]].label} · ${GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[GEAR_DROP[diff][1]].label}</small></p>
       <ul class="stage-goals">${STAR_GOALS.map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}</li>`).join('')}</ul>
       ${done ? `<p class="stage-left ${left ? '' : 'out'}">${left ? `Hoje: <b>${left}/${DAILY_LIMIT}</b> restantes` : 'Limite de hoje atingido. Volta amanhã.'}</p>` : ''}
@@ -385,6 +387,19 @@ function stageDialog(stageId: number) {
       });
     },
   });
+}
+
+/** v0.25.0: dá os personagens do pacote que o jogador ainda não tem (entram direto no baralho se couber). */
+function grantPack(ids: string[]): string {
+  return ids
+    .filter((id) => !save.cards[id])
+    .map((id) => {
+      save.cards[id] = newOwned(id);
+      const def = getChar(id);
+      const joined = addToDeck(save, def.id) > 0;
+      return `<div class="unlock" style="${starStyle(def.minStars)}">${cardHTML(save.cards[def.id], { compact: true })}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${raceHTML(def)} ${categoryHTML(def, true)} · ${tierHTML(def.minStars)}${joined ? '<br><small>Entrou direto no seu baralho.</small>' : ''}</div></div>`;
+    })
+    .join('');
 }
 
 /** Dá a recompensa inteira da fase na dificuldade (vitória ou Repetir; v0.22.0: Orbes pela dificuldade, com as chances do Difícil). */
@@ -435,7 +450,7 @@ async function teamWarning(): Promise<void> {
   const v = await showDialog({
     title: 'Baralho inválido',
     icon: '🃏',
-    html: `<p class="dialog-msg">Para lutar, o baralho precisa ter de <b>${DECK_MIN}</b> a <b>${deckMax(save)}</b> cartas (até ${MAX_COPIES} cópias de cada carta) e pelo menos 1 personagem.</p>
+    html: `<p class="dialog-msg">Para lutar, o baralho precisa ter de <b>${deckMin(save)}</b> a <b>${deckMax(save)}</b> cartas (até ${MAX_COPIES} cópias de cada carta) e pelo menos 1 personagem.</p>
       <p class="dialog-msg">Agora: <b>${deckCount(save)}</b> cartas — ${esc(deckIssue(save) ?? '')}.</p>`,
     buttons: [
       { label: 'Agora não', value: 'cancel', kind: 'ghost' },
@@ -486,13 +501,8 @@ function finishBattle(stageId: number, diff: Difficulty, winner: string, end?: {
     const mask = starsOf(save, diff, stageId);
     const starsLine = `<div class="win-stars">${starsHTML(mask, fresh)}</div><ul class="stage-goals">${STAR_GOALS.map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}${fresh & (1 << i) ? ' <b class="new-tag">nova!</b>' : ''}</li>`).join('')}</ul>${fresh && starCount(mask) === STAR_GOALS.length ? '<p class="hint">⟲ Repetir liberado nesta fase!</p>' : ''}`;
     const grew = deckMax(save) > maxBefore;
-    let unlocked = '';
-    if (stage.unlock && !save.cards[stage.unlock]) {
-      save.cards[stage.unlock] = newOwned(stage.unlock);
-      const def = getChar(stage.unlock);
-      const joined = addToDeck(save, def.id) > 0;
-      unlocked = `<div class="unlock" style="${starStyle(def.minStars)}">${cardHTML(save.cards[def.id], { compact: true })}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${raceHTML(def)} ${categoryHTML(def, true)} · ${tierHTML(def.minStars)}${joined ? '<br><small>Entrou direto na sua equipe.</small>' : ''}</div></div>`;
-    }
+    // v0.25.0: pacote da primeira vitória — o desbloqueio da fase e um personagem de Comum
+    const unlocked = grantPack(stage.pack);
     const opened = first && stageId === STAGES.length && DIFFICULTIES[DIFFICULTIES.indexOf(diff) + 1];
     html = `<h2 class="win">🏆 Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : `Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.`}</p>
       ${starsLine}${got}${grew ? `<p class="hint">⬆ Nível de perfil <b>${profileLevel(save)}</b>: o baralho agora aceita até <b>${deckMax(save)}</b> cartas.</p>` : ''}${opened ? `<p class="hint">🔓 Dificuldade <b>${DIFFICULTY_LABEL[opened]}</b> liberada!</p>` : ''}${unlocked}`;
@@ -502,6 +512,120 @@ function finishBattle(stageId: number, diff: Difficulty, winner: string, end?: {
   }
   persist();
   resultModal(html);
+}
+
+// ---------------- TUTORIAL (v0.25.0) ----------------
+/** Tela do tutorial (o jogador novo cai aqui até terminar; a Base só abre depois). */
+function tutorial(): void {
+  leaveBattleMode();
+  closeModal();
+  const t = save.tutorial ?? TUT_DONE;
+  if (t >= TUT_DONE) return home();
+  const step = (n: number, label: string) => `<li class="${t > n ? 'done' : t === n ? 'now' : ''}">${t > n ? '✔' : n + 1}. ${label}</li>`;
+  const body =
+    t === TUT_BATTLE1
+      ? `<p>Bem-vindo! Antes da Aventura, uma batalha rápida para aprender. Você começa com o <b>${esc(getChar(TUTORIAL_STARTER).name)}</b>.</p>${cardHTML(save.cards[TUTORIAL_STARTER], { compact: true })}`
+      : t === TUT_PACK
+        ? `<p>Muito bem! Você ganhou um <b>pacote grátis</b> com 2 personagens novos.</p><div class="tut-pack" data-act="pack">🎁<small>Toque para abrir</small></div>`
+        : `<p>Agora com 3 personagens. Os inimigos desta batalha mostram como as <b>habilidades</b> funcionam.</p><div class="tut-cards">${TUTORIAL_CHARS.map((id) => cardHTML(save.cards[id], { compact: true })).join('')}</div>`;
+  app.innerHTML = `<div class="screen tutorial">
+    <h1>🎓 Tutorial</h1>
+    <ol class="tut-steps">${step(TUT_BATTLE1, 'Batalha 1')}${step(TUT_PACK, 'Pacote grátis')}${step(TUT_BATTLE2, 'Batalha 2')}</ol>
+    <div class="tut-body">${body}</div>
+    <div class="row">${t === TUT_PACK ? '' : `<button class="btn primary big" data-act="go">⚔ ${t === TUT_BATTLE1 ? 'Começar' : 'Lutar'}</button>`}</div>
+    <button class="link-btn" data-act="skip">Pular tutorial</button>
+    ${accounts.current ? '' : '<button class="btn small ghost tut-acc" data-act="acc">👤 Já tenho conta</button>'}
+  </div>`;
+  app.querySelector('[data-act=acc]')?.addEventListener('click', accountDialog);
+  app.querySelector('[data-act=go]')?.addEventListener('click', () => tutorialBattle(t === TUT_BATTLE1 ? 0 : 1));
+  app.querySelector('[data-act=pack]')?.addEventListener('click', openTutorialPack);
+  app.querySelector('[data-act=skip]')!.addEventListener('click', async () => {
+    if (!(await gameConfirm('Pular tutorial?', 'Você recebe os personagens e a recompensa do tutorial do mesmo jeito.', 'Pular'))) return;
+    grantPack(TUTORIAL_PACK);
+    finishTutorial();
+  });
+}
+
+function openTutorialPack() {
+  const got = grantPack(TUTORIAL_PACK);
+  save.tutorial = TUT_BATTLE2;
+  persist();
+  resultModalWith(`<h2 class="win">🎁 Pacote aberto!</h2>${got}<p class="hint">Eles já entraram no seu baralho.</p>`, [{ label: 'Continuar', primary: true, run: tutorial }]);
+}
+
+/** Batalha do tutorial: baralho só com os personagens do tutorial (3 cópias), com as caixinhas de dica. */
+function tutorialBattle(i: 0 | 1) {
+  const stage = TUTORIAL_BATTLES[i];
+  const ids = i === 0 ? [TUTORIAL_STARTER] : TUTORIAL_CHARS;
+  const deck = ids.filter((id) => save.cards[id]).map((id) => ({ charId: id, stars: save.cards[id].stars, plus: stepOf(save.cards[id]), copies: MAX_COPIES }));
+  window.scrollTo(0, 0);
+  enterBattleMode();
+  app.innerHTML = '<div class="screen battle-screen" id="bs"></div>';
+  new BattleView(app.querySelector('#bs')!, stage, deck, {
+    speed: () => save.speed || 1,
+    setSpeed: (n) => {
+      save.speed = n;
+      persist();
+    },
+    onExit: () => tutorial(),
+    onFinish: (winner) => {
+      document.querySelector('.tut-tip')?.remove();
+      if (winner !== 'player') return resultModalWith(`<h2 class="lose">${winner === 'empate' ? '⏱ Empate' : '💀 Derrota'}</h2><p>Quase! Tente de novo.</p>`, [{ label: 'Tentar de novo', primary: true, run: () => tutorialBattle(i) }]);
+      if (i === 0) {
+        save.tutorial = TUT_PACK;
+        persist();
+        return resultModalWith('<h2 class="win">🏆 Vitória!</h2><p>Você venceu a sua primeira batalha!</p>', [{ label: 'Continuar', primary: true, run: tutorial }]);
+      }
+      finishTutorial();
+    },
+    playerHeroHp: leaderHp(activeLeader(), leaderLevel()),
+  });
+  showTips(TUTORIAL_TIPS[i]);
+}
+
+/** Caixinha de dica por cima da batalha, uma por vez (dá para fechar todas). */
+function showTips(tips: { icon: string; title: string; text: string }[]) {
+  document.querySelector('.tut-tip')?.remove();
+  let k = 0;
+  const box = document.createElement('div');
+  box.className = 'tut-tip';
+  const draw = () => {
+    const t = tips[k];
+    box.innerHTML = `<div class="tut-tip-head"><span>${t.icon}</span><b>${esc(t.title)}</b><small>${k + 1}/${tips.length}</small><button class="tut-x" aria-label="Fechar dicas">✕</button></div><p>${esc(t.text)}</p><button class="btn small primary tut-next">${k + 1 < tips.length ? 'Próxima ›' : 'Entendi'}</button>`;
+    box.querySelector('.tut-x')!.addEventListener('click', () => box.remove());
+    box.querySelector('.tut-next')!.addEventListener('click', () => (++k < tips.length ? draw() : box.remove()));
+  };
+  draw();
+  document.body.appendChild(box);
+}
+
+/** Fim do tutorial: recompensa (Orbes, Essências e os itens do "+" dos 3) e a Aventura liberada. */
+function finishTutorial() {
+  for (const [id, n] of Object.entries(TUTORIAL_REWARD.orbs)) save.items[id as XpItemId] += n ?? 0;
+  save.essencias += TUTORIAL_REWARD.essencias;
+  const gear = tutorialGear();
+  for (const [k, n] of Object.entries(gear)) (save.gear ??= {})[k] = (save.gear[k] ?? 0) + n;
+  for (const id of TUTORIAL_CHARS) if (save.cards[id]) addToDeck(save, id);
+  save.tutorial = TUT_DONE;
+  persist();
+  const items = Object.keys(gear).map((k) => { const [id, r] = k.split(':'); return gearHTML(id, Number(r), `+${gear[k]}`); }).join('');
+  resultModalWith(
+    `<h2 class="win">🎓 Tutorial concluído!</h2><p>Recompensa:</p><div class="res big"><span>✴ +${TUTORIAL_REWARD.essencias}</span>${orbBagHTML(TUTORIAL_REWARD.orbs)}${items}</div>
+    <p class="hint">Em <b>🔥 Treinar</b>, use os Orbes para encher a barra de XP e depois <b>Desperte</b> cada personagem para o "+" com os itens. Depois, vá para a <b>⚔ Aventura</b>: cada fase vencida pela primeira vez dá um pacote com personagens novos.</p>`,
+    [{ label: '🔥 Treinar', primary: true, run: () => train() }, { label: 'Base', run: home }],
+  );
+}
+
+/** Janela de resultado com botões próprios. */
+function resultModalWith(html: string, buttons: { label: string; primary?: boolean; run: () => void }[]) {
+  modal(`${html}<div class="row">${buttons.map((b, i) => `<button class="btn ${b.primary ? 'primary' : ''}" data-b="${i}">${b.label}</button>`).join('')}</div>`, (m) => {
+    m.querySelectorAll<HTMLButtonElement>('[data-b]').forEach((el) =>
+      el.addEventListener('click', () => {
+        closeModal();
+        buttons[Number(el.dataset.b)].run();
+      }),
+    );
+  });
 }
 
 // ---------------- COLEÇÃO ----------------
@@ -530,7 +654,7 @@ function collection() {
   app.innerHTML = `<div class="screen">${topbar('Coleção & Baralho')}
     ${leaderPanelHTML()}
     <section class="deck-bar">
-      <div class="deck-title"><span class="deck-power" title="Poder do baralho = soma do Poder de cada personagem do baralho (uma vez cada; feitiços não contam)">⚡ ${fmt(teamPower())}</span> Baralho <b>${count}/${max}</b> <small>(nível de perfil ${profileLevel(save)} · mínimo ${DECK_MIN} · até ${MAX_COPIES} cópias por carta${issue ? ` · <span class="warn">${esc(issue)}</span>` : ''})</small></div>
+      <div class="deck-title"><span class="deck-power" title="Poder do baralho = soma do Poder de cada personagem do baralho (uma vez cada; feitiços não contam)">⚡ ${fmt(teamPower())}</span> Baralho <b>${count}/${max}</b> <small>(nível de perfil ${profileLevel(save)} · mínimo ${deckMin(save)} · até ${MAX_COPIES} cópias por carta${issue ? ` · <span class="warn">${esc(issue)}</span>` : ''})</small></div>
       <div class="deck-slots deck-copies">${save.deck.map(entryHTML).join('')}${count < max ? '<div class="slot">+</div>' : ''}</div>
     </section>
     <div class="race-filters">

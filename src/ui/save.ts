@@ -1,5 +1,5 @@
 import { CHAR_BY_ID, STARTER_IDS } from '../core/characters';
-import { DECK_MIN, DECK_SLOTS, MAX_COPIES, deckProblem, deckSize } from '../core/deck';
+import { DECK_MIN, DECK_SLOTS, MAX_COPIES, deckMinFor, deckProblem, deckSize } from '../core/deck';
 import { deckMaxFor, profileLevelFor } from '../core/deckbuild';
 import { isSpell } from '../core/spells';
 import type { CardInstance } from '../core/types';
@@ -7,6 +7,7 @@ import { DEFAULT_LEADER, LEADERS } from '../core/leaders';
 import { LEGACY_ITEM_TO_ORB, XP_ITEMS, migrateBarV24, migrateOldCard, newOwned, stepOf, type OwnedCard, type XpItemId } from '../core/progression';
 import { normalizeGear, type GearBag } from '../core/gear';
 import { DIFFICULTIES, clearedIn, type DailyUse, type Difficulty } from '../core/adventure';
+import { TUTORIAL_STARTER, TUT_BATTLE1, TUT_DONE } from '../core/tutorial';
 
 export interface SaveData {
   version: 1;
@@ -46,6 +47,10 @@ export interface SaveData {
   gear?: GearBag;
   /** migração v0.24.0: barras na proporção 3 / 6 / 10 (a fração de progresso de cada carta é mantida) */
   v24?: boolean;
+  /** v0.25.0: etapa do tutorial (0 Batalha 1 · 1 pacote · 2 Batalha 2 · 3 concluído). Saves antigos: concluído. */
+  tutorial?: number;
+  /** migração v0.25.0 */
+  v25?: boolean;
 }
 
 /** Carta como era salva até a v0.22.0 (com nível numerado e `plus` verdadeiro/falso). */
@@ -77,7 +82,7 @@ export function hasSave(): boolean {
 export const DECK_MAX = DECK_SLOTS;
 export const DECK_REQUIRED = DECK_SLOTS;
 export { DECK_MIN, MAX_COPIES };
-/** v0.8: o jogador novo começa só com os personagens de Comum */
+/** v0.8–v0.24: personagens de Comum que todo jogador recebia (hoje só nas migrações de saves antigos) */
 export const STARTERS = STARTER_IDS;
 
 /** v0.22.0: as 6 raridades de Orbe sempre presentes (0 quando não tem) */
@@ -95,16 +100,17 @@ export function migrateOrbs(items: Record<string, unknown> | undefined): Record<
   return out;
 }
 
+/**
+ * v0.25.0: o jogador novo começa no tutorial, só com o Riku e sem Orbes nem Essências (os Orbes do começo de antes
+ * — 10 Comuns e 3 Raros — e as Essências vêm na recompensa do tutorial).
+ */
 export function defaultSave(): SaveData {
-  const cards: Record<string, OwnedCard> = {};
-  for (const id of STARTERS) cards[id] = newOwned(id);
   return {
     version: 1,
-    cards,
-    deck: STARTERS.slice(0, DECK_MAX),
-    // v0.22.0: o começo de antes (10 📜 e 3 💎) em Orbes
-    items: emptyOrbs({ orbe1: 10, orbe3: 3 }),
-    essencias: 10,
+    cards: { [TUTORIAL_STARTER]: newOwned(TUTORIAL_STARTER) },
+    deck: [TUTORIAL_STARTER],
+    items: emptyOrbs(),
+    essencias: 0,
     cleared: [],
     speed: 1,
     team10: true,
@@ -117,6 +123,8 @@ export function defaultSave(): SaveData {
     v17: true,
     v23: true,
     v24: true,
+    v25: true,
+    tutorial: TUT_BATTLE1,
     gear: {},
     clearedDiff: { normal: [], dificil: [] },
     difficulty: 'facil',
@@ -143,8 +151,10 @@ export function deckCards(d: SaveData): CardInstance[] {
     );
 }
 export const deckCount = (d: SaveData) => deckSize(deckCards(d));
+/** v0.25.0: mínimo do baralho = 3 × personagens que o jogador tem (até 20) */
+export const deckMin = (d: SaveData) => deckMinFor(Object.keys(d.cards).filter((id) => CHAR_BY_ID[id] && !CHAR_BY_ID[id].summonOnly).length);
 /** motivo de o baralho não valer (null = pode lutar) */
-export const deckIssue = (d: SaveData) => deckProblem(deckCards(d), deckMax(d));
+export const deckIssue = (d: SaveData) => deckProblem(deckCards(d), deckMax(d), deckMin(d));
 
 /** Coloca a carta no baralho com o máximo de cópias que couber (até 3). Retorna quantas entraram (0 = não coube). */
 export function addToDeck(d: SaveData, id: string): number {
@@ -259,6 +269,7 @@ export function loadSave(): SaveData {
     normalizeV20(merged);
     merged.items = migrateOrbs(d.items as Record<string, unknown>);
     merged.gear = normalizeGear(d.gear); // v0.24.0: save sem itens de ascensão começa com a mochila vazia
+    migrateV25(merged, d);
     return merged;
   } catch {
     return defaultSave();
@@ -282,6 +293,18 @@ export function migrateV23(d: SaveData): SaveData {
   d.v24 = true;
   return d;
 }
+
+/**
+ * v0.25.0: saves de antes do tutorial já jogaram — pulam o tutorial e ficam com tudo o que tinham.
+ * Saves novos só têm a etapa conferida (0 a 3).
+ */
+export function migrateV25(merged: SaveData, raw: Partial<SaveData>): SaveData {
+  const t = Math.floor(Number(raw.tutorial));
+  merged.tutorial = raw.v25 && t >= TUT_BATTLE1 && t <= TUT_DONE ? t : TUT_DONE;
+  merged.v25 = true;
+  return merged;
+}
+export const tutorialDone = (d: SaveData) => (d.tutorial ?? TUT_DONE) >= TUT_DONE;
 
 /** v0.20.0: garante os campos da Aventura (dificuldade, progresso por dificuldade, limite diário) bem formados. */
 export function normalizeV20(d: SaveData): SaveData {
