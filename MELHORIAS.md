@@ -4,23 +4,14 @@
 > Quando um item for feito, ele sai daqui e vai para o [CHANGELOG.md](CHANGELOG.md) (e as regras para o [REGRAS.md](REGRAS.md)).
 
 ## 🔜 Próxima atualização (decidido, falta fazer)
+_Nada pendente. Os itens 1 a 9 entraram na v0.20.0 (ver [CHANGELOG.md](CHANGELOG.md))._
 
-### 1. Aventura: tirar o texto do topo
-- Sai o texto acima da lista de fases: "Seu Comandante: Bárbaro Nv.10 · ❤110 · Poder do baralho…" e "Nível de perfil… · Seu baralho (40/40): …".
-- Ficam o botão **← Base** e a linha de recursos (✴ 📜 💎 🔮).
-
-### 2. Aventura: botões "Jogar" e "Repetir" nas fases já vencidas
-- Em cada fase vencida, **Jogar** fica em cima e **Repetir** embaixo.
-- **Jogar:** joga a batalha da fase normalmente.
-- **Repetir:** não joga a batalha. Entrega na hora a **recompensa inteira** da fase, como se tivesse vencido de novo.
-- **Limite de 5 por dia, POR FASE.** Cada "Repetir" gasta 1, e cada "Jogar" **vencido** gasta 1.
-  - A **primeira vitória** de uma fase não gasta.
-  - **Perder** não gasta.
-  - Quando as 5 acabam, a fase fica **bloqueada (Jogar e Repetir) até o dia seguinte**.
-  - As 5 vezes **voltam à meia-noite (horário de Brasília)**.
-  - Cada fase mostra quantas vezes ainda restam no dia, por exemplo **"3/5"**.
-- **Por quê:** o jogador não fica ganhando recompensas sem fim.
-- Hoje repetir uma fase dá metade da recompensa; com esta mudança passa a dar a recompensa inteira.
+## ❓ A decidir (perguntas abertas)
+- **Ajuste fino das dificuldades:** hoje Normal = +3 níveis e Difícil = +6 níveis nos inimigos, sem cartas trocadas, e a mesma recompensa nas três. Você vai dizer como ajustar (níveis, quais cartas trocar em cada fase, recompensa maior no Normal/Difícil?).
+- **Liberação das dificuldades:** hoje o Normal abre ao vencer a fase 10 no Fácil (e o Difícil, a fase 10 no Normal). Manter assim?
+- **Limite diário:** hoje é separado por dificuldade (5 no Fácil + 5 no Normal + 5 no Difícil, em cada fase). Manter assim?
+- **Comandante em cima de cada fase:** hoje é o inimigo da fase (o minotauro em todas, porque as fases ainda usam a mesma arte). Quando houver Comandantes diferentes por fase, cada fase mostra o seu.
+- **Informações dentro dos botões (não são explicações):** "Fase 4: Deserto Rubro" no ⚔ Aventura, "11/13 personagens" no 🃏 Coleção & Baralho, "(atual)" na aba da cor da carta, o custo "(✴ 120)" no ✨ Despertar e a contagem em 🌟 Todos (13). Tirar também?
 
 ## 💡 Ideias para o futuro (ainda sem data)
 

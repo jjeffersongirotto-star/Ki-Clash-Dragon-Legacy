@@ -396,13 +396,13 @@ Habilidades em detalhe:
 - **Lendário e Mítico (Kenji e Vorax):** **bloqueados por enquanto**, sem forma de obter no jogo (nem missão especial). Aparecem na coleção, em "Ainda não obtidos", **apagados com cadeado** e a etiqueta **"🔒 Em breve"**. A forma de desbloquear será decidida numa atualização futura. Eles continuam aparecendo como **inimigos** nas fases finais.
 
 ## 14. Aventura
-- 10 fases; vencer libera a próxima. Primeira vitória dá a recompensa completa; repetir dá 50%.
+- 10 fases; vencer libera a próxima. **v0.20.0:** as fases ficam num **mapa** e existem em **3 dificuldades** (Fácil, Normal e Difícil); toda vitória e todo **Repetir** dão a **recompensa inteira**, com limite de **5 por dia em cada fase** (detalhes na seção 19). Antes: primeira vitória completa, repetir 50%.
 - **Desbloqueios (primeira vitória):** fase 1 → **Aiko** (Incomum) · fase 2 → **Mei** (Incomum) · fase 3 → **Lyra** (Incomum) · fase 4 → **Gorath** (Incomum) · fase 5 → **Yume** (Raro) · fase 6 → **Zarek** (Raro) · fase 8 → **Nyx-07** (Épico). Kenji e Vorax: em breve.
 - **Baralho da IA:** toda fase tem **10 personagens diferentes**. Fases 1 e 2 usam só personagens Comuns (a fase 1 sem tanques); a partir da 3 entram os de Incomum, Raro e Épico; Kenji (fases 8 e 9) e Vorax (fase 10) só aparecem como inimigos.
 - **Nível dos inimigos (v0.18.0):** fase 1 a 10 = **1, 4, 4, 5, 6, 6, 11, 14, 17, 12** (cada carta limitada ao nível máximo da cor dela; na fase 10 as cartas estão **uma cor acima**, por isso o nível é menor). Antes: 1, 2 e depois 1 + 1,5 × (fase − 1) → 1, 2, 4, 6, 7, 9, 10, 12, 13, 15. Ver seção 17.
 - **Vida do Comandante inimigo (v0.13):** 12 + 7 × (fase − 1) → 12, 19, 26, 33, 40, 47, 54, 61, 68, 75. Antes era 12 + 2 × (fase − 1); os +5 por fase a mais são **metade** do acréscimo de vida do seu Comandante no nível esperado daquela fase (ver seção 15).
 - Derrota dá 1 Pergaminho de Ki de consolo.
-- Progresso salvo no navegador (localStorage).
+- Progresso salvo no navegador (localStorage). O **nível de perfil** conta as fases vencidas no **Fácil**.
 
 ## 15. Poder ⚡ e Comandante 👑 (v0.13)
 ### Poder da carta
@@ -670,3 +670,41 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
   - **Versão nova (site):** botão **Atualizar** recarrega a página com a versão nova. O progresso continua.
   - **Sem internet** ou **nenhuma versão publicada ainda:** avisa e nada muda.
 - O app procura na página de **Releases** do GitHub; o site compara com o arquivo `version.json` publicado junto com ele. Nada é baixado sem você tocar em Baixar/Atualizar.
+
+## 19. Aventura em mapa, dificuldades e limite diário; telas (v0.20.0)
+### Mapa das fases
+- A Aventura mostra as fases como **bolinhas ligadas por um caminho pontilhado**, da **fase 1 (embaixo)** à **fase 10 (em cima)**. A tela abre já mostrando a próxima fase; o mapa rola para cima e para baixo.
+- Em cima de cada bolinha fica o **Comandante inimigo** da fase, **se movimentando** (respira, como na batalha).
+- **Vencida:** bolinha **dourada** com ✓, caminho aceso até a próxima e o contador do dia (ex.: **"3/5 hoje"**).
+- **Próxima:** bolinha **azul** com a etiqueta **PRÓXIMA**.
+- **Bloqueada:** bolinha **escura** com 🔒, caminho apagado e Comandante em silhueta. Elas vão se acendendo conforme você vence.
+- O texto que ficava em cima da lista (Comandante, Poder e baralho) saiu; ficam o **← Base** e os recursos.
+- **Tocar numa fase** abre a janela dela: dificuldade, Comandante inimigo, nível inimigo, feitiços, recompensa e o limite do dia, com **⚔ Jogar** (em cima) e **⟲ Repetir** (embaixo, só em fase vencida). ✕ fecha. Fase bloqueada: avisa qual fase vencer antes.
+
+### Dificuldades: 🟢 Fácil · 🟡 Normal · 🔴 Difícil
+- Abas no **topo da tela, no centro**. A escolhida fica destacada e é lembrada.
+- As **mesmas 10 fases**, mesmo Comandante, mesmos feitiços e a mesma recompensa. **Fácil** é a campanha de sempre (seção 14). **Normal:** cartas inimigas com **+3 níveis**; **Difícil:** **+6 níveis** (sempre limitado ao nível máximo da cor de cada carta). Cada dificuldade também aceita **trocar 1 ou 2 cartas** do inimigo por fase (nenhuma troca configurada ainda).
+- **Valores provisórios:** o ajuste fino da dificuldade e da recompensa de cada uma fica para depois.
+- **Progresso separado** por dificuldade. O **Normal** abre ao vencer a **fase 10 no Fácil**; o **Difícil**, a **fase 10 no Normal** (aba com 🔒 até lá). Dentro de cada uma, vencer uma fase libera a próxima.
+
+### Jogar, Repetir e o limite de 5 por dia
+- **⚔ Jogar:** joga a batalha da fase. **⟲ Repetir:** não joga; dá na hora a **recompensa inteira** da fase (inclusive 🔮), como se tivesse vencido.
+- **Limite: 5 vezes por dia em cada fase**, contadas **separadas por dificuldade**. Gastam 1: cada **Repetir** e cada **vitória** numa fase **já vencida**.
+- **Não gastam:** a **primeira vitória** da fase e as **derrotas** (nem sair da batalha).
+- Quando as 5 acabam, a fase fica **bloqueada (Jogar e Repetir) até o dia seguinte**. O limite volta à **meia-noite (horário de Brasília)**.
+- Toda vitória dá a **recompensa inteira** (antes, repetir dava 50%).
+
+### Batalha
+- **Comandantes maiores (deitado):** o Bárbaro e o minotauro ocupam a **altura do retângulo** das pontas (antes ficavam com a altura de 2 casas, que ficou pequena com a arena de 12 colunas). A imagem não distorce.
+- **Tela deitada automática:** no **app (APK)** a batalha **sempre deita a tela sozinha** e o aviso "Gire o celular" não aparece; ao sair, a tela fica livre de novo. No **site**, o jogo continua tentando tela cheia deitada ao entrar na batalha (o navegador só deixa em tela cheia); quando o navegador não deixa, o aviso continua como plano B.
+
+### Botões sem explicação
+- Os botões mostram só a ação, sem texto explicativo: saiu "Suba nível e evolua de cor" do **🔥 Treinar & Despertar** e a janela da fase usa só **⚔ Jogar** / **⟲ Repetir**. (Informações como a próxima fase, a contagem de personagens e custos continuam; ver MELHORIAS.md.)
+
+### Baixar o app (site)
+- No **site**, o botão **⬇ Baixar** no **canto inferior direito da Base** baixa o **APK da última versão** (arquivo `Ki-Clash.apk` da página de Releases). Em celular pequeno ele fica no fim da Base, à direita, para não cobrir os outros botões. Dentro do app ele não aparece.
+
+### Telas em qualquer tamanho (design responsivo)
+- Conferido em 8 tamanhos: celular pequeno e grande em pé (360×640, 412×915), celular deitado (915×412), tablet em pé e deitado (768×1024, 1024×768), notebook (1366×768), Full HD (1920×1080) e 2K (2560×1440).
+- **Telas grandes:** a partir de 1700×950 a interface (menus e batalha) cresce **1,3×**, e a partir de 2300×1300 cresce **1,75×**, para não ficar tudo pequeno no meio da tela.
+- **Batalha em pé** (quando o jogador escolhe "Jogar em pé"): nada passa mais da largura da tela (antes a arena vazava para os lados no celular pequeno e no tablet).

@@ -8,6 +8,15 @@
  * aviso "Gire o celular" e o layout em pé continua funcionando.
  * Ao sair da batalha, sai da tela cheia e destrava.
  */
+import { Capacitor } from '@capacitor/core';
+import { ScreenOrientation } from '@capacitor/screen-orientation';
+
+/**
+ * v0.20.0 — no app Android a batalha SEMPRE deita a tela sozinha (trava em paisagem pelo plugin nativo, sem
+ * precisar de tela cheia nem de toque) e o aviso "Gire o celular" não aparece. Ao sair, a tela fica livre de novo.
+ */
+const native = () => Capacitor.isNativePlatform();
+
 type OrientationLike = { lock?: (o: string) => Promise<void>; unlock?: () => void };
 
 const isTouch = () => typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches;
@@ -40,12 +49,22 @@ export async function requestLandscape(): Promise<boolean> {
 export function enterBattleMode(): void {
   if (typeof document === 'undefined') return;
   document.body.classList.add('in-battle');
+  if (native()) {
+    document.body.classList.add('native-landscape');
+    void ScreenOrientation.lock({ orientation: 'landscape' }).catch(() => document.body.classList.remove('native-landscape'));
+    return;
+  }
   void requestLandscape();
 }
 
 export function leaveBattleMode(): void {
   if (typeof document === 'undefined' || !document.body.classList.contains('in-battle')) return;
   document.body.classList.remove('in-battle');
+  if (native()) {
+    document.body.classList.remove('native-landscape');
+    void ScreenOrientation.unlock().catch(() => {});
+    return;
+  }
   try {
     (screen as unknown as { orientation?: OrientationLike }).orientation?.unlock?.();
   } catch {

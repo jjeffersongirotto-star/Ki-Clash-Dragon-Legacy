@@ -2,6 +2,15 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.20.0] — 26/10/2026 · PR #39 — Aventura em mapa, dificuldades e limite diário
+- **Mapa da Aventura:** as fases viram bolinhas num caminho pontilhado (fase 1 embaixo), com o Comandante inimigo em cima de cada uma, se movimentando. Vencidas douradas e acesas, a próxima em azul, bloqueadas escuras. Saiu o texto do topo (Comandante, Poder e baralho).
+- **Dificuldades Fácil / Normal / Difícil** no topo, ao centro: mesmas fases, inimigos com +3 / +6 níveis (provisório), progresso separado. Normal abre com a fase 10 no Fácil; Difícil com a fase 10 no Normal.
+- **Jogar e Repetir:** tocar numa fase abre a janela com ⚔ Jogar e ⟲ Repetir (recompensa na hora, sem jogar). Toda vitória e todo Repetir dão a recompensa inteira, com **limite de 5 por dia em cada fase** (primeira vitória e derrotas não gastam; volta à meia-noite de Brasília). Antes, repetir dava 50%.
+- **Batalha:** Comandantes ocupam a altura do retângulo das pontas; no app, a tela deita sozinha na batalha (sem o aviso "Gire o celular").
+- **Botões sem explicação:** saiu "Suba nível e evolua de cor" do Treinar & Despertar.
+- **Botão ⬇ Baixar** no canto inferior direito da Base do site: baixa o APK da última versão (a CI agora publica também `Ki-Clash.apk`, com nome fixo).
+- **Telas em qualquer tamanho:** conferido em 8 tamanhos de celular, tablet e computador; a interface cresce em monitores grandes (1,3× a partir de 1700×950, 1,75× a partir de 2300×1300) e a batalha em pé não vaza mais para os lados.
+
 ## Documentação — 26/10/2026 · PR #38 — Lista de melhorias futuras
 - Novo arquivo **[MELHORIAS.md](MELHORIAS.md)**: a próxima atualização já decidida (Aventura sem o texto do topo; botões Jogar/Repetir com limite de 5 por dia por fase), as ideias para o futuro (energia; equipamentos para ascender personagens, cada um vindo de fases específicas) e as pendências técnicas da análise. Nenhuma regra do jogo mudou.
 

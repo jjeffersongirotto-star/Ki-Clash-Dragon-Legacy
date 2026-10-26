@@ -115,14 +115,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .unlock svg { width: 70px; height: 70px; border-radius: 10px; }
 
 /* ---- aventura ---- */
-.stages { display: grid; gap: 10px; }
-.stage { display: grid; grid-template-columns: 44px 1fr auto auto; gap: 10px; align-items: center; background: var(--panel); border: 1px solid #2b3466; border-radius: 14px; padding: 10px; }
-.stage.done { border-color: #3c9a5f; }
-.stage.locked { opacity: .5; }
-.stage-num { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: 20px; background: radial-gradient(circle, #ff9a1f, #8a2a00); border: 2px solid var(--gold); }
-.stage.done .stage-num { background: radial-gradient(circle, #5dff9a, #0f6b33); }
-.stage-info small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
-.stage-enemies { display: flex; gap: 3px; }
 .mini { width: 34px; height: 34px; border-radius: 8px; overflow: hidden; border: 2px solid var(--rc); display: inline-block; }
 
 /* ---- treino ---- */
@@ -355,8 +347,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 @media (max-width: 640px) {
   .detail, .train-main, .battle-card-modal { grid-template-columns: 1fr; }
   .detail-art, .train-art { max-width: 200px; margin: 0 auto; }
-  .stage { grid-template-columns: 40px 1fr auto; }
-  .stage-enemies { display: none; }
   .card-grid { grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 12px; }
   .topbar h2 { order: -1; flex-basis: 100%; font-size: 18px; }
   .bottom { grid-template-columns: auto 1fr; }
@@ -762,14 +752,17 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 
 @media (orientation: landscape) {
   body.in-battle { overflow: hidden; overscroll-behavior: none; }
-  .battle-screen { max-width: none; width: 100%; height: 100dvh; padding: 4px max(6px, env(safe-area-inset-right)) 4px max(6px, env(safe-area-inset-left)); overflow: hidden; }
+  .battle-screen { max-width: none; width: 100%; height: var(--vh); padding: 4px max(6px, env(safe-area-inset-right)) 4px max(6px, env(safe-area-inset-left)); overflow: hidden; }
   .battle-screen {
+    /* v0.20.0: medidas da tela (divididas pelo zoom em telas grandes, ver o fim do arquivo) */
+    --vw: 100vw;
+    --vh: 100dvh;
     --hud-h: 38px;
     /* largura de cada carta da mão: pela altura da tela e pela largura (6 cartas + montes + LUTAR) */
-    --hand-w: clamp(52px, min(calc((100dvh - var(--hud-h)) * .2), calc((100vw - 330px) / 6 - 6px)), 104px);
+    --hand-w: clamp(52px, min(calc((var(--vh) - var(--hud-h)) * .2), calc((var(--vw) - 330px) / 6 - 6px)), 104px);
     --bottom-h: calc(var(--hand-w) * 1.42 + 12px);
     --hero-w: clamp(44px, 7vw, 92px);
-    --cell: clamp(24px, min(calc((100vw - 2 * var(--hero-w) - 40px) / var(--ncols)), calc((100dvh - var(--hud-h) - var(--bottom-h) - 44px) / 2)), 170px);
+    --cell: clamp(24px, min(calc((var(--vw) - 2 * var(--hero-w) - 40px) / var(--ncols)), calc((var(--vh) - var(--hud-h) - var(--bottom-h) - 44px) / 2)), 170px);
   }
   .battle { height: 100%; display: grid !important; grid-template-columns: minmax(0, 1fr) auto !important; grid-template-rows: var(--hud-h) minmax(0, 1fr) auto; grid-template-areas: "hud tools" "field field" "bottom bottom"; gap: 4px; }
   .battle > .bhud { grid-area: hud; padding: 2px 6px; border-radius: 10px; min-width: 0; }
@@ -811,13 +804,13 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
   /* painel de informações = janela por cima da metade INIMIGA da arena (só com conteúdo),
      para nunca cobrir as 3 colunas onde você invoca */
   .battle .info-wrap { display: none; }
-  .battle.has-info .info-wrap { display: flex; position: absolute; z-index: 40; left: auto; right: max(6px, env(safe-area-inset-right)); top: calc(var(--hud-h) + 8px); transform: none; width: min(560px, calc(4 * var(--cell) + var(--hero-w) + 6px)); max-height: calc(100dvh - var(--hud-h) - var(--bottom-h) - 24px); overflow: auto; overscroll-behavior: contain;
+  .battle.has-info .info-wrap { display: flex; position: absolute; z-index: 40; left: auto; right: max(6px, env(safe-area-inset-right)); top: calc(var(--hud-h) + 8px); transform: none; width: min(560px, calc(4 * var(--cell) + var(--hero-w) + 6px)); max-height: calc(var(--vh) - var(--hud-h) - var(--bottom-h) - 24px); overflow: auto; overscroll-behavior: contain;
     background: rgba(12,16,38,.96); border: 1px solid #5fd8ff; border-radius: 12px; box-shadow: 0 8px 28px rgba(0,0,0,.7); }
   .battle.has-info .info-wrap .info { background: none; border: 0; font-size: 12px; padding: 6px 10px; }
   .battle .info-close { display: block; flex: none; align-self: flex-start; margin: 4px; width: 28px; height: 28px; border-radius: 50%; border: 1px solid #5fd8ff; background: #0d1630; color: #8fe3ff; font-weight: 900; }
   /* registro = gaveta lateral (botão 📜 no HUD) */
   .battle > .log-panel { display: none; }
-  .battle.log-open > .log-panel { display: block; position: absolute; z-index: 45; right: 0; top: calc(var(--hud-h) + 6px); width: min(340px, 46vw); max-height: calc(100dvh - var(--hud-h) - var(--bottom-h) - 20px); overflow: auto; overscroll-behavior: contain; box-shadow: -8px 0 24px rgba(0,0,0,.6); }
+  .battle.log-open > .log-panel { display: block; position: absolute; z-index: 45; right: 0; top: calc(var(--hud-h) + 6px); width: min(340px, 46vw); max-height: calc(var(--vh) - var(--hud-h) - var(--bottom-h) - 20px); overflow: auto; overscroll-behavior: contain; box-shadow: -8px 0 24px rgba(0,0,0,.6); }
   .battle.log-open > .log-panel .log { max-height: none; }
   .battle .banner.big { font-size: 36px; }
 }
@@ -900,7 +893,9 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 @media (orientation: landscape) {
   .battle-screen { --hero-w: clamp(64px, 13.5vw, 210px); }
   .battle .hero { align-self: stretch; min-height: calc(var(--cell) * 2 + 16px); padding: 0 2px 3px; }
-  .battle .hero-fig { flex: 0 0 auto; height: calc(var(--cell) * 2 + 8px); }
+  /* v0.20.0: com a arena de 12 colunas as casas ficaram menores; o Comandante agora ocupa a altura do retângulo
+     (a imagem não distorce: object-fit contain, de pé no piso) */
+  .battle .hero-fig { flex: 1 1 auto; height: auto; min-height: calc(var(--cell) * 2 + 8px); }
 }
 
 /* ---- v0.13.0: Poder ⚡ e painel do Comandante 👑 (tudo estático: sem animação contínua nova) ---- */
@@ -1116,3 +1111,84 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .account-box .upd-btn { width: 38px; height: 38px; padding: 0; border-radius: 50%; font-size: 20px; line-height: 1; display: inline-grid; place-items: center; flex: none; margin-right: env(safe-area-inset-right); }
 .account-box .upd-btn.checking { animation: upd-spin .8s linear infinite; pointer-events: none; }
 @keyframes upd-spin { to { transform: rotate(360deg); } }
+
+
+/* ---- v0.20.0: Aventura em mapa (abas de dificuldade + caminho pontilhado) ---- */
+.screen.adventure { display: flex; flex-direction: column; height: 100dvh; padding-bottom: 0; }
+.screen.adventure .topbar { margin-bottom: 6px; }
+.diff-tabs { display: flex; align-self: center; gap: 4px; padding: 4px; margin: 0 0 6px; background: #10153a; border: 1px solid #3a4580; border-radius: 14px; }
+.diff-tab { white-space: nowrap; border: 0; background: transparent; color: var(--muted); font-weight: 800; font-size: 14px; padding: 8px clamp(10px, 3vw, 18px); border-radius: 10px; touch-action: manipulation; }
+.diff-tab.on { background: linear-gradient(180deg, #ffb52e, #e0560f); color: #fff; box-shadow: 0 0 14px rgba(255,140,30,.45); text-shadow: 0 1px 2px #6b2300; }
+.diff-tab.locked { opacity: .55; }
+.adv-map { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.adv-track { position: relative; width: 100%; max-width: 520px; margin: 0 auto; }
+.adv-paths { position: absolute; left: 0; top: 0; pointer-events: none; }
+.adv-path { fill: none; stroke: #39406a; stroke-width: 7; stroke-linecap: round; stroke-dasharray: 1 16; }
+.adv-path.lit { stroke: #ffcf4a; filter: drop-shadow(0 0 4px rgba(255,190,40,.8)); }
+.adv-node { position: absolute; width: 60px; height: 60px; margin: -30px 0 0 -30px; padding: 0; border: 0; border-radius: 50%; background: none; }
+.adv-ball { position: absolute; left: 0; top: 0; width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: 24px; z-index: 2; }
+.adv-cmd { position: absolute; height: 74px; left: 9px; top: -82px; z-index: 1; transform-origin: 50% 100%; animation: advIdle 2.6s ease-in-out infinite; pointer-events: none; }
+@keyframes advIdle { 50% { transform: translateY(-3px) scaleY(1.02); } }
+.adv-name { position: absolute; top: 64px; left: -60px; width: 180px; text-align: center; font-size: 12px; font-weight: 700; white-space: nowrap; z-index: 3; text-shadow: 0 1px 3px #000; }
+.adv-left { position: absolute; top: 80px; left: -15px; width: 90px; text-align: center; font-size: 11px; font-weight: 800; color: #7ef0a8; z-index: 3; }
+.adv-left.out { color: #ff8a8a; }
+.adv-tag { position: absolute; top: -112px; left: -12px; width: 84px; text-align: center; font-size: 11px; font-weight: 900; color: #1a0b00; background: #ffcf4a; border-radius: 8px; padding: 2px 0; box-shadow: 0 0 12px rgba(255,207,74,.7); z-index: 3; }
+.adv-node.done .adv-ball { background: radial-gradient(circle at 35% 30%, #fff6c9, #ffcf4a 45%, #e07a00); border: 3px solid #fff2b0; color: #5a2a00; box-shadow: 0 0 22px rgba(255,190,40,.75); }
+.adv-node.done .adv-name { color: #ffe7a0; }
+.adv-node.next .adv-ball { background: radial-gradient(circle at 35% 30%, #bff3ff, #2fb8ff 50%, #1550c0); border: 3px solid #e6fbff; color: #fff; box-shadow: 0 0 0 6px rgba(47,184,255,.25), 0 0 30px rgba(47,184,255,.8); }
+.adv-node.next .adv-name { color: #bfefff; }
+.adv-node.lock .adv-ball { background: #1a1f3a; border: 3px solid #2e3560; color: #59618f; font-size: 20px; }
+.adv-node.lock .adv-cmd { filter: grayscale(1) brightness(.28); }
+.adv-node.lock .adv-name { color: #4c547d; }
+.dialog.stage-dialog { position: relative; }
+.stage-close { position: absolute; right: 10px; top: 8px; border: 0; background: none; color: var(--muted); font-size: 20px; padding: 4px 8px; }
+.stage-cmd { display: block; height: 96px; margin: -6px auto 0; transform-origin: 50% 100%; animation: advIdle 2.6s ease-in-out infinite; }
+.stage-diff { margin: 2px 0; font-size: 13px; color: var(--gold); }
+.stage-line { margin: 4px 0; font-size: 13px; color: #c9d1f5; }
+.stage-left { margin: 8px 0 2px; font-size: 14px; color: #7ef0a8; }
+.stage-left.out { color: #ff8a8a; }
+.stage-actions { display: grid; gap: 8px; margin-top: 10px; }
+.stage-actions .btn.big { padding: 13px; font-size: 18px; }
+.stage-actions .btn:disabled { opacity: .45; filter: grayscale(.6); }
+.stage-dialog .dialog-btns:empty { display: none; }
+@media (prefers-reduced-motion: reduce) { .adv-cmd, .stage-cmd { animation: none; } }
+.stage-dialog .dialog-title { font-size: 17px; padding: 0 26px; }
+
+/* v0.20.0: no app a tela deita sozinha na batalha — o aviso "Gire o celular" nunca aparece */
+body.native-landscape .rotate-prompt { display: none !important; }
+
+/* v0.20.0: botão Baixar (APK) no canto inferior direito da Base — só no site */
+.download-btn { position: fixed; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); z-index: 30; text-decoration: none; padding: 10px 16px; border-radius: 999px; box-shadow: 0 3px 0 #0c1030, 0 0 16px rgba(47,184,255,.35); border-color: #2fb8ff; }
+
+/* ---- v0.20.0: telas grandes (monitor Full HD, 2K, 4K) — a interface cresce junto com a tela.
+   O zoom também aumenta as medidas da tela (vw/dvh), por isso elas são divididas pelo mesmo fator. ---- */
+@media (min-width: 1700px) and (min-height: 950px) {
+  .screen:not(.battle-screen) { zoom: 1.3; }
+  .screen.adventure { height: calc(100dvh / 1.3); }
+  .download-btn { zoom: 1.3; }
+}
+@media (min-width: 2300px) and (min-height: 1300px) {
+  .screen:not(.battle-screen) { zoom: 1.75; }
+  .screen.adventure { height: calc(100dvh / 1.75); }
+  .download-btn { zoom: 1.75; }
+}
+@media (orientation: landscape) and (min-width: 1700px) and (min-height: 950px) {
+  .battle-screen { zoom: 1.3; --vw: calc(100vw / 1.3); --vh: calc(100dvh / 1.3); }
+}
+@media (orientation: landscape) and (min-width: 2300px) and (min-height: 1300px) {
+  .battle-screen { zoom: 1.75; --vw: calc(100vw / 1.75); --vh: calc(100dvh / 1.75); }
+}
+
+/* ---- v0.20.0: batalha com o celular/tablet EM PÉ (quando o jogador escolhe "Jogar em pé"): nada passa da largura da tela ---- */
+@media (orientation: portrait) {
+  .battle-screen { --hero-w: clamp(40px, 11vw, 92px); --cell: clamp(16px, calc((100vw - 2 * var(--hero-w) - 48px) / var(--ncols)), 70px); }
+  .battle { grid-template-columns: minmax(0, 1fr); }
+  .battle .hero { width: var(--hero-w); flex: 0 0 var(--hero-w); }
+}
+/* a Base deixa espaço embaixo para o botão Baixar não cobrir o último botão */
+.screen.home { padding-bottom: 84px; }
+/* celular pequeno: o botão Baixar fica no fim da Base, à direita (sem cobrir os outros botões) */
+@media (max-width: 480px) and (max-height: 760px) {
+  .download-btn { position: static; display: table; margin: 14px 0 0 auto; }
+  .screen.home { padding-bottom: 24px; }
+}
