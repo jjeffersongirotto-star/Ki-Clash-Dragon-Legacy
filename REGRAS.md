@@ -894,7 +894,7 @@ Cada categoria de personagem tem o seu **conjunto de 5 itens**:
 | 9 | Botas de ferro, Sandálias, Botas |
 | 10 | Anel, Botas leves, Diamante negro |
 
-- A **raridade** de cada item é sorteada **80/20** pela dificuldade: **Fácil** cinza 80% / verde 20% · **Normal** azul 80% / roxo 20% · **Difícil** roxo 80% / laranja 20% (tabela `GEAR_DROP` em `src/core/gear.ts`).
+- A **raridade** de cada item é sorteada pela dificuldade: **Fácil** cinza 60% / verde 40% (v0.24.1; antes 80/20) · **Normal** azul 80% / roxo 20% · **Difícil** roxo 80% / laranja 20% (tabela `GEAR_DROP` em `src/core/gear.ts`).
 - A janela da fase mostra os 3 itens e as chances; a vitória e o Repetir mostram os itens ganhos. A mochila fica em **Treinar → 🎒 Itens de ascensão**.
 - Saves antigos começam com a mochila **vazia**. A conta ADM tem 99 de cada item em cada raridade.
 
@@ -906,5 +906,5 @@ Cada categoria de personagem tem o seu **conjunto de 5 itens**:
 | **v0.24.0** (barras + itens), sem Repetir | 71% | 87% | 88% | 65% | 65% | 62% | 62% | 48% | 50% | 46% |
 | v0.24.0 + 5 Repetir da última fase antes de cada fase nova | 71% | 87% | 88% | 66% | 66% | 64% | 67% | 55% | 45% | 48% |
 
-- Os itens **seguram a evolução**: só sobe de degrau quem tem os itens certos, e o Fácil dá quase só cinza (o verde, que todo degrau pede, sai em 20%). Repetir a **mesma** fase ajuda pouco, porque ela dá sempre os mesmos 3 itens: o jogador precisa escolher **em quais fases** jogar.
+- Os itens **seguram a evolução**: só sobe de degrau quem tem os itens certos, e o Fácil dá mais cinza (o verde, que todo degrau pede, sai em 40% desde a v0.24.1). Repetir a **mesma** fase ajuda pouco, porque ela dá sempre os mesmos 3 itens: o jogador precisa escolher **em quais fases** jogar.
 - O reequilíbrio vem nas próximas etapas: **tutorial** (XP para começar) e **energia**. (`SIM_GEAR=0` desliga os itens no simulador, para comparar.)

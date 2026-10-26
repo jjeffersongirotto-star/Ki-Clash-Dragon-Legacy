@@ -167,7 +167,7 @@ export function rewardsFor(stageId: number, diff: Difficulty, rng: () => number 
   return { ...orbRewards(stageId, diff, rng), gear: stageGearDrop(stageId, diff, rng) };
 }
 
-/** v0.24.0: a recompensa também traz os 3 itens de ascensão da fase (cor sorteada 80/20 pela dificuldade, ver gear.ts). */
+/** v0.24.0: a recompensa também traz os 3 itens de ascensão da fase (cor sorteada pela dificuldade: Fácil 60/40, Normal e Difícil 80/20, ver gear.ts). */
 export interface StageReward {
   essencias: number;
   orbs: OrbBag;
