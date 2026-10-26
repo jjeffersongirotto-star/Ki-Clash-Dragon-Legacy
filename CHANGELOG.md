@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.26.2] — 26/10/2026 · PR #50 — Moeda com cara de moeda
+- **🪙 Ouro de Dragão:** borda serrilhada, anel de pontinhos em relevo, campo do meio rebaixado, ouro metálico com sombreamento e um brilho passando. O dragão 🐉 voltou ao dourado um pouco laranja (pedido do jogador) e ficou em relevo (luz em cima, sombra embaixo).
+
 ## [0.26.1] — 26/10/2026 · PR #49 — Moeda com o dragão no meio
 - **🪙 Ouro de Dragão:** a moeda agora é a Ryo dourada redonda com o **dragão 🐉 dourado no meio**, no lugar do furo (pedido do jogador). O desenho oval da v0.26.0 saiu.
 

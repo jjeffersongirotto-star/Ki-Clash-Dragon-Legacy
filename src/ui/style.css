@@ -1252,10 +1252,29 @@ body.native-landscape .rotate-prompt { display: none !important; }
 
 /* v0.26.0: Ouro de Dragão, energia, nível de perfil e Loja */
 .coin { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; }
-.coin-face { position: relative; display: inline-grid; place-items: center; flex: none; width: 1.3em; height: 1.3em; border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff6c4 0%, #ffd23f 35%, #e0a100 70%, #9a6400 100%);
-  box-shadow: inset 0 0 0 .09em #a86f00, inset 0 0 0 .16em #ffe27a, inset 0 0 0 .2em #8a5a00, 0 0 4px rgba(255,200,40,.55); overflow: hidden; }
-.coin-dragon { font-size: .82em; line-height: 1; filter: grayscale(1) sepia(1) saturate(3) hue-rotate(2deg) brightness(1.18) contrast(1.2) drop-shadow(0 0 .5px #5c3900) drop-shadow(0 0 .5px #5c3900); }
+.coin-face { position: relative; display: inline-grid; place-items: center; flex: none; width: 1.3em; height: 1.3em; border-radius: 50%; isolation: isolate;
+  /* borda serrilhada (como moeda de verdade) sobre ouro metálico com reflexos */
+  background: repeating-conic-gradient(from 0deg, rgba(90,52,0,.55) 0 4deg, rgba(255,240,170,.35) 4deg 8deg),
+    conic-gradient(from 210deg, #8a5a00, #ffe9a0, #c98a00, #fff3c4, #a86f00, #ffd23f, #7a4d00, #ffe27a, #8a5a00);
+  box-shadow: 0 .06em .12em rgba(0,0,0,.6), 0 0 4px rgba(255,190,40,.5); }
+/* campo do meio, rebaixado, com anel de pontinhos em relevo */
+.coin-face::before { content: ''; position: absolute; inset: .1em; border-radius: 50%; z-index: -1;
+  background: radial-gradient(circle at 50% 50%, transparent 0 calc(50% - .1em), rgba(255,236,160,.9) calc(50% - .1em) calc(50% - .085em), transparent calc(50% - .08em)),
+    repeating-conic-gradient(from 0deg, transparent 0 6deg, rgba(110,62,0,.55) 6deg 9deg, transparent 9deg 15deg),
+    radial-gradient(circle at 34% 28%, #fff7cf 0%, #ffd94a 26%, #f0b000 52%, #c07e00 78%, #8a5600 100%);
+  -webkit-mask: radial-gradient(circle, #000 0 calc(50% - .13em), transparent calc(50% - .13em) calc(50% - .12em), #000 calc(50% - .12em));
+  box-shadow: inset .05em .06em .08em rgba(80,40,0,.75), inset -.04em -.05em .06em rgba(255,246,200,.85), 0 0 0 .02em rgba(255,240,180,.7); }
+/* campo liso do meio, rebaixado, onde fica o dragão */
+.coin-field { display: grid; place-items: center; width: 76%; height: 76%; border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, #fff7cf 0%, #ffd94a 28%, #f0b000 56%, #c07e00 82%, #8a5600 100%);
+  box-shadow: inset .05em .06em .08em rgba(80,40,0,.8), inset -.03em -.04em .05em rgba(255,246,200,.9), 0 0 0 .015em rgba(90,50,0,.6); }
+/* brilho que passa pela moeda */
+.coin-face::after { content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: linear-gradient(125deg, transparent 30%, rgba(255,255,255,.55) 42%, transparent 52%), radial-gradient(circle at 30% 22%, rgba(255,255,255,.55), transparent 32%);
+  mix-blend-mode: soft-light; }
+/* dragão 🐉 dourado-alaranjado, em relevo (luz em cima à esquerda, sombra embaixo à direita) */
+.coin-dragon { font-size: .7em; line-height: 1; filter: grayscale(1) sepia(1) saturate(5) hue-rotate(-12deg) brightness(1.05) contrast(1.25)
+  drop-shadow(-.03em -.03em 0 rgba(255,246,200,.9)) drop-shadow(.04em .05em 0 rgba(92,50,0,.85)) drop-shadow(0 0 .03em rgba(60,30,0,.6)); }
 .coin b { font-weight: 800; color: #ffe27a; }
 .energy b { font-weight: 800; color: #9fe8ff; margin-left: 2px; }
 .energy small { color: #8f9ad0; }
@@ -1279,4 +1298,4 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .stage-actions .cost { font-size: .8em; opacity: .85; margin-left: 4px; }
 .res .energy, .res .coin { background: none; border: 0; padding: 0; }
 .shop-grid > .hint { grid-column: 1 / -1; }
-.res .coin-face, .menu .coin-face { width: 1.45em; height: 1.45em; }
+.res .coin-face, .menu .coin-face { width: 1.5em; height: 1.5em; }

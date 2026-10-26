@@ -178,7 +178,7 @@ export const orbBagHTML = (bag: OrbBag, prefix = '') =>
  * v0.26.1: 🪙 Ouro de Dragão — a moeda Ryo dourada (redonda, com borda), com o dragão 🐉 dourado no lugar
  * do furo do meio. O dragão é o próprio 🐉, pintado de dourado pelo CSS (.coin-dragon).
  */
-export const coinFace = () => `<span class="coin-face" aria-hidden="true"><span class="coin-dragon">🐉</span></span>`;
+export const coinFace = () => `<span class="coin-face" aria-hidden="true"><span class="coin-field"><span class="coin-dragon">🐉</span></span></span>`;
 /** Ouro de Dragão com quantidade (opcional). */
 export const goldHTML = (count?: number | string) =>
   `<span class="coin" title="Ouro de Dragão" aria-label="Ouro de Dragão">${coinFace()}${count != null ? `<b>${count}</b>` : ''}</span>`;
