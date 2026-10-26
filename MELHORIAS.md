@@ -52,6 +52,15 @@
   - Treinar → **✨ Despertar para … (✴ 120)** — é o custo, não explicação: **a decidir**.
   - Coleção → filtro **🌟 Todos (13)** — é a contagem: **a decidir**.
 
+### 6. Batalha: Comandantes maiores
+- Com a arena de 12 colunas, os Comandantes ficaram pequenos dentro dos retângulos das pontas.
+- Aumentar o Comandante (Bárbaro e minotauro) para **ocupar a altura do retângulo**, sem ficar destoante do resto da tela (deitado no celular e no computador).
+
+### 7. Batalha: deitar a tela sozinho
+- Ao começar a batalha, **deitar a tela automaticamente**, em vez de mostrar o aviso "Gire o celular para jogar deitado".
+- **No app (APK):** dá para travar a tela deitada na batalha e voltar a ficar livre ao sair, sempre.
+- **No site (navegador):** o navegador só deixa travar a tela deitada em tela cheia. O jogo já tenta isso ao entrar na batalha; quando o navegador não deixar, o aviso continua aparecendo como plano B.
+
 ## 💡 Ideias para o futuro (ainda sem data)
 
 ### Energia
