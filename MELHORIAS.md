@@ -19,10 +19,27 @@ _Nada pendente. Os itens 1 a 9 entraram na v0.20.0 (ver [CHANGELOG.md](CHANGELOG
 - Uma **energia** que limita quantas vezes dá para jogar ou repetir. O jogador vai ter que escolher onde gastar.
 - Quando a energia existir, ela pode substituir ou somar com o limite de 5 por fase.
 
-### Equipamentos para ascender personagens, por fase
-- **Diminuir os bônus** das recompensas atuais.
-- Criar **equipamentos** que servem para **ascender (evoluir) personagens**.
-- Cada equipamento cai em **fases diferentes**, então o jogador vai buscar uma **fase específica** para conseguir o que precisa (por isso o "Repetir" dá a recompensa inteira).
+### Itens de ascensão (decidido em 26/10/2026, ainda sem data)
+_Respostas às perguntas 3 a 15. Substitui a ideia "Equipamentos para ascender personagens". Não é o equipamento do jogo original (que dava status ao líder; decisão 9 do plano continua valendo)._
+- **Nome:** **itens de ascensão**. São de vários tipos: roupas (camisa, calça, gorro…), armas, diamantes e outros.
+- **Gerais, não de um personagem só:** os itens são divididos por **grupo/tipo**, e cada personagem pede os **5 itens diferentes** que mais combinam com ele.
+- **Cor do item:** cada item tem uma cor, mostrada **só no fundo do ícone**: **cinza, verde, azul, roxo, laranja**. Cada cor serve para subir a carta da sua cor para a seguinte:
+  - Comum → Incomum: **cinza** · Incomum → Raro: **verde** · Raro → Épico: **azul** · Épico → Lendário: **roxo** · Lendário → Mítico: **laranja**.
+- **Degraus de cada cor:** cor → **"+"** → **"++"** → próxima cor (o "++" é novo).
+  - **"+"** pede **3 itens**, **"++"** pede **4 itens** e a **troca de cor** pede os **5 itens**, todos da cor da carta.
+  - O Despertar continua gastando **Essências ✴** além dos itens.
+- **Sem nível numerado na carta:** em cada degrau existe só uma **barra de XP**. Quando ela enche, a carta pode subir o degrau gastando os itens.
+  - A barra de XP **só aparece na tela de Treinar**, para não poluir o visual.
+- **Status:** ataque e vida sobem **só nos degraus e ao ascender**: "+" dá +10%, "++" mais +10% e a nova cor dá o bônus da cor (como hoje). Encher a barra de XP não aumenta status.
+- **De onde vêm:** cada fase dá **sempre o mesmo item** (sem sorteio do tipo). Cai **1 item por vitória ou Repetir**, com a **cor sorteada pela dificuldade**:
+  - **Fácil:** cinza 70% ou verde 30% · **Normal:** azul 70% ou roxo 30% · **Difícil:** roxo 70% ou laranja 30%.
+- **Junto com isso:** diminuir os bônus das recompensas atuais.
+- **A conferir quando for fazer:** isso muda a regra do plano "crescimento de ataque e vida fica como está" (hoje o status também sobe por nível) e as habilidades que melhoram no nível 20/25/30. Os saves antigos precisam de uma conversão (nível atual → barra de XP).
+
+### Combinados de trabalho (26/10/2026)
+- Depois que a CI passa, **eu mesmo faço o merge** do PR.
+- O plano do Grok (38 decisões e perguntas abertas) vai para o repositório como **`PLANO.md`**, sem nomes de Dragon Ball e sem os caminhos do APK.
+- Perguntas: **uma de cada vez**, com as opções **Sim / Não / Outros**.
 
 ## 📋 Pendências técnicas (da análise do jogo)
 - Unidade com Reflexo de Magia (Nyx) ainda devolve dano depois de derrotada.
