@@ -1,6 +1,7 @@
 # Regras do Ki-Clash: Dragon Legacy
 
 > Documento oficial com **todas** as regras atuais do jogo. Toda mudança de regra deve atualizar este arquivo e o [CHANGELOG.md](CHANGELOG.md).
+> As mudanças **planejadas** (ainda não feitas) ficam em [MELHORIAS.md](MELHORIAS.md).
 
 ## 1. Objetivo
 Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandante do jogador: **20** de vida no nível 1, até **110** no nível 10 (ver seção 15). Comandante inimigo: de **12** (fase 1) a **75** (fase 10).

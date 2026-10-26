@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## Documentação — 26/10/2026 · PR #38 — Lista de melhorias futuras
+- Novo arquivo **[MELHORIAS.md](MELHORIAS.md)**: a próxima atualização já decidida (Aventura sem o texto do topo; botões Jogar/Repetir com limite de 5 por dia por fase), as ideias para o futuro (energia; equipamentos para ascender personagens, cada um vindo de fases específicas) e as pendências técnicas da análise. Nenhuma regra do jogo mudou.
+
 ## [0.19.0] — 26/10/2026 · PR #37 — App Android (APK)
 - **APK Android:** o jogo agora tem um app para celular (`Ki-Clash-0.19.0.apk`), o mesmo jogo web empacotado com o Capacitor, em tela cheia, com ícone e tela de abertura do jogo. Funciona sem internet; o progresso fica no próprio app.
 - **Download automático:** a cada versão na `main`, a CI gera o APK e o publica na página de Releases do GitHub. Toda versão é assinada com a mesma chave privada (guardada nos segredos do repositório, nunca no código), então instala por cima da anterior sem perder o progresso.
