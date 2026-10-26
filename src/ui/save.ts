@@ -8,6 +8,7 @@ import { LEGACY_ITEM_TO_ORB, XP_ITEMS, migrateBarV24, migrateOldCard, newOwned, 
 import { normalizeGear, type GearBag } from '../core/gear';
 import { DIFFICULTIES, clearedIn, type DailyUse, type Difficulty } from '../core/adventure';
 import { TUTORIAL_STARTER, TUT_BATTLE1, TUT_DONE } from '../core/tutorial';
+import { levelFromXp, newProfile, normalizeProfile, type ProfileState } from '../core/profile';
 
 export interface SaveData {
   version: 1;
@@ -51,6 +52,10 @@ export interface SaveData {
   tutorial?: number;
   /** migração v0.25.0 */
   v25?: boolean;
+  /** v0.26.0: XP de perfil, energia e Ouro de Dragão */
+  profile?: ProfileState;
+  /** migração v0.26.0: saves antigos começam no nível de perfil que tinham (1 + fases vencidas), com energia cheia */
+  v26?: boolean;
 }
 
 /** Carta como era salva até a v0.22.0 (com nível numerado e `plus` verdadeiro/falso). */
@@ -124,6 +129,8 @@ export function defaultSave(): SaveData {
     v23: true,
     v24: true,
     v25: true,
+    v26: true,
+    profile: newProfile(),
     tutorial: TUT_BATTLE1,
     gear: {},
     clearedDiff: { normal: [], dificil: [] },
@@ -133,8 +140,8 @@ export function defaultSave(): SaveData {
 
 // ---------- v0.17.0: baralho com cópias e feitiços ----------
 
-/** nível de perfil (por enquanto: 1 + fases vencidas, máx. 11) */
-export const profileLevel = (d: SaveData) => profileLevelFor(d.cleared.length);
+/** v0.26.0: nível de perfil de verdade (pelo XP de perfil, 1 a 100). Até a v0.25.0 era 1 + fases vencidas. */
+export const profileLevel = (d: SaveData) => levelFromXp(d.profile?.xp ?? 0);
 /** tamanho máximo do baralho para o nível de perfil */
 export const deckMax = (d: SaveData) => deckMaxFor(profileLevel(d));
 /** a carta (personagem possuído ou feitiço) pode estar no baralho? */
@@ -265,6 +272,7 @@ export function loadSave(): SaveData {
     migrateV23(merged);
     // sempre normaliza os Comandantes (save antigo sem o campo, ou campo corrompido)
     migrateV13(merged);
+    migrateV26(merged, d); // antes do baralho: o tamanho máximo vem do nível de perfil
     migrateV17(merged);
     normalizeV20(merged);
     merged.items = migrateOrbs(d.items as Record<string, unknown>);
@@ -304,6 +312,16 @@ export function migrateV25(merged: SaveData, raw: Partial<SaveData>): SaveData {
   merged.v25 = true;
   return merged;
 }
+/**
+ * v0.26.0: o nível de perfil passa a vir do XP de perfil. Save antigo ganha o XP do nível que tinha
+ * (1 + fases vencidas no Fácil, até 11), a energia cheia desse nível e 0 de Ouro — o baralho não perde espaço.
+ */
+export function migrateV26(merged: SaveData, raw: Partial<SaveData>, now = Date.now()): SaveData {
+  merged.profile = raw.v26 ? normalizeProfile(raw.profile, 1, now) : normalizeProfile(undefined, profileLevelFor(merged.cleared.length), now);
+  merged.v26 = true;
+  return merged;
+}
+
 export const tutorialDone = (d: SaveData) => (d.tutorial ?? TUT_DONE) >= TUT_DONE;
 
 /** v0.20.0: garante os campos da Aventura (dificuldade, progresso por dificuldade, limite diário) bem formados. */

@@ -16,7 +16,9 @@ import { STARTER_IDS } from '../../src/core/characters';
 import { TUTORIAL_CHARS, TUTORIAL_REWARD, tutorialGear } from '../../src/core/tutorial';
 import { newOwned, feedXp, ascend, canAscend, ascendCost, barFull, isMaxTier, stepIndex, xpProgress, XP_ITEMS, playXp, type OwnedCard } from '../../src/core/progression';
 import { FIRST_WIN_XP_MULT, rewardsFor } from '../../src/core/adventure';
-import { addGear, hasGearFor, spendGearFor, stageGearDrop, type GearBag } from '../../src/core/gear';
+import { addGear, gearCount, gearNeeded, hasGearFor, spendGearFor, stageGearDrop, type GearBag } from '../../src/core/gear';
+import { FIRST_WIN_MULT, goldFor } from '../../src/core/profile';
+import { GEAR_PRICE } from '../../src/core/shop';
 import { cardPower, deckPower } from '../../src/core/power';
 import type { CardInstance } from '../../src/core/types';
 import { autoDeck, deckMaxFor, profileLevelFor } from '../../src/core/deckbuild';
@@ -25,7 +27,7 @@ export interface Schedule { name: string; hp: number[]; thresholds: number[]; en
 
 const XP = Object.fromEntries(XP_ITEMS.map((i) => [i.id, i.xp])) as Record<string, number>;
 
-interface Player { cards: Record<string, OwnedCard>; items: Record<string, number>; ess: number; cleared: number; leader: number; gear: GearBag }
+interface Player { cards: Record<string, OwnedCard>; items: Record<string, number>; ess: number; cleared: number; leader: number; gear: GearBag; gold: number }
 
 /** v0.25.0: SIM_OLD_START=1 começa como antes do tutorial (todos os de Comum, sem pacotes de Comum nas fases). */
 const SIM_OLD_START = process.env.SIM_OLD_START === '1';
@@ -52,8 +54,25 @@ const battleDeck = (p: Player, cleared: number): CardInstance[] => {
   return SIM_SPELLS ? autoDeck(owned, 3 * owned.length + Math.min(4, room), Math.min(4, room)) : autoDeck(owned, Math.min(max, 3 * owned.length), 0);
 };
 
+/**
+ * v0.26.0: 🏪 Loja (SIM_SHOP=0 desliga). Política simples: quando um personagem da equipe está com a barra cheia e
+ * com as Essências, mas faltam itens, compra os que faltam se o Ouro der para todos (mais barato primeiro).
+ */
+const SIM_SHOP = process.env.SIM_SHOP !== '0';
+function shopBuy(p: Player) {
+  if (!SIM_SHOP || !SIM_GEAR) return;
+  const ready = team(p).filter((c) => canAscend(c) && p.ess >= ascendCost(c) && !hasGearFor(p.gear, c));
+  const priced = ready.map((c) => { const miss = gearNeeded(c).filter((g) => gearCount(p.gear, g.id, g.rarity) < 1); return { miss, cost: miss.reduce((n, g) => n + GEAR_PRICE[g.rarity], 0) }; }).sort((a, b) => a.cost - b.cost);
+  for (const { miss, cost } of priced) {
+    if (p.gold < cost) continue;
+    p.gold -= cost;
+    for (const g of miss) addGear(p.gear, g.id, g.rarity);
+  }
+}
+
 function spend(p: Player) {
   for (let guard = 0; guard < 2000; guard++) {
+    shopBuy(p);
     const t = team(p);
     // desperta quem está com a barra cheia (mais barato primeiro)
     const asc = t.filter((c) => canAscend(c) && p.ess >= ascendCost(c) && gearOk(p, c)).sort((a, b) => ascendCost(a) - ascendCost(b))[0];
@@ -78,6 +97,7 @@ function reward(p: Player, i: number, first: boolean, repeatMult = 0.5) {
   for (const [id, k] of Object.entries(r.orbs)) p.items[id] = (p.items[id] ?? 0) + Math.floor((k ?? 0) * f);
   p.ess += Math.floor(r.essencias * f);
   if (f >= 1) for (const g of r.gear) addGear(p.gear, g.id, g.rarity); // v0.24.0: itens só com recompensa inteira
+  p.gold += Math.floor(goldFor(i + 1, 'facil') * f * (first ? FIRST_WIN_MULT : 1)); // v0.26.0: Ouro de Dragão
   if (first) for (const g of stageGearDrop(i + 1, 'facil')) addGear(p.gear, g.id, g.rarity); // v0.24.1: bônus da 1ª vitória
   // v0.25.0: pacote da primeira vitória (o desbloqueio de sempre + um personagem de Comum)
   if (first) for (const id of stagePack(i + 1)) if (!p.cards[id]) p.cards[id] = newOwned(id);
@@ -107,7 +127,7 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
   const stats: StageStat[] = STAGES.map(() => ({ arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [] }));
   let seed = 7;
   for (let pi = 0; pi < players; pi++) {
-    const p: Player = { cards: {}, items: SIM_OLD_START ? { orbe1: 10, orbe3: 3 } : {}, ess: SIM_OLD_START ? 10 : 0, cleared: 0, leader: 1, gear: {} };
+    const p: Player = { cards: {}, items: SIM_OLD_START ? { orbe1: 10, orbe3: 3 } : {}, ess: SIM_OLD_START ? 10 : 0, cleared: 0, leader: 1, gear: {}, gold: 0 };
     if (SIM_OLD_START) for (const id of STARTER_IDS) p.cards[id] = newOwned(id);
     else {
       // v0.25.0: jogador que acabou o tutorial — Riku, Sora e Nara e a recompensa do tutorial

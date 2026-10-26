@@ -1,4 +1,5 @@
 import { waitFor } from './core/battle';
+import type { Category } from './core/types';
 import './ui/style.css';
 import { CATEGORY_INFO, PLAYABLE, RACE_INFO, STAR_COLORS, getChar, isComingSoon } from './core/characters';
 import { STAGES, type Stage } from './core/campaign';
@@ -7,7 +8,7 @@ import { playerLeaderImg, portraitImg, portraitSVG, unitSpriteSVG, warmLeader, w
 import { cardPower, deckPower } from './core/power';
 import { canEvolve, evolveLeader, getLeader, leaderHp, leaderMaxLevel, nextRequirement } from './core/leaders';
 import { BattleView } from './ui/battleView';
-import { abilityListHTML, gearHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from './ui/components';
+import { abilityListHTML, energyHTML, goldHTML, gearHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from './ui/components';
 import { SPELLS, getSpell, isSpell } from './core/spells';
 import { gameAlert, gameConfirm, showDialog } from './ui/dialog';
 import { installPerfGuards } from './ui/perf';
@@ -15,10 +16,12 @@ import { enterBattleMode, leaveBattleMode } from './ui/orientation';
 import { bakeGridArt } from './ui/gridArt';
 import { MAX_COPIES, addToDeck, deckMin, tutorialDone, rawSaveHas, copiesIn, deckCards, deckCount, deckIssue, deckMax, hasSave, loadSave, migrateV17, profileLevel, removeFromDeck, resetSave, setCopies, setSaveKey, teamReady, writeSave, type SaveData } from './ui/save';
 import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from './ui/update';
-import { GEAR_CATEGORIES, GEAR_DROP, GEAR_PER_STEP, GEAR_RARE_CHANCE, GEAR_RARITIES, GEAR_SETS, STAGE_GEAR, reqRarity, addGear, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor, stageGearDrop } from './core/gear';
+import { GEAR_BY_ID, GEAR_CATEGORIES, GEAR_DROP, GEAR_PER_STEP, GEAR_RARE_CHANCE, GEAR_RARITIES, GEAR_SETS, STAGE_GEAR, reqRarity, addGear, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor, stageGearDrop } from './core/gear';
 import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_GOALS, addStars, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from './core/adventure';
 import { LEADER_ENEMY_URL } from './ui/art';
 import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_PACK, TUTORIAL_REWARD, TUTORIAL_STARTER, TUTORIAL_TIPS, TUT_BATTLE1, TUT_BATTLE2, TUT_DONE, TUT_PACK, tutorialGear } from './core/tutorial';
+import { ENERGY_COST, FIRST_WIN_MULT, PROFILE_MAX, addProfileXp, energyMax, goldFor, msToNextEnergy, profileXpFor, spendEnergy, tickEnergy, totalXpFor, xpToNext, newProfile, type ProfileState } from './core/profile';
+import { GEAR_PRICE, ORB_PRICE, buyGear, buyOrb } from './core/shop';
 import { adminSave, createAccount, loadAccounts, login, logout, saveKeyFor, NAME_MAX, PASS_MIN } from './ui/accounts';
 
 const app = document.getElementById('app')!;
@@ -50,6 +53,11 @@ function openAccountSave(): SaveData {
     d.cards = { ...d.cards, ...adminSave().cards };
     writeSave(d);
   }
+  // v0.26.0: a ADM tem o perfil no nível 100, muita energia e muito Ouro de Dragão
+  if (id && accounts.accounts[id]?.admin && (d.profile?.xp ?? 0) < totalXpFor(PROFILE_MAX)) {
+    d.profile = adminSave().profile;
+    writeSave(d);
+  }
   return d;
 }
 let save: SaveData = openAccountSave();
@@ -69,6 +77,40 @@ const teamPower = () => deckPower(teamCards());
 const activeLeader = () => getLeader(save.activeLeader);
 const leaderLevel = () => Math.max(1, save.leaders?.[activeLeader().id]?.level ?? 1);
 const fmt = (n: number) => n.toLocaleString('pt-BR');
+
+// ---------------- v0.26.0: PERFIL, ENERGIA e OURO DE DRAGÃO ----------------
+const prof = (): ProfileState => (save.profile ??= newProfile());
+/** energia atual (já com a recuperação do tempo que passou) */
+const energyNow = () => tickEnergy(prof()).energy;
+const resPills = () => `<span class="res-energy">${energyHTML(energyNow(), energyMax(prof()))}</span><span>${goldHTML(fmt(prof().gold))}</span>`;
+/** "4 min 12 s" até a próxima energia */
+function nextEnergyText(): string {
+  const ms = msToNextEnergy(prof());
+  const m = Math.floor(ms / 60000);
+  const sec = Math.ceil((ms % 60000) / 1000);
+  return m ? `${m} min ${sec} s` : `${sec} s`;
+}
+/** Aviso de nível de perfil novo (energia ganha e baralho maior). */
+function levelNote(r: { levels: number; energy: number; level: number }, deckBefore: number): string {
+  if (!r.levels) return '';
+  const grew = deckMax(save) > deckBefore;
+  return `<p class="hint">⬆ Nível de perfil <b>${r.level}</b>! +${r.energy} ⚡ de energia${grew ? ` · o baralho agora aceita até <b>${deckMax(save)}</b> cartas` : ''}.</p>`;
+}
+/** XP de perfil e Ouro de uma vitória ou Repetir (em dobro na primeira vitória). */
+function grantProfileAndGold(stageId: number, diff: Difficulty, first = false): string {
+  const mult = first ? FIRST_WIN_MULT : 1;
+  const gold = goldFor(stageId, diff) * mult;
+  const xp = profileXpFor(stageId, diff) * mult;
+  prof().gold += gold;
+  const before = deckMax(save);
+  const r = addProfileXp(prof(), xp);
+  return `<div class="res big"><span>${goldHTML(`+${fmt(gold)}`)}</span><span>👤 +${xp} XP de perfil</span></div>${levelNote(r, before)}`;
+}
+/** Nível de perfil já subido ao gastar energia no começo da batalha (mostrado no fim). */
+let pendingLevelNote = '';
+async function noEnergy(cost: number) {
+  await gameAlert('Energia insuficiente', `Esta fase custa ⚡ ${cost} e você tem ⚡ ${energyNow()}. A energia recupera 1 a cada 6 minutos (a próxima em ${nextEnergyText()}) e enche ao subir de nível de perfil.`, '⚡');
+}
 
 function leaderPanelHTML(): string {
   const def = activeLeader();
@@ -132,7 +174,7 @@ function topbar(title: string, back = true) {
   return `<header class="topbar">
     ${back ? '<button class="btn small ghost" data-nav="home">← Base</button>' : '<span></span>'}
     <h2>${title}</h2>
-    <div class="res"><span title="Essências Estelares">✴ ${save.essencias}</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
+    <div class="res">${resPills()}<span title="Essências Estelares">✴ ${save.essencias}</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
   </header>`;
 }
 
@@ -147,6 +189,7 @@ function go(screen: string) {
   else if (screen === 'collection') collection();
   else if (screen === 'train') train();
   else if (screen === 'help') help();
+  else if (screen === 'shop') shop();
 }
 
 // ---------------- BASE ----------------
@@ -159,6 +202,7 @@ function home(): void {
     <div class="account-box">${acc
       ? `<span class="acc-name" title="Conta local deste aparelho">👤 <b>${esc(acc.name)}</b>${acc.admin ? ' <small>teste</small>' : ''}</span><button class="btn small ghost" id="accOut">Sair</button>`
       : `<button class="btn small" id="accIn">👤 Entrar / Criar conta</button>`}
+      ${(() => { const p = prof(); const lv = profileLevel(save); const into = p.xp - totalXpFor(lv); const need = xpToNext(lv); return `<span class="profile-chip" title="Nível de perfil: sobe com XP de perfil (1 por energia gasta e ao vencer ou repetir fases)"><span>👤 Nível <b>${lv}</b>${lv < PROFILE_MAX ? ` <small>${into}/${need}</small>` : ' <small>máx.</small>'}</span><span class="profile-bar"><i style="width:${lv < PROFILE_MAX ? ((100 * into) / need).toFixed(1) : 100}%"></i></span></span>`; })()}
       <span class="app-version">v${APP_VERSION}</span>
       <button class="btn small upd-btn" id="updBtn" title="Procurar atualização" aria-label="Procurar atualização">⟳</button></div>
     <div class="logo">
@@ -166,11 +210,12 @@ function home(): void {
       <div class="logo-sub">DRAGON LEGACY</div>
     </div>
     <div class="home-heroes">${['kenji', 'vorax', 'nyx'].map((id) => `<div class="home-hero" style="${starStyle(getChar(id).maxStars)}">${portraitImg(getChar(id), { stars: getChar(id).maxStars })}</div>`).join('')}</div>
-    <div class="res big"><span>✴ ${save.essencias} Essências</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
+    <div class="res big">${resPills()}<span>✴ ${save.essencias} Essências</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
     <nav class="menu">
       <button class="btn primary" data-nav="adventure">⚔ Aventura <small>${next ? `Fase ${next.id}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
       <button class="btn" data-nav="collection">🃏 Coleção & Baralho <small>${Object.keys(save.cards).length}/${PLAYABLE.length} personagens</small></button>
       <button class="btn" data-nav="train">🔥 Treinar & Despertar</button>
+      <button class="btn" data-nav="shop">🏪 Loja <small>${goldHTML(fmt(prof().gold))}</small></button>
       <button class="btn ghost" data-nav="help">❓ Como jogar</button>
     </nav>
     <button class="link-btn" id="reset">Apagar progresso</button>
@@ -367,10 +412,11 @@ function stageDialog(stageId: number) {
       <p class="stage-line">Recompensa: ✴${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && st.pack.some((id) => !save.cards[id]) ? ` · 🎁 pacote: <b>${st.pack.filter((id) => !save.cards[id]).map((id) => esc(getChar(id).name)).join(', ')}</b>` : ''}</p>
       <p class="stage-line">Itens: ${STAGE_GEAR[stageId - 1].map((id) => gearHTML(id, GEAR_DROP[diff][0])).join(' ')} <small>${100 - GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[GEAR_DROP[diff][0]].label} · ${GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[GEAR_DROP[diff][1]].label}</small></p>
       <ul class="stage-goals">${STAR_GOALS.map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}</li>`).join('')}</ul>
+      <p class="stage-line">Por vitória ou Repetir: ${goldHTML(goldFor(stageId, diff))} · 👤 +${profileXpFor(stageId, diff)} XP de perfil${done ? '' : ' <small>(em dobro na primeira vitória)</small>'} · você tem ${energyHTML(energyNow(), energyMax(prof()))}</p>
       ${done ? `<p class="stage-left ${left ? '' : 'out'}">${left ? `Hoje: <b>${left}/${DAILY_LIMIT}</b> restantes` : 'Limite de hoje atingido. Volta amanhã.'}</p>` : ''}
       <div class="stage-actions">
-        <button class="btn primary big" data-act="play" ${play ? '' : 'disabled'}>⚔ Jogar</button>
-        ${done ? `<button class="btn big" data-act="repeat" ${repeat ? '' : 'disabled'}>⟲ Repetir</button>` : ''}
+        <button class="btn primary big" data-act="play" ${play ? '' : 'disabled'}>⚔ Jogar <span class="cost">⚡${ENERGY_COST[diff]}</span></button>
+        ${done ? `<button class="btn big" data-act="repeat" ${repeat ? '' : 'disabled'}>⟲ Repetir <span class="cost">⚡${ENERGY_COST[diff]}</span></button>` : ''}
       </div>
       ${done && !full ? `<p class="stage-note">⟲ Repetir libera com as ${STAR_GOALS.length} ⭐ desta fase.</p>` : ''}`,
     buttons: [],
@@ -425,9 +471,14 @@ function grantPlayXp(stageId: number, first = false): string {
 /** Repetir: recompensa na hora, sem jogar a batalha (gasta 1 vez do dia). */
 function repeatStage(stageId: number, diff: Difficulty) {
   if (!canRepeat(save, save.daily, diff, stageId)) return;
+  // v0.26.0: o Repetir gasta energia (e dá 1 XP de perfil por energia)
+  const cost = ENERGY_COST[diff];
+  const before = deckMax(save);
+  const spent = spendEnergy(prof(), cost);
+  if (!spent.ok) return void noEnergy(cost);
   const st = stageFor(stageId, diff);
   save.daily = useDaily(save.daily, diff, stageId);
-  const got = grantRewards(st, diff);
+  const got = grantRewards(st, diff) + levelNote(spent, before) + grantProfileAndGold(stageId, diff);
   persist();
   resultModal(`<h2 class="win">⟲ Fase ${st.id} repetida</h2><p>${esc(st.name)} · ${DIFFICULTY_LABEL[diff]}</p>${got}<p class="hint">Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.</p>`);
 }
@@ -466,6 +517,13 @@ function startBattle(stageId: number, diff: Difficulty = advDiff()) {
     return;
   }
   if (!canPlay(save, save.daily, diff, stageId)) return;
+  // v0.26.0: a batalha gasta a energia ao começar (a derrota também gasta)
+  const cost = ENERGY_COST[diff];
+  const before = deckMax(save);
+  const spent = spendEnergy(prof(), cost);
+  if (!spent.ok) return void noEnergy(cost);
+  pendingLevelNote = levelNote(spent, before);
+  persist();
   const stage = stageFor(stageId, diff);
   const deck = deckCards(save);
   window.scrollTo(0, 0);
@@ -492,24 +550,24 @@ function finishBattle(stageId: number, diff: Difficulty, winner: string, end?: {
   const first = !isCleared(save, diff, stageId);
   let html = '';
   if (winner === 'player') {
-    const got = grantRewards(stage, diff, first) + grantPlayXp(stageId, first);
-    const maxBefore = deckMax(save);
+    const got = grantRewards(stage, diff, first) + grantPlayXp(stageId, first) + grantProfileAndGold(stageId, diff, first);
     if (first) markCleared(save, diff, stageId);
     else save.daily = useDaily(save.daily, diff, stageId);
     // v0.21.0: ⭐ dos objetivos cumpridos nesta vitória (somam aos que a fase já tinha)
     const fresh = addStars(save, diff, stageId, end ? starsForWin(end) : 1);
     const mask = starsOf(save, diff, stageId);
     const starsLine = `<div class="win-stars">${starsHTML(mask, fresh)}</div><ul class="stage-goals">${STAR_GOALS.map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}${fresh & (1 << i) ? ' <b class="new-tag">nova!</b>' : ''}</li>`).join('')}</ul>${fresh && starCount(mask) === STAR_GOALS.length ? '<p class="hint">⟲ Repetir liberado nesta fase!</p>' : ''}`;
-    const grew = deckMax(save) > maxBefore;
     // v0.25.0: pacote da primeira vitória — o desbloqueio da fase e um personagem de Comum
     const unlocked = grantPack(stage.pack);
     const opened = first && stageId === STAGES.length && DIFFICULTIES[DIFFICULTIES.indexOf(diff) + 1];
     html = `<h2 class="win">🏆 Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : `Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.`}</p>
-      ${starsLine}${got}${grew ? `<p class="hint">⬆ Nível de perfil <b>${profileLevel(save)}</b>: o baralho agora aceita até <b>${deckMax(save)}</b> cartas.</p>` : ''}${opened ? `<p class="hint">🔓 Dificuldade <b>${DIFFICULTY_LABEL[opened]}</b> liberada!</p>` : ''}${unlocked}`;
+      ${starsLine}${got}${opened ? `<p class="hint">🔓 Dificuldade <b>${DIFFICULTY_LABEL[opened]}</b> liberada!</p>` : ''}${unlocked}`;
   } else {
     save.items.orbe1 += 1;
     html = `<h2 class="lose">${winner === 'empate' ? '⏱ Empate' : '💀 Derrota'}</h2><p>Treine seus personagens com Orbes e tente de novo! (+1 Orbe Comum)</p>`;
   }
+  html += pendingLevelNote;
+  pendingLevelNote = '';
   persist();
   resultModal(html);
 }
@@ -808,6 +866,59 @@ function gearBagDialog() {
   });
 }
 
+// ---------------- LOJA (v0.26.0) ----------------
+let shopCat: (typeof GEAR_CATEGORIES)[number] | 'need' = 'need';
+let shopRarity = 1;
+/** 🏪 Loja: itens de ascensão e Orbes por Ouro de Dragão. */
+function shop() {
+  leaveBattleMode();
+  const bag = (save.gear ??= {});
+  const gold = prof().gold;
+  // itens que faltam para o próximo degrau dos personagens do baralho
+  const need = new Map<string, { id: string; rarity: number; n: number }>();
+  for (const c of teamCards())
+    for (const g of gearNeeded(c))
+      if (gearCount(bag, g.id, g.rarity) < 1) {
+        const k = `${g.id}:${g.rarity}`;
+        need.set(k, { ...g, n: (need.get(k)?.n ?? 0) + 1 });
+      }
+  const needKeys = new Set(need.keys());
+  const gearCell = (id: string, rarity: number, extra = '') => {
+    const price = GEAR_PRICE[rarity];
+    return `<div class="shop-item${needKeys.has(`${id}:${rarity}`) ? ' need' : ''}">${gearHTML(id, rarity)}<span>${esc(GEAR_BY_ID[id].name)}</span><small>${STAR_COLORS[rarity].label} · tem ${gearCount(bag, id, rarity)}${extra}</small><button class="btn small ${gold >= price ? 'primary' : ''}" data-gear="${id}" data-r="${rarity}" ${gold >= price ? '' : 'disabled'}>Comprar ${goldHTML(fmt(price))}</button></div>`;
+  };
+  const list =
+    shopCat === 'need'
+      ? need.size
+        ? [...need.values()].map((g) => gearCell(g.id, g.rarity, g.n > 1 ? ` · ${g.n} personagens pedem` : '')).join('')
+        : '<p class="hint">Nenhum item faltando para o próximo degrau dos personagens do seu baralho. 🎉</p>'
+      : GEAR_SETS[shopCat].map((g) => gearCell(g.id, shopRarity)).join('');
+  app.innerHTML = `<div class="screen">${topbar('🏪 Loja')}
+  <div class="shop">
+    <p class="hint">Compre com ${goldHTML()} <b>Ouro de Dragão</b>, que vem de cada vitória e Repetir (em dobro na primeira vitória de cada fase).</p>
+    <h3>🎒 Itens de ascensão</h3>
+    <div class="shop-tabs">
+      <button class="btn small ${shopCat === 'need' ? 'on primary' : ''}" data-cat="need">⭐ Faltando no baralho${need.size ? ` (${need.size})` : ''}</button>
+      ${GEAR_CATEGORIES.map((c) => `<button class="btn small ${shopCat === c ? 'on primary' : ''}" data-cat="${c}">${CATEGORY_INFO[c].icon} ${CATEGORY_INFO[c].label}</button>`).join('')}
+    </div>
+    ${shopCat === 'need' ? '' : `<div class="shop-tabs">${GEAR_RARITIES.map((r) => `<button class="btn small ${shopRarity === r ? 'on primary' : ''}" data-rar="${r}">${gearHTML(GEAR_SETS[shopCat as Category][0].id, r)} ${STAR_COLORS[r].label} · ${goldHTML(fmt(GEAR_PRICE[r]))}</button>`).join('')}</div>`}
+    <div class="shop-grid">${list}</div>
+    <h3>🔮 Orbes</h3>
+    <div class="shop-grid">${XP_ITEMS.map((o) => `<div class="shop-item">${orbHTML(o.id)}<span>${esc(o.name)}</span><small>+${fmt(o.xp)} XP · tem ${save.items[o.id]}</small><button class="btn small ${gold >= ORB_PRICE[o.id] ? 'primary' : ''}" data-orb="${o.id}" ${gold >= ORB_PRICE[o.id] ? '' : 'disabled'}>Comprar ${goldHTML(fmt(ORB_PRICE[o.id]))}</button></div>`).join('')}</div>
+  </div></div>`;
+  bindNav();
+  const rerender = () => {
+    const y = window.scrollY;
+    persist();
+    shop();
+    window.scrollTo(0, y);
+  };
+  app.querySelectorAll<HTMLElement>('[data-cat]').forEach((b) => b.addEventListener('click', () => { shopCat = b.dataset.cat as typeof shopCat; rerender(); }));
+  app.querySelectorAll<HTMLElement>('[data-rar]').forEach((b) => b.addEventListener('click', () => { shopRarity = Number(b.dataset.rar); rerender(); }));
+  app.querySelectorAll<HTMLElement>('[data-gear]').forEach((b) => b.addEventListener('click', () => { if (buyGear(prof(), bag, b.dataset.gear!, Number(b.dataset.r)).ok) rerender(); }));
+  app.querySelectorAll<HTMLElement>('[data-orb]').forEach((b) => b.addEventListener('click', () => { if (buyOrb(prof(), save.items, b.dataset.orb as XpItemId).ok) rerender(); }));
+}
+
 function train() {
   leaveBattleMode();
   void bakeAllGrid();
@@ -931,11 +1042,11 @@ function help() {
     <h3>Objetivo</h3><p>A arena tem <b>2 fileiras × 12 colunas</b>. Cada Comandante fica posicionado nas extremidades da arena. Zere a vida do <b>Comandante inimigo</b> (à direita) antes que ele zere a sua.</p>
     <h3>Raças e Origens Anime</h3><ul>${Object.values(RACE_INFO).map((r) => `<li><b>${r.icon} ${r.label}</b> — ${r.desc}</li>`).join('')}</ul>
     <h3>Seu turno</h3><ol>
-      <li>Não há energia: cada carta da mão tem uma <b>contagem de rodadas ⏳</b> (o número na gota). Ela começa em <b>2 × custo − 1</b> (3, 5, 7, 9 ou 11), cai 1 no início de cada turno seu e a carta só pode ser invocada quando chega a <b>0</b> — dá para invocar <b>todas</b> as prontas no mesmo turno. A mão inicial começa 2 rodadas adiantada. Depois, você compra <b>as cartas que faltarem para a mão voltar a ter 6</b>.</li>
+      <li>Na batalha, as cartas não gastam energia: cada carta da mão tem uma <b>contagem de rodadas ⏳</b> (o número na gota). Ela começa em <b>2 × custo − 1</b> (3, 5, 7, 9 ou 11), cai 1 no início de cada turno seu e a carta só pode ser invocada quando chega a <b>0</b> — dá para invocar <b>todas</b> as prontas no mesmo turno. A mão inicial começa 2 rodadas adiantada. Depois, você compra <b>as cartas que faltarem para a mão voltar a ter 6</b>.</li>
       <li>Toque numa carta e numa casa brilhante das <b>3 colunas da esquerda</b> para invocá-la como um lutador de corpo inteiro na arena.</li>
       <li>Toque em <b>LUTAR</b> (ou ligue o modo <b>Auto</b>): seus personagens caminham (<b>MOVE</b>), saltam, disparam feixes de Ki ou golpes corpo a corpo (<b>HIT</b>), sofrem dano e vão para a <b>Necropolis</b> quando derrotados.</li></ol>
     <h3>Cartas e baralho</h3><ul>
-      <li>Cada carta (personagem ou <b>feitiço ✦</b>) entra no baralho com <b>1 a 3 cópias</b> (botões − / + em Coleção & Baralho). O baralho precisa ter de <b>20</b> até <b>28 + 2 × nível de perfil</b> cartas (30 no nível 1, 40 no nível 6+) e pelo menos 1 personagem. Nível de perfil = 1 + fases vencidas.</li>
+      <li>Cada carta (personagem ou <b>feitiço ✦</b>) entra no baralho com <b>1 a 3 cópias</b> (botões − / + em Coleção & Baralho). O baralho precisa ter de <b>20</b> até <b>28 + 2 × nível de perfil</b> cartas (30 no nível 1, 40 no nível 6+) e pelo menos 1 personagem.</li>
       <li><b>Feitiços ✦:</b> esperam <b>custo − 1</b> rodadas e precisam de um <b>aliado da categoria em campo</b> (o de maior ataque conjura; a força vem do ataque dele). Toque no feitiço e numa casa <b>roxa</b>. Depois de lançado, volta para o Baralho.</li>
       <li>A <b>mão tem 6 cartas</b>. Você começa com 6 diferentes e, a cada rodada, <b>compra o que faltar para voltar a 6</b> (jogou 3, compra 3; com a mão cheia, não compra). Cartas não usadas ficam na mão.</li>
       <li>À esquerda da mão fica o <b>Baralho</b> (quantas cartas ainda podem vir); à direita, a <b>Necropolis (Derrotadas)</b>.</li>
@@ -959,6 +1070,11 @@ function help() {
     <p>A <b>raridade da carta</b> (mostrada pela cor) é o tier do personagem. A carta <b>não tem nível</b>: cada raridade tem três degraus, <b>base</b>, <b>"+"</b> e <b>"++"</b> (ex.: Raro → <b>Raro+</b> → <b>Raro++</b> → Épico). O degrau aparece na estrela dourada da carta.</p>
     <p>Cada degrau tem uma <b>barra de XP</b> (vista só em <b>Treinar</b>). A barra enche com <b>Orbes 🔮</b> e com o <b>XP por jogar</b>. Com a barra cheia, o <b>Despertar</b> sobe o degrau gastando <b>Essências ✴</b> e <b>itens de ascensão 🎒</b> (3 no "+", 4 no "++" e 5 na nova raridade; 1 / 2 / 3 deles da raridade um acima da carta e 2 da raridade dela; cada fase dá 3 itens). Cada degrau dá <b>+17% de ataque e de vida</b>; encher a barra não aumenta os status. <b>Habilidades, roupa, armadura, armas e aura de Ki</b> evoluem quando a <b>raridade muda</b>.</p>
     <h3>Poder ⚡ e Comandante 👑</h3><p>Cada carta tem um <b>Poder</b> que sobe com a raridade e o degrau ("+" e "++"), com um bônus pela habilidade do personagem. O <b>Poder do baralho</b> é a soma dos personagens do baralho (cada um uma vez). Em <b>Coleção & Baralho</b>, quando o Poder do baralho alcança o requisito, toque em <b>Evoluir</b> no painel do Comandante: cada nível dá <b>+10 de vida máxima</b> (20 → 110). O Poder só é conferido na hora de evoluir — trocar cartas depois <b>nunca</b> tira o nível do Comandante. Os Comandantes inimigos também ficam mais resistentes a cada fase.</p>
+    <h3>Energia ⚡, nível de perfil 👤 e Ouro de Dragão ${goldHTML()}</h3><ul>
+      <li><b>Jogar ou Repetir</b> uma fase gasta energia: <b>Fácil ${ENERGY_COST.facil} · Normal ${ENERGY_COST.normal} · Difícil ${ENERGY_COST.dificil}</b>. Na batalha ela é gasta ao começar (a derrota também gasta). O tutorial é grátis.</li>
+      <li>A energia <b>recupera 1 a cada 6 minutos</b> até o máximo do seu nível de perfil (nível 1 = 20 … nível 100 = 300).</li>
+      <li>O <b>nível de perfil</b> sobe com XP de perfil: <b>1 por energia gasta</b> e mais um bônus a cada vitória ou Repetir (em dobro na primeira vitória). Ao subir de nível, você <b>ganha a energia máxima do nível novo</b>, que pode passar do máximo. O nível também aumenta o tamanho do baralho.</li>
+      <li>Cada vitória ou Repetir dá <b>Ouro de Dragão</b> (mais nas fases altas e nas dificuldades difíceis; em dobro na primeira vitória). Gaste na <b>🏪 Loja</b> em itens de ascensão e Orbes.</li></ul>
     <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.values(CATEGORY_INFO).map((c) => `<li><b>${c.icon} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
   </div></div>`;
   bindNav();

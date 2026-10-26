@@ -946,3 +946,45 @@ Cada categoria de personagem tem o seu **conjunto de 5 itens**:
 
 - Um baralho **pequeno e forte** (só os 3 personagens, já em Comum+) vence as primeiras fases: a **fase 1 fica em 93%**. Da fase 4 em diante a dificuldade volta (os itens seguram a evolução; o reequilíbrio continua com a energia). `SIM_OLD_START=1` simula o começo antigo.
 
+
+## 25. ⚡ Energia, 👤 nível de perfil, Ouro de Dragão e 🏪 Loja (v0.26.0)
+Lógica em `src/core/profile.ts` (perfil, energia, Ouro) e `src/core/shop.ts` (Loja).
+
+### Energia
+- **Jogar** ou **Repetir** uma fase gasta energia: **Fácil 1 · Normal 3 · Difícil 6**. Na batalha, a energia é gasta **ao começar** (a derrota também gasta). As batalhas do **tutorial são grátis**.
+- **Máximo pelo nível de perfil**, em linha reta: nível 1 = **20** … nível 100 = **300** (`20 + 280 × (nível − 1) ÷ 99`, arredondado; ex.: nível 10 = 45, nível 50 = 159).
+- **Recupera 1 a cada 6 minutos** até o máximo (240 por dia). Acima do máximo não recupera, só gasta.
+- **Ao subir de nível de perfil**, ganha a **energia máxima do nível novo**, somada à que tem (pode passar do máximo).
+- Sem energia suficiente, a janela avisa quanto falta e quando vem a próxima.
+- O **limite de 5 por dia** em cada fase continua valendo.
+
+### Nível de perfil
+- Vai do **1 ao 100**. XP para passar de nível: **10 + 5 × (nível − 1)** (10, 15, 20, …); para chegar ao 100 são 25.245 XP.
+- Ganha XP de perfil: **1 por energia gasta** e, a cada **vitória ou Repetir**, **(4 + fase) × custo de energia** (Fácil fase 1 = 5, Difícil fase 10 = 84). **Primeira vitória: em dobro.**
+- O nível aumenta o **tamanho máximo do baralho** como antes: **28 + 2 × nível**, até 40 (nível 6 ou mais).
+- A barra de nível fica na **Base**, ao lado da conta.
+
+### 🪙 Ouro de Dragão
+- Moeda no formato de uma **moeda oval japonesa (Ryo)** dourada, com um **dragão dourado** no meio (desenho próprio).
+- Cada **vitória ou Repetir** dá **(10 + 5 × fase) × custo de energia** (Fácil fase 1 = 15, fase 10 = 60; Normal ×3; Difícil ×6). **Primeira vitória: em dobro.** Derrota não dá.
+
+### 🏪 Loja
+- Fica na **Base**. Compra com Ouro de Dragão:
+  - **Itens de ascensão** (qualquer um dos 30, na raridade escolhida): **cinza 40 · verde 100 · azul 250 · roxo 600 · laranja 1.500**. A aba **⭐ Faltando no baralho** mostra os itens que faltam para o próximo degrau dos personagens do baralho.
+  - **Orbes:** Comum 30 · Incomum 75 · Raro 120 · Épico 240 · Lendário 450 · Mítico 900 (~0,3 de Ouro por XP).
+- **Não vende energia:** o Ouro vem de gastar energia, e vender energia viraria um ciclo sem fim.
+
+### Saves
+- Saves antigos começam no **mesmo nível de perfil que tinham** (1 + fases vencidas no Fácil, até 11), com a **energia cheia** desse nível e **0 de Ouro**; o baralho não perde espaço.
+- A conta **ADM** fica no nível 100, com muita energia e muito Ouro.
+
+### Simulação (100 jogadores, `scripts/balance/v26.ts`; Fácil, baralho só de personagens; `SIM_SHOP=0` desliga a Loja)
+Política da Loja no simulador: quando um personagem está com a barra cheia e as Essências, mas faltam itens, compra os que faltam (o mais barato primeiro). A energia não entra no simulador (ele não tem relógio).
+
+| Vitória ao chegar | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Sem Loja (como a v0.25.0) | 93% | 93% | 94% | 63% | 59% | 56% | 63% | 62% | 51% | 52% |
+| **Com Loja**, sem Repetir | 93% | 92% | 95% | 64% | 62% | 62% | 54% | 59% | 60% | 58% |
+| Com Loja + 5 Repetir antes de cada fase nova | 93% | 92% | 96% | 69% | 69% | 68% | 59% | 67% | 67% | 66% |
+
+- A Loja **ajuda a destravar os itens** que faltam (+6 a +9 pontos nas fases 9 e 10) sem acabar com a dificuldade. Repetir dá mais Ouro e itens, e a energia limita quanto dá para repetir por dia.
