@@ -52,7 +52,8 @@ describe('baralho: estrutura', () => {
     const nine = team().slice(0, 9);
     expect(buildSlots(nine)).toHaveLength(9); // não repete mais a 1ª carta
     expect(deckProblem(nine)).toBeNull(); // 27 cartas
-    expect(deckProblem(team().slice(0, 6))).toMatch(/18 de no mínimo 20/);
+    expect(deckProblem(team().slice(0, 6))).toBeNull(); // v0.25.0: 6 personagens × 3 = 18 = mínimo deles
+    expect(deckProblem(team().slice(0, 6), 40, 20)).toMatch(/18 de no mínimo 20/);
     expect(deckProblem(team())).toBeNull();
     expect(deckProblem(team(), 24)).toMatch(/máximo de 24/);
     expect(deckProblem(team().slice(0, 9).concat([{ charId: 'riku', stars: 1 }]))).toMatch(/repetidas/);

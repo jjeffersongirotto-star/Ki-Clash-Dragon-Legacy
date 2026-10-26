@@ -2,7 +2,7 @@
  * v0.13.0 — Simulação da PROGRESSÃO da campanha para decidir a vida do Líder.
  * Rodar: npx vite-node scripts/balance/progression.ts [jogadores]
  *
- * Jogador simulado (IA do Auto) começa como um save novo e segue a campanha:
+ * Jogador simulado (IA do Auto) começa como um save novo que acabou o tutorial (v0.25.0) e segue a campanha:
  *  - antes de cada tentativa gasta todo o XP na equipe (menor degrau primeiro) e desperta quem está com a barra cheia (v0.23.0);
  *  - equipe = 10 cartas de maior Poder;
  *  - evolui o Líder sempre que o Poder do baralho alcança o requisito (grátis);
@@ -11,8 +11,9 @@
  * tentativas, maior dano num único turno inimigo (burst) e maior ataque de uma unidade inimiga.
  */
 import { simulate } from './sim';
-import { STAGES, UNLOCKS } from '../../src/core/campaign';
+import { STAGES, stagePack } from '../../src/core/campaign';
 import { STARTER_IDS } from '../../src/core/characters';
+import { TUTORIAL_CHARS, TUTORIAL_REWARD, tutorialGear } from '../../src/core/tutorial';
 import { newOwned, feedXp, ascend, canAscend, ascendCost, barFull, isMaxTier, stepIndex, xpProgress, XP_ITEMS, playXp, type OwnedCard } from '../../src/core/progression';
 import { FIRST_WIN_XP_MULT, rewardsFor } from '../../src/core/adventure';
 import { addGear, hasGearFor, spendGearFor, stageGearDrop, type GearBag } from '../../src/core/gear';
@@ -25,6 +26,9 @@ export interface Schedule { name: string; hp: number[]; thresholds: number[]; en
 const XP = Object.fromEntries(XP_ITEMS.map((i) => [i.id, i.xp])) as Record<string, number>;
 
 interface Player { cards: Record<string, OwnedCard>; items: Record<string, number>; ess: number; cleared: number; leader: number; gear: GearBag }
+
+/** v0.25.0: SIM_OLD_START=1 começa como antes do tutorial (todos os de Comum, sem pacotes de Comum nas fases). */
+const SIM_OLD_START = process.env.SIM_OLD_START === '1';
 
 /** v0.24.0: o Despertar pede itens de ascensão (SIM_GEAR=0 desliga, para comparar). */
 const SIM_GEAR = process.env.SIM_GEAR !== '0';
@@ -75,7 +79,8 @@ function reward(p: Player, i: number, first: boolean, repeatMult = 0.5) {
   p.ess += Math.floor(r.essencias * f);
   if (f >= 1) for (const g of r.gear) addGear(p.gear, g.id, g.rarity); // v0.24.0: itens só com recompensa inteira
   if (first) for (const g of stageGearDrop(i + 1, 'facil')) addGear(p.gear, g.id, g.rarity); // v0.24.1: bônus da 1ª vitória
-  if (first && UNLOCKS[i + 1] && !p.cards[UNLOCKS[i + 1]]) p.cards[UNLOCKS[i + 1]] = newOwned(UNLOCKS[i + 1]);
+  // v0.25.0: pacote da primeira vitória (o desbloqueio de sempre + um personagem de Comum)
+  if (first) for (const id of stagePack(i + 1)) if (!p.cards[id]) p.cards[id] = newOwned(id);
 }
 
 /** v0.22.0: XP por jogar — ao vencer jogando, a equipe ganha XP (SIM_PLAYXP=0 desliga, para comparar). */
@@ -102,8 +107,15 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
   const stats: StageStat[] = STAGES.map(() => ({ arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [] }));
   let seed = 7;
   for (let pi = 0; pi < players; pi++) {
-    const p: Player = { cards: {}, items: { orbe1: 10, orbe3: 3 }, ess: 10, cleared: 0, leader: 1, gear: {} };
-    for (const id of STARTER_IDS) p.cards[id] = newOwned(id);
+    const p: Player = { cards: {}, items: SIM_OLD_START ? { orbe1: 10, orbe3: 3 } : {}, ess: SIM_OLD_START ? 10 : 0, cleared: 0, leader: 1, gear: {} };
+    if (SIM_OLD_START) for (const id of STARTER_IDS) p.cards[id] = newOwned(id);
+    else {
+      // v0.25.0: jogador que acabou o tutorial — Riku, Sora e Nara e a recompensa do tutorial
+      for (const id of TUTORIAL_CHARS) p.cards[id] = newOwned(id);
+      for (const [id, k] of Object.entries(TUTORIAL_REWARD.orbs)) p.items[id] = (p.items[id] ?? 0) + (k ?? 0);
+      p.ess += TUTORIAL_REWARD.essencias;
+      for (const [k, n] of Object.entries(tutorialGear())) p.gear[k] = (p.gear[k] ?? 0) + n;
+    }
     for (let i = 0; i < STAGES.length; i++) {
       if (i > 0) for (let k = 0; k < repeats; k++) reward(p, i - 1, false, repeatMult);
       spend(p); levelUp(p, sc);

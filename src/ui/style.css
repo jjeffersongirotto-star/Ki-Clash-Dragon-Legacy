@@ -1227,3 +1227,25 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .gear-need { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; align-items: center; }
 .gear-bag { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
 .gear-cat { margin: 10px 0 4px; font-weight: 700; }
+
+/* v0.25.0: tutorial */
+.tutorial { text-align: center; padding-top: 18px; max-width: 560px; margin: 0 auto; }
+.tutorial h1 { margin: 6px 0 10px; }
+.tut-steps { list-style: none; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 0; margin: 0 0 14px; }
+.tut-steps li { padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,.07); font-size: 13px; opacity: .6; }
+.tut-steps li.now { opacity: 1; background: var(--gold); color: #000; font-weight: 800; }
+.tut-steps li.done { opacity: .9; }
+.tut-body { display: grid; justify-items: center; gap: 10px; margin-bottom: 14px; }
+.tut-body .card { width: 120px; }
+.tut-cards { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.tut-pack { font-size: 64px; width: 150px; height: 150px; display: grid; place-items: center; border-radius: 18px; cursor: pointer; background: radial-gradient(circle, rgba(255,207,74,.35), rgba(255,207,74,.05) 70%); border: 3px solid var(--gold); box-shadow: 0 0 26px var(--gold); animation: floaty 2.4s ease-in-out infinite; }
+.tut-pack small { display: block; font-size: 13px; margin-top: -24px; }
+.tut-acc { display: block; margin: 14px auto 0; }
+.tut-tip { position: fixed; z-index: 60; left: 50%; top: 64px; transform: translateX(-50%); width: min(420px, calc(100vw - 32px)); background: var(--panel); border: 2px solid var(--gold); border-radius: 14px; padding: 10px 12px; box-shadow: 0 8px 30px rgba(0,0,0,.6); text-align: left; }
+.tut-tip p { margin: 6px 0 8px; font-size: 14px; line-height: 1.35; }
+.tut-tip-head { display: flex; align-items: center; gap: 8px; }
+.tut-tip-head b { flex: 1; color: var(--gold); }
+.tut-tip-head small { opacity: .7; }
+.tut-x { background: none; border: 0; color: inherit; font-size: 16px; cursor: pointer; padding: 2px 6px; }
+.tut-tip .tut-next { float: right; }
+.tut-tip::after { content: ''; display: block; clear: both; }

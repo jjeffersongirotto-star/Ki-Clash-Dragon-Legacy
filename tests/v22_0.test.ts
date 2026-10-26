@@ -3,6 +3,7 @@ import { HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, rewardsFor } from '../src/co
 import { STAGES } from '../src/core/campaign';
 import { XP_ITEMS, bagXp, playXp } from '../src/core/progression';
 import { defaultSave, migrateOrbs } from '../src/ui/save';
+import { TUTORIAL_REWARD } from '../src/core/tutorial';
 import { adminSave } from '../src/ui/accounts';
 
 describe('v0.22.0 — Orbes por raridade', () => {
@@ -15,8 +16,9 @@ describe('v0.22.0 — Orbes por raridade', () => {
     expect(bagXp(m)).toBe(10 * 100 + 3 * 400 + 2 * 1500 + 800);
     expect(migrateOrbs(undefined)).toEqual({ orbe1: 0, orbe2: 0, orbe3: 0, orbe4: 0, orbe5: 0, orbe6: 0 });
   });
-  it('save novo começa com o mesmo XP de antes (10 📜 + 3 💎 = 10 Orbes Comuns + 3 Raros); ADM com 999 de cada', () => {
-    expect(defaultSave().items).toEqual({ orbe1: 10, orbe2: 0, orbe3: 3, orbe4: 0, orbe5: 0, orbe6: 0 });
+  it('o XP do começo (10 📜 + 3 💎 = 10 Orbes Comuns + 3 Raros) vem na recompensa do tutorial (v0.25.0); ADM com 999 de cada', () => {
+    expect(defaultSave().items).toEqual({ orbe1: 0, orbe2: 0, orbe3: 0, orbe4: 0, orbe5: 0, orbe6: 0 });
+    expect(TUTORIAL_REWARD.orbs).toEqual({ orbe1: 10, orbe3: 3 });
     expect(Object.values(adminSave().items).every((v) => v === 999)).toBe(true);
   });
   it('Fácil: Orbes Comum e Incomum com o XP de antes (±150)', () => {

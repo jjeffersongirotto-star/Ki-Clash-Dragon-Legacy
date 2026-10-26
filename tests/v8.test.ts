@@ -12,18 +12,17 @@ const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], p
 const NEW = ['daichi', 'sora', 'tobi', 'kael', 'suri', 'hana', 'jin', 'ren', 'kuro'];
 
 describe('progressão v0.8', () => {
-  it('jogador novo começa só com personagens de 1★, pelo menos 10, cobrindo as 6 categorias por igual', () => {
-    const s = defaultSave();
-    const owned = Object.keys(s.cards);
-    expect(owned.length).toBeGreaterThanOrEqual(10);
-    for (const id of owned) expect(getChar(id).minStars).toBe(1);
-    expect(owned.sort()).toEqual([...STARTER_IDS].sort());
+  it('os personagens de Comum (que todo jogador recebia até a v0.24) cobrem as 6 categorias por igual; v0.25.0: o save novo começa só com o Riku', () => {
+    expect(STARTER_IDS.length).toBeGreaterThanOrEqual(10);
+    for (const id of STARTER_IDS) expect(getChar(id).minStars).toBe(1);
     const per: Record<string, number> = {};
-    for (const id of owned) per[getChar(id).category] = (per[getChar(id).category] ?? 0) + 1;
+    for (const id of STARTER_IDS) per[getChar(id).category] = (per[getChar(id).category] ?? 0) + 1;
     const cats: Category[] = ['tanque', 'suporte', 'dps', 'mago', 'arqueiro', 'assassino'];
     for (const k of cats) expect(per[k]).toBe(2);
-    expect(s.deck).toHaveLength(10);
-    expect(teamReady(s)).toBe(true);
+    const s = defaultSave();
+    expect(Object.keys(s.cards)).toEqual(['riku']);
+    expect(s.deck).toEqual(['riku']);
+    expect(teamReady(s)).toBe(true); // 3 cópias = mínimo de quem tem 1 personagem
   });
   it('novos personagens: 1★ → 4★, únicos, com cena e habilidade própria', () => {
     for (const id of NEW) {

@@ -2,6 +2,14 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.25.0] — 26/10/2026 · PR #47 — Tutorial
+- **🎓 Tutorial:** o jogo novo começa numa fase só do tutorial, antes da fase 1 (que não mudou). Batalha 1: Riku contra 1 inimigo, feita para vencer. 🎁 Pacote grátis com Sora (suporte de longo alcance) e Nara (Corte Diagonal). Batalha 2: contra Daichi, Hana e Tobi, para conhecer as habilidades. Caixinhas de dica, uma por vez, por cima da batalha (dá para passar ou fechar). "Pular tutorial" dá tudo do mesmo jeito.
+- **Recompensa do tutorial:** os Orbes do começo de antes (10 Comuns + 3 Raros), ✴12 e os itens do "+" dos 3 personagens — os 3 sobem para Comum+. O save novo começa só com o Riku, sem Orbes nem Essências.
+- **Pacote na primeira vitória de cada fase:** o desbloqueio de sempre + um personagem de Comum (fases 1–9). A janela da fase mostra o pacote.
+- **Mínimo do baralho = 3 × personagens que você tem** (até 20): com 3 personagens, 9 cartas.
+- Saves antigos e a conta ADM pulam o tutorial e ficam com tudo.
+- Simulação (Fácil, baralho só de personagens): vitória ao chegar 93/92/95/63/59/56/61/62/52/52% (v0.24.1: 71/87/89/66/65/65/64/51/47/46%). Ver REGRAS seção 24.
+
 ## [0.24.1] — 26/10/2026 · PR #46 — Mais itens verdes no Fácil e bônus da primeira vitória
 - **Fácil 60/40:** os itens do Fácil saem cinza 60% / verde 40% (antes 80/20). Normal e Difícil continuam 80/20. A janela da fase e a 🎒 mochila mostram as novas chances.
 - **Bônus da primeira vitória:** na primeira vitória de cada fase (em cada dificuldade) os 3 itens da fase saem **2 vezes** e o **XP por jogar vem em dobro**. O XP de perfil vem com a energia.

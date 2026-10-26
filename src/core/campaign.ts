@@ -14,6 +14,8 @@ export interface Stage {
   /** recompensa no Fácil (v0.22.0: Orbes Comum e Incomum); Normal e Difícil em adventure.ts (`rewardsFor`) */
   rewards: { essencias: number; orbs: OrbBag };
   unlock?: string;
+  /** v0.25.0: pacote da primeira vitória — todos os personagens que a fase dá (o `unlock` e um de Comum) */
+  pack: string[];
 }
 
 const NAMES = [
@@ -48,6 +50,14 @@ const POOLS: string[][] = [
  * Quem começa em Lendário/Mítico (Kenji, Vorax) fica bloqueado — "em breve".
  */
 export const UNLOCKS: Record<number, string> = { 1: 'aiko', 2: 'mei', 3: 'lyra', 4: 'gorath', 5: 'yume', 6: 'zarek', 8: 'nyx' };
+
+/**
+ * v0.25.0 — o jogador novo sai do tutorial só com Riku, Sora e Nara. Os outros personagens de Comum chegam no
+ * pacote da primeira vitória de cada fase, junto com o desbloqueio de sempre (UNLOCKS). A fase 10 não tem pacote
+ * (só faltariam Kenji e Vorax, que ainda estão "em breve").
+ */
+export const PACK_COMMONS: Record<number, string> = { 1: 'daichi', 2: 'hana', 3: 'tobi', 4: 'kael', 5: 'toru', 6: 'jin', 7: 'suri', 8: 'ren', 9: 'kuro' };
+export const stagePack = (stageId: number): string[] => [UNLOCKS[stageId], PACK_COMMONS[stageId]].filter((id): id is string => !!id);
 
 /**
  * v0.13.0 — vida do Comandante inimigo por fase (índice 0 = fase 1).
@@ -122,6 +132,7 @@ export const STAGES: Stage[] = NAMES.map((name, i) => ({
   // v0.22.0: mesmo XP de antes em Orbes — o antigo 📜 (4 + 2i) vira Orbes Comuns; 💎 (1 + i/2) e 🔮 (fase 6+) viram Orbes Incomuns
   rewards: { essencias: 6 + i * 3, orbs: { orbe1: 4 + i * 2, orbe2: Math.round(((1 + Math.floor(i / 2)) * 400 + (i >= 5 ? 1500 : 0)) / 250) } },
   unlock: UNLOCKS[i + 1],
+  pack: stagePack(i + 1),
 }));
 
 /** Vida do Comandante do jogador no nível 1 (v0.13: sobe com o nível do Comandante — ver leaders.ts). */

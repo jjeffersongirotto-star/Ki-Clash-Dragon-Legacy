@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { Ctx, actionOrder, effectiveAtk, addEffect, applyDamage, attack, castSpell, createBattle, deploy, effectOf, placeUnit, resolveSide, spellCasters, spellTargets, waitFor } from '../src/core/battle';
 import { aiDeploy, pickSpellTarget } from '../src/core/ai';
 import { ABILITIES } from '../src/core/abilities';
-import { PLAYABLE, getChar } from '../src/core/characters';
+import { PLAYABLE, STARTER_IDS, getChar } from '../src/core/characters';
+import { newOwned } from '../src/core/progression';
 import { DECK_MIN, MAX_COPIES, createDeck, defeatCopy, playFromHand, returnFromNecropolis, drawOpening, queueFor } from '../src/core/deck';
 import { autoDeck, deckMaxFor, profileLevelFor } from '../src/core/deckbuild';
 import { SPELLS, SPELL_NUM, getSpell, isSpell } from '../src/core/spells';
@@ -282,8 +283,15 @@ describe('v0.17.0 — baralho com cópias e nível de perfil (decisão 6)', () =
     const q = queueFor(14);
     expect(q.elig).toBe(11);
   });
-  it('save: entra com o máximo de cópias que couber, −/+ respeitam o limite, migração corta o excesso', () => {
+  /** v0.25.0: o save novo começa no tutorial só com o Riku; estes testes usam o começo de antes (os de Comum, equipe de 10). */
+  const oldStart = () => {
     const d = defaultSave();
+    for (const id of STARTER_IDS) d.cards[id] = newOwned(id);
+    d.deck = STARTER_IDS.slice(0, 10);
+    return d;
+  };
+  it('save: entra com o máximo de cópias que couber, −/+ respeitam o limite, migração corta o excesso', () => {
+    const d = oldStart();
     expect(deckCount(d)).toBe(30);
     expect(deckMax(d)).toBe(30);
     expect(teamReady(d)).toBe(true);
@@ -294,7 +302,7 @@ describe('v0.17.0 — baralho com cópias e nível de perfil (decisão 6)', () =
     expect(setCopies(d, 'f-chuva', 3)).toBe(2);
     expect(deckCards(d).find((x) => x.charId === 'f-chuva')?.copies).toBe(2);
     // save antigo: 10 personagens (sem cópias) cabe em 30
-    const old = defaultSave();
+    const old = oldStart();
     delete old.copies;
     old.deck.push('f-raio');
     migrateV17(old);
@@ -304,7 +312,7 @@ describe('v0.17.0 — baralho com cópias e nível de perfil (decisão 6)', () =
     expect(loadSave().deck).toContain(old.deck[old.deck.length - 1]);
   });
   it('baralho só de feitiços ou pequeno demais não vale', () => {
-    const d = defaultSave();
+    const d = oldStart();
     d.deck = ['f-chuva', 'f-raio'];
     expect(deckIssue(d)).toMatch(/personagem/);
     d.deck = ['riku', 'nara', 'toru', 'f-raio'];
