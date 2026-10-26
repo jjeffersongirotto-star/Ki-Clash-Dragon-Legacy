@@ -18,6 +18,8 @@ Roteiro aprovado em 26/10/2026 (pergunta 23), uma versão por vez, cada uma com 
      - 🪄 **Mago:** chapéu, manto, cajado, cristal, anel
      - 🏹 **Arqueiro:** capuz, jaqueta, arco, aljava, botas leves
      - 💀 **Assassino:** máscara, capa, adagas, cinto, diamante negro
+   - **Pergunta 33:** **não existe mais nível** (nem nível 60). Para manter o crescimento total de hoje, **cada degrau dá ~17%** de ataque e vida ("+", "++" e cada raridade nova; o Mítico chega a ~10× o Comum, como hoje). Os **inimigos** das fases passam a usar **degraus** no lugar de nível.
+   - **Pergunta 34:** cada **personagem** tem os **seus** 3 itens do "+" e 4 do "++", **sorteados do conjunto da categoria** (fixos para aquele personagem, diferentes de um personagem para outro), para os 5 itens serem usados por igual. A **nova raridade** pede os **5**. 1 de cada, na cor da raridade.
 4. **v0.24.0:** energia (antes, perguntas sobre como ela funciona).
 
 Antes de cada versão, perguntas só do que faltar decidir, uma por vez.
