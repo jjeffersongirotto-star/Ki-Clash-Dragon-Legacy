@@ -1,8 +1,8 @@
 /**
  * v0.17.0 — Montagem do baralho (decisão 6): até 3 cópias por carta e limite de tamanho pelo nível de perfil.
  *
- * Nível de perfil (por enquanto): 1 + fases vencidas, até PROFILE_MAX_LEVEL. A fase 3 do plano vai
- * transformar isso no nível de perfil completo (com telas liberadas).
+ * Nível de perfil: desde a v0.26.0 vem do XP de perfil (profile.ts, 1 a 100). `profileLevelFor` é a regra antiga
+ * (1 + fases vencidas, até PROFILE_MAX_LEVEL), usada na migração dos saves e no simulador.
  * Tamanho máximo do baralho = min(40, 28 + 2 × nível): nível 1 = 30 cartas … nível 6 ou mais = 40.
  * Tamanho mínimo = 20 (DECK_MIN).
  */

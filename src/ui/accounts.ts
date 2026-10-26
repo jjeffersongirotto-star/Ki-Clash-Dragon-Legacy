@@ -7,6 +7,7 @@
 import { GEAR, GEAR_RARITIES, gearKey } from '../core/gear';
 import { CHAR_BY_ID, PLAYABLE } from '../core/characters';
 import { autoDeck, deckMaxFor, PROFILE_MAX_LEVEL } from '../core/deckbuild';
+import { PROFILE_MAX, totalXpFor } from '../core/profile';
 import { LEADERS } from '../core/leaders';
 import { STAGES } from '../core/campaign';
 import { MAX_STEP, type OwnedCard } from '../core/progression';
@@ -134,6 +135,8 @@ export function adminSave(): SaveData {
   d.gear = Object.fromEntries(GEAR.flatMap((g) => GEAR_RARITIES.map((r) => [gearKey(g.id, r), 99])));
   d.essencias = 99999;
   d.tutorial = TUT_DONE; // v0.25.0: a ADM pula o tutorial
+  // v0.26.0: perfil no nível 100, muita energia e Ouro de Dragão
+  d.profile = { xp: totalXpFor(PROFILE_MAX), energy: 9999, at: Date.now(), gold: 999999 };
   d.leaders = Object.fromEntries(LEADERS.map((l) => [l.id, { level: l.hpByLevel.length }]));
   return d;
 }

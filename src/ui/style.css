@@ -1249,3 +1249,31 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .tut-x { background: none; border: 0; color: inherit; font-size: 16px; cursor: pointer; padding: 2px 6px; }
 .tut-tip .tut-next { float: right; }
 .tut-tip::after { content: ''; display: block; clear: both; }
+
+/* v0.26.0: Ouro de Dragão, energia, nível de perfil e Loja */
+.coin { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; }
+.coin-svg { width: .86em; height: 1.2em; flex: none; filter: drop-shadow(0 0 3px rgba(255,200,40,.55)); }
+.coin b { font-weight: 800; color: #ffe27a; }
+.energy b { font-weight: 800; color: #9fe8ff; margin-left: 2px; }
+.energy small { color: #8f9ad0; }
+.energy.over b { color: #ffd23f; }
+.profile-chip { display: inline-flex; flex-direction: column; gap: 2px; background: rgba(16,22,50,.9); border: 1px solid #3a4580; border-radius: 10px; padding: 3px 9px; font-size: 12px; min-width: 96px; }
+.profile-chip b { color: #ffcf4a; }
+.profile-bar { height: 5px; border-radius: 99px; background: rgba(255,255,255,.12); overflow: hidden; }
+.profile-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffcf4a, #ff9f1c); }
+.shop { max-width: 980px; margin: 0 auto; padding: 0 12px 24px; }
+.shop h3 { margin: 18px 0 6px; }
+.shop .hint { margin: 2px 0 8px; }
+.shop-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 10px; }
+.shop-tabs .btn.on { outline: 2px solid #ffcf4a; }
+.shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.shop-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px; background: rgba(16,22,50,.75); border: 1px solid #2f3a70; border-radius: 12px; text-align: center; font-size: 13px; }
+.shop-item .gear i, .shop-item .orb i { font-size: 1.6em; }
+.shop-item .orb i { width: 1.6em; height: 1.6em; }
+.shop-item small { color: #8f9ad0; }
+.shop-item .btn { width: 100%; padding: 6px 4px; font-size: 13px; }
+.shop-item.need { border-color: #ffcf4a; box-shadow: 0 0 8px rgba(255,207,74,.35); }
+.stage-actions .cost { font-size: .8em; opacity: .85; margin-left: 4px; }
+.res .energy, .res .coin { background: none; border: 0; padding: 0; }
+.shop-grid > .hint { grid-column: 1 / -1; }
+.res .coin-svg, .menu .coin-svg { width: 1em; height: 1.4em; }

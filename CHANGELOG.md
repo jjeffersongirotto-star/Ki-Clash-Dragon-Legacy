@@ -2,6 +2,15 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.26.0] — 26/10/2026 · PR #48 — Energia, XP de perfil, Ouro de Dragão e Loja
+- **⚡ Energia:** Jogar ou Repetir gasta energia (Fácil 1 · Normal 3 · Difícil 6; na batalha, ao começar). Máximo pelo nível de perfil (nível 1 = 20 … nível 100 = 300), recupera 1 a cada 6 minutos. Ao subir de nível, ganha a energia máxima do nível novo (pode passar do máximo). O tutorial é grátis e o limite de 5 por dia continua.
+- **👤 Nível de perfil de verdade (1 a 100):** XP de perfil = 1 por energia gasta + (4 + fase) × custo a cada vitória ou Repetir (em dobro na primeira vitória). O nível continua aumentando o baralho (até 40). Barra de nível na Base.
+- **🪙 Ouro de Dragão:** moeda oval japonesa (Ryo) dourada com um dragão dourado no meio (desenho próprio). Cada vitória ou Repetir dá (10 + 5 × fase) × custo de energia (em dobro na primeira vitória).
+- **🏪 Loja:** itens de ascensão (cinza 40 · verde 100 · azul 250 · roxo 600 · laranja 1.500), com a aba "Faltando no baralho", e Orbes (30 a 900). Não vende energia.
+- Energia e Ouro na barra de cima; custo de energia nos botões Jogar/Repetir; Ouro e XP de perfil na janela da fase e no resultado.
+- **Saves:** antigos começam no nível de perfil que tinham (1 + fases vencidas), com energia cheia e 0 de Ouro; o baralho não perde espaço. ADM no nível 100, com muita energia e Ouro.
+- Simulação (Fácil, baralho só de personagens): com a Loja, vitória ao chegar 93/92/95/64/62/62/54/59/60/58% (sem Loja: 93/93/94/63/59/56/63/62/51/52%). Ver REGRAS seção 25.
+
 ## [0.25.0] — 26/10/2026 · PR #47 — Tutorial
 - **🎓 Tutorial:** o jogo novo começa numa fase só do tutorial, antes da fase 1 (que não mudou). Batalha 1: Riku contra 1 inimigo, feita para vencer. 🎁 Pacote grátis com Sora (suporte de longo alcance) e Nara (Corte Diagonal). Batalha 2: contra Daichi, Hana e Tobi, para conhecer as habilidades. Caixinhas de dica, uma por vez, por cima da batalha (dá para passar ou fechar). "Pular tutorial" dá tudo do mesmo jeito.
 - **Recompensa do tutorial:** os Orbes do começo de antes (10 Comuns + 3 Raros), ✴12 e os itens do "+" dos 3 personagens — os 3 sobem para Comum+. O save novo começa só com o Riku, sem Orbes nem Essências.
