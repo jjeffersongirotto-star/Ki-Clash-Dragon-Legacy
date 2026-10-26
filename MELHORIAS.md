@@ -11,6 +11,13 @@ Roteiro aprovado em 26/10/2026 (pergunta 23), uma versão por vez, cada uma com 
    - Raridade do Orbe sobe com a dificuldade: Fácil = Comum e Incomum · Normal = Raro e Épico · Difícil = Épicos + **10%** de chance de 1 Lendário e **2%** de 1 Mítico por vitória/Repetir. O XP total por fase fica parecido com o de hoje.
    - XP por jogar: **todo o baralho** ganha **15 + 5 × fase** de XP, **só ao vencer jogando** (derrota e Repetir não dão). O XP principal continua sendo os Orbes.
 3. **v0.23.0:** itens de ascensão + degraus "+"/"++" + carta sem nível numerado (a maior: conversão dos saves e simulação).
+   - **Pergunta 31–32:** cada **categoria** tem o seu **conjunto de 5 itens**, e o personagem usa o **conjunto completo** da categoria dele. As **fases dão itens misturados** de várias categorias.
+     - 🛡 **Tanque:** elmo, armadura, escudo, manoplas, botas de ferro
+     - ➕ **Suporte:** tiara, túnica, amuleto, bastão, sandálias
+     - ⚔ **DPS:** bandana, colete, espada, luvas, botas
+     - 🪄 **Mago:** chapéu, manto, cajado, cristal, anel
+     - 🏹 **Arqueiro:** capuz, jaqueta, arco, aljava, botas leves
+     - 💀 **Assassino:** máscara, capa, adagas, cinto, diamante negro
 4. **v0.24.0:** energia (antes, perguntas sobre como ela funciona).
 
 Antes de cada versão, perguntas só do que faltar decidir, uma por vez.
