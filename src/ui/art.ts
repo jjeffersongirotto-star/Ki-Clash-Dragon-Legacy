@@ -454,7 +454,7 @@ function arenaWeaponSVG(def: CharacterDef, t: number): string {
 }
 
 /**
- * Sprite de corpo inteiro (estilo anime/chibi tático) para a arena de batalha 2×7.
+ * Sprite de corpo inteiro (estilo anime/chibi tático) para a arena de batalha 2 × 12.
  * Possui grupos separados (.spr-legs, .spr-torso, .spr-head, .spr-arm-f) que animam
  * quando o personagem anda (MOVE), ataca (HIT / disparo), sofre dano ou é derrotado.
  */

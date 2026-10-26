@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.17.1] — 26/10/2026 — Escudo, Anjo da Guarda e documentação
+- **🛡 Escudo temporário (Muralha):** a duração agora conta os **turnos do adversário**. A Muralha de 2 rodadas lançada no seu turno protege contra os 2 turnos inimigos seguintes; antes perdia 1 rodada já no fim do seu próprio turno e cobria só 1 turno inimigo. O atordoado não mudou.
+- **👼 Anjo da Guarda (feitiço):** o texto da carta agora diz que o efeito **dura até ser usado** (já funcionava assim).
+- **Documentação:** o resumo do README estava na versão antiga (arena 2×7, baralho 10 × 4, alcance 3, passo da vitória) e foi atualizado; comentários antigos no código (arena 2×7, baralho 10 × 4) corrigidos.
+
 ## [0.17.0] — 26/10/2026 · PR #34 — Fase 2 do plano: habilidades, efeitos, feitiços e baralho com cópias
 - **Efeitos com duração:** 🧪 veneno (ignora resistência), 🔥 queimadura (reduzida pela resistência mágica), 💫 atordoado (perde a ação) e 🛡 escudo temporário (absorve antes da vida). Selos parados no lutador e lista na janela da unidade.
 - **Ícone de aura no beneficiado:** 🥁 em quem recebe o Tambor de Guerra e 🌀 em quem é drenado pelo Sifão.

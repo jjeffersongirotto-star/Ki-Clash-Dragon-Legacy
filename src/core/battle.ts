@@ -261,8 +261,9 @@ export function distanceToEnemyHero(state: BattleState, u: Unit): number {
 }
 
 /**
- * Mira. Regras (arena 2x7):
- * - Ninguém ataca unidades da OUTRA fileira, exceto as habilidades diagonais (Corte Diagonal / Golpe Reverso).
+ * Mira. Regras (arena 2 × 12):
+ * - Ninguém ataca unidades da OUTRA fileira, exceto as habilidades diagonais (Corte Diagonal / Golpe Reverso)
+ *   e o respingo lateral da Explosão de Brasas.
  * - Básico: inimigo na casa logo à frente (alcance 1). Longo alcance: o inimigo MAIS PRÓXIMO até 4 casas à frente (v0.16.0).
  * - Miras especiais (retaguarda = mais distante; menor vida) olham só a própria fileira até `reach` casas.
  * - Comandante: funciona como uma unidade numa coluna virtual logo após o fim da arena, alcançável pelas duas
@@ -379,10 +380,16 @@ function tickDots(state: BattleState, ctx: Ctx, side: Side) {
   }
 }
 
-/** Fim do lado: atordoar e escudo temporário perdem 1 rodada. */
+/**
+ * Fim do lado: o atordoar das unidades desse lado perde 1 rodada; o escudo temporário perde 1 rodada
+ * no fim do turno do ADVERSÁRIO (v0.17.1: escudo de 2 rodadas protege contra 2 turnos inimigos).
+ */
 function tickEnd(state: BattleState, side: Side) {
-  for (const u of state.units.filter((x) => x.side === side)) {
-    for (const e of u.effects ?? []) if (e.kind === 'atordoado' || e.kind === 'escudo') e.turns--;
+  for (const u of state.units) {
+    for (const e of u.effects ?? []) {
+      if (e.kind === 'atordoado' && u.side === side) e.turns--;
+      if (e.kind === 'escudo' && u.side !== side) e.turns--;
+    }
     dropExpired(u);
   }
 }

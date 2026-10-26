@@ -1,11 +1,12 @@
 // Baralho semi-aleatório (lógica pura, sem DOM).
 //
-// - O baralho tem DECK_SLOTS cartas distintas ("grupos") com COPIES cópias cada (10 × 4 = 40).
-// - A fila de cada grupo conta a partir da COMPRA (não da jogada): depois de comprado,
-//   o grupo fica bloqueado nas 6 compras seguintes, pode vir sorteado na 7ª, 8ª e 9ª
-//   e vem garantido na 10ª.
-// - Mão inicial (6 cartas) = compra 0. Exceção do começo: essas 6 voltam a poder vir
-//   sorteadas a partir da 5ª compra (só restam 4 outras) e ficam garantidas na 8ª.
+// - O baralho tem cartas distintas ("grupos"), cada uma com 1 a MAX_COPIES cópias (v0.17.0),
+//   de DECK_MIN a DECK_ABS_MAX cartas no total.
+// - A fila de cada grupo conta a partir da COMPRA (não da jogada) e escala com o número de
+//   grupos (`queueFor`). Com 10 grupos: bloqueado nas 6 compras seguintes, pode vir sorteado
+//   na 7ª, 8ª e 9ª e vem garantido na 10ª.
+// - Mão inicial (6 cartas) = compra 0. Exceção do começo (com 10 grupos): essas 6 voltam a
+//   poder vir sorteadas a partir da 5ª compra e ficam garantidas na 8ª.
 // - A cada rodada compra-se o que falta para a mão voltar a ter 6 cartas: todas essas
 //   cartas fazem parte da MESMA compra (v0.8).
 // - Garantias atrasadas saem em fila (10ª, 11ª, 12ª...). Uma compra que traz 2 cartas

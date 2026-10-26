@@ -750,7 +750,7 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 
 /* =====================================================================
    v0.11.0 — Batalha DEITADA (paisagem): celular deitado e computador
-   HUD fino no topo · arena 2×7 ocupando a largura (com os comandantes nas pontas) ·
+   HUD fino no topo · arena 2 × 12 ocupando a largura (com os comandantes nas pontas) ·
    faixa de baixo numa linha só: Baralho | 6 cartas | Derrotadas | energia + LUTAR.
    Sem rolagem: tudo cabe em 100dvh (a barra do Chrome não quebra o layout).
    ===================================================================== */

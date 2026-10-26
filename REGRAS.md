@@ -46,7 +46,7 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 - **Quando:** sempre que a tela está **mais larga que alta** (celular deitado, tablet ou computador). Só a tela de batalha muda; os menus continuam pensados para o celular em pé e também funcionam deitados.
 - **Sem rolagem:** a batalha ocupa exatamente a altura visível (`100dvh`, acompanha a barra de endereço do Chrome) e respeita os recortes da tela (safe-area). Nenhuma parte da tela rola.
 - **Topo:** HUD VS fino (vida dos dois Comandantes, turno), com **Sair**, **Auto**, velocidade, **Em campo (N)** e **📜** (registro) à direita.
-- **Centro:** a arena 2×7 fica **o maior possível**, com as colunas dos Comandantes visíveis nas pontas.
+- **Centro:** a arena (2 × 12 desde a v0.16.0) fica **o maior possível**, com as colunas dos Comandantes visíveis nas pontas.
 - **Embaixo, numa linha só:** **Baralho** à esquerda, as **6 cartas da mão inteiras** no meio, **Necropolis (Derrotadas)**, o orbe **⏳ de cartas prontas** (antes a energia) e o botão **LUTAR** na ponta direita.
 - **Painel de informações:** vira uma **janela sobreposta** sobre a metade inimiga da arena (com **✕** para fechar). Ela abre ao selecionar uma carta/unidade e **fecha sozinha ao tocar LUTAR** (não cobre a luta). Se o texto for longo, rola só por dentro da janela.
 - **Registro da batalha:** fica escondido; o botão **📜** abre/fecha uma gaveta lateral.
@@ -549,8 +549,8 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 - **🔥 Queimadura:** igual ao veneno, mas o dano é **reduzido pela resistência mágica** (mínimo 1).
 - **Não acumulam:** aplicar de novo mantém o **valor mais forte** e a **maior duração**.
 - **💫 Atordoado:** a unidade **perde a próxima ação** (não cura, não anda, não ataca). O efeito acaba no fim do turno do lado dela.
-- **🛡 Escudo temporário:** absorve dano **antes da vida** (escudos se somam, até 99) e some no fim da duração (contada no fim do turno do lado dela) ou quando é gasto.
-- **👼 Anjo da Guarda (efeito do feitiço):** dura até ser usado.
+- **🛡 Escudo temporário:** absorve dano **antes da vida** (escudos se somam, até 99) e some no fim da duração ou quando é gasto. **v0.17.1:** a duração conta os **turnos do adversário** (perde 1 rodada no fim de cada turno inimigo): a Muralha de 2 rodadas lançada no seu turno protege contra os **2 turnos inimigos seguintes** (antes perdia 1 rodada já no fim do seu próprio turno e só cobria 1 turno inimigo).
+- **👼 Anjo da Guarda (efeito do feitiço):** **não expira com o tempo**: dura até ser usado (uma vez), mesmo que demore muitos turnos. O texto da carta diz isso (v0.17.1).
 - Veneno e queimadura **não** ativam Reflexo, Espinhos nem contra-golpe. A queda por veneno/queimadura não dá Prole ao inimigo.
 
 ### Ícone de aura no beneficiado (decisão 17)
@@ -580,7 +580,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 |---|---|---|---|---|
 | 💨 Investida de Ki | DPS | 2 | 1 inimigo | 250% do ataque (físico) e empurra 1 casa |
 | 🌪 Lâmina Giratória | DPS **ou** Assassino | 2 | fileira | 120% (físico) em todos os inimigos da fileira |
-| 🧱 Muralha | Tanque | 1 | 1 aliado | escudo de 80% da vida máxima do conjurador por 2 rodadas |
+| 🧱 Muralha | Tanque | 1 | 1 aliado | escudo de 80% da vida máxima do conjurador por 2 turnos inimigos |
 | 🌋 Tremor | Tanque **ou** DPS | 2 | 1 inimigo | 100% (físico), atordoa e empurra 1 casa |
 | 🏹 Chuva de Flechas | Arqueiro | 2 | fileira | 100% (físico) em todos os inimigos da fileira |
 | 🧪 Flecha Envenenada | Arqueiro **ou** Assassino | 1 | 1 inimigo | 80% (físico) + veneno de 60% por 3 rodadas |
@@ -589,7 +589,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 | ☠ Veneno Mortal | Assassino | 1 | 1 inimigo | veneno de 100% por 3 rodadas (ignora resistência) |
 | 🗡️ Golpe nas Sombras | Assassino | 2 | 1 inimigo | 250% ignorando toda a resistência |
 | 💖 Cura em Massa | Suporte | 1 | fileira | cura 50% da vida máxima de cada aliado da fileira |
-| 👼 Anjo da Guarda | Suporte | 2 | 1 aliado | a próxima queda deixa o aliado com 1 de vida |
+| 👼 Anjo da Guarda | Suporte | 2 | 1 aliado | a próxima queda deixa o aliado com 1 de vida (dura até ser usado) |
 | ⚰️ Chamado da Necropolis | Suporte **ou** Mago | 2 | sem alvo | traz a última carta derrotada (mão pronta, ou Baralho) |
 
 - **IA:** depois de invocar, lança os feitiços prontos com uma escolha simples de alvo (o inimigo mais avançado/forte; para veneno, o de mais vida; a fileira com mais inimigos; Cura só se curar pelo menos 3; Anjo no aliado mais forte sem proteção). O modo **Auto** do jogador usa a mesma IA. **Os inimigos da Aventura ainda não usam feitiços** nesta versão.
@@ -601,7 +601,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 - **Migração de saves (v0.17.0):** cada carta da equipe antiga vira **3 cópias** (10 × 3 = 30, que cabe no nível 1). Se algum baralho passar do máximo, as últimas cartas perdem cópias (e, no limite, saem). A ADM já existente ganha uma vez o baralho de 40 com feitiços.
 
 ### Escolhas padrão desta versão (detalhes que o plano não definia)
-- Duração contada em turnos do lado da unidade; DoT no começo, atordoar/escudo no fim.
+- Duração contada em turnos do lado da unidade; DoT no começo, atordoar no fim. Escudo (v0.17.1): conta os turnos do adversário, no fim de cada um.
 - Veneno ignora resistência; queimadura usa a resistência mágica; não acumulam (mais forte + maior duração).
 - Anjo da Guarda da Mei: vizinhos nas 8 casas, 1 vez por batalha; Renascer 30/40/50%.
 - Reflexo também vale contra feitiços; o reflexo de feitiço vai no Comandante de quem lançou.
