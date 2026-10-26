@@ -653,3 +653,10 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 - Toda partida agora **grava** a configuração (baralhos, vidas, semente inicial) e as **jogadas do jogador**: usar uma carta numa casa, Auto e LUTAR. Jogadas recusadas não são gravadas.
 - `verifyMatch` (em `src/core/match.ts`) **refaz a partida** a partir da gravação e confere vencedor, turno e vida dos dois Comandantes. Recusa gravação com jogada inválida, jogada depois do fim, baralho trocado ou resultado diferente.
 - Por enquanto não há servidor: o jogo continua dando as recompensas no aparelho. Quando o modo online vier, o servidor recebe a gravação, chama `verifyMatch`, confere se os baralhos da gravação batem com as cartas da conta e com a fase, e só então dá a recompensa.
+
+## 18. App Android (v0.19.0)
+- O jogo também roda como **app Android** (APK), baixado da página de **Releases** do GitHub (`Ki-Clash-<versão>.apk`). As regras são as mesmas do site: é o mesmo jogo.
+- O app abre em **tela cheia** (as barras do sistema aparecem por um instante ao deslizar da borda). A orientação segue o celular, como no site: menus em pé e a batalha melhor deitada, com o mesmo aviso **"Gire o celular para jogar deitado"**.
+- Funciona **sem internet**. O progresso (e as contas locais) fica guardado **no app**, separado do progresso do site no navegador.
+- Toda versão do APK tem a **mesma assinatura**: instalar uma versão nova por cima mantém o progresso. Desinstalar o app apaga o progresso.
+- Requer Android 7.0 ou mais novo.

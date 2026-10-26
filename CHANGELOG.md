@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.19.0] — 26/10/2026 · PR #37 — App Android (APK)
+- **APK Android:** o jogo agora tem um app para celular (`Ki-Clash-0.19.0.apk`), o mesmo jogo web empacotado com o Capacitor, em tela cheia, com ícone e tela de abertura do jogo. Funciona sem internet; o progresso fica no próprio app.
+- **Download automático:** a cada versão na `main`, a CI gera o APK e o publica na página de Releases do GitHub. Toda versão é assinada com a mesma chave privada (guardada nos segredos do repositório, nunca no código), então instala por cima da anterior sem perder o progresso.
+- O progresso do app e o do site são separados (cada um guarda o seu no aparelho).
+
 ## [0.18.0] — 26/10/2026 · PR #36 — Dificuldade crescente, feitiços da IA e partidas verificáveis
 - **Feitiços da IA:** os inimigos da Aventura agora usam feitiços (2 cópias de cada): Raio Paralisante nas fases 3 e 5, e de 2 a 3 feitiços por fase da 6 à 10 (tabela no REGRAS.md, seção 17).
 - **Dificuldade crescente:** nível das cartas da IA recalibrado no simulador (fases 1 a 10 = 1, 4, 4, 5, 6, 6, 11, 14, 17, 12). Vitória ao chegar (300 jogadores simulados): 93/89/90/81/79/76/70/68/65/62% (v0.17.1: 93/99/91/77/82/53/82/89/86/53%). A fase 2 deixou de ser mais fácil que a 1, e as fases 6 e 10 deixaram de ser picos de dificuldade. A vida dos Comandantes inimigos não mudou.
