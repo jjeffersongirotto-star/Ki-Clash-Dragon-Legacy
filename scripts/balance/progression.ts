@@ -3,7 +3,7 @@
  * Rodar: npx vite-node scripts/balance/progression.ts [jogadores]
  *
  * Jogador simulado (IA do Auto) começa como um save novo e segue a campanha:
- *  - antes de cada tentativa gasta todo o XP na equipe (menor nível primeiro) e desperta quem está no teto;
+ *  - antes de cada tentativa gasta todo o XP na equipe (menor degrau primeiro) e desperta quem está com a barra cheia (v0.23.0);
  *  - equipe = 10 cartas de maior Poder;
  *  - evolui o Líder sempre que o Poder do baralho alcança o requisito (grátis);
  *  - derrota: +1 Pergaminho, repete a maior fase vencida (50% da recompensa) e tenta de novo.
@@ -13,7 +13,7 @@
 import { simulate } from './sim';
 import { STAGES, UNLOCKS } from '../../src/core/campaign';
 import { STARTER_IDS } from '../../src/core/characters';
-import { newOwned, feedXp, ascend, canAscend, ascendCost, cardMaxLevel, XP_ITEMS, playXp, type OwnedCard } from '../../src/core/progression';
+import { newOwned, feedXp, ascend, canAscend, ascendCost, barFull, isMaxTier, stepIndex, xpProgress, XP_ITEMS, playXp, type OwnedCard } from '../../src/core/progression';
 import { rewardsFor } from '../../src/core/adventure';
 import { cardPower, deckPower } from '../../src/core/power';
 import type { CardInstance } from '../../src/core/types';
@@ -28,7 +28,7 @@ interface Player { cards: Record<string, OwnedCard>; items: Record<string, numbe
 function team(p: Player): OwnedCard[] {
   return Object.values(p.cards).sort((a, b) => cardPower(b) - cardPower(a)).slice(0, 10);
 }
-const asDeck = (t: OwnedCard[]): CardInstance[] => t.map((c) => ({ charId: c.charId, level: c.level, stars: c.stars, plus: c.plus }));
+const asDeck = (t: OwnedCard[]): CardInstance[] => t.map((c) => ({ charId: c.charId, stars: c.stars, plus: c.plus }));
 /**
  * v0.17.0: baralho de batalha do jogador simulado — os 10 mais fortes × 3 e, quando o nível de perfil
  * (1 + fases vencidas) abre espaço além de 30, até 4 cartas de feitiço (2 feitiços × 2) que combinam com a equipe.
@@ -46,10 +46,13 @@ const battleDeck = (p: Player, cleared: number): CardInstance[] => {
 function spend(p: Player) {
   for (let guard = 0; guard < 2000; guard++) {
     const t = team(p);
-    // desperta quem está no teto (mais barato primeiro)
+    // desperta quem está com a barra cheia (mais barato primeiro)
     const asc = t.filter((c) => canAscend(c) && p.ess >= ascendCost(c)).sort((a, b) => ascendCost(a) - ascendCost(b))[0];
     if (asc) { p.ess -= ascend(asc, p.ess).cost; continue; }
-    const target = t.filter((c) => c.level < cardMaxLevel(c)).sort((a, b) => a.level - b.level)[0];
+    // v0.23.0: alimenta uma barra por vez — o menor degrau e, no empate, a barra mais cheia (o XP que passa do cheio
+    // se perde, então não alimenta barra cheia; espalhar o XP deixaria todas as barras pela metade, sem subir degrau)
+    const g = (c: OwnedCard) => stepIndex(c.stars, c.plus) - xpProgress(c) * 0.99;
+    const target = t.filter((c) => !isMaxTier(c) && !barFull(c)).sort((a, b) => g(a) - g(b))[0];
     if (!target) return;
     // v0.22.0: Orbes, do mais fraco para o mais forte
     const item = XP_ITEMS.map((o) => o.id as string).find((id) => p.items[id] > 0);

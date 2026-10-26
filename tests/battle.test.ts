@@ -20,7 +20,7 @@ import { aiDeploy } from '../src/core/ai';
 import { pileCount, totalCards } from '../src/core/deck';
 import type { BattleState, CardInstance } from '../src/core/types';
 
-const c = (charId: string, level = 1, stars = 1): CardInstance => ({ charId, level, stars });
+const c = (charId: string, _level = 1, stars = 1, plus = 0): CardInstance => ({ charId, stars, plus });
 
 function emptyBattle(): BattleState {
   return createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1, cols: 7 /* arena compacta de teste: mesmas regras */ });

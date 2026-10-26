@@ -1,6 +1,6 @@
 import { ABILITIES } from '../core/abilities';
 import { CATEGORY_INFO, RACE_INFO, STAR_COLORS, getChar } from '../core/characters';
-import { XP_ITEMS, statsFor, tierLabel, type OrbBag, type XpItemId } from '../core/progression';
+import { XP_ITEMS, statsFor, stepIndex, stepOf, tierLabel, type OrbBag, type XpItemId } from '../core/progression';
 import type { AbilityId, CardInstance, CharacterDef } from '../core/types';
 import { portraitImg } from './art';
 import { gridArtHTML } from './gridArt';
@@ -19,8 +19,8 @@ export function abilityIconHTML(id: AbilityId): string {
 export const esc = (s: string) => s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]!);
 
 /** v0.10: selo com o nome da cor/tier (ex.: "Raro+"), no lugar das estrelas. */
-export function tierHTML(stars: number, plus = false): string {
-  return `<span class="tier-tag" style="${starStyle(stars)}">${tierLabel(stars, plus)}</span>`;
+export function tierHTML(stars: number, step = 0): string {
+  return `<span class="tier-tag" style="${starStyle(stars)}">${tierLabel(stars, step)}</span>`;
 }
 
 /** Cor da carta pelo TIER (campo `stars`): 1 Comum cinza · 2 Incomum verde · 3 Raro azul · 4 Épico roxo · 5 Lendário laranja · 6 Mítico vermelho */
@@ -71,8 +71,9 @@ export function cardHTML(
   opts: { extraClass?: string; attrs?: string; locked?: boolean; badge?: string; compact?: boolean; grid?: boolean; power?: number; wait?: number } = {},
 ): string {
   const def = getChar(card.charId);
-  const st = statsFor(def, card.level, card.stars, !!card.plus);
-  const tier = tierLabel(card.stars, !!card.plus);
+  const step = stepOf(card);
+  const st = statsFor(def, card.stars, step);
+  const tier = tierLabel(card.stars, step);
   const cat = CATEGORY_INFO[def.category];
   const race = RACE_INFO[def.race];
   const t = Math.max(1, Math.min(6, card.stars));
@@ -96,7 +97,7 @@ export function cardHTML(
       <div class="card-fig">${ga ? ga.fg : portraitImg(def, { stars: t, layer: 'fg' })}</div>
       <div class="ck-cost${opts.wait === 0 ? ' ready' : ''}" title="${opts.wait == null ? `Espera ${waitFor(def.id)} rodada(s) na mão` : opts.wait ? `Falta(m) ${opts.wait} rodada(s)` : 'Pronta para invocar'}"><span>${opts.wait ?? waitFor(def.id)}</span></div>
       <div class="ck-pow" title="Poder">⚡${power}</div>
-      <div class="ck-star" title="Nível"><small>Nv.</small><b>${card.level}</b></div>
+      ${step ? `<div class="ck-star" title="Degrau ${tier}"><b>${'+'.repeat(step)}</b></div>` : ''}
       ${opts.badge ? `<div class="card-badge">${opts.badge}</div>` : ''}
       <div class="ck-banner"><span class="ck-name"${nfit}><span class="full">${esc(def.name).replace(/-/g, '\u2011')}</span><span class="short">${esc(def.name.split(' ')[0])}</span></span><i class="ck-gem"></i></div>
       <div class="ck-panel">
@@ -111,13 +112,12 @@ export function cardHTML(
   </div>`;
 }
 
-/** Lista de habilidades com a força atual (cor/nível) e a evolução por cor (o "+" não muda habilidades). */
-export function abilityListHTML(def: CharacterDef, stars?: number, level?: number): string {
+/** Lista de habilidades com a força atual (raridade e degrau) e a evolução por raridade. */
+export function abilityListHTML(def: CharacterDef, stars?: number, step = 0): string {
   const s = stars ?? def.minStars;
-  const l = level ?? 1;
   const rows = def.abilities.map((a) => {
     const ab = ABILITIES[a];
-    const p = ab.power?.(s, l);
+    const p = ab.power?.(s, stepIndex(s, step));
     const now = ab.powerLabel && p != null ? ` <span class="ab-now">agora: ${esc(ab.powerLabel(p))}</span>` : '';
     return `<li><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> — ${esc(ab.description)}${now}${ab.scaling ? `<div class="ab-scale">🎨 Por raridade: ${esc(ab.scaling)}</div>` : ''}</li>`;
   });

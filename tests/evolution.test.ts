@@ -37,7 +37,7 @@ describe('habilidades escalam dentro da faixa de estrelas de cada personagem', (
       for (const ab of d.abilities) {
         if (!ABILITIES[ab].power) continue;
         const vals: number[] = [];
-        for (let s = d.minStars; s <= d.maxStars; s++) vals.push(abilityPower(ab, s, 1));
+        for (let s = d.minStars; s <= d.maxStars; s++) vals.push(abilityPower(ab, s, 0));
         for (let i = 1; i < vals.length; i++) expect(vals[i]).toBeGreaterThanOrEqual(vals[i - 1]);
       }
     }

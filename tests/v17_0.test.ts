@@ -11,10 +11,10 @@ import { addToDeck, deckCards, deckCount, deckIssue, deckMax, defaultSave, loadS
 import { spellCardHTML } from '../src/ui/components';
 import type { BattleState, CardInstance } from '../src/core/types';
 
-const c = (id: string, level = 1, stars = getChar(id).minStars): CardInstance => ({ charId: id, level, stars });
+const c = (id: string, _level = 1, stars = getChar(id).minStars): CardInstance => ({ charId: id, stars });
 const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
 const deck10 = ['riku', 'nara', 'toru', 'daichi', 'sora', 'tobi', 'kael', 'suri', 'hana', 'jin'].map((id) => c(id));
-const sp = (id: string, copies = 2): CardInstance => ({ charId: id, level: 1, stars: 1, copies });
+const sp = (id: string, copies = 2): CardInstance => ({ charId: id, stars: 1, copies });
 
 const store = new Map<string, string>();
 beforeEach(() => {

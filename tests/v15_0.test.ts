@@ -2,10 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { act, createBattle, Ctx, moveRange, moveUnit, placeUnit, SALTO_MOVE } from '../src/core/battle';
 import { ABILITIES } from '../src/core/abilities';
 import { getChar } from '../src/core/characters';
-import { maxLevel } from '../src/core/progression';
 import type { BattleState, CardInstance, RecordedEvent } from '../src/core/types';
 
-const c = (charId: string, level = 1, stars = 1): CardInstance => ({ charId, level, stars });
+const c = (charId: string, _level = 1, stars = 1, plus = 0): CardInstance => ({ charId, stars, plus });
 const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
 const moves = (ctx: Ctx) => ctx.events.filter((e): e is Extract<RecordedEvent, { type: 'move' }> => e.type === 'move');
 
@@ -91,11 +90,11 @@ describe('v0.15.0 — Salto Vendaval (Riku): 3 casas fixas', () => {
     const def = getChar('riku');
     const s = empty();
     for (let st = def.minStars; st <= 6; st++)
-      for (const lvl of [1, 10, 25, 30, maxLevel(st)]) {
-        const u = placeUnit(s, c('riku', lvl, st), 'player', 0, 0);
+      for (const lvl of [0, 1, 2]) {
+        const u = placeUnit(s, c('riku', 1, st, lvl), 'player', 0, 0);
         expect(moveRange(u)).toBe(SALTO_MOVE);
         s.units = [];
-        const v = placeUnit(s, c('riku', lvl, st), 'player', 0, 0);
+        const v = placeUnit(s, c('riku', 1, st, lvl), 'player', 0, 0);
         moveUnit(s, new Ctx(), v);
         expect(v.col).toBe(3);
         s.units = [];

@@ -1,6 +1,6 @@
 import { ABILITIES, AURA_CAP, BUFF_CAP, MINION_CAP, RES_CAP, abilityPower, has } from './abilities';
 import { getChar } from './characters';
-import { statsFor, tierLabel } from './progression';
+import { statsFor, tierLabel, stepOf } from './progression';
 import { castFromHand, createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, returnFromNecropolis, HAND_SIZE } from './deck';
 import { SPELL_NUM, getSpell, isSpell } from './spells';
 import type {
@@ -166,7 +166,8 @@ export function makeUnit(
   opts: { minion?: boolean; atk?: number; hp?: number } = {},
 ): Unit {
   const def = getChar(card.charId);
-  const s = statsFor(def, card.level, card.stars, !opts.minion && !!card.plus);
+  const step = opts.minion ? 0 : stepOf(card);
+  const s = statsFor(def, card.stars, step);
   const hp = opts.hp ?? s.hp;
   // v0.17.0 (decisão 14): resistência só vem de habilidade
   let physRes = 0;
@@ -193,9 +194,8 @@ export function makeUnit(
     move: def.move,
     range: def.range,
     abilities: def.abilities.slice(),
-    level: card.level,
     stars: card.stars,
-    plus: !opts.minion && !!card.plus,
+    plus: step,
     isMinion: !!opts.minion,
     card: opts.minion ? undefined : { ...card },
   };
@@ -218,7 +218,7 @@ export function hasRangeBonus(u: Unit): boolean {
   return !!has(u.abilities, (a) => a.rangeBonus);
 }
 
-const pw = (u: Unit, id: AbilityId) => (u.abilities.includes(id) ? abilityPower(id, u.stars, u.level) : 0);
+const pw = (u: Unit, id: AbilityId) => (u.abilities.includes(id) ? abilityPower(id, u.stars, u.plus) : 0);
 
 export function auraPenalty(state: BattleState, u: Unit): number {
   let p = 0;
@@ -554,7 +554,7 @@ function kill(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit) {
       if (spot) {
         const atk = criaAtk(killer.stars);
         const hp = pw(killer, 'prole') || 1;
-        const m = placeUnit(state, { charId: summon, level: killer.level, stars: killer.stars }, killer.side, spot[0], spot[1], { minion: true, atk, hp });
+        const m = placeUnit(state, { charId: summon, stars: killer.stars, plus: killer.plus }, killer.side, spot[0], spot[1], { minion: true, atk, hp });
         ctx.emit(state, { type: 'spawn', uid: m.uid, text: `🥚 Uma ${getChar(summon).name} surge dos restos!` });
       }
     }
@@ -566,7 +566,7 @@ export function criaAtk(stars: number): number {
   return stars >= 6 ? 3 : 2;
 }
 
-/** Salto Vendaval: anda até SALTO_MOVE casas em qualquer cor/nível (fixo, não escala). */
+/** Salto Vendaval: anda até SALTO_MOVE casas em qualquer raridade/degrau (fixo, não escala). */
 export const SALTO_MOVE = 3;
 
 /** Quantas casas a unidade anda por ação (Salto Vendaval = 3 fixo; demais = atributo `move`). */
@@ -787,9 +787,9 @@ export function deploy(state: BattleState, side: Side, handIndex: number, row: n
   if (!isDeployCell(state, side, row, col)) return { ok: false, reason: 'Fora da zona de invocação', events: [] };
   if (unitAt(state, row, col)) return { ok: false, reason: 'Casa ocupada', events: [] };
   playFromHand(state.decks[side], handIndex);
-  const u = placeUnit(state, { charId: card.charId, level: card.level, stars: card.stars, plus: !!card.plus }, side, row, col);
+  const u = placeUnit(state, { charId: card.charId, stars: card.stars, plus: stepOf(card) }, side, row, col);
   u.slot = card.slot;
-  ctx.emit(state, { type: 'deploy', uid: u.uid, text: `${side === 'player' ? 'Você invoca' : 'Inimigo invoca'} ${def.name} (${tierLabel(card.stars, !!card.plus)} Nv.${card.level}).` });
+  ctx.emit(state, { type: 'deploy', uid: u.uid, text: `${side === 'player' ? 'Você invoca' : 'Inimigo invoca'} ${def.name} (${tierLabel(card.stars, stepOf(card))}).` });
   const aura = has(u.abilities, (a) => a.enemyAtkAura);
   if (aura) ctx.emit(state, { type: 'aura', uid: u.uid, text: `🌀 ${def.name} drena o ataque de todos os inimigos!` });
   if (has(u.abilities, (a) => a.necro)) bringBack(state, ctx, side, u.uid, def.name);

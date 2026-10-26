@@ -959,12 +959,12 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
   padding: 0 3.6cqw 0 2.8cqw; border-radius: 99px; border: .8cqw solid #c9ced6; box-shadow: 0 0 0 .5cqw #1b1e25, 0 1.2cqw 2.4cqw rgba(0,0,0,.6);
   background: linear-gradient(180deg, #3a3f4a, #15181f); color: #ffcf3a; font-weight: 900; font-size: 8cqw; line-height: 1; white-space: nowrap;
   text-shadow: 0 0 2cqw rgba(255,190,40,.5); pointer-events: none; }
-/* ---- nível: estrela dourada com asinhas no canto direito (como a gota no esquerdo) ---- */
+/* ---- degrau (v0.23.0: "+" / "++"; até a v0.22.0 era o nível): estrela dourada com asinhas no canto direito ---- */
 .ck-star { position: absolute; z-index: 8; top: -11cqw; right: -12cqw; width: 35cqw; height: 35cqw; box-sizing: border-box; padding-top: 12.2cqw;
   background: center / contain no-repeat url('../assets/card/lv-star.svg'); display: flex; flex-direction: column; align-items: center; pointer-events: none;
   color: #fff; font-weight: 900; line-height: .92; -webkit-text-stroke: 1.1cqw #2a1a00; paint-order: stroke fill; text-shadow: 0 .7cqw 0 #000; }
 .ck-star small { font-size: 4.6cqw; font-weight: 900; }
-.ck-star b { font-size: 9cqw; font-weight: 900; }
+.ck-star b { font-size: 11cqw; font-weight: 900; letter-spacing: -1cqw; margin-top: 1cqw; }
 /* ---- faixa do nome: degradê (mais escuro embaixo) + borda prata fina; nome um pouco acima da gema ---- */
 .ck-banner { position: relative; z-index: 6; margin: -14cqw -1.2cqw 0; padding: 2cqw 6cqw 5.2cqw; text-align: center;
   background:

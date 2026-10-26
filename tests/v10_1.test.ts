@@ -29,7 +29,7 @@ describe('v0.10.1 — retratos em cache (desempenho)', () => {
   });
 
   it('a carta usa 2 imagens (fundo e personagem) e nenhum SVG em linha', () => {
-    const html = cardHTML({ charId: 'nyx', level: 65, stars: 6, plus: true });
+    const html = cardHTML({ charId: 'nyx', stars: 6, plus: true });
     expect((html.match(/<img class="portrait/g) ?? []).length).toBe(2);
     expect(html).not.toContain('<svg');
     // efeitos premium continuam na carta (faíscas e reflexo)
@@ -40,7 +40,7 @@ describe('v0.10.1 — retratos em cache (desempenho)', () => {
 
 describe('v0.10.2 — cartas de grade congeladas (rolagem fluida)', () => {
   it('carta de grade: marcada como grid-card, sem reflexo animado e com imagens assíncronas/preguiçosas', () => {
-    const html = cardHTML({ charId: 'nyx', level: 65, stars: 6, plus: true }, { grid: true });
+    const html = cardHTML({ charId: 'nyx', stars: 6, plus: true }, { grid: true });
     expect(html).toContain('grid-card');
     expect(html).not.toContain('card-shine');
     expect(html).not.toContain('<svg');
@@ -50,13 +50,13 @@ describe('v0.10.2 — cartas de grade congeladas (rolagem fluida)', () => {
   });
 
   it('carta em foco (detalhes, mão) continua com todos os efeitos', () => {
-    const html = cardHTML({ charId: 'nyx', level: 65, stars: 6, plus: true });
+    const html = cardHTML({ charId: 'nyx', stars: 6, plus: true });
     expect(html).not.toContain('grid-card');
     expect(html).toContain('card-shine');
   });
 
   it('carta bloqueada de grade usa chave própria (arte escurecida no bitmap)', () => {
-    const html = cardHTML({ charId: 'kenji', level: 1, stars: 5 }, { grid: true, locked: true });
+    const html = cardHTML({ charId: 'kenji', stars: 5 }, { grid: true, locked: true });
     expect(html).toContain('data-gk="kenji|5|L|bg"');
     expect(html).toContain('locked');
   });

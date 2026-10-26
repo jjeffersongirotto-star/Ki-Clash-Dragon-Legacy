@@ -160,6 +160,8 @@ A partir do **turno 8**, todas as unidades dos dois lados ganham **+1 de ataque*
 | ☠️ | Necromante | Vorax, Yume Caçadora, Cria Sombria |
 
 ## 10. Raridades (tiers) e o degrau "+"
+> **v0.23.0:** cada raridade agora tem **3 degraus** (base, **"+"** e **"++"**) e a carta **não tem mais nível**. O "+" não é mais um bônus de +10% num status só: cada degrau dá +17% de ataque e de vida. Veja a **seção 22**. O texto abaixo vale **até a v0.22.0**.
+
 > **v0.21.0 — nome:** o jogo agora chama o tier da carta de **raridade** (Comum, Incomum, Raro, Épico, Lendário, Mítico) em todas as telas. Cada raridade continua sendo mostrada por uma **cor**. Nas seções escritas antes da v0.21.0, "cor da carta" quer dizer **raridade**.
 
 Desde a v0.10 **não há mais estrelas de raridade**: a **raridade** é o tier do personagem, mostrada pela cor da carta (as ⭐ da v0.21.0 são outra coisa: estrelas das **fases**, seção 20).
@@ -286,6 +288,8 @@ Cada retrato tem um cenário próprio, que também fica mais rico a cada cor (ma
 Cada um dos 9 novos tem um detalhe que o identifica desde Comum, além da evolução normal por cor: Daichi (faixa de pedra com chifre, cicatriz e ombreiras de rocha), Sora (presilha de folha e fitas ao vento), Tobi (faixa na cabeça, pintura de guerra e baquetas), Kael (marca de chama na testa e brasas), Suri (tiara de gelo), Hana (pena no cabelo e pintura de caçadora), Jin (óculos de atirador e raio), Ren (lenço cobrindo o rosto) e Kuro (orelhas de gato e cicatrizes de garra). O chifre, as fitas, as baquetas, a tiara, a pena, o raio e as orelhas crescem a cada cor.
 
 ## 11. Evolução (nível, XP e Despertar)
+> **Até a v0.22.0.** Desde a v0.23.0 não existe nível: cada degrau tem só uma barra de XP e os status sobem só nos degraus (seção 22).
+
 - **Status:** ataque e vida = base × (1 + 0,08 × (nível − 1)) × (1 + 0,15 × (cor − 1)), arredondado (cor: Comum = 1 … Mítico = 6). No degrau "+", soma **+10% (mín. +1)** no status do "+" do personagem (vida ou ataque).
 - **Itens de XP (v0.22.0):** só **🔮 Orbes**, um por raridade: Comum +100, Incomum +250, Raro +400, Épico +800, Lendário +1.500, Mítico +3.000 (ver seção 21). Antes: Pergaminho de Ki +100, Cristal de Ki +400, Orbe do Dragão Ancestral +1500. Ao chegar em 100% da barra, o nível sobe; cada nível pede mais XP que o anterior.
 - **Nível máximo por degrau:** cor base = **10 × cor** (igual ao antigo 10 × estrelas); o "+" libera **mais 5 níveis**. Comum 10 · Comum+ 15 · Incomum 20 · Incomum+ 25 · Raro 30 · Raro+ 35 · Épico 40 · Épico+ 45 · Lendário 50 · Lendário+ 55 · Mítico 60 · Mítico+ 65.
@@ -407,6 +411,8 @@ Habilidades em detalhe:
 - Progresso salvo no navegador (localStorage). O **nível de perfil** conta as fases vencidas no **Fácil**.
 
 ## 15. Poder ⚡ e Comandante 👑 (v0.13)
+> **v0.23.0:** o Poder usa o ataque e a vida do **degrau** (sem nível) e os requisitos do Comandante mudaram (seção 22). Os números de nível desta seção valem **até a v0.22.0**.
+
 ### Poder da carta
 - **Poder = arredondar( 10 × peso da habilidade × √(ataque × vida) )**, com o ataque e a vida **atuais** da carta (nível, cor e "+" já aplicados). Por isso o Poder **sobe a cada nível, no "+" e a cada cor**.
 - **Peso da habilidade** = valor de combate medido de cada personagem (média 1,00). Ele inclui o efeito das **habilidades** e do **custo** de energia:
@@ -760,3 +766,79 @@ Vitória ao chegar, fases 1 a 10:
 | v0.22.0 | 93% | 91% | 96% | 84% | 85% | 79% | 86% | 82% | 79% | 73% |
 
 - O XP por jogar deixa a campanha **um pouco mais fácil** (até +16 pontos nas fases finais). O ajuste fica para quando vierem os itens de ascensão e a energia (MELHORIAS.md).
+
+## 22. Carta sem nível: degraus "+" e "++" (v0.23.0)
+### Raridade e degrau
+- A carta **não tem mais nível numerado** (acabou o "Nv." e o nível 60/65). Cada **raridade** tem **3 degraus**: **base → "+" → "++"** → próxima raridade. Ex.: Raro → Raro+ → Raro++ → Épico.
+- O **topo** de cada personagem é a **raridade máxima "++"** (ex.: quem vai até Épico termina em **Épico++**).
+- Na carta, a **estrela dourada** do canto (antes o nível) mostra o **degrau**: **"+"** ou **"++"**; no degrau base ela não aparece. O nome da raridade na carta também mostra o degrau (ex.: **Raro++**).
+
+### Status
+- **Ataque e vida = base × 1,17^(degrau na escada)**, arredondados (mínimo 1). O degrau na escada é **(raridade − 1) × 3 + degrau** (Comum = 0, Comum+ = 1, Comum++ = 2, Incomum = 3 … Mítico++ = 17).
+- Cada degrau ("+", "++" e cada raridade nova) dá **+17%** de ataque **e** de vida. O Mítico fica **~10,5×** o Comum (o Mítico++ ~14×).
+- **A barra de XP não aumenta os status.** Habilidades, roupa e visual continuam mudando só quando a **raridade** muda (algumas habilidades melhoram num degrau; ver abaixo).
+
+### Barra de XP e Despertar
+- Cada degrau tem só uma **barra de XP**, que aparece **apenas na tela de Treinar**. Ela enche com **Orbes 🔮** e com o **XP por jogar** (e, no futuro, com cópias repetidas). O XP que passa da barra cheia **se perde**; com a barra cheia os botões de Orbe ficam desligados.
+- Com a barra cheia, o botão **✨ Subir para …** (Despertar) leva ao próximo degrau, pagando **Essências ✴**, e a barra volta a zero. Ainda **não existem itens de ascensão** (virão depois).
+- **Tamanho das barras:** a barra do degrau base tem o XP do antigo degrau base; a barra do "++" (que leva à próxima raridade) tem o XP do antigo "+" (1,5×); a do "+" fica no meio (1,25×).
+- **Essências:** base → "+" = **4 × raridade** · "+" → "++" = **5 × raridade** · "++" → próxima raridade = **6 × raridade**.
+
+| Degrau | Status | Barra de XP | Despertar |
+|---|---|---|---|
+| Comum | 1,00× | 1.182 | ✴ 4 → Comum+ |
+| Comum+ | 1,17× | 1.478 | ✴ 5 → Comum++ |
+| Comum++ | 1,37× | 1.773 | ✴ 6 → Incomum |
+| Incomum | 1,60× | 3.892 | ✴ 8 → Incomum+ |
+| Incomum+ | 1,87× | 4.865 | ✴ 10 → Incomum++ |
+| Incomum++ | 2,19× | 5.838 | ✴ 12 → Raro |
+| Raro | 2,57× | 12.091 | ✴ 12 → Raro+ |
+| Raro+ | 3,00× | 15.114 | ✴ 15 → Raro++ |
+| Raro++ | 3,51× | 18.137 | ✴ 18 → Épico |
+| Épico | 4,11× | 37.554 | ✴ 16 → Épico+ |
+| Épico+ | 4,81× | 46.943 | ✴ 20 → Épico++ |
+| Épico++ | 5,62× | 56.331 | ✴ 24 → Lendário (se a faixa permitir) |
+| Lendário | 6,58× | 116.635 | ✴ 20 → Lendário+ |
+| Lendário+ | 7,70× | 145.794 | ✴ 25 → Lendário++ |
+| Lendário++ | 9,01× | 174.953 | ✴ 30 → Mítico |
+| Mítico | 10,54× | 362.259 | ✴ 24 → Mítico+ |
+| Mítico+ | 12,33× | 452.824 | ✴ 30 → Mítico++ |
+| Mítico++ | 14,43× | — | — (topo) |
+
+- **Treinar:** mostra a barra ("1.020 / 1.182 XP"), o botão do Despertar com o custo e a **Escada de Despertar** com a barra e o custo de cada degrau. A animação diz **DESPERTAR!** na nova raridade e **DESPERTAR +** / **DESPERTAR ++** nos degraus.
+- **XP por jogar:** a tela de vitória mostra quantas barras ficaram cheias.
+
+### Habilidades que melhoravam por nível
+Cada uma melhora agora no **primeiro degrau em que aquele nível já era garantido** na escada antiga:
+
+| Habilidade | Até a v0.22.0 | Desde a v0.23.0 |
+|---|---|---|
+| Bênção do Lótus (Mei) | +1 de cura no nível 20 | +1 a partir de **Incomum+** (Incomum 2 · Incomum+ a Raro 3 · Épico 4) |
+| Flecha Dupla (Aiko) | +1 no nível 25 | junto com o **Raro** (Incomum 1 · Raro em diante 3) |
+| Emboscada | +1 no nível 25 | junto com o **Raro** (Raro 2 · Épico em diante 3) |
+| Execução | +1 no nível 25 | junto com o **Raro** (Raro +2 · Épico em diante +3) |
+| Salto Vendaval (Riku) | +1 de investida no nível 30 | a partir de **Raro+** (Raro +1 · Raro+ e Raro++ +2 · Épico em diante +3) |
+
+### Conversão dos saves
+- Toda carta fica na **mesma raridade e no mesmo degrau** (o "+" antigo vira "+"). A barra do degrau fica cheia **na mesma proporção** do progresso que a carta tinha no degrau antigo (níveis já subidos nele + XP). Carta no nível máximo do degrau = barra cheia. **Nenhum personagem se perde.**
+- A conta **ADM** fica com todos os personagens no **topo** (raridade máxima "++").
+
+### Inimigos por degrau
+- As cartas da IA usam **degraus** no lugar do nível: cada fase tem um **degrau na escada** (0 = Comum, 1 = Comum+ …), e cada personagem fica nesse degrau, **nunca abaixo do degrau base da raridade mínima dele** nem acima do topo. Valor quebrado mistura as cartas (0,5 = metade no degrau 0 e metade no 1).
+- Degrau por fase (Fácil): **0 · 0,5 · 0 · 1 · 0,5 · 0 · 3 · 0 · 0,5 · 0,5** (até a v0.22.0: nível 1, 4, 4, 5, 6, 6, 11, 14, 17, 12). As fases 6, 8 e 10 têm degrau baixo porque já têm muitos personagens de raridade alta (Raro, Épico, Lendário) que, sem nível, ficam no mínimo no degrau base da raridade deles.
+- **Fase 8 sem feitiços** (até a v0.22.0: Veneno e Sombras): mesmo no degrau 0 ela ficava difícil demais (59% de vitória ao chegar).
+- **Normal = +1 degrau** e **Difícil = +2 degraus** em **todas** as cartas inimigas (limitado ao topo; provisório). A janela da fase mostra "Inimigos até" a raridade e o degrau mais altos.
+- **Requisitos do Comandante** (o Poder mudou de escala): nível 2 a 10 = **420 · 440 · 470 · 520 · 590 · 670 · 690 · 800 · 820** (até a v0.22.0: 480 · 510 · 560 · 610 · 660 · 760 · 840 · 930 · 980).
+
+### Simulação (300 jogadores simulados, `scripts/balance/v18.ts`; jogador sem Repetir, como nas simulações anteriores)
+O jogador simulado agora enche **uma barra por vez** (o menor degrau primeiro) e sobe o degrau assim que a barra enche e há Essências.
+
+| Vitória ao chegar | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| v0.22.0 | 93% | 91% | 96% | 84% | 85% | 79% | 86% | 82% | 79% | 73% |
+| v0.23.0 | 74% | 90% | 95% | 81% | 86% | 78% | 84% | 72% | 74% | 69% |
+| Poder ao chegar (v0.23.0) | 394 | 435 | 456 | 485 | 537 | 626 | 695 | 707 | 829 | 840 |
+
+- **Fase 1 ficou mais difícil (74%)** e não dá para baixar mais o inimigo (ele já está no degrau 0, Comum base). Antes, os Orbes do começo já davam alguns níveis (status) a todas as cartas; agora eles enchem ~1–2 barras e só uma ou duas cartas sobem para "+". Para voltar a ~90% seria preciso mudar o começo (mais Orbes/Essências iniciais ou uma fase 1 mais fraca) — a decidir.
+- Sem nível, os personagens de raridade alta ficam mais fortes que antes no começo da faixa deles (ex.: um Lendário inimigo vale 6,6× o Comum, contra ~3× do Kenji nível 14 da v0.22.0). Por isso as fases 8–10 caíram um pouco, mesmo com degraus baixos.
+- O XP por degrau agora soma **3,75 ×** a barra base por raridade (antes 2,5 ×) e as Essências **15 × raridade** (antes 10 ×): a evolução ficou mais lenta, e o XP é o limite (as Essências sobram).

@@ -3,7 +3,7 @@ import { Ctx, applyDamage, createBattle, placeUnit } from '../src/core/battle';
 import { getChar } from '../src/core/characters';
 import type { BattleState, CardInstance } from '../src/core/types';
 
-const c = (id: string, level = 1, stars = getChar(id).minStars): CardInstance => ({ charId: id, level, stars });
+const c = (id: string, _level = 1, stars = getChar(id).minStars): CardInstance => ({ charId: id, stars });
 const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
 
 describe('v0.20.1 — Reflexo de Magia só de quem continua de pé', () => {

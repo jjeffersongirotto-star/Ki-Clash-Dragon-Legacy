@@ -3,13 +3,13 @@ import { act, createBattle, Ctx, LOTUS_TARGETS, moveUnit, placeUnit } from '../s
 import { ABILITIES, abilityPower } from '../src/core/abilities';
 import type { BattleState, CardInstance } from '../src/core/types';
 
-const c = (charId: string, level = 1, stars = 1): CardInstance => ({ charId, level, stars });
+const c = (charId: string, _level = 1, stars = 1, plus = 0): CardInstance => ({ charId, stars, plus });
 const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
 
 describe('v0.15.1 — Feixe Perfurante máx. 75%', () => {
   it('50% Incomum, 75% de Raro em diante (nunca 100%)', () => {
-    expect(abilityPower('perfurante', 2, 1)).toBe(50);
-    for (let s = 3; s <= 6; s++) for (const l of [1, 30, 99]) expect(abilityPower('perfurante', s, l)).toBe(75);
+    expect(abilityPower('perfurante', 2, 0)).toBe(50);
+    for (let s = 3; s <= 6; s++) for (const l of [0, 1, 2]) expect(abilityPower('perfurante', s, l)).toBe(75);
     expect(ABILITIES.perfurante.scaling).toContain('75%');
     expect(ABILITIES.perfurante.scaling).not.toContain('100%');
   });
@@ -26,8 +26,8 @@ describe('v0.15.1 — Feixe Perfurante máx. 75%', () => {
 
 describe('v0.15.1 — Corte Diagonal máx. 50%', () => {
   it('0 em Comum/Incomum, 50% de Raro em diante', () => {
-    expect(abilityPower('diagFrente', 1, 1)).toBe(0);
-    expect(abilityPower('diagFrente', 2, 1)).toBe(0);
+    expect(abilityPower('diagFrente', 1, 0)).toBe(0);
+    expect(abilityPower('diagFrente', 2, 0)).toBe(0);
     for (let s = 3; s <= 6; s++) expect(abilityPower('diagFrente', s, 99)).toBe(50);
   });
 });

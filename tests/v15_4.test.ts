@@ -2,10 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { act, canLeapOver, createBattle, Ctx, leapLanding, moveUnit, placeUnit } from '../src/core/battle';
 import { abilityPower } from '../src/core/abilities';
 import { getChar } from '../src/core/characters';
-import { maxLevel } from '../src/core/progression';
 import type { BattleState, CardInstance, RecordedEvent } from '../src/core/types';
 
-const c = (charId: string, level = 1, stars = 1): CardInstance => ({ charId, level, stars });
+const c = (charId: string, _level = 1, stars = 1, plus = 0): CardInstance => ({ charId, stars, plus });
 const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1, cols: 7 /* arena compacta de teste: mesmas regras */ });
 const moves = (ctx: Ctx) => ctx.events.filter((e): e is Extract<RecordedEvent, { type: 'move' }> => e.type === 'move');
 const dmgTo = (ctx: Ctx, uid: number) => ctx.events.filter((e) => e.type === 'damage' && (e as { uid: number }).uid === uid).reduce((a, e) => a + (e as { amount: number }).amount, 0);
@@ -14,9 +13,9 @@ describe('v0.15.4 — o movimento do Riku é sempre um salto', () => {
   it('caminho livre: salta direto para a 3ª casa (todas as cores e níveis), com JUMP', () => {
     const def = getChar('riku');
     for (let st = def.minStars; st <= def.maxStars; st++)
-      for (const pl of [false, true]) {
+      for (const pl of [0, 1, 2]) {
         const s = empty();
-        const r = placeUnit(s, c('riku', maxLevel(st, pl), st), 'player', 0, 0);
+        const r = placeUnit(s, c('riku', 1, st, pl), 'player', 0, 0);
         const ctx = new Ctx();
         expect(moveUnit(s, ctx, r)).toBe(true);
         expect(r.col).toBe(3);
@@ -66,7 +65,7 @@ describe('v0.15.4 — o movimento do Riku é sempre um salto', () => {
     const ctx = new Ctx();
     act(s, ctx, r);
     expect(r.col).toBe(2);
-    expect(dmgTo(ctx, e.uid)).toBe(5 + abilityPower('salto', 4, 1));
+    expect(dmgTo(ctx, e.uid)).toBe(5 + abilityPower('salto', 4, 0));
   });
   it('inimigo logo à frente e pouso livre: salta por cima dele e ataca com investida quem estiver à frente', () => {
     const s = empty();
@@ -77,7 +76,7 @@ describe('v0.15.4 — o movimento do Riku é sempre um salto', () => {
     act(s, ctx, r);
     expect(r.col).toBe(3);
     expect(dmgTo(ctx, front.uid)).toBe(0);
-    expect(dmgTo(ctx, next.uid)).toBe(5 + 2);
+    expect(dmgTo(ctx, next.uid)).toBe(5 + abilityPower('salto', 4, 0)); // v0.23.0: Épico = +3
   });
   it('inimigo logo à frente e 3ª ocupada: cai na 2ª (logo atrás dele)', () => {
     const s = empty();
@@ -119,7 +118,7 @@ describe('v0.15.4 — o movimento do Riku é sempre um salto', () => {
     const r = placeUnit(s, c('riku', 1, 4), 'player', 0, 3, { atk: 5 });
     act(s, new Ctx(), r);
     expect(r.col).toBe(6);
-    expect(s.heroes.enemy.hp).toBe(30 - 5 - 2);
+    expect(s.heroes.enemy.hp).toBe(30 - 5 - abilityPower('salto', 4, 0));
   });
   it('lado inimigo salta para a esquerda', () => {
     const s = empty();

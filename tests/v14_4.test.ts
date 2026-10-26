@@ -3,7 +3,7 @@ import { DRAG_THRESHOLD, dropAction, ghostTransform, shouldStartDrag } from '../
 import { createBattle, deploy, deployCells, DEPLOY_DEPTH } from '../src/core/battle';
 import { PLAYABLE } from '../src/core/characters';
 
-const deck10 = PLAYABLE.slice(0, 10).map((d) => ({ charId: d.id, level: 1, stars: d.minStars }));
+const deck10 = PLAYABLE.slice(0, 10).map((d) => ({ charId: d.id, stars: d.minStars }));
 
 describe('v0.14.4 — arrastar a carta até o campo', () => {
   it('toque curto continua sendo toque; só vira arrasto depois de mover o dedo', () => {

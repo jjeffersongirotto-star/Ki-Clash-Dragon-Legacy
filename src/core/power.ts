@@ -2,8 +2,8 @@
  * v0.13.0 — PODER das cartas e do baralho.
  *
  * Poder = round( 10 × pesoHabilidade × √(ataque × vida) )
- *  - ataque e vida são os status ATUAIS da carta (nível, cor e "+" já aplicados por statsFor),
- *    então o Poder sobe a cada nível, a cada cor e no "+".
+ *  - ataque e vida são os status ATUAIS da carta (raridade e degrau já aplicados por statsFor; v0.23.0: sem nível),
+ *    então o Poder sobe a cada degrau ("+", "++") e a cada raridade.
  *  - √(ataque × vida) (média geométrica) foi o formato que melhor previu o vencedor no simulador
  *    (IA × IA, 30 000 partidas — scripts/balance/calibrate.ts). Expoentes 0,4/0,6 e penalidade por
  *    custo deram o mesmo acerto (~71,5%), então ficou o mais simples.
@@ -13,7 +13,7 @@
  * Poder do baralho = soma do Poder das 10 cartas da equipe.
  */
 import { getChar } from './characters';
-import { statsFor } from './progression';
+import { statsFor, stepOf } from './progression';
 
 /** Peso de habilidade por personagem (regressão logística do simulador, normalizado para média 1). */
 export const ABILITY_WEIGHT: Record<string, number> = {
@@ -26,9 +26,9 @@ export const POWER_SCALE = 10;
 
 export interface PowerCard {
   charId: string;
-  level: number;
   stars: number;
-  plus?: boolean;
+  /** v0.23.0: degrau (0, 1, 2); `true` antigo = 1 */
+  plus?: number | boolean;
 }
 
 export function abilityWeight(charId: string): number {
@@ -37,7 +37,7 @@ export function abilityWeight(charId: string): number {
 
 export function cardPower(c: PowerCard): number {
   const def = getChar(c.charId);
-  const { atk, hp } = statsFor(def, c.level, c.stars, !!c.plus);
+  const { atk, hp } = statsFor(def, c.stars, stepOf(c));
   return Math.round(POWER_SCALE * abilityWeight(c.charId) * Math.sqrt(atk * hp));
 }
 

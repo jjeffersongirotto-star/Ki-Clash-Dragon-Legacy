@@ -1,11 +1,20 @@
 import type { AbilityId } from './types';
 
 /**
+ * v0.23.0 — habilidades que antes melhoravam num NÍVEL agora melhoram num DEGRAU global (raridade − 1) × 3 + degrau:
+ * o primeiro degrau em que aquele nível já estava garantido na escada antiga (nível 20 → Incomum+, 25 → Raro, 30 → Raro+).
+ */
+export const STEP_INCOMUM_PLUS = 4;
+export const STEP_RARO = 6;
+export const STEP_RARO_PLUS = 7;
+
+/**
  * Registro de habilidades orientado a dados. O motor de batalha consulta
  * estas flags/valores; para criar uma habilidade nova basta registrá-la aqui
  * e tratar o gancho correspondente em battle.ts.
  *
- * `power(stars, level)` define a força da habilidade conforme a COR da carta (`stars` = tier 1 Comum … 6 Mítico) e o nível;
+ * `power(stars, step)` define a força da habilidade conforme a RARIDADE da carta (`stars` = 1 Comum … 6 Mítico) e o
+ * degrau global (`step` = (raridade − 1) × 3 + degrau; v0.23.0, no lugar do nível);
  * o degrau "+" não muda habilidades (v0.10),
  * sempre com teto (`cap`) para que nenhuma unidade fique invencível.
  */
@@ -17,7 +26,7 @@ export interface AbilityDef {
   /** texto curto de evolução por estrela/nível (exibido nas telas) */
   scaling?: string;
   /** força atual da habilidade (já limitada pelo teto) */
-  power?: (stars: number, level: number) => number;
+  power?: (stars: number, step: number) => number;
   /** como exibir a força atual */
   powerLabel?: (p: number) => string;
   /** gancho de mira (sempre na própria fileira, exceto diagonais) */
@@ -113,8 +122,8 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     description: 'Move-se sempre saltando para a 3ª casa à frente, por cima de aliados ou inimigos (2ª ou 1ª se a de cima estiver ocupada). Salta também por cima do inimigo da frente. Ao cair, ataca com bônus.',
     icon: '⤴',
     jump: true,
-    scaling: 'Salto: sempre até a 3ª casa (fixo, não aumenta com raridade nem nível) · Bônus de investida (logo depois do salto): +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3).',
-    power: (s, l) => clamp(Math.max(0, s - 2) + (l >= 30 ? 1 : 0), 3),
+    scaling: 'Salto: sempre até a 3ª casa (fixo, não aumenta com raridade nem degrau) · Bônus de investida (logo depois do salto): +1 em Raro, +2 em Raro+ e Raro++, +3 a partir de Épico (máx. +3).',
+    power: (s, g) => clamp(Math.max(0, s - 2) + (g >= STEP_RARO_PLUS ? 1 : 0), 3),
     powerLabel: (p) => `investida +${p}`,
   },
   longoAlcance: {
@@ -129,8 +138,8 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     name: 'Flecha Dupla',
     description: 'Dispara uma segunda flecha no mesmo alvo.',
     icon: '➶',
-    scaling: 'Incomum: 2ª flecha de 1 · Raro: 2 · Épico: 3 (máx. 3); +1 no nível 25.',
-    power: (s, l) => clamp(s - 1 + (l >= 25 ? 1 : 0), 3),
+    scaling: 'Incomum: 2ª flecha de 1 · a partir de Raro: 3 (máx. 3).',
+    power: (s, g) => clamp(s - 1 + (g >= STEP_RARO ? 1 : 0), 3),
     powerLabel: (p) => (p ? `2ª flecha ${p}` : 'sem 2ª flecha'),
   },
   perfurante: {
@@ -149,8 +158,8 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     icon: '🗡️',
     targeting: 'retaguarda',
     reach: 2,
-    scaling: 'Perfura 1 de resistência em Raro, 2 em Épico, 3 em Lendário; +1 no nível 25 (máx. 3).',
-    power: (s, l) => clamp(s - 2 + (l >= 25 ? 1 : 0), 3),
+    scaling: 'Perfura 2 de resistência em Raro e 3 a partir de Épico (máx. 3).',
+    power: (s, g) => clamp(s - 2 + (g >= STEP_RARO ? 1 : 0), 3),
     powerLabel: (p) => `perfura ${p}`,
   },
   menorVida: {
@@ -160,8 +169,8 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     icon: '🩸',
     targeting: 'menorVida',
     reach: 2,
-    scaling: 'Execução: +1 em Raro, +2 em Épico, +3 em Lendário; +1 no nível 25 (máx. +3).',
-    power: (s, l) => clamp(s - 2 + (l >= 25 ? 1 : 0), 3),
+    scaling: 'Execução: +2 em Raro e +3 a partir de Épico (máx. +3).',
+    power: (s, g) => clamp(s - 2 + (g >= STEP_RARO ? 1 : 0), 3),
     powerLabel: (p) => `execução +${p}`,
   },
   prole: {
@@ -201,8 +210,8 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     name: 'Bênção do Lótus',
     description: 'No início da sua ação, cura os 2 aliados vizinhos mais feridos (inclusive diagonais e a outra fileira).',
     icon: '✚',
-    scaling: 'Cura 2 (Incomum–Raro) · 3 (Épico); +1 no nível 20 (máx. 4).',
-    power: (s, l) => clamp((s >= 4 ? 3 : 2) + (l >= 20 ? 1 : 0), 4),
+    scaling: 'Cura 2 em Incomum · 3 em Incomum+, Incomum++ e Raro · 4 a partir de Épico (máx. 4).',
+    power: (s, g) => clamp((s >= 4 ? 3 : 2) + (g >= STEP_INCOMUM_PLUS ? 1 : 0), 4),
     powerLabel: (p) => `cura ${p}`,
   },
   inabalavel: {
@@ -388,6 +397,7 @@ export function has(abilities: AbilityId[], pred: (a: AbilityDef) => unknown): A
   return undefined;
 }
 
-export function abilityPower(id: AbilityId, stars: number, level: number): number {
-  return ABILITIES[id].power?.(stars, level) ?? 0;
+/** Força da habilidade na raridade e no degrau (0, 1, 2) da carta. */
+export function abilityPower(id: AbilityId, stars: number, step = 0): number {
+  return ABILITIES[id].power?.(stars, (stars - 1) * 3 + step) ?? 0;
 }

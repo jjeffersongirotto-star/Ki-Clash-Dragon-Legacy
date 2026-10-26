@@ -17,7 +17,7 @@ import {
 import type { CardInstance } from '../src/core/types';
 
 const IDS = ['riku', 'nara', 'toru', 'aiko', 'lyra', 'gorath', 'mei', 'yume', 'zarek', 'kenji'];
-const team = (): CardInstance[] => IDS.map((charId) => ({ charId, level: 1, stars: 3 }));
+const team = (): CardInstance[] => IDS.map((charId) => ({ charId, stars: 3 }));
 
 /** Simula: a cada compra joga a carta mais antiga da mão (a mão nunca enche), e registra cada compra por grupo. */
 function run(seed: number, steps: number, opts: { keepFull?: boolean } = {}) {
@@ -55,7 +55,7 @@ describe('baralho: estrutura', () => {
     expect(deckProblem(team().slice(0, 6))).toMatch(/18 de no mínimo 20/);
     expect(deckProblem(team())).toBeNull();
     expect(deckProblem(team(), 24)).toMatch(/máximo de 24/);
-    expect(deckProblem(team().slice(0, 9).concat([{ charId: 'riku', level: 1, stars: 1 }]))).toMatch(/repetidas/);
+    expect(deckProblem(team().slice(0, 9).concat([{ charId: 'riku', stars: 1 }]))).toMatch(/repetidas/);
     expect(deckProblem(team().map((c) => ({ ...c, copies: 4 })))).toMatch(/1 a 3/);
     expect(deckProblem([])).toMatch(/personagem/);
     expect(buildSlots([])).toEqual([]);

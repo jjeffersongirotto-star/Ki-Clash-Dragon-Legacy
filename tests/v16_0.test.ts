@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { COLS, Ctx, DEPLOY_DEPTH, OPENING_HEADSTART, ROWS, createBattle, deploy, endPlayerTurn, findTarget, isDeployCell, placeUnit, rangeOf, resolveSide, waitFor, waitOf } from '../src/core/battle';
 import { aiDeploy } from '../src/core/ai';
 import { PLAYABLE, getChar } from '../src/core/characters';
-import { maxLevel } from '../src/core/progression';
 import { LEADERS } from '../src/core/leaders';
 import { STAGES } from '../src/core/campaign';
 import { cardHTML } from '../src/ui/components';
@@ -10,7 +9,7 @@ import { ADMIN_NAME, ADMIN_PASS, adminSave, createAccount, loadAccounts, login, 
 import { defaultSave, loadSave, setSaveKey, writeSave } from '../src/ui/save';
 import type { BattleState, CardInstance } from '../src/core/types';
 
-const c = (id: string, level = 1, stars = getChar(id).minStars): CardInstance => ({ charId: id, level, stars });
+const c = (id: string, _level = 1, stars = getChar(id).minStars): CardInstance => ({ charId: id, stars });
 const deck10 = ['riku', 'nara', 'toru', 'daichi', 'sora', 'tobi', 'kael', 'suri', 'hana', 'jin'].map((id) => c(id));
 const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
 
@@ -179,13 +178,12 @@ describe('v0.16.0 — contas locais e ADM', () => {
     setSaveKey(saveKeyFor(null));
     expect(loadSave().essencias).toBe(defaultSave().essencias);
   });
-  it('perfil ADM: todos os personagens na cor máxima "+" e nível máximo, fases concluídas, Comandante no máximo', () => {
+  it('perfil ADM: todos os personagens no topo (raridade máxima "++", v0.23.0), fases concluídas, Comandante no máximo', () => {
     const d = adminSave();
     for (const def of PLAYABLE) {
       const o = d.cards[def.id];
       expect(o.stars).toBe(def.maxStars);
-      expect(o.plus).toBe(true);
-      expect(o.level).toBe(maxLevel(def.maxStars, true));
+      expect(o.plus).toBe(2);
     }
     // v0.17: baralho de 40 (máximo) = 10 personagens × 3 + feitiços
     expect(new Set(d.deck).size).toBe(d.deck.length);
@@ -195,6 +193,6 @@ describe('v0.16.0 — contas locais e ADM', () => {
     expect(d.cleared).toEqual(STAGES.map((s) => s.id));
     for (const l of LEADERS) expect(d.leaders![l.id].level).toBe(l.hpByLevel.length);
     setSaveKey(saveKeyFor('adm')); writeSave(d);
-    expect(loadSave().cards.kenji.level).toBe(maxLevel(getChar('kenji').maxStars, true));
+    expect(loadSave().cards.kenji).toMatchObject({ stars: getChar('kenji').maxStars, plus: 2 });
   });
 });

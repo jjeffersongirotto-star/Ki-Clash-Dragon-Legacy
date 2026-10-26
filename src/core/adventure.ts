@@ -2,14 +2,14 @@
  * v0.20.0 — Aventura: dificuldades (Fácil, Normal, Difícil) e limite diário por fase (lógica pura, sem DOM).
  *
  * - As 3 dificuldades têm as MESMAS 10 fases. O Fácil é a campanha de sempre; Normal e Difícil usam os mesmos
- *   baralhos inimigos com as cartas em nível mais alto e, quando configurado, 1 ou 2 cartas trocadas.
+ *   baralhos inimigos com as cartas em degraus mais altos e, quando configurado, 1 ou 2 cartas trocadas.
  *   Os números ainda são provisórios (o ajuste fino da dificuldade vem depois).
  * - Cada dificuldade tem o próprio progresso. O Normal abre ao vencer a fase 10 no Fácil; o Difícil, a fase 10 no Normal.
  * - v0.21.0: ⭐ estrelas por fase e dificuldade (3 objetivos); o Repetir só fica liberado com 3 ⭐.
  * - Limite diário por fase e dificuldade: DAILY_LIMIT vezes por dia. Gastam 1: cada "Repetir" e cada vitória em
  *   fase já vencida. A primeira vitória e as derrotas não gastam. Volta à meia-noite de Brasília (UTC−3).
  */
-import { ENEMY_LEVELS, ENEMY_SPELLS, STAGES, enemyDeckFor, type Stage } from './campaign';
+import { ENEMY_SPELLS, ENEMY_STEPS, STAGES, enemyDeckFor, type Stage } from './campaign';
 import type { CardInstance } from './types';
 import { bagXp, type OrbBag } from './progression';
 
@@ -19,17 +19,17 @@ export const DIFFICULTY_LABEL: Record<Difficulty, string> = { facil: 'Fácil', n
 export const DIFFICULTY_ICON: Record<Difficulty, string> = { facil: '🟢', normal: '🟡', dificil: '🔴' };
 
 export interface DifficultyRule {
-  /** níveis a mais nas cartas inimigas (limitado ao nível máximo da cor de cada carta) */
-  levelBonus: number;
+  /** v0.23.0: degraus a mais em TODAS as cartas inimigas (limitado ao topo de cada personagem). Até a v0.22.0: níveis (+3 / +6). */
+  stepBonus: number;
   /** trocas de personagem por fase (índice 0 = fase 1): [sai, entra] */
   swaps: Record<number, [string, string][]>;
 }
 
 /** Provisório: o ajuste fino de cada dificuldade será feito depois. */
 export const DIFFICULTY_RULES: Record<Difficulty, DifficultyRule> = {
-  facil: { levelBonus: 0, swaps: {} },
-  normal: { levelBonus: 3, swaps: {} },
-  dificil: { levelBonus: 6, swaps: {} },
+  facil: { stepBonus: 0, swaps: {} },
+  normal: { stepBonus: 1, swaps: {} },
+  dificil: { stepBonus: 2, swaps: {} },
 };
 
 /** A fase `stageId` na dificuldade escolhida (mesmo nome, Comandante e recompensa; baralho inimigo mais forte). */
@@ -38,7 +38,7 @@ export function stageFor(stageId: number, diff: Difficulty): Stage {
   const base = STAGES[i];
   if (diff === 'facil') return base;
   const rule = DIFFICULTY_RULES[diff];
-  const deck: CardInstance[] = enemyDeckFor(i, ENEMY_LEVELS[i] + rule.levelBonus, ENEMY_SPELLS[i]);
+  const deck: CardInstance[] = enemyDeckFor(i, ENEMY_STEPS[i], ENEMY_SPELLS[i], rule.stepBonus);
   for (const [out, inn] of rule.swaps[i] ?? []) {
     const k = deck.findIndex((c) => c.charId === out);
     if (k >= 0 && !deck.some((c) => c.charId === inn)) deck[k] = { ...deck[k], charId: inn };
