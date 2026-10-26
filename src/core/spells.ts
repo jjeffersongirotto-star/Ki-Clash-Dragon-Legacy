@@ -46,7 +46,7 @@ export const SPELLS: SpellDef[] = [
   { id: 'f-sombras', name: 'Golpe nas Sombras', icon: '🗡️', categories: ['assassino'], cost: 3, target: 'enemy', damageType: 'fisico', description: 'Um inimigo sofre 250% do ataque do conjurador, ignorando toda a resistência.' },
   // ---- Suporte ----
   { id: 'f-cura', name: 'Cura em Massa', icon: '💖', categories: ['suporte'], cost: 2, target: 'row', description: 'Cura os aliados da fileira escolhida em 50% da vida máxima de cada um.' },
-  { id: 'f-anjo', name: 'Anjo da Guarda', icon: '👼', categories: ['suporte'], cost: 3, target: 'ally', description: 'Protege um aliado: na próxima vez que ele cairia, fica com 1 de vida (uma vez).' },
+  { id: 'f-anjo', name: 'Anjo da Guarda', icon: '👼', categories: ['suporte'], cost: 3, target: 'ally', description: 'Protege um aliado: na próxima vez que ele cairia, fica com 1 de vida (uma vez; dura até ser usado).' },
   { id: 'f-necropolis', name: 'Chamado da Necropolis', icon: '⚰️', categories: ['suporte', 'mago'], cost: 3, target: 'none', description: 'Traz de volta da Necropolis a última carta aliada derrotada: volta para a mão já pronta (ou para o baralho, com a mão cheia).' },
 ];
 
