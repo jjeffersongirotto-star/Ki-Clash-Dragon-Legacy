@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { GEAR, GEAR_CATEGORIES, GEAR_DROP, GEAR_RARE_CHANCE, GEAR_SETS, STAGE_GEAR, addGear, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor, normalizeGear, stageGearDrop, type GearBag } from '../src/core/gear';
 import { CHAR_BY_ID, PLAYABLE, getChar } from '../src/core/characters';
-import { rewardsFor } from '../src/core/adventure';
+import { FIRST_WIN_XP_MULT, rewardsFor } from '../src/core/adventure';
 import { STEP_BAR, cardBarXp, migrateBarV24, newOwned, stepXp } from '../src/core/progression';
 import { STAGES } from '../src/core/campaign';
 import { adminSave } from '../src/ui/accounts';
@@ -139,5 +139,14 @@ describe('v0.24.0 — barras de XP 3 / 6 / 10', () => {
     expect(half.xp / cardBarXp(half)).toBeCloseTo(0.5, 2);
     const full = migrateBarV24({ charId: 'riku', stars: 1, plus: 0, xp: old });
     expect(full.xp).toBe(cardBarXp(full));
+  });
+});
+
+describe('v0.24.1 — bônus da primeira vitória', () => {
+  it('primeira vitória: XP por jogar em dobro e itens da fase 2 vezes (recompensa + bônus)', () => {
+    expect(FIRST_WIN_XP_MULT).toBe(2);
+    const bag: GearBag = {};
+    for (const g of [...rewardsFor(3, 'facil', () => 0.9).gear, ...stageGearDrop(3, 'facil', () => 0.9)]) addGear(bag, g.id, g.rarity);
+    for (const id of STAGE_GEAR[2]) expect(gearCount(bag, id, 1)).toBe(2);
   });
 });

@@ -2,9 +2,10 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
-## [0.24.1] — 26/10/2026 · PR #46 — Mais itens verdes no Fácil
+## [0.24.1] — 26/10/2026 · PR #46 — Mais itens verdes no Fácil e bônus da primeira vitória
 - **Fácil 60/40:** os itens do Fácil saem cinza 60% / verde 40% (antes 80/20). Normal e Difícil continuam 80/20. A janela da fase e a 🎒 mochila mostram as novas chances.
-- Simulação (Fácil): vitória ao chegar 70/87/88/65/65/62/62/49/49/47% sem Repetir e 71/86/88/65/65/67/69/56/45/54% com 5 Repetir — quase igual à v0.24.0, porque o que segura a evolução é a quantidade de itens (cada fase dá sempre os mesmos 3), não a cor. O reequilíbrio continua no tutorial e na energia.
+- **Bônus da primeira vitória:** na primeira vitória de cada fase (em cada dificuldade) os 3 itens da fase saem **2 vezes** e o **XP por jogar vem em dobro**. O XP de perfil vem com a energia.
+- Simulação (Fácil, sem Repetir): vitória ao chegar 71/87/89/66/65/65/64/51/47/46% (v0.24.0: 71/87/88/65/65/62/62/48/50/46%). O que segura a evolução é a quantidade de itens; o reequilíbrio continua no tutorial e na energia.
 
 ## [0.24.0] — 26/10/2026 · PR #45 — Itens de ascensão
 - **🎒 Itens de ascensão:** 30 itens, 5 por categoria (Tanque: elmo, armadura, escudo, manoplas, botas de ferro · Suporte: tiara, túnica, amuleto, bastão, sandálias · DPS: bandana, colete, espada, luvas, botas · Mago: chapéu, manto, cajado, cristal, anel · Arqueiro: capuz, jaqueta, arco, aljava, botas leves · Assassino: máscara, capa, adagas, cinto, diamante negro). A raridade aparece só na cor do fundo do ícone (cinza, verde, azul, roxo, laranja).

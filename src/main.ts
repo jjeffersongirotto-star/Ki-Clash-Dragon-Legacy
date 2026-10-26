@@ -15,8 +15,8 @@ import { enterBattleMode, leaveBattleMode } from './ui/orientation';
 import { bakeGridArt } from './ui/gridArt';
 import { DECK_MIN, MAX_COPIES, addToDeck, rawSaveHas, copiesIn, deckCards, deckCount, deckIssue, deckMax, hasSave, loadSave, migrateV17, profileLevel, removeFromDeck, resetSave, setCopies, setSaveKey, teamReady, writeSave, type SaveData } from './ui/save';
 import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from './ui/update';
-import { GEAR_CATEGORIES, GEAR_DROP, GEAR_PER_STEP, GEAR_RARE_CHANCE, GEAR_RARITIES, GEAR_SETS, STAGE_GEAR, reqRarity, addGear, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor } from './core/gear';
-import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, DIFFICULTY_LABEL, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_GOALS, addStars, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from './core/adventure';
+import { GEAR_CATEGORIES, GEAR_DROP, GEAR_PER_STEP, GEAR_RARE_CHANCE, GEAR_RARITIES, GEAR_SETS, STAGE_GEAR, reqRarity, addGear, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor, stageGearDrop } from './core/gear';
+import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_GOALS, addStars, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from './core/adventure';
 import { LEADER_ENEMY_URL } from './ui/art';
 import { adminSave, createAccount, loadAccounts, login, logout, saveKeyFor, NAME_MAX, PASS_MIN } from './ui/accounts';
 
@@ -388,8 +388,10 @@ function stageDialog(stageId: number) {
 }
 
 /** Dá a recompensa inteira da fase na dificuldade (vitória ou Repetir; v0.22.0: Orbes pela dificuldade, com as chances do Difícil). */
-function grantRewards(st: Stage, diff: Difficulty) {
+function grantRewards(st: Stage, diff: Difficulty, first = false) {
   const r = rewardsFor(st.id, diff);
+  // v0.24.1: a primeira vitória dá os itens da fase de novo (bônus), então ganha 2 de cada
+  if (first) r.gear.push(...stageGearDrop(st.id, diff));
   for (const o of XP_ITEMS) save.items[o.id] += r.orbs[o.id] ?? 0;
   save.essencias += r.essencias;
   for (const g of r.gear) addGear((save.gear ??= {}), g.id, g.rarity);
@@ -397,8 +399,9 @@ function grantRewards(st: Stage, diff: Difficulty) {
 }
 
 /** v0.22.0: XP por jogar — ao vencer jogando, todo o baralho ganha XP. */
-function grantPlayXp(stageId: number): string {
-  const xp = playXp(stageId);
+function grantPlayXp(stageId: number, first = false): string {
+  // v0.24.1: na primeira vitória o XP por jogar vem em dobro
+  const xp = playXp(stageId) * (first ? FIRST_WIN_XP_MULT : 1);
   let full = 0;
   for (const id of save.deck) if (!isSpell(id) && save.cards[id] && feedXp(save.cards[id], xp).filled) full++;
   return `<p class="hint">📈 +${xp} XP para cada personagem do baralho${full ? ` · ${full} barra(s) cheia(s): suba o degrau em Treinar` : ''}</p>`;
@@ -474,7 +477,7 @@ function finishBattle(stageId: number, diff: Difficulty, winner: string, end?: {
   const first = !isCleared(save, diff, stageId);
   let html = '';
   if (winner === 'player') {
-    const got = grantRewards(stage, diff) + grantPlayXp(stageId);
+    const got = grantRewards(stage, diff, first) + grantPlayXp(stageId, first);
     const maxBefore = deckMax(save);
     if (first) markCleared(save, diff, stageId);
     else save.daily = useDaily(save.daily, diff, stageId);

@@ -755,6 +755,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 
 ### XP por jogar
 - Ao **vencer jogando** uma fase, **todos os personagens do baralho** ganham **15 + 5 × fase** de XP (fase 1 = 20, fase 10 = 65). A tela de vitória mostra o XP ganho e quantos níveis subiram.
+- **Primeira vitória** de cada fase (em cada dificuldade): esse XP vem **em dobro** (v0.24.1).
 - **Derrota e Repetir não dão** esse XP. O XP principal continua sendo os Orbes.
 
 ### Simulação (300 jogadores simulados, sem usar o Repetir; `SIM_PLAYXP=0` desliga o XP por jogar)
@@ -895,6 +896,7 @@ Cada categoria de personagem tem o seu **conjunto de 5 itens**:
 | 10 | Anel, Botas leves, Diamante negro |
 
 - A **raridade** de cada item é sorteada pela dificuldade: **Fácil** cinza 60% / verde 40% (v0.24.1; antes 80/20) · **Normal** azul 80% / roxo 20% · **Difícil** roxo 80% / laranja 20% (tabela `GEAR_DROP` em `src/core/gear.ts`).
+- **Primeira vitória** de cada fase (em cada dificuldade): os 3 itens saem **2 vezes** (a recompensa normal + o bônus), cada um com a sua cor sorteada (v0.24.1). O XP de perfil da primeira vitória chega com a energia (etapa 4).
 - A janela da fase mostra os 3 itens e as chances; a vitória e o Repetir mostram os itens ganhos. A mochila fica em **Treinar → 🎒 Itens de ascensão**.
 - Saves antigos começam com a mochila **vazia**. A conta ADM tem 99 de cada item em cada raridade.
 
