@@ -57,9 +57,9 @@ function spend(p: Player) {
   }
 }
 
-function reward(p: Player, i: number, first: boolean) {
+function reward(p: Player, i: number, first: boolean, repeatMult = 0.5) {
   const r = STAGES[i].rewards;
-  const f = first ? 1 : 0.5;
+  const f = first ? 1 : repeatMult;
   p.items.pergaminho += Math.floor(r.pergaminho * f);
   p.items.cristal += Math.floor(r.cristal * f);
   if (first) p.items.orbe += r.orbe;
@@ -74,13 +74,21 @@ function levelUp(p: Player, sc: Schedule) {
 
 export interface StageStat { arrivePower: number[]; leader: number[]; winAtArrival: number[]; attempts: number[]; burst: number[]; maxAtk: number[]; hpLeftWin: number[] }
 
-export function runCampaign(sc: Schedule, players: number, probe = 40) {
+/**
+ * v0.20.1: `opts.repeats` = quantos "Repetir" (recompensa inteira, sem batalha) o jogador usa na última fase vencida
+ * antes de tentar cada fase nova (simula um dia: 5 Repetir e depois a fase nova). `opts.repeatMult` = fração da
+ * recompensa nas repetições (v0.20.0: 1; antes: 0,5).
+ */
+export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { repeats?: number; repeatMult?: number } = {}) {
+  const repeats = opts.repeats ?? 0;
+  const repeatMult = opts.repeatMult ?? 0.5;
   const stats: StageStat[] = STAGES.map(() => ({ arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [] }));
   let seed = 7;
   for (let pi = 0; pi < players; pi++) {
     const p: Player = { cards: {}, items: { pergaminho: 10, cristal: 3, orbe: 0 }, ess: 10, cleared: 0, leader: 1 };
     for (const id of STARTER_IDS) p.cards[id] = newOwned(id);
     for (let i = 0; i < STAGES.length; i++) {
+      if (i > 0) for (let k = 0; k < repeats; k++) reward(p, i - 1, false, repeatMult);
       spend(p); levelUp(p, sc);
       const st = stats[i];
       st.arrivePower.push(deckPower(team(p))); st.leader.push(p.leader);
@@ -98,13 +106,13 @@ export function runCampaign(sc: Schedule, players: number, probe = 40) {
         attempts++;
         spend(p); levelUp(p, sc);
         const r = simulate(battleDeck(p, i), STAGES[i].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i), seed++);
-        if (r.winner === 'player') { reward(p, i, true); break; }
+        if (r.winner === 'player') { reward(p, i, true, repeatMult); break; }
         p.items.pergaminho += 1;
         if (attempts > 300) break;
         if (i > 0) {
           spend(p); levelUp(p, sc);
           const rr = simulate(battleDeck(p, i), STAGES[i - 1].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i - 1), seed++);
-          if (rr.winner === 'player') reward(p, i - 1, false); else p.items.pergaminho += 1;
+          if (rr.winner === 'player') reward(p, i - 1, false, repeatMult); else p.items.pergaminho += 1;
         }
       }
       st.attempts.push(attempts);

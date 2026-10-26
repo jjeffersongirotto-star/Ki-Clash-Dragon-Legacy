@@ -15,17 +15,53 @@ _Nada pendente. Os itens 1 a 9 entraram na v0.20.0 (ver [CHANGELOG.md](CHANGELOG
 
 ## 💡 Ideias para o futuro (ainda sem data)
 
+### Estrelas por fase e Repetir automático (perguntas 21 e 22)
+- Ao vencer uma fase, o jogador ganha **1, 2 ou 3 ⭐**. Cada estrela é um **objetivo**, que pode ser cumprido em vitórias diferentes:
+  - ⭐ **vencer** a fase;
+  - ⭐ vencer com o **seu Comandante com 50% ou mais da vida**;
+  - ⭐ vencer em **até 15 turnos**.
+- O **Repetir automático** (recompensa sem jogar a batalha) só fica liberado nas fases com **3 ⭐**. O **Repetir continua dando a recompensa inteira**.
+
 ### Energia
 - Uma **energia** que limita quantas vezes dá para jogar ou repetir. O jogador vai ter que escolher onde gastar.
 - Quando a energia existir, ela pode substituir ou somar com o limite de 5 por fase.
 
-### Equipamentos para ascender personagens, por fase
-- **Diminuir os bônus** das recompensas atuais.
-- Criar **equipamentos** que servem para **ascender (evoluir) personagens**.
-- Cada equipamento cai em **fases diferentes**, então o jogador vai buscar uma **fase específica** para conseguir o que precisa (por isso o "Repetir" dá a recompensa inteira).
+### Itens de ascensão (decidido em 26/10/2026, ainda sem data)
+_Respostas às perguntas 3 a 15. Substitui a ideia "Equipamentos para ascender personagens". Não é o equipamento do jogo original (que dava status ao líder; decisão 9 do plano continua valendo)._
+- **Nome:** **itens de ascensão**. São de vários tipos: roupas (camisa, calça, gorro…), armas, diamantes e outros.
+- **Gerais, não de um personagem só:** os itens são divididos por **grupo/tipo**, e cada personagem pede os **5 itens diferentes** que mais combinam com ele.
+- **Cor do item:** cada item tem uma cor, mostrada **só no fundo do ícone**: **cinza, verde, azul, roxo, laranja**. Cada cor serve para subir a carta da sua cor para a seguinte:
+  - Comum → Incomum: **cinza** · Incomum → Raro: **verde** · Raro → Épico: **azul** · Épico → Lendário: **roxo** · Lendário → Mítico: **laranja**.
+- **Degraus de cada cor:** cor → **"+"** → **"++"** → próxima cor (o "++" é novo).
+  - **"+"** pede **3 itens**, **"++"** pede **4 itens** e a **troca de cor** pede os **5 itens**, todos da cor da carta.
+  - O Despertar continua gastando **Essências ✴** além dos itens.
+- **Sem nível numerado na carta:** em cada degrau existe só uma **barra de XP**. Quando ela enche, a carta pode subir o degrau gastando os itens.
+  - A barra de XP **só aparece na tela de Treinar**, para não poluir o visual.
+- **Status:** ataque e vida sobem **só nos degraus e ao ascender**: "+" dá +10%, "++" mais +10% e a nova cor dá o bônus da cor (como hoje). Encher a barra de XP não aumenta status.
+- **De onde vêm (atualizado na pergunta 21):** cada fase dá itens de **grupos diferentes** (não só de um grupo ou personagem), para não ficar fácil de evoluir; com a energia, o jogador vai escolher em quais fases jogar para conseguir os itens que precisa. Cai **1 item por vitória ou Repetir**, com a **cor sorteada pela dificuldade**:
+  - **Fácil:** cinza 70% ou verde 30% · **Normal:** azul 70% ou roxo 30% · **Difícil:** roxo 70% ou laranja 30%.
+- **De onde vem o XP (pergunta 16):** de **três fontes juntas**: Orbes (no Treinar), **cópias repetidas** do personagem (com chance de 1,5×, decisões 5 e 38 do plano) e **XP por jogar** (o personagem ganha XP nas batalhas).
+- **Orbes 🔮 (pergunta 17):** o Orbe **substitui o 📜 Pergaminho e o 💎 Cristal**. Existe nas **6 raridades** (Comum, Incomum, Raro, Épico, Lendário, Mítico), cada uma com a sua cor, e dá **mais XP quanto mais rara**. Os Pergaminhos e Cristais que o jogador já tem viram Orbes.
+- **Junto com isso:** diminuir os bônus das recompensas atuais.
+- **A conferir quando for fazer:** isso muda a regra do plano "crescimento de ataque e vida fica como está" (hoje o status também sobe por nível) e as habilidades que melhoram no nível 20/25/30. Os saves antigos precisam de uma conversão (nível atual → barra de XP).
+
+### "Raridade" no lugar de "cor" (pergunta 18)
+- Em todo o jogo (telas, REGRAS e textos), quando falar das cartas, usar **raridade** em vez de **cor** (ex.: "evolui de raridade", "raridade atual"). As cores continuam no visual; só o nome muda.
+
+### Combinados de trabalho (26/10/2026)
+- Depois que a CI passa, **eu mesmo faço o merge** do PR.
+- O plano do Grok (38 decisões e perguntas abertas) está no repositório como **[PLANO.md](PLANO.md)**, sem os nomes da obra original e sem os caminhos do APK.
+- Perguntas: **uma de cada vez**, com as opções **Sim / Não / Outros**.
+
+## 📊 Simulação da economia da v0.20.0 (pergunta 19)
+Vitória ao chegar em cada fase (fases 1 a 10), jogador simulado com a IA do Auto (`scripts/balance/v20.ts`, 300 jogadores):
+- **Antes** (repetir dava 50%, só depois de perder): 93 · 89 · 90 · 81 · 79 · 76 · 70 · 68 · 65 · 62%.
+- **v0.20.0** (5 Repetir de recompensa inteira antes de cada fase nova): 94 · **100** · **100** · **100** · **100** · **100** · **100** · **100** · **100** · **100**%. O jogador fica forte demais e a dificuldade some.
+- Outras opções testadas (100 jogadores): 1 Repetir por dia com 100% → 93–99% em todas; 5 Repetir com 20% → 82–95%; 5 Repetir com 10% → 68–93% (parecido com antes).
+- **Decisão (pergunta 21):** o Repetir **continua dando tudo**; o equilíbrio vai vir da **energia**, dos **itens espalhados em grupos diferentes** e do **Repetir só em fases com 3 ⭐**. Refazer a simulação quando isso existir.
 
 ## 📋 Pendências técnicas (da análise do jogo)
-- Unidade com Reflexo de Magia (Nyx) ainda devolve dano depois de derrotada.
+- ✅ ~~Reflexo de Magia (Nyx) devolvia dano depois de derrotada~~ — corrigido na v0.20.1.
 - Feitiços contra inimigos acertam a qualquer distância (decisão de design a confirmar).
 - Fases 2 e 3 estão com a dificuldade praticamente igual (89% e 90% de vitória no simulador).
 - Servidor para o modo online: a verificação das partidas já existe (`verifyMatch`); falta o servidor, as contas online e conferir os baralhos.

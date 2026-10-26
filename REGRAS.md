@@ -566,7 +566,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 ### Mais habilidades (decisões 12, 19, 20 e 14)
 - **👁 Vigia (Jin):** age **antes** de todas as outras unidades do lado (seção 5, item 8).
 - **💢 Ombrada (Gorath):** ao acertar **corpo a corpo de frente**, **empurra o alvo 1 casa** para trás (se a casa estiver livre; Inabalável não é empurrado). O empurrão também está no contra-golpe do Kenji e nos feitiços Investida de Ki e Tremor.
-- **🪞 Reflexo de Magia (Nyx-07):** reduz o **dano mágico** (ataques mágicos) e o **dano de feitiço** recebido em **30% (Épico) / 40% (Lendário) / 50% (Mítico)** e devolve essa parte: no atacante (ataques) ou no **Comandante de quem lançou** (feitiços).
+- **🪞 Reflexo de Magia (Nyx-07):** reduz o **dano mágico** (ataques mágicos) e o **dano de feitiço** recebido em **30% (Épico) / 40% (Lendário) / 50% (Mítico)** e devolve essa parte: no atacante (ataques) ou no **Comandante de quem lançou** (feitiços). **v0.20.1:** só devolve se a Nyx **continuar de pé** depois do golpe (salva pelo Anjo da Guarda ou pelo Renascer, devolve); derrotada, não devolve.
 - **🔰 Barreira Arcana (Lyra):** resistência mágica **1 (Incomum–Raro) / 2 (Épico)**.
 - **Resistência só por habilidade:** ver seção 7.
 
