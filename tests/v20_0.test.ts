@@ -5,7 +5,7 @@ import {
 } from '../src/core/adventure';
 import { STAGES } from '../src/core/campaign';
 import { createBattle } from '../src/core/battle';
-import { maxLevel } from '../src/core/progression';
+import { stepIndex, stepOf } from '../src/core/progression';
 import { getChar } from '../src/core/characters';
 import { isSpell } from '../src/core/spells';
 import { defaultSave, normalizeV20 } from '../src/ui/save';
@@ -30,10 +30,12 @@ describe('v0.20.0 — dificuldades da Aventura', () => {
       expect(n.enemyDeck.map((c) => c.charId)).toEqual(s.enemyDeck.map((c) => c.charId));
       s.enemyDeck.forEach((c, k) => {
         if (isSpell(c.charId)) return;
-        const cap = maxLevel(c.stars);
-        expect(n.enemyDeck[k].level).toBe(Math.min(cap, c.level + DIFFICULTY_RULES.normal.levelBonus));
-        expect(d.enemyDeck[k].level).toBe(Math.min(cap, c.level + DIFFICULTY_RULES.dificil.levelBonus));
-        expect(d.enemyDeck[k].level).toBeGreaterThanOrEqual(n.enemyDeck[k].level);
+        // v0.23.0: degraus a mais (limitados ao topo do personagem); até a v0.22.0 eram níveis
+        const g = (x: typeof c) => stepIndex(x.stars, stepOf(x));
+        const top = stepIndex(getChar(c.charId).maxStars, 2);
+        expect(g(n.enemyDeck[k])).toBe(Math.min(top, g(c) + DIFFICULTY_RULES.normal.stepBonus));
+        expect(g(d.enemyDeck[k])).toBe(Math.min(top, g(c) + DIFFICULTY_RULES.dificil.stepBonus));
+        expect(g(d.enemyDeck[k])).toBeGreaterThanOrEqual(g(n.enemyDeck[k]));
       });
       // baralho válido para a batalha
       expect(() => createBattle({ playerDeck: [], enemyDeck: d.enemyDeck, playerHeroHp: 20, enemyHeroHp: d.enemyHeroHp, seed: 1 })).not.toThrow();

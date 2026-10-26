@@ -26,27 +26,26 @@ beforeEach(() => {
 describe('v0.13 — Poder das cartas', () => {
   it('fórmula: 10 × peso da habilidade × √(ataque × vida)', () => {
     const def = getChar('riku');
-    const st = statsFor(def, 1, 1, false);
-    expect(cardPower({ charId: 'riku', level: 1, stars: 1 })).toBe(Math.round(POWER_SCALE * ABILITY_WEIGHT.riku * Math.sqrt(st.atk * st.hp)));
-    expect(cardPower({ charId: 'riku', level: 1, stars: 1 })).toBe(44);
-    expect(cardPower({ charId: 'toru', level: 1, stars: 1 })).toBe(47);
+    const st = statsFor(def, 1, 0);
+    expect(cardPower({ charId: 'riku', stars: 1 })).toBe(Math.round(POWER_SCALE * ABILITY_WEIGHT.riku * Math.sqrt(st.atk * st.hp)));
+    expect(cardPower({ charId: 'riku', stars: 1 })).toBe(44);
+    expect(cardPower({ charId: 'toru', stars: 1 })).toBe(47);
   });
   it('todo personagem jogável tem peso de habilidade, com média ~1', () => {
     for (const d of PLAYABLE) expect(ABILITY_WEIGHT[d.id], d.id).toBeGreaterThan(0.5);
     const ws = PLAYABLE.map((d) => ABILITY_WEIGHT[d.id]);
     expect(ws.reduce((a, b) => a + b, 0) / ws.length).toBeCloseTo(1, 1);
   });
-  it('sobe com o nível, com o "+" e com a cor', () => {
+  it('sobe a cada degrau ("+", "++" e raridade; v0.23.0, sem nível)', () => {
     for (const d of PLAYABLE) {
       let prev = 0;
-      for (let l = 1; l <= 10; l++) {
-        const p = cardPower({ charId: d.id, level: l, stars: d.minStars });
-        expect(p, `${d.id} nv${l}`).toBeGreaterThanOrEqual(prev);
-        prev = p;
-      }
-      expect(cardPower({ charId: d.id, level: 10, stars: d.minStars, plus: true })).toBeGreaterThan(cardPower({ charId: d.id, level: 10, stars: d.minStars }));
-      if (d.maxStars > d.minStars) expect(cardPower({ charId: d.id, level: 15, stars: d.minStars + 1 })).toBeGreaterThanOrEqual(cardPower({ charId: d.id, level: 15, stars: d.minStars, plus: true }));
-      expect(cardPower({ charId: d.id, level: 30, stars: d.minStars })).toBeGreaterThan(cardPower({ charId: d.id, level: 1, stars: d.minStars }));
+      for (let st = d.minStars; st <= d.maxStars; st++)
+        for (let p = 0; p <= 2; p++) {
+          const pw = cardPower({ charId: d.id, stars: st, plus: p });
+          expect(pw, `${d.id} ${st}/${p}`).toBeGreaterThanOrEqual(prev); // arredondamento de status pequenos
+          prev = pw;
+        }
+      expect(cardPower({ charId: d.id, stars: d.minStars, plus: 2 })).toBeGreaterThan(cardPower({ charId: d.id, stars: d.minStars }));
     }
   });
   it('habilidade mais forte = mais Poder com os mesmos status', () => {
@@ -56,7 +55,7 @@ describe('v0.13 — Poder das cartas', () => {
     expect(top[top.length - 1][0]).toBe('ren');
   });
   it('Poder do baralho = soma das 10 cartas', () => {
-    const team = STARTER_IDS.slice(0, 10).map((id) => ({ charId: id, level: 1, stars: 1 }));
+    const team = STARTER_IDS.slice(0, 10).map((id) => ({ charId: id, stars: 1 }));
     expect(deckPower(team)).toBe(team.reduce((s, c) => s + cardPower(c), 0));
     expect(deckPower(team)).toBe(377);
     expect(deckPower(defaultSave().deck.map((id) => defaultSave().cards[id]))).toBe(377);
@@ -85,19 +84,19 @@ describe('v0.13 — Líder', () => {
   it('requisitos crescentes de Poder', () => {
     expect(LEADER_THRESHOLDS[0]).toBe(0);
     for (let i = 1; i < LEADER_THRESHOLDS.length; i++) expect(LEADER_THRESHOLDS[i]).toBeGreaterThan(LEADER_THRESHOLDS[i - 1]);
-    expect(nextRequirement(bar, 1)).toBe(480);
+    expect(nextRequirement(bar, 1)).toBe(420); // v0.23.0 (até a v0.22.0: 480);
     expect(nextRequirement(bar, 10)).toBeNull();
   });
   it('trava pelo Poder: só evolui com Poder ≥ requisito, 1 nível por vez', () => {
-    expect(canEvolve(bar, 1, 479)).toBe(false);
-    expect(evolveLeader(bar, 1, 479)).toEqual({ ok: false, level: 1 });
-    expect(canEvolve(bar, 1, 480)).toBe(true);
+    expect(canEvolve(bar, 1, 419)).toBe(false);
+    expect(evolveLeader(bar, 1, 419)).toEqual({ ok: false, level: 1 });
+    expect(canEvolve(bar, 1, 420)).toBe(true);
     expect(evolveLeader(bar, 1, 5000)).toEqual({ ok: true, level: 2 });
     expect(evolveLeader(bar, 10, 1e9)).toEqual({ ok: false, level: 10 });
   });
   it('nunca perde nível quando o Poder cai depois', () => {
     let lv = 1;
-    for (const p of [480, 510, 560]) lv = evolveLeader(bar, lv, p).level;
+    for (const p of [420, 440, 470]) lv = evolveLeader(bar, lv, p).level;
     expect(lv).toBe(4);
     // trocou cartas: Poder bem abaixo do requisito do nível atual
     const r = evolveLeader(bar, lv, 100);
@@ -131,7 +130,7 @@ describe('v0.13 — migração do save', () => {
     expect(s.leaders).toEqual({ barbaro: { level: 1 } });
     expect(s.activeLeader).toBe('barbaro');
     expect(s.v13).toBe(true);
-    expect(s.cards.riku.level).toBe(9);
+    expect(s.cards.riku.stars).toBe(1); // v0.23.0: o nível vira barra de XP (migrateV23)
   });
   it('dados de Líder inválidos são corrigidos', () => {
     const s = defaultSave();

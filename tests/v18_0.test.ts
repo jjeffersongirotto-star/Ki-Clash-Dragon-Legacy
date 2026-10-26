@@ -6,11 +6,11 @@ import { claimOf, playerAuto, playerEndTurn, playerUse, replayMatch, verifyMatch
 import { getSpell, isSpell } from '../src/core/spells';
 import type { BattleState, CardInstance, MatchRecord } from '../src/core/types';
 
-const c = (id: string, level = 5): CardInstance => ({ charId: id, level, stars: getChar(id).minStars });
+const c = (id: string): CardInstance => ({ charId: id, stars: getChar(id).minStars });
 const myDeck: CardInstance[] = [
   ...['riku', 'nara', 'toru', 'daichi', 'sora', 'tobi', 'kael', 'suri', 'hana', 'jin'].map((id) => c(id)),
-  { charId: 'f-chuva', level: 1, stars: 1, copies: 2 },
-  { charId: 'f-giratoria', level: 1, stars: 1, copies: 2 },
+  { charId: 'f-chuva', stars: 1, copies: 2 },
+  { charId: 'f-giratoria', stars: 1, copies: 2 },
 ];
 
 /** joga uma partida inteira: no Auto, ou "à mão" (primeira carta pronta na primeira casa válida). */
@@ -74,7 +74,7 @@ describe('v0.18.0 — partidas verificáveis (gravar, refazer e conferir)', () =
     expect(r1.ok).toBe(false);
     if (!r1.ok) expect(r1.reason).toContain('inválida');
     const strongDeck: MatchRecord = JSON.parse(JSON.stringify(s.record));
-    strongDeck.setup.playerDeck = strongDeck.setup.playerDeck.map((x) => ({ ...x, level: 99 }));
+    strongDeck.setup.playerDeck = strongDeck.setup.playerDeck.map((x) => ({ ...x, stars: 6, plus: 2 }));
     expect(verifyMatch(strongDeck, claim).ok).toBe(false);
     const extra: MatchRecord = JSON.parse(JSON.stringify(s.record));
     extra.actions.push({ t: 'end' });

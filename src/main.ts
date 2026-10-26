@@ -2,7 +2,7 @@ import { waitFor } from './core/battle';
 import './ui/style.css';
 import { CATEGORY_INFO, PLAYABLE, RACE_INFO, STAR_COLORS, getChar, isComingSoon } from './core/characters';
 import { STAGES, type Stage } from './core/campaign';
-import { TIER_NAMES, XP_ITEMS, playXp, ascend, ascendCost, ascendCostFor, canAscend, cardMaxLevel, cardXpToNext, feedXp, maxLevel, newOwned, nextTier, statsFor, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
+import { MAX_STEP, TIER_NAMES, XP_ITEMS, playXp, ascend, ascendCost, ascendCostFor, barFull, canAscend, cardBarXp, feedXp, isMaxTier, newOwned, nextTier, statsFor, stepOf, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
 import { playerLeaderImg, portraitImg, portraitSVG, unitSpriteSVG, warmLeader, warmPortraits } from './ui/art';
 import { cardPower, deckPower } from './core/power';
 import { canEvolve, evolveLeader, getLeader, leaderHp, leaderMaxLevel, nextRequirement } from './core/leaders';
@@ -41,6 +41,11 @@ function openAccountSave(): SaveData {
     const a = adminSave();
     d.clearedDiff = a.clearedDiff;
     d.stars = a.stars; // v0.21.0: ADM com 3 ⭐ em tudo
+    writeSave(d);
+  }
+  // v0.23.0: a ADM tem todos os personagens no topo (raridade máxima "++")
+  if (id && accounts.accounts[id]?.admin && Object.values(adminSave().cards).some((c) => d.cards[c.charId]?.stars !== c.stars || d.cards[c.charId]?.plus !== c.plus)) {
+    d.cards = { ...d.cards, ...adminSave().cards };
     writeSave(d);
   }
   return d;
@@ -355,7 +360,7 @@ function stageDialog(stageId: number) {
     html: `<button class="stage-close" data-x aria-label="Fechar">✕</button>
       <img class="stage-cmd" src="${LEADER_ENEMY_URL}" alt="">
       <p class="stage-diff">Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
-      <p class="stage-line">Comandante inimigo ❤${st.enemyHeroHp} · Nível inimigo até ${Math.max(...foes.map((c) => c.level))}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</p>
+      <p class="stage-line">Comandante inimigo ❤${st.enemyHeroHp} · Inimigos até ${(() => { const top = foes.reduce((a, c) => (c.stars * 3 + stepOf(c) > a.stars * 3 + stepOf(a) ? c : a)); return tierHTML(top.stars, stepOf(top)); })()}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</p>
       <p class="stage-line">Recompensa: ✴${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && st.unlock && !save.cards[st.unlock] ? ` · desbloqueia <b>${esc(getChar(st.unlock).name)}</b>` : ''}</p>
       <ul class="stage-goals">${STAR_GOALS.map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}</li>`).join('')}</ul>
       ${done ? `<p class="stage-left ${left ? '' : 'out'}">${left ? `Hoje: <b>${left}/${DAILY_LIMIT}</b> restantes` : 'Limite de hoje atingido. Volta amanhã.'}</p>` : ''}
@@ -391,9 +396,9 @@ function grantRewards(st: Stage, diff: Difficulty) {
 /** v0.22.0: XP por jogar — ao vencer jogando, todo o baralho ganha XP. */
 function grantPlayXp(stageId: number): string {
   const xp = playXp(stageId);
-  let ups = 0;
-  for (const id of save.deck) if (!isSpell(id) && save.cards[id]) ups += feedXp(save.cards[id], xp).levelsGained;
-  return `<p class="hint">📈 +${xp} XP para cada personagem do baralho${ups ? ` · ${ups} nível(is) a mais` : ''}</p>`;
+  let full = 0;
+  for (const id of save.deck) if (!isSpell(id) && save.cards[id] && feedXp(save.cards[id], xp).filled) full++;
+  return `<p class="hint">📈 +${xp} XP para cada personagem do baralho${full ? ` · ${full} barra(s) cheia(s): suba o degrau em Treinar` : ''}</p>`;
 }
 
 /** Repetir: recompensa na hora, sem jogar a batalha (gasta 1 vez do dia). */
@@ -499,7 +504,7 @@ function collection() {
   void bakeAllGrid();
   const byPower = (a: string, b: string) => {
     const A = save.cards[a], B = save.cards[b];
-    return cardPower(B) - cardPower(A) || B.stars - A.stars || B.level - A.level || getChar(a).cost - getChar(b).cost;
+    return cardPower(B) - cardPower(A) || B.stars - A.stars || stepOf(B) - stepOf(A) || getChar(a).cost - getChar(b).cost;
   };
   const matchRace = (id: string) => raceFilter === 'all' || getChar(id).race === raceFilter;
   const owned = PLAYABLE.filter((d) => save.cards[d.id] && matchRace(d.id)).map((d) => d.id).sort(byPower);
@@ -532,7 +537,7 @@ function collection() {
     <h3 class="sec-title">✦ Feitiços <small>(${SPELLS.length} · ocupam vagas do baralho; precisam de um aliado da categoria em campo)</small></h3>
     <div class="card-grid spell-grid">${SPELLS.map((sp) => spellCardHTML(sp.id, { attrs: `data-card="${sp.id}"`, badge: save.deck.includes(sp.id) ? `✔ ×${copiesIn(save, sp.id)}` : undefined, extraClass: save.deck.includes(sp.id) ? 'in-deck' : '' })).join('')}</div>
     ${locked.length ? `<div class="divider"><span>🔒 Ainda não obtidos (${locked.length})</span></div>
-    <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, level: 1, stars: def.minStars }, { locked: true, grid: true, extraClass: isComingSoon(def) ? 'soon' : '', attrs: `data-card="${def.id}"`, badge: lockBadge(def.id) })).join('')}</div>
+    <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, stars: def.minStars }, { locked: true, grid: true, extraClass: isComingSoon(def) ? 'soon' : '', attrs: `data-card="${def.id}"`, badge: lockBadge(def.id) })).join('')}</div>
     ${locked.some(isComingSoon) ? `<p class="hint soon-note">🔒 <b>Em breve:</b> ${locked.filter(isComingSoon).map((d) => esc(d.name)).join(' e ')} ${locked.filter(isComingSoon).length > 1 ? 'começam' : 'começa'} em Lendário e ainda não ${locked.filter(isComingSoon).length > 1 ? 'podem' : 'pode'} ser obtidos. A forma de conseguir será revelada numa atualização futura.</p>` : ''}` : ''}
   </div>`;
   bindNav();
@@ -560,22 +565,21 @@ function collection() {
 function cardDetail(id: string, previewStars?: number) {
   const def = getChar(id);
   const owned = save.cards[id];
-  const lvl = owned?.level ?? 1;
   const curStars = owned?.stars ?? def.minStars;
-  const curPlus = !!owned?.plus;
+  const curPlus = stepOf(owned);
   const stars = previewStars ?? curStars;
-  // a prévia de outra cor mostra a cor base; a cor atual mostra o "+" se você já tiver
-  const plus = stars === curStars && curPlus;
-  const st = statsFor(def, lvl, stars, plus);
-  const pow = cardPower({ charId: id, level: lvl, stars, plus });
+  // a prévia de outra raridade mostra o degrau base; a raridade atual mostra o "+"/"++" se você já tiver
+  const plus = stars === curStars ? curPlus : 0;
+  const st = statsFor(def, stars, plus);
+  const pow = cardPower({ charId: id, stars, plus });
   const inDeck = save.deck.includes(id);
   const starTabs: string[] = [];
   for (let s = def.minStars; s <= def.maxStars; s++) {
-    starTabs.push(`<button class="star-tab ${s === stars ? 'active' : ''}" data-pstar="${s}" style="${starStyle(s)}">${tierLabel(s, s === curStars && curPlus)}${s === curStars && owned ? ' <small>(atual)</small>' : ''}</button>`);
+    starTabs.push(`<button class="star-tab ${s === stars ? 'active' : ''}" data-pstar="${s}" style="${starStyle(s)}">${tierLabel(s, s === curStars ? curPlus : 0)}${s === curStars && owned ? ' <small>(atual)</small>' : ''}</button>`);
   }
   modal(`<div class="detail" style="${starStyle(stars)}">
     <div class="detail-left">
-      ${cardHTML({ charId: id, level: lvl, stars, plus }, { extraClass: 'detail-card', locked: !owned && previewStars == null, power: pow })}
+      ${cardHTML({ charId: id, stars, plus }, { extraClass: 'detail-card', locked: !owned && previewStars == null, power: pow })}
       <div class="detail-sprite-box">
         <div class="ds-sprite">${unitSpriteSVG(def, { stars, side: 'player' })}</div>
         <div class="ds-label">Visual na Arena (${tierLabel(stars, plus)})<br><small>ATQ ${st.atk} | VIDA ${st.hp}</small></div>
@@ -584,13 +588,13 @@ function cardDetail(id: string, previewStars?: number) {
     <div class="detail-info">
       <div class="detail-badges">${tierHTML(stars, plus)} ${raceHTML(def, true)} ${categoryHTML(def, true)}</div>
       <h2>${esc(def.name)}</h2><div class="subtitle">${esc(def.title)}</div>
-      <div><small>Faixa: ${tierLabel(def.minStars)} a ${tierLabel(def.maxStars, true)}</small> · Nv.${lvl}/${maxLevel(stars, plus)}</div>
+      <div><small>Faixa: ${tierLabel(def.minStars)} a ${tierLabel(def.maxStars, MAX_STEP)}</small></div>
       <div class="star-preview-bar">
         <span class="sp-label">👁 Ver evolução por raridade (roupa/poder):</span>
         <div class="sp-tabs">${starTabs.join('')}</div>
       </div>
       <div class="stat-row"><span class="pow-stat" title="Poder = 10 × peso da habilidade × √(ataque × vida)">Poder <b>⚡ ${fmt(pow)}</b></span><span title="Rodadas que a carta espera na mão até poder ser invocada">Espera <b>⏳ ${waitFor(def.id)}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${reachLabel(def)}</b></span><span>Movimento <b>${def.move}</b></span></div>
-      ${abilityListHTML(def, stars, lvl)}
+      ${abilityListHTML(def, stars, plus)}
       <p class="lore">${esc(def.lore)}</p>
     </div></div>
     <div class="row">${owned ? `<button class="btn primary" data-m="deck">${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</button><button class="btn" data-m="train">Treinar</button>` : isComingSoon(def) ? `<p class="hint">🔒 <b>Em breve.</b> Personagem ${tierLabel(def.minStars)}: ainda não pode ser obtido. A forma de conseguir será revelada numa atualização futura.</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id) ?? '?'} pela primeira vez para desbloquear.</p>`}<button class="btn ghost" data-m="close">Fechar</button></div>`,
@@ -643,22 +647,22 @@ function spellDetail(id: string) {
 }
 
 // ---------------- TREINO ----------------
-/** Escada de Despertar do personagem: cada degrau com nível máximo, XP do degrau e Essências para subir. */
-function ladderHTML(card: { charId: string; stars: number; plus?: boolean; level: number }): string {
+/** Escada de Despertar do personagem: cada degrau com o tamanho da barra de XP e as Essências para subir (v0.23.0). */
+function ladderHTML(card: { charId: string; stars: number; plus?: number | boolean }): string {
   const def = getChar(card.charId);
   const rows: string[] = [];
-  const cur = { s: card.stars, p: !!card.plus };
+  const cur = { s: card.stars, p: stepOf(card) };
   for (let s = def.minStars; s <= def.maxStars; s++) {
-    for (const p of [false, true]) {
+    for (let p = 0; p <= MAX_STEP; p++) {
       const isCur = s === cur.s && p === cur.p;
-      const done = s < cur.s || (s === cur.s && !p && cur.p);
-      const last = s === def.maxStars && p;
-      const up = last ? '—' : `✴ ${ascendCostFor(s, p)} → ${p ? `<b>${tierLabel(s + 1)}</b> <small>(nova raridade: habilidades e visual)</small>` : `<b>${tierLabel(s, true)}</b> <small>(+${def.plusStat === 'atk' ? 'ataque' : 'vida'})</small>`}`;
-      rows.push(`<tr class="${isCur ? 'cur' : done ? 'done' : ''}" style="${starStyle(s)}"><td><span class="tier-dot"></span>${tierLabel(s, p)}${isCur ? ' <small>(atual)</small>' : ''}</td><td>${maxLevel(s, p)}</td><td>${stepXp(s, p).toLocaleString('pt-BR')}${p ? ' <small>(+50%)</small>' : ''}</td><td>${up}</td></tr>`);
+      const done = s < cur.s || (s === cur.s && p < cur.p);
+      const last = s === def.maxStars && p === MAX_STEP;
+      const up = last ? '—' : `✴ ${ascendCostFor(s, p)} → ${p === MAX_STEP ? `<b>${tierLabel(s + 1)}</b> <small>(nova raridade: habilidades e visual)</small>` : `<b>${tierLabel(s, p + 1)}</b>`}`;
+      rows.push(`<tr class="${isCur ? 'cur' : done ? 'done' : ''}" style="${starStyle(s)}"><td><span class="tier-dot"></span>${tierLabel(s, p)}${isCur ? ' <small>(atual)</small>' : ''}</td><td>${last ? '—' : stepXp(s, p).toLocaleString('pt-BR')}</td><td>${up}</td></tr>`);
     }
   }
-  return `<details class="ladder" open><summary>🪜 Escada de Despertar</summary><table><thead><tr><th>Degrau</th><th>Nível máx.</th><th>XP do degrau</th><th>Despertar</th></tr></thead><tbody>${rows.join('')}</tbody></table>
-    <p class="hint">O <b>"+"</b> dá só um pequeno bônus de ${def.plusStat === 'atk' ? '<b>ataque</b>' : '<b>vida</b>'} (+10%, mín. +1). Habilidades e visual mudam só na <b>nova raridade</b>. Do "+" para a próxima raridade custa <b>50% a mais</b> de XP e de Essências.</p></details>`;
+  return `<details class="ladder" open><summary>🪜 Escada de Despertar</summary><table><thead><tr><th>Degrau</th><th>Barra de XP</th><th>Despertar</th></tr></thead><tbody>${rows.join('')}</tbody></table>
+    <p class="hint">Cada degrau (<b>"+"</b>, <b>"++"</b> e cada nova raridade) dá <b>+17%</b> de ataque e de vida. Habilidades e visual mudam na <b>nova raridade</b>. Encher a barra não aumenta os status: ela libera o Despertar.</p></details>`;
 }
 
 function train() {
@@ -667,18 +671,18 @@ function train() {
   if (!save.cards[trainSel]) trainSel = Object.keys(save.cards)[0];
   const card = save.cards[trainSel];
   const def = getChar(card.charId);
-  const plus = !!card.plus;
-  const cap = cardMaxLevel(card);
-  const st = statsFor(def, card.level, card.stars, plus);
-  const nextSt = statsFor(def, Math.min(card.level + 1, cap), card.stars, plus);
-  const atCap = card.level >= cap;
+  const plus = stepOf(card);
+  const st = statsFor(def, card.stars, plus);
+  const top = isMaxTier(card);
+  const full = barFull(card);
   const pct = Math.round(xpProgress(card) * 100);
   const nt = nextTier(card);
   const ntLabel = nt ? tierLabel(nt.stars, nt.plus) : '';
+  const nextSt = nt ? statsFor(def, nt.stars, nt.plus) : st;
   const ascendBtn = nt
-    ? `<button class="btn primary" id="ascend" ${atCap && canAscend(card) && save.essencias >= ascendCost(card) ? '' : 'disabled'}>✨ Despertar para ${ntLabel} (✴ ${ascendCost(card)})</button>
-       <p class="hint">${atCap ? '' : `Chegue ao <b>nível ${cap}</b> para despertar. `}${nt.plus ? `${ntLabel} dá +10% de ${def.plusStat === 'atk' ? 'ataque' : 'vida'} e +5 níveis máximos (sem mudar habilidades nem visual).` : `${ntLabel} é uma <b>nova raridade</b>: evolui roupa, armadura, aura, habilidades e status.`}${save.essencias < ascendCost(card) ? ` <span class="warn">Você tem ✴ ${save.essencias}.</span>` : ''}</p>`
-    : '<p class="hint">Raridade máxima com "+": este personagem chegou ao topo!</p>';
+    ? `<button class="btn primary" id="ascend" ${canAscend(card) && save.essencias >= ascendCost(card) ? '' : 'disabled'}>✨ Subir para ${ntLabel} (✴ ${ascendCost(card)})</button>
+       <p class="hint">${full ? '' : 'Encha a barra de XP para subir o degrau. '}${nt.stars === card.stars ? `${ntLabel} dá +17% de ataque e de vida (habilidades e visual iguais).` : `${ntLabel} é uma <b>nova raridade</b>: evolui roupa, armadura, aura, habilidades e status.`}${save.essencias < ascendCost(card) ? ` <span class="warn">Você tem ✴ ${save.essencias}.</span>` : ''}</p>`
+    : '<p class="hint">Raridade máxima com "++": este personagem chegou ao topo!</p>';
   app.innerHTML = `<div class="screen">${topbar('Treinar')}
     <div class="train-list">${Object.values(save.cards)
       .map((c) => cardHTML(c, { compact: true, grid: true, extraClass: `train-pick ${c.charId === trainSel ? 'sel' : ''}`, attrs: `data-sel="${c.charId}"` }))
@@ -694,13 +698,13 @@ function train() {
       <div class="train-info">
         <div class="detail-badges">${tierHTML(card.stars, plus)} ${raceHTML(def, true)} ${categoryHTML(def, true)}</div>
         <h2>${esc(def.name)}</h2>
-        <div><b>${tierLabel(card.stars, plus)}</b> · <b>Nível ${card.level}</b> / ${cap} · <span class="ess">✴ ${save.essencias} Essências</span></div>
-        <div class="xpbar"><i style="width:${pct}%"></i><span>${atCap ? 'NÍVEL MÁXIMO DO DEGRAU' : `${card.xp} / ${cardXpToNext(card)} XP (${pct}%)`}</span></div>
-        <div class="stat-row"><span>Ataque <b>${st.atk}</b>${!atCap && nextSt.atk > st.atk ? ` <em>→ ${nextSt.atk}</em>` : ''}</span><span>Vida <b>${st.hp}</b>${!atCap && nextSt.hp > st.hp ? ` <em>→ ${nextSt.hp}</em>` : ''}</span></div>
-        ${abilityListHTML(def, card.stars, card.level)}
-        <div class="items">${XP_ITEMS.map((it) => `<button class="item-btn" data-item="${it.id}" ${save.items[it.id] > 0 && !atCap ? '' : 'disabled'}><span class="ic">${orbHTML(it.id)}</span><b>${it.name}</b><small>+${it.xp} XP · você tem ${save.items[it.id]}</small></button>`).join('')}</div>
+        <div><b>${tierLabel(card.stars, plus)}</b> · <span class="ess">✴ ${save.essencias} Essências</span></div>
+        <div class="xpbar"><i style="width:${pct}%"></i><span>${top ? 'TOPO: RARIDADE MÁXIMA "++"' : full ? 'BARRA CHEIA: PODE SUBIR O DEGRAU' : `${card.xp} / ${cardBarXp(card)} XP (${pct}%)`}</span></div>
+        <div class="stat-row"><span>Ataque <b>${st.atk}</b>${nextSt.atk > st.atk ? ` <em>→ ${nextSt.atk}</em>` : ''}</span><span>Vida <b>${st.hp}</b>${nextSt.hp > st.hp ? ` <em>→ ${nextSt.hp}</em>` : ''}</span></div>
+        ${abilityListHTML(def, card.stars, plus)}
+        <div class="items">${XP_ITEMS.map((it) => `<button class="item-btn" data-item="${it.id}" ${save.items[it.id] > 0 && !top && !full ? '' : 'disabled'}><span class="ic">${orbHTML(it.id)}</span><b>${it.name}</b><small>+${it.xp} XP · você tem ${save.items[it.id]}</small></button>`).join('')}</div>
         ${ascendBtn}
-        ${atCap ? '' : `<p class="hint">Alimente Orbes 🔮: ao chegar a 100% da barra, o nível sobe — e a próxima barra fica maior.</p>`}
+        ${top || full ? '' : `<p class="hint">Alimente Orbes 🔮 até encher a barra (o XP que passar do cheio se perde). Com a barra cheia, suba o degrau com Essências ✴.</p>`}
         ${ladderHTML(card)}
       </div>
     </div></div>`;
@@ -719,42 +723,41 @@ function train() {
       const r = feedXp(card, it.xp);
       persist();
       train();
-      if (r.levelsGained > 0) {
+      if (r.filled) {
         const fx = document.createElement('div');
         fx.className = 'levelup';
-        fx.textContent = `NÍVEL ${card.level}!`;
+        fx.textContent = 'BARRA CHEIA!';
         document.body.appendChild(fx);
         setTimeout(() => fx.remove(), 1400);
       }
     }),
   );
   app.querySelector('#ascend')?.addEventListener('click', () => {
-    const from = { stars: card.stars, plus: !!card.plus };
-    const before = statsFor(def, card.level, card.stars, !!card.plus);
+    const from = { stars: card.stars, plus: stepOf(card) };
+    const before = statsFor(def, card.stars, stepOf(card));
     const r = ascend(card, save.essencias);
     if (r.ok) {
       save.essencias -= r.cost;
       persist();
       train();
-      evolutionReveal(card.charId, from, { stars: card.stars, plus: !!card.plus }, before);
+      evolutionReveal(card.charId, from, { stars: card.stars, plus: stepOf(card) }, before);
     }
   });
 }
 
 /**
  * Animação do Despertar. Nova cor: visual antigo → clarão → novo visual.
- * Degrau "+": o visual é o mesmo; mostra só o selo "+" e o bônus de status.
+ * Degrau "+"/"++": o visual é o mesmo; mostra só o selo e o bônus de status.
  */
-function evolutionReveal(charId: string, from: { stars: number; plus: boolean }, to: { stars: number; plus: boolean }, before: { atk: number; hp: number }) {
+function evolutionReveal(charId: string, from: { stars: number; plus: number }, to: { stars: number; plus: number }, before: { atk: number; hp: number }) {
   const def = getChar(charId);
-  const lvl = save.cards[charId].level;
-  const st = statsFor(def, lvl, to.stars, to.plus);
+  const st = statsFor(def, to.stars, to.plus);
   const newColour = to.stars !== from.stars;
-  const gain = st.atk > before.atk ? `Ataque <b>${before.atk} → ${st.atk}</b>` : st.hp > before.hp ? `Vida <b>${before.hp} → ${st.hp}</b>` : '';
+  const gain = `Ataque <b>${before.atk} → ${st.atk}</b> · Vida <b>${before.hp} → ${st.hp}</b>`;
   const bg = document.createElement('div');
   bg.className = 'evo-bg';
   bg.innerHTML = `<div class="evo ${newColour ? '' : 'evo-plus'}">
-    <div class="evo-title">${newColour ? 'DESPERTAR!' : 'DESPERTAR +'}</div>
+    <div class="evo-title">${newColour ? 'DESPERTAR!' : `DESPERTAR ${'+'.repeat(to.plus)}`}</div>
     <div class="evo-stage" style="${starStyle(to.stars)}">
       ${newColour ? `<div class="evo-old" style="${starStyle(from.stars)}">${portraitSVG(def, { stars: from.stars })}</div><div class="evo-flash"></div>` : ''}
       <div class="evo-new ${newColour ? '' : 'static'}">${portraitSVG(def, { stars: to.stars })}</div>
@@ -762,7 +765,7 @@ function evolutionReveal(charId: string, from: { stars: number; plus: boolean },
     </div>
     <div class="evo-name">${esc(def.name)}</div>
     <div class="evo-stars">${tierHTML(from.stars, from.plus)} <span>➜</span> ${tierHTML(to.stars, to.plus)}</div>
-    <div class="evo-stats">${newColour ? `Ataque <b>${st.atk}</b> · Vida <b>${st.hp}</b> · nova raridade: habilidades e visual evoluem` : `${gain} · habilidades e visual iguais`} · Nível máx. <b>${maxLevel(to.stars, to.plus)}</b></div>
+    <div class="evo-stats">${newColour ? `Ataque <b>${st.atk}</b> · Vida <b>${st.hp}</b> · nova raridade: habilidades e visual evoluem` : `${gain} · habilidades e visual iguais`}</div>
     <button class="btn primary">Continuar</button>
   </div>`;
   document.body.appendChild(bg);
@@ -803,8 +806,9 @@ function help() {
     <h3>Dano e efeitos</h3><p><b>Físico 👊</b> é reduzido pela resistência física; <b>Mágico ✨</b> pela resistência mágica (resistência só vem de habilidades). Ex.: 3 de dano físico contra resistência 1 = 2 de dano.</p>
     <p>Selos no lutador: <b>🧪 veneno</b> (dano por rodada, ignora resistência), <b>🔥 queimadura</b>, <b>💫 atordoado</b>, <b>🛡 escudo</b> (absorve antes da vida), <b>👼 Anjo da Guarda</b>, <b>🥁</b> recebendo o Tambor e <b>🌀</b> drenado pelo Sifão.</p>
     <h3>Raridades das cartas e Despertar</h3><p>${[1, 2, 3, 4, 5, 6].map((n) => `<span class="rar-chip" style="--rc:${STAR_COLORS[n].color}">${TIER_NAMES[n]} (${STAR_COLORS[n].label})</span>`).join(' ')}</p>
-    <p>A <b>raridade da carta</b> (mostrada pela cor) é o tier do personagem — não há mais estrelas. Cada raridade tem dois degraus: <b>base</b> e <b>"+"</b> (ex.: Raro → <b>Raro+</b> → Épico). No nível máximo, o <b>Despertar</b> leva da raridade ao "+" e, no seguinte, do "+" à próxima raridade. O "+" dá só um pequeno bônus de vida ou ataque; <b>habilidades, roupa, armadura, armas e aura de Ki</b> evoluem só quando a <b>raridade muda</b>. Do "+" para a próxima raridade custa <b>50% a mais</b> de XP e Essências.</p>
-    <h3>Poder ⚡ e Comandante 👑</h3><p>Cada carta tem um <b>Poder</b> que sobe com o nível, a raridade e o "+", com um bônus pela habilidade do personagem. O <b>Poder do baralho</b> é a soma dos personagens do baralho (cada um uma vez). Em <b>Coleção & Baralho</b>, quando o Poder do baralho alcança o requisito, toque em <b>Evoluir</b> no painel do Comandante: cada nível dá <b>+10 de vida máxima</b> (20 → 110). O Poder só é conferido na hora de evoluir — trocar cartas depois <b>nunca</b> tira o nível do Comandante. Os Comandantes inimigos também ficam mais resistentes a cada fase.</p>
+    <p>A <b>raridade da carta</b> (mostrada pela cor) é o tier do personagem. A carta <b>não tem nível</b>: cada raridade tem três degraus, <b>base</b>, <b>"+"</b> e <b>"++"</b> (ex.: Raro → <b>Raro+</b> → <b>Raro++</b> → Épico). O degrau aparece na estrela dourada da carta.</p>
+    <p>Cada degrau tem uma <b>barra de XP</b> (vista só em <b>Treinar</b>). A barra enche com <b>Orbes 🔮</b> e com o <b>XP por jogar</b>. Com a barra cheia, o <b>Despertar</b> sobe o degrau gastando <b>Essências ✴</b>. Cada degrau dá <b>+17% de ataque e de vida</b>; encher a barra não aumenta os status. <b>Habilidades, roupa, armadura, armas e aura de Ki</b> evoluem quando a <b>raridade muda</b>.</p>
+    <h3>Poder ⚡ e Comandante 👑</h3><p>Cada carta tem um <b>Poder</b> que sobe com a raridade e o degrau ("+" e "++"), com um bônus pela habilidade do personagem. O <b>Poder do baralho</b> é a soma dos personagens do baralho (cada um uma vez). Em <b>Coleção & Baralho</b>, quando o Poder do baralho alcança o requisito, toque em <b>Evoluir</b> no painel do Comandante: cada nível dá <b>+10 de vida máxima</b> (20 → 110). O Poder só é conferido na hora de evoluir — trocar cartas depois <b>nunca</b> tira o nível do Comandante. Os Comandantes inimigos também ficam mais resistentes a cada fase.</p>
     <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.values(CATEGORY_INFO).map((c) => `<li><b>${c.icon} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
   </div></div>`;
   bindNav();

@@ -6,6 +6,7 @@ import { pileCount } from '../core/deck';
 import type { BattleState, CardInstance, RecordedEvent, Side, Snapshot, Unit } from '../core/types';
 import type { Stage } from '../core/campaign';
 import { PLAYER_HERO_HP } from '../core/campaign';
+import { stepOf } from '../core/progression';
 import { enemyLeaderImg, playerLeaderImg, unitSpriteSVG } from './art';
 import { gameConfirm } from './dialog';
 import { requestLandscape } from './orientation';
@@ -435,7 +436,7 @@ export class BattleView {
     }
     const def = getChar(c.charId);
     this.setInfo(
-      `<div class="info-head"><span><b>${esc(def.name)}</b> ${tierHTML(c.stars, !!c.plus)} · ${raceHTML(def)} · espera ${waitFor(def.id)} rodada(s)${waitOf(c) ? ` (falta${waitOf(c) > 1 ? 'm' : ''} ${waitOf(c)})` : ' (pronta)'} · ${dmgLabel(def)} · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-hand="${i}">🔍 Detalhes</button></div>${abilityListHTML(def, c.stars, c.level)}`,
+      `<div class="info-head"><span><b>${esc(def.name)}</b> ${tierHTML(c.stars, stepOf(c))} · ${raceHTML(def)} · espera ${waitFor(def.id)} rodada(s)${waitOf(c) ? ` (falta${waitOf(c) > 1 ? 'm' : ''} ${waitOf(c)})` : ' (pronta)'} · ${dmgLabel(def)} · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-hand="${i}">🔍 Detalhes</button></div>${abilityListHTML(def, c.stars, stepOf(c))}`,
     );
     this.root.querySelector('[data-inspect-hand]')?.addEventListener('click', () => this.openCardModal(c, 'player'));
     this.infoUid = null;
@@ -445,10 +446,10 @@ export class BattleView {
     const def = getChar(u.charId);
     const fx = this.statusList(this.state, u);
     this.setInfo(
-      `<div class="info-head"><span><b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${tierHTML(u.stars, !!u.plus)} Nv.${u.level} · ${raceHTML(def)} · ❤ ${u.hp}/${u.maxHp} · ATQ ${effectiveAtk(this.state, u)} (${dmgLabel(def)}) · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-unit="${u.uid}">🔍 Ver Carta</button></div>${fx.length ? `<div class="u-status-list">${fx.map((f) => `<span>${f.icon} ${esc(f.label)}</span>`).join('')}</div>` : ''}${abilityListHTML(def, u.stars, u.level)}`,
+      `<div class="info-head"><span><b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${tierHTML(u.stars, u.plus)} · ${raceHTML(def)} · ❤ ${u.hp}/${u.maxHp} · ATQ ${effectiveAtk(this.state, u)} (${dmgLabel(def)}) · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-unit="${u.uid}">🔍 Ver Carta</button></div>${fx.length ? `<div class="u-status-list">${fx.map((f) => `<span>${f.icon} ${esc(f.label)}</span>`).join('')}</div>` : ''}${abilityListHTML(def, u.stars, u.plus)}`,
     );
     this.root.querySelector('[data-inspect-unit]')?.addEventListener('click', () =>
-      this.openCardModal({ charId: u.charId, level: u.level, stars: u.stars, plus: !!u.plus }, u.side),
+      this.openCardModal({ charId: u.charId, stars: u.stars, plus: u.plus }, u.side),
     );
     this.infoUid = u.uid;
   }
@@ -472,10 +473,10 @@ export class BattleView {
           <div class="bcm-leader">Comandante: ${side === 'player' ? 'Você' : esc(this.stage.name)}</div>
           <h3 class="bcm-title">${esc(def.name)}</h3>
           <div class="bcm-sub">${esc(def.title)} · ${race.icon} ${race.label}</div>
-          <div class="bcm-tags">${categoryHTML(def, true)} ${tierHTML(card.stars, !!card.plus)}</div>
+          <div class="bcm-tags">${categoryHTML(def, true)} ${tierHTML(card.stars, stepOf(card))}</div>
           <div class="bcm-sec">Habilidades & Atributos</div>
           <div class="bcm-stats">Alcance: <b>${reachLabel(def)}</b> · Movimento: <b>${def.move} casas</b> · Dano: <b>${dmgLabel(def)}</b></div>
-          ${abilityListHTML(def, card.stars, card.level)}
+          ${abilityListHTML(def, card.stars, stepOf(card))}
           <p class="bcm-lore">${esc(def.lore)}</p>
         </div>
         </div>

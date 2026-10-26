@@ -4,7 +4,7 @@ import { getChar } from '../src/core/characters';
 import { getSpell } from '../src/core/spells';
 import type { BattleState, CardInstance } from '../src/core/types';
 
-const c = (id: string, level = 1, stars = getChar(id).minStars): CardInstance => ({ charId: id, level, stars });
+const c = (id: string, _level = 1, stars = getChar(id).minStars): CardInstance => ({ charId: id, stars });
 const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
 
 describe('v0.17.1 — escudo temporário conta os turnos do adversário', () => {

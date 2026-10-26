@@ -14,22 +14,23 @@ import peitoral from '../src/assets/card/ab-peitoral.svg?raw';
 const EMB: Record<string, string> = { dps, mago, arqueiro, assassino, tanque, suporte };
 
 describe('v0.14.2 — acabamento da carta (prévia v14.2f)', () => {
-  it('topo: ⚡Poder sozinho na pílula e nível na estrela dourada ("Nv." em cima do número)', () => {
-    const h = cardHTML({ charId: 'lyra', level: 10, stars: 2 }, { power: 10000 });
+  it('topo: ⚡Poder sozinho na pílula e degrau na estrela dourada (v0.23.0: "+"/"++", sem "Nv.")', () => {
+    const h = cardHTML({ charId: 'lyra', stars: 2, plus: 2 }, { power: 10000 });
     expect(h).toContain('<div class="ck-pow" title="Poder">⚡10000</div>');
-    expect(h).toContain('<div class="ck-star" title="Nível"><small>Nv.</small><b>10</b></div>');
+    expect(h).toContain('<div class="ck-star" title="Degrau Incomum++"><b>++</b></div>');
+    expect(h).not.toContain('Nv.');
     expect(h).not.toContain('ck-lvp');
     expect(h).not.toContain('ck-lv"');
   });
   it('painel de baixo: ataque e vida dentro do painel, cápsula, linha com pontinhos e habilidades', () => {
     for (const d of PLAYABLE) {
-      const h = cardHTML({ charId: d.id, level: 1, stars: d.minStars });
+      const h = cardHTML({ charId: d.id, stars: d.minStars });
       const panel = h.indexOf('class="ck-panel"');
       expect(panel, d.id).toBeGreaterThan(h.indexOf('class="ck-banner"'));
       for (const c of ['ck-atk', 'ck-rar', 'ck-foot', 'ck-sep', 'ck-abil', 'ck-hp']) expect(h.indexOf(`class="${c}`, panel), `${d.id} ${c}`).toBeGreaterThan(panel);
       expect((h.match(/class="ck-sep"><i><\/i><i><\/i><i><\/i>/g) ?? []).length).toBe(1);
     }
-    expect(cardHTML({ charId: 'riku', level: 1, stars: 1 }, { compact: true })).not.toContain('ck-sep');
+    expect(cardHTML({ charId: 'riku', stars: 1 }, { compact: true })).not.toContain('ck-sep');
   });
   it('emblemas de ataque: um formato por categoria, sem explosão de pontas, armas NA FRENTE da base', () => {
     expect(Object.keys(EMB).sort()).toEqual(Object.keys(CATEGORY_INFO).sort());
@@ -56,7 +57,7 @@ describe('v0.14.2 — acabamento da carta (prévia v14.2f)', () => {
   it('Resistência Física (Postura de Guarda) usa o peitoral na carta e na lista de habilidades', () => {
     expect(abilityIconHTML('guarda')).toContain('class="ab-svg"');
     const toru = getChar('toru');
-    expect(cardHTML({ charId: 'toru', level: 1, stars: 1 })).toContain('<span class="ck-ab" title="Postura de Guarda"><img class="ab-svg"');
+    expect(cardHTML({ charId: 'toru', stars: 1 })).toContain('<span class="ck-ab" title="Postura de Guarda"><img class="ab-svg"');
     const list = abilityListHTML(toru, 1, 1);
     expect(list).toContain('<img class="ab-svg"');
     expect(list).not.toContain('🛡 Postura');
@@ -64,8 +65,8 @@ describe('v0.14.2 — acabamento da carta (prévia v14.2f)', () => {
     expect(PLAYABLE.every((d) => !d.physRes && !d.magRes)).toBe(true);
   });
   it('nomes com palavra comprida encolhem para caber (Tobi Tambor-de-Guerra, Gorath Muralha-de-Ferro)', () => {
-    expect(cardHTML({ charId: 'tobi', level: 1, stars: getChar('tobi').minStars })).toMatch(/class="ck-name" style="--nfit:0\.\d+"/);
-    expect(cardHTML({ charId: 'gorath', level: 1, stars: getChar('gorath').minStars })).toMatch(/--nfit:/);
-    expect(cardHTML({ charId: 'toru', level: 1, stars: 1 })).not.toMatch(/--nfit:/);
+    expect(cardHTML({ charId: 'tobi', stars: getChar('tobi').minStars })).toMatch(/class="ck-name" style="--nfit:0\.\d+"/);
+    expect(cardHTML({ charId: 'gorath', stars: getChar('gorath').minStars })).toMatch(/--nfit:/);
+    expect(cardHTML({ charId: 'toru', stars: 1 })).not.toMatch(/--nfit:/);
   });
 });

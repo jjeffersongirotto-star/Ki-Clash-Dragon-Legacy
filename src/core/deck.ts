@@ -197,7 +197,7 @@ export function defeatCopy(d: DeckState, slot: number) {
   if (!s) return;
   s.onField = Math.max(0, s.onField - 1);
   s.defeated = Math.min(s.copies, s.defeated + 1);
-  d.defeated.push({ charId: s.card.charId, level: s.card.level, stars: s.card.stars, plus: !!s.card.plus });
+  d.defeated.push({ charId: s.card.charId, stars: s.card.stars, plus: s.card.plus });
 }
 
 /** v0.17.0: feitiço lançado — a cópia sai da mão e volta ao monte (a fila decide quando volta à mão). */

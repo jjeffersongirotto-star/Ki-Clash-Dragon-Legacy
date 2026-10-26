@@ -2,6 +2,16 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.23.0] — 26/10/2026 · PR #44 — Carta sem nível e degraus + / ++
+- **Sem nível numerado:** a carta não tem mais "Nv." nem nível máximo. Cada raridade tem 3 degraus: **base → "+" → "++"** → próxima raridade. O topo de cada personagem é a raridade máxima "++".
+- **Estrela dourada da carta** mostra o degrau ("+" ou "++"; nada no degrau base).
+- **Status por degrau:** ataque e vida = base × 1,17^(degrau na escada). Cada degrau dá +17% nos dois; a barra de XP não muda os status.
+- **Barra de XP por degrau** (só no Treinar), cheia com Orbes e XP por jogar; o XP que passa do cheio se perde. Com a barra cheia, o **Despertar** sobe o degrau com Essências: 4 × raridade (base → +), 5 × (+ → ++) e 6 × (++ → próxima raridade).
+- **Habilidades** que melhoravam no nível 20/25/30 agora melhoram em Incomum+ / Raro / Raro+ (textos atualizados).
+- **Inimigos por degrau** (Normal +1, Difícil +2 degraus; provisório), fase 8 sem feitiços e novos requisitos de Poder do Comandante, recalibrados no simulador (vitória ao chegar 74/90/95/81/86/78/84/72/74/69%; a fase 1 ficou mais difícil, ver REGRAS seção 22).
+- **Saves convertidos:** mesma raridade e degrau (o "+" antigo vira "+"), barra cheia na proporção do progresso antigo; nenhum personagem se perde. ADM no topo ("++").
+- "Como jogar", Coleção, detalhes da carta, batalha e janela da fase sem nível.
+
 ## [0.22.0] — 26/10/2026 · PR #43 — Orbes por raridade e XP por jogar
 - **🔮 Orbes por raridade:** o único item de XP, em 6 raridades (Comum 100 · Incomum 250 · Raro 400 · Épico 800 · Lendário 1.500 · Mítico 3.000 XP), com a cor da raridade. Substituem o 📜 Pergaminho e o 💎 Cristal; os saves são convertidos sem perder XP (📜 → Comum, 💎 → Raro, 🔮 antigo → Lendário).
 - **Orbes pela dificuldade:** Fácil dá Comuns e Incomuns; Normal, Raros e Épicos; Difícil, Épicos com 10% de chance de 1 Lendário e 2% de 1 Mítico. XP total parecido nas três.

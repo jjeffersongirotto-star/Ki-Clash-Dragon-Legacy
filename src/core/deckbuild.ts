@@ -49,7 +49,7 @@ export function autoDeck(owned: CardInstance[], max: number, spellSlots = 0): Ca
   for (const { s } of pool) {
     if (sl <= 0) break;
     const n = Math.min(2, sl);
-    out.push({ charId: s.id, level: 1, stars: 1, copies: n });
+    out.push({ charId: s.id, stars: 1, copies: n });
     sl -= n;
   }
   return out;

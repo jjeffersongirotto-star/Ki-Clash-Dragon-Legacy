@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { act, attack, createBattle, Ctx, effectiveAtk, findTarget, makeUnit, placeUnit, rangeOf } from '../src/core/battle';
 import { ABILITIES, abilityPower, AURA_CAP, MINION_CAP, RES_CAP } from '../src/core/abilities';
 import { CATEGORY_INFO, PLAYABLE, STAR_COLORS, getChar } from '../src/core/characters';
-import { maxLevel, statsFor } from '../src/core/progression';
+import { statsFor } from '../src/core/progression';
 import type { BattleState, CardInstance } from '../src/core/types';
 
-const c = (charId: string, level = 1, stars = 1): CardInstance => ({ charId, level, stars });
+const c = (charId: string, _level = 1, stars = 1, plus = 0): CardInstance => ({ charId, stars, plus });
 const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1, cols: 7 /* arena compacta de teste: mesmas regras */ });
 
 describe('sem passo da vitória (v0.15.0)', () => {
@@ -158,10 +158,10 @@ describe('habilidades por estrela/nível (com teto)', () => {
     expect(abilityPower('sifao', 6, 99)).toBeLessThanOrEqual(AURA_CAP);
   });
   it('habilidades crescem com estrelas', () => {
-    expect(abilityPower('flechaDupla', 5, 1)).toBeGreaterThan(abilityPower('flechaDupla', 3, 1));
-    expect(abilityPower('contraGolpe', 6, 1)).toBeGreaterThan(abilityPower('contraGolpe', 4, 1));
-    expect(abilityPower('perfurante', 5, 1)).toBeGreaterThan(abilityPower('perfurante', 2, 1));
-    expect(abilityPower('lotus', 4, 20)).toBeGreaterThan(abilityPower('lotus', 2, 1));
+    expect(abilityPower('flechaDupla', 3, 0)).toBeGreaterThan(abilityPower('flechaDupla', 2, 0));
+    expect(abilityPower('contraGolpe', 6, 0)).toBeGreaterThan(abilityPower('contraGolpe', 4, 0));
+    expect(abilityPower('perfurante', 5, 0)).toBeGreaterThan(abilityPower('perfurante', 2, 0));
+    expect(abilityPower('lotus', 4, 0)).toBeGreaterThan(abilityPower('lotus', 2, 0));
   });
   it('resistência nunca passa de 3 (dano mínimo 1 sempre)', () => {
     const s = empty();
@@ -185,10 +185,12 @@ describe('habilidades por estrela/nível (com teto)', () => {
     const e = placeUnit(s, c('gorath'), 'enemy', 0, 3, { hp: 50 });
     e.physRes = 0;
     act(s, new Ctx(), a);
-    expect(e.hp).toBe(50 - 3 - abilityPower('flechaDupla', 4, 1));
-    expect(abilityPower('flechaDupla', 2, 1)).toBe(1);
-    expect(abilityPower('flechaDupla', 3, 1)).toBe(2);
-    expect(abilityPower('flechaDupla', 4, 1)).toBe(3);
+    expect(e.hp).toBe(50 - 3 - abilityPower('flechaDupla', 4, 0));
+    expect(abilityPower('flechaDupla', 2, 0)).toBe(1);
+    expect(abilityPower('flechaDupla', 2, 2)).toBe(1);
+    // v0.23.0: o +1 do antigo nível 25 vem junto com o Raro (todo Raro já passava do nível 25)
+    expect(abilityPower('flechaDupla', 3, 0)).toBe(3);
+    expect(abilityPower('flechaDupla', 4, 0)).toBe(3);
   });
   it('Bênção do Lótus cura aliados vizinhos (inclusive outra fileira)', () => {
     const s = empty();
@@ -302,6 +304,5 @@ describe('categorias e cores', () => {
       expect(a.description.length).toBeGreaterThan(10);
     }
     expect(getChar('mei').category).toBe('suporte');
-    expect(maxLevel(6)).toBe(60);
   });
 });

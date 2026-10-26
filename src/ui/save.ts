@@ -4,7 +4,7 @@ import { deckMaxFor, profileLevelFor } from '../core/deckbuild';
 import { isSpell } from '../core/spells';
 import type { CardInstance } from '../core/types';
 import { DEFAULT_LEADER, LEADERS } from '../core/leaders';
-import { LEGACY_ITEM_TO_ORB, XP_ITEMS, newOwned, type OwnedCard, type XpItemId } from '../core/progression';
+import { LEGACY_ITEM_TO_ORB, XP_ITEMS, migrateOldCard, newOwned, stepOf, type OwnedCard, type XpItemId } from '../core/progression';
 import { DIFFICULTIES, clearedIn, type DailyUse, type Difficulty } from '../core/adventure';
 
 export interface SaveData {
@@ -39,7 +39,12 @@ export interface SaveData {
   difficulty?: Difficulty;
   /** v0.21.0: ⭐ de cada fase por dificuldade ("dificuldade:fase" → bits dos 3 objetivos) */
   stars?: Record<string, number>;
+  /** migração v0.23.0: o nível numerado acabou; cada carta virou raridade + degrau (0, "+", "++") + barra de XP */
+  v23?: boolean;
 }
+
+/** Carta como era salva até a v0.22.0 (com nível numerado e `plus` verdadeiro/falso). */
+type LegacyCard = { charId: string; level?: number; xp?: number; stars: number; plus?: number | boolean };
 
 let KEY = 'kicdl-save-v1';
 /** v0.16.0: cada conta local tem a sua chave de progresso (sem conta = 'kicdl-save-v1') */
@@ -105,6 +110,7 @@ export function defaultSave(): SaveData {
     v13: true,
     copies: {},
     v17: true,
+    v23: true,
     clearedDiff: { normal: [], dificil: [] },
     difficulty: 'facil',
   };
@@ -125,8 +131,8 @@ export function deckCards(d: SaveData): CardInstance[] {
     .filter((id, i, a) => usable(d, id) && a.indexOf(id) === i)
     .map((id) =>
       isSpell(id)
-        ? { charId: id, level: 1, stars: 1, copies: copiesIn(d, id) }
-        : { charId: id, level: d.cards[id].level, stars: d.cards[id].stars, plus: !!d.cards[id].plus, copies: copiesIn(d, id) },
+        ? { charId: id, stars: 1, copies: copiesIn(d, id) }
+        : { charId: id, stars: d.cards[id].stars, plus: stepOf(d.cards[id]), copies: copiesIn(d, id) },
     );
 }
 export const deckCount = (d: SaveData) => deckSize(deckCards(d));
@@ -218,9 +224,9 @@ export function migrateV8(d: SaveData): SaveData {
  * Nível e XP ficam como estavam (o nível máximo da cor base é o mesmo de antes: 10 × cor).
  */
 export function migrateV10(d: SaveData): SaveData {
-  for (const c of Object.values(d.cards)) {
+  for (const c of Object.values(d.cards) as unknown as LegacyCard[]) {
     c.plus = false;
-    if (c.level > c.stars * 10) c.level = c.stars * 10;
+    if (typeof c.level === 'number' && c.level > c.stars * 10) c.level = c.stars * 10;
   }
   d.v10 = true;
   return d;
@@ -237,6 +243,8 @@ export function loadSave(): SaveData {
     for (const id of Object.keys(merged.cards)) if (!CHAR_BY_ID[id]) delete merged.cards[id];
     if (!d.v8) migrateV8(merged);
     if (!d.v10) migrateV10(merged);
+    merged.v23 = !!d.v23; // o padrão (defaultSave) já vem convertido; vale o que estava salvo
+    migrateV23(merged);
     // sempre normaliza os Comandantes (save antigo sem o campo, ou campo corrompido)
     migrateV13(merged);
     migrateV17(merged);
@@ -246,6 +254,20 @@ export function loadSave(): SaveData {
   } catch {
     return defaultSave();
   }
+}
+
+/**
+ * v0.23.0: o nível numerado acabou. Cada carta fica na MESMA raridade e no mesmo degrau (o "+" antigo vira "+"),
+ * com a barra de XP do degrau cheia na mesma proporção do progresso que ela tinha. Nenhum personagem se perde.
+ * Saves já convertidos só são conferidos (degrau 0–2, XP dentro da barra).
+ */
+export function migrateV23(d: SaveData): SaveData {
+  for (const [id, c] of Object.entries(d.cards)) {
+    const old = c as unknown as LegacyCard;
+    d.cards[id] = migrateOldCard(d.v23 ? { charId: old.charId ?? id, stars: old.stars, plus: old.plus, xp: old.xp } : { ...old, charId: old.charId ?? id });
+  }
+  d.v23 = true;
+  return d;
 }
 
 /** v0.20.0: garante os campos da Aventura (dificuldade, progresso por dificuldade, limite diário) bem formados. */
@@ -280,7 +302,7 @@ export function resetSave(): SaveData {
 export function fillTeam(d: SaveData) {
   const rest = Object.values(d.cards)
     .filter((c) => !d.deck.includes(c.charId))
-    .sort((a, b) => b.stars - a.stars || Number(!!b.plus) - Number(!!a.plus) || b.level - a.level);
+    .sort((a, b) => b.stars - a.stars || stepOf(b) - stepOf(a) || b.xp - a.xp);
   for (const c of rest) if (d.deck.filter((x) => !isSpell(x)).length < DECK_MAX) d.deck.push(c.charId);
 }
 

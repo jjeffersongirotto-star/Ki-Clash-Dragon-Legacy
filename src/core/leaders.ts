@@ -22,7 +22,8 @@ export const LEADER_HP = [20, 30, 40, 50, 60, 70, 80, 90, 100, 110];
  * Poder do baralho necessário para CHEGAR a cada nível (índice 0 = nível 1 = 0).
  * ≈ Poder típico com que o jogador chega na fase de mesmo número (mediana do simulador).
  */
-export const LEADER_THRESHOLDS = [0, 480, 510, 560, 610, 660, 760, 840, 930, 980];
+/** v0.23.0: recalibrado para o Poder sem nível (até a v0.22.0: 0, 480, 510, 560, 610, 660, 760, 840, 930, 980). */
+export const LEADER_THRESHOLDS = [0, 420, 440, 470, 520, 590, 670, 690, 800, 820];
 
 /** Habilidade especial do Comandante (reservado: os Comandantes futuros terão habilidades que evoluem por nível). */
 export interface LeaderAbility {

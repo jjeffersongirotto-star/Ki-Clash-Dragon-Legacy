@@ -7,7 +7,7 @@ import { defaultSave, migrateV8, teamReady, type SaveData } from '../src/ui/save
 import { newOwned } from '../src/core/progression';
 import type { BattleState, CardInstance, Category } from '../src/core/types';
 
-const c = (charId: string, level = 1, stars = 1): CardInstance => ({ charId, level, stars });
+const c = (charId: string, _level = 1, stars = 1, plus = 0): CardInstance => ({ charId, stars, plus });
 const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1, cols: 7 });
 const NEW = ['daichi', 'sora', 'tobi', 'kael', 'suri', 'hana', 'jin', 'ren', 'kuro'];
 
@@ -66,10 +66,10 @@ describe('progressão v0.8', () => {
       speed: 1,
       team10: true,
     };
-    old.cards.riku.level = 12;
+    old.cards.riku.xp = 12;
     const m = migrateV8(old);
     expect(m.cards.kenji).toBeTruthy();
-    expect(m.cards.riku.level).toBe(12);
+    expect(m.cards.riku.xp).toBe(12);
     for (const id of STARTER_IDS) expect(m.cards[id]).toBeTruthy();
     expect(m.deck.slice(0, 3)).toEqual(['riku', 'nara', 'kenji']);
     expect(m.deck).toHaveLength(10);
@@ -84,7 +84,7 @@ describe('habilidades dos novos personagens', () => {
     const d = placeUnit(s, c('daichi', 1, 3), 'enemy', 0, 3, { hp: 50 });
     const a = placeUnit(s, c('riku'), 'player', 0, 2, { hp: 10 });
     attack(s, new Ctx(), a, d);
-    expect(a.hp).toBe(10 - abilityPower('espinhos', 3, 1));
+    expect(a.hp).toBe(10 - abilityPower('espinhos', 3, 0));
     // à distância não fere
     const s2 = empty();
     const d2 = placeUnit(s2, c('daichi'), 'enemy', 0, 4, { hp: 50 });
@@ -130,7 +130,7 @@ describe('habilidades dos novos personagens', () => {
     const s = empty();
     const u = placeUnit(s, c('suri', 1, 3), 'player', 0, 4, { atk: 2 });
     act(s, new Ctx(), u);
-    expect(s.heroes.enemy.hp).toBe(30 - 2 - abilityPower('mare', 3, 1));
+    expect(s.heroes.enemy.hp).toBe(30 - 2 - abilityPower('mare', 3, 0));
   });
   it('Tiro Certeiro (Hana): ignora resistência física', () => {
     const s = empty();

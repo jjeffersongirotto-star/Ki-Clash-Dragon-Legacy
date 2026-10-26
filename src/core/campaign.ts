@@ -1,6 +1,6 @@
 import { getChar } from './characters';
 import type { CardInstance } from './types';
-import { maxLevel } from './progression';
+import { fromStepIndex, stepIndex } from './progression';
 import { DECK_SLOTS } from './deck';
 import { LEADER_HP } from './leaders';
 import { getSpell } from './spells';
@@ -72,34 +72,44 @@ export const ENEMY_SPELLS: string[][] = [
   ['f-raio'],
   ['f-flecha-veneno', 'f-bola-fogo'],
   ['f-tremor', 'f-muralha'],
-  ['f-veneno', 'f-sombras'],
+  [], // v0.23.0: sem feitiços (até a v0.22.0: Veneno e Sombras) — a fase já tem Raros, Épico e Lendário no piso da raridade
   ['f-raio', 'f-cura'],
   ['f-bola-fogo', 'f-giratoria', 'f-anjo'],
 ];
 export const ENEMY_SPELL_COPIES = 2;
 
 /**
- * Nível das cartas da IA por fase (índice 0 = fase 1), limitado ao nível máximo da cor de cada carta.
- * v0.17: 1, 2, 4, 6, 7, 9, 10, 12, 13, 15 (1 + arredondar(1,5 × índice)). v0.18.0: recalibrado junto com os
- * feitiços da IA para a dificuldade subir de fase em fase (antes as fases 6 e 10 eram muito mais difíceis
- * que as vizinhas e a 2 mais fácil que a 1).
+ * v0.23.0 — DEGRAU das cartas da IA por fase (índice 0 = fase 1), contado na escada inteira:
+ * 0 = Comum, 1 = Comum+, 2 = Comum++, 3 = Incomum, … (raridade × 3 + degrau). Cada personagem fica nesse degrau,
+ * mas nunca abaixo do degrau base da raridade mínima dele nem acima do topo (raridade máxima "++").
+ * Valor quebrado mistura: 0,5 = metade das cartas no degrau 0 e metade no 1. Fases com muitos personagens de raridade
+ * alta (6, 8 e 10) já ficam fortes pelo piso da raridade e por isso têm degrau baixo.
+ * Escolhidos no simulador (scripts/balance/v18.ts) para a vitória ao chegar ficar perto da v0.22.0.
+ * Até a v0.22.0: NÍVEL por fase (1, 4, 4, 5, 6, 6, 11, 14, 17, 12).
  */
-export const ENEMY_LEVELS = [1, 4, 4, 5, 6, 6, 11, 14, 17, 12];
+export const ENEMY_STEPS = [0, 0.5, 0, 1, 0.5, 0, 3, 0, 0.5, 0.5];
 
 /**
- * Baralho da IA na fase `i`: os 10 personagens com 3 cópias (no nível `level`, limitado pela cor;
- * fase 10 uma cor acima) e os feitiços da fase com 2 cópias.
+ * Raridade e degrau do personagem da IA: degrau `target` (limitado à faixa dele) e mais `bonus` degraus
+ * (dificuldade Normal/Difícil), sempre dentro do topo do personagem.
  */
-export function enemyDeckFor(i: number, level = ENEMY_LEVELS[i], spellIds = ENEMY_SPELLS[i]): CardInstance[] {
+export function enemyCard(charId: string, target: number, bonus = 0): CardInstance {
+  const def = getChar(charId);
+  const lo = stepIndex(def.minStars, 0);
+  const hi = stepIndex(def.maxStars, 2);
+  const g = Math.min(hi, Math.max(lo, Math.floor(target)) + Math.max(0, Math.floor(bonus)));
+  return { charId, ...fromStepIndex(g) };
+}
+
+/** Baralho da IA na fase `i`: os 10 personagens com 3 cópias (no degrau da fase + `bonus`) e os feitiços da fase com 2 cópias. */
+export function enemyDeckFor(i: number, target = ENEMY_STEPS[i], spellIds = ENEMY_SPELLS[i], bonus = 0): CardInstance[] {
   if (new Set(POOLS[i]).size !== DECK_SLOTS) throw new Error(`Fase ${i + 1}: a IA precisa de ${DECK_SLOTS} personagens diferentes`);
-  const deck = POOLS[i].map((charId) => {
-    const def = getChar(charId);
-    const stars = Math.min(def.maxStars, def.minStars + (i >= 9 ? 1 : 0));
-    return { charId, level: Math.min(level, maxLevel(stars)), stars };
-  });
+  const frac = target - Math.floor(target);
+  // degrau quebrado: espalha o degrau a mais entre as cartas (k-ésima carta sobe quando a conta "vira")
+  const deck = POOLS[i].map((charId, k) => enemyCard(charId, Math.floor(target) + (Math.floor((k + 1) * frac) > Math.floor(k * frac) ? 1 : 0), bonus));
   const spells = spellIds.map((sid) => {
     if (!getSpell(sid).categories.some((k) => POOLS[i].some((id) => getChar(id).category === k))) throw new Error(`Fase ${i + 1}: ${sid} sem conjurador`);
-    return { charId: sid, level: 1, stars: 1, copies: ENEMY_SPELL_COPIES };
+    return { charId: sid, stars: 1, copies: ENEMY_SPELL_COPIES };
   });
   return [...deck, ...spells];
 }

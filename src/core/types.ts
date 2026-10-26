@@ -92,11 +92,10 @@ export interface CharacterDef {
 /** Uma carta possuída / usada num deck */
 export interface CardInstance {
   charId: string;
-  level: number;
-  /** v0.10: cor/tier da carta (1 Comum … 6 Mítico); o nome "stars" ficou por compatibilidade */
+  /** raridade da carta (1 Comum … 6 Mítico); o nome "stars" ficou por compatibilidade */
   stars: number;
-  /** v0.10: degrau "+" da cor */
-  plus?: boolean;
+  /** v0.23.0: degrau na raridade (0 base, 1 "+", 2 "++"); `true` de baralhos antigos vale 1. Sem nível desde a v0.23.0. */
+  plus?: number | boolean;
   /** v0.17.0: cópias no baralho (1–3; padrão 3). Feitiços usam o id do feitiço em `charId`. */
   copies?: number;
 }
@@ -116,9 +115,9 @@ export interface Unit {
   move: number;
   range: number;
   abilities: AbilityId[];
-  level: number;
   stars: number;
-  plus?: boolean;
+  /** v0.23.0: degrau (0, 1, 2) */
+  plus: number;
   isMinion: boolean;
   /** carta de origem */
   card?: CardInstance;

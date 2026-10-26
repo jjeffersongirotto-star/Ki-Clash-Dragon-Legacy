@@ -1,12 +1,12 @@
 /**
  * Calibração do PODER das cartas (v0.13.0).
- * Gera milhares de baralhos aleatórios (personagem, cor, "+", nível), joga IA × IA e ajusta uma
+ * Gera milhares de baralhos aleatórios (personagem, raridade e degrau; v0.23.0: sem nível), joga IA × IA e ajusta uma
  * regressão logística: logit P(A vence) = b0 + Σ_c w_c · (f_c(A) − f_c(B)),
  * com f = ataque^a · vida^(1−a) / custo^g. O peso w_c de cada personagem é o "peso da habilidade".
  */
 import { simulate } from './sim';
 import { PLAYABLE } from '../../src/core/characters';
-import { statsFor, maxLevel, stepStartLevel } from '../../src/core/progression';
+import { statsFor, stepOf } from '../../src/core/progression';
 import { nextRandom } from '../../src/core/rng';
 import type { CardInstance } from '../../src/core/types';
 
@@ -19,15 +19,14 @@ const idx = Object.fromEntries(chars.map((c, i) => [c.id, i]));
 function randomCard(id: string): CardInstance {
   const d = chars[idx[id]];
   const stars = d.minStars + Math.floor(R() * (d.maxStars - d.minStars + 1));
-  const plus = R() < 0.5;
-  const lo = stepStartLevel(stars, plus), hi = maxLevel(stars, plus);
-  return { charId: id, stars, plus, level: lo + Math.floor(R() * (hi - lo + 1)) };
+  const plus = Math.floor(R() * 3);
+  return { charId: id, stars, plus };
 }
 function randomDeck(): CardInstance[] {
   const ids = chars.map((c) => c.id).sort(() => R() - 0.5).slice(0, 10);
   return ids.map(randomCard);
 }
-const st = (c: CardInstance) => { const d = chars[idx[c.charId]]; return { ...statsFor(d, c.level, c.stars, !!c.plus), cost: d.cost }; };
+const st = (c: CardInstance) => { const d = chars[idx[c.charId]]; return { ...statsFor(d, c.stars, stepOf(c)), cost: d.cost }; };
 const crude = (deck: CardInstance[]) => deck.reduce((s, c) => { const x = st(c); return s + Math.sqrt(x.atk * x.hp); }, 0);
 
 // pares com força bruta parecida (partidas informativas)

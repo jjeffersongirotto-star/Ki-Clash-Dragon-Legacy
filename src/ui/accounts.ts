@@ -8,7 +8,7 @@ import { CHAR_BY_ID, PLAYABLE } from '../core/characters';
 import { autoDeck, deckMaxFor, PROFILE_MAX_LEVEL } from '../core/deckbuild';
 import { LEADERS } from '../core/leaders';
 import { STAGES } from '../core/campaign';
-import { maxLevel, type OwnedCard } from '../core/progression';
+import { MAX_STEP, type OwnedCard } from '../core/progression';
 import { defaultSave, type SaveData } from './save';
 
 export const ACCOUNTS_KEY = 'kicdl-accounts-v1';
@@ -108,7 +108,7 @@ export function logout(st: AccountStore) {
 }
 
 /**
- * Perfil da conta ADM: todos os personagens na cor máxima ("+"), nível máximo,
+ * Perfil da conta ADM: todos os personagens no topo (raridade máxima "++", v0.23.0),
  * todas as fases concluídas, Comandantes no nível máximo e itens de sobra para testar.
  */
 export function adminSave(): SaveData {
@@ -116,7 +116,7 @@ export function adminSave(): SaveData {
   const cards: Record<string, OwnedCard> = {};
   for (const def of PLAYABLE) {
     if (!CHAR_BY_ID[def.id]) continue;
-    cards[def.id] = { charId: def.id, level: maxLevel(def.maxStars, true), xp: 0, stars: def.maxStars, plus: true };
+    cards[def.id] = { charId: def.id, xp: 0, stars: def.maxStars, plus: MAX_STEP };
   }
   d.cards = cards;
   d.cleared = STAGES.map((s) => s.id);
@@ -124,7 +124,7 @@ export function adminSave(): SaveData {
   // v0.21.0: 3 ⭐ em todas as fases, nas 3 dificuldades
   d.stars = Object.fromEntries(['facil', 'normal', 'dificil'].flatMap((diff) => STAGES.map((s) => [`${diff}:${s.id}`, 7])));
   // v0.17: baralho de 40 (máximo) com os 10 mais fortes × 3 e 10 cartas de feitiço
-  const deck = autoDeck(Object.values(cards).map((c) => ({ charId: c.charId, level: c.level, stars: c.stars, plus: c.plus })), deckMaxFor(PROFILE_MAX_LEVEL), 10);
+  const deck = autoDeck(Object.values(cards).map((c) => ({ charId: c.charId, stars: c.stars, plus: c.plus })), deckMaxFor(PROFILE_MAX_LEVEL), 10);
   d.deck = deck.map((c) => c.charId);
   d.copies = Object.fromEntries(deck.map((c) => [c.charId, c.copies ?? 3]));
   d.items = { orbe1: 999, orbe2: 999, orbe3: 999, orbe4: 999, orbe5: 999, orbe6: 999 };
