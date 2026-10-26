@@ -50,7 +50,7 @@ _Respostas às perguntas 3 a 15. Substitui a ideia "Equipamentos para ascender p
 
 ### Combinados de trabalho (26/10/2026)
 - Depois que a CI passa, **eu mesmo faço o merge** do PR.
-- O plano do Grok (38 decisões e perguntas abertas) vai para o repositório como **`PLANO.md`**, sem nomes de Dragon Ball e sem os caminhos do APK.
+- O plano do Grok (38 decisões e perguntas abertas) está no repositório como **[PLANO.md](PLANO.md)**, sem os nomes da obra original e sem os caminhos do APK.
 - Perguntas: **uma de cada vez**, com as opções **Sim / Não / Outros**.
 
 ## 📊 Simulação da economia da v0.20.0 (pergunta 19)
@@ -61,6 +61,7 @@ Vitória ao chegar em cada fase (fases 1 a 10), jogador simulado com a IA do Aut
 - **Decisão (pergunta 21):** o Repetir **continua dando tudo**; o equilíbrio vai vir da **energia**, dos **itens espalhados em grupos diferentes** e do **Repetir só em fases com 3 ⭐**. Refazer a simulação quando isso existir.
 
 ## 📋 Pendências técnicas (da análise do jogo)
+- ✅ ~~Reflexo de Magia (Nyx) devolvia dano depois de derrotada~~ — corrigido na v0.20.1.
 - Feitiços contra inimigos acertam a qualquer distância (decisão de design a confirmar).
 - Fases 2 e 3 estão com a dificuldade praticamente igual (89% e 90% de vitória no simulador).
 - Servidor para o modo online: a verificação das partidas já existe (`verifyMatch`); falta o servidor, as contas online e conferir os baralhos.

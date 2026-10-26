@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.20.1] — 26/10/2026 · PR #40 — Correção do Reflexo, simulação da economia e plano do projeto
+- **Correção (Reflexo de Magia):** a Nyx-07 derrotada pelo golpe não devolve mais dano (antes devolvia mesmo caída). Se ela continuar de pé, reflete como antes.
+- **Simulação da economia da v0.20.0** (`scripts/balance/v20.ts`): com 5 Repetir de recompensa inteira antes de cada fase nova, o jogador simulado chega com **100%** de vitória da fase 2 à 10 (antes: 89 → 62%). Decidido manter o Repetir com recompensa inteira; o equilíbrio virá da energia, dos itens de ascensão e do Repetir só em fases com 3 ⭐ (planejado no MELHORIAS.md).
+- **Documentação:** novo **[PLANO.md](PLANO.md)** (as 38 decisões, o que foi feito e o que falta) e decisões novas no MELHORIAS.md: itens de ascensão, Orbes por raridade, estrelas por fase, "raridade" no lugar de "cor".
+
 ## [0.20.0] — 26/10/2026 · PR #39 — Aventura em mapa, dificuldades e limite diário
 - **Mapa da Aventura:** as fases viram bolinhas num caminho pontilhado (fase 1 embaixo), com o Comandante inimigo em cima de cada uma, se movimentando. Vencidas douradas e acesas, a próxima em azul, bloqueadas escuras. Saiu o texto do topo (Comandante, Poder e baralho).
 - **Dificuldades Fácil / Normal / Difícil** no topo, ao centro: mesmas fases, inimigos com +3 / +6 níveis (provisório), progresso separado. Normal abre com a fase 10 no Fácil; Difícil com a fase 10 no Normal.
