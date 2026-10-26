@@ -159,10 +159,12 @@ A partir do **turno 8**, todas as unidades dos dois lados ganham **+1 de ataque*
 | 🤖 | Androide | Nyx-07, Jin Arco-Trovão, Toru Sombra-Reversa |
 | ☠️ | Necromante | Vorax, Yume Caçadora, Cria Sombria |
 
-## 10. Cores (tiers) e o degrau "+" — sem estrelas
-Desde a v0.10 **não há mais estrelas**: a **cor da carta é o tier** do personagem, e o nome da cor é a raridade.
+## 10. Raridades (tiers) e o degrau "+"
+> **v0.21.0 — nome:** o jogo agora chama o tier da carta de **raridade** (Comum, Incomum, Raro, Épico, Lendário, Mítico) em todas as telas. Cada raridade continua sendo mostrada por uma **cor**. Nas seções escritas antes da v0.21.0, "cor da carta" quer dizer **raridade**.
 
-| Cor | Tier / raridade |
+Desde a v0.10 **não há mais estrelas de raridade**: a **raridade** é o tier do personagem, mostrada pela cor da carta (as ⭐ da v0.21.0 são outra coisa: estrelas das **fases**, seção 20).
+
+| Cor | Raridade (tier) |
 |---|---|
 | cinza | **Comum** |
 | verde | **Incomum** |
@@ -688,7 +690,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 - **Progresso separado** por dificuldade. O **Normal** abre ao vencer a **fase 10 no Fácil**; o **Difícil**, a **fase 10 no Normal** (aba com 🔒 até lá). Dentro de cada uma, vencer uma fase libera a próxima.
 
 ### Jogar, Repetir e o limite de 5 por dia
-- **⚔ Jogar:** joga a batalha da fase. **⟲ Repetir:** não joga; dá na hora a **recompensa inteira** da fase (inclusive 🔮), como se tivesse vencido.
+- **⚔ Jogar:** joga a batalha da fase. **⟲ Repetir:** não joga; dá na hora a **recompensa inteira** da fase (inclusive 🔮), como se tivesse vencido. **v0.21.0:** o Repetir só fica liberado nas fases com **3 ⭐** naquela dificuldade (seção 20).
 - **Limite: 5 vezes por dia em cada fase**, contadas **separadas por dificuldade**. Gastam 1: cada **Repetir** e cada **vitória** numa fase **já vencida**.
 - **Não gastam:** a **primeira vitória** da fase e as **derrotas** (nem sair da batalha).
 - Quando as 5 acabam, a fase fica **bloqueada (Jogar e Repetir) até o dia seguinte**. O limite volta à **meia-noite (horário de Brasília)**.
@@ -708,3 +710,17 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 - Conferido em 8 tamanhos: celular pequeno e grande em pé (360×640, 412×915), celular deitado (915×412), tablet em pé e deitado (768×1024, 1024×768), notebook (1366×768), Full HD (1920×1080) e 2K (2560×1440).
 - **Telas grandes:** a partir de 1700×950 a interface (menus e batalha) cresce **1,3×**, e a partir de 2300×1300 cresce **1,75×**, para não ficar tudo pequeno no meio da tela.
 - **Batalha em pé** (quando o jogador escolhe "Jogar em pé"): nada passa mais da largura da tela (antes a arena vazava para os lados no celular pequeno e no tablet).
+
+## 20. ⭐ Estrelas por fase (v0.21.0)
+- Cada fase tem **3 ⭐**, uma por **objetivo**. Os objetivos podem ser cumpridos em **vitórias diferentes** (as estrelas somam e nunca se perdem):
+  1. ⭐ **Vencer** a fase.
+  2. ⭐ Vencer com o **seu Comandante com 50% ou mais da vida**.
+  3. ⭐ Vencer em **até 15 turnos** (o turno mostrado no meio do HUD).
+- As estrelas são **separadas por dificuldade** (a fase 3 pode ter 3 ⭐ no Fácil e 1 ⭐ no Normal).
+- **Onde aparecem:** embaixo da bolinha de cada fase vencida no mapa (★ cheia = conquistada, ★ apagada = falta), na janela da fase (lista dos 3 objetivos, marcados) e na tela de vitória (as estrelas novas aparecem com **"nova!"**).
+- **⟲ Repetir** só é liberado nas fases com **3 ⭐** (antes, em qualquer fase vencida). Sem as 3, a janela avisa: "Repetir libera com as 3 ⭐ desta fase". Jogar continua igual (com o limite de 5 por dia nas fases vencidas).
+- **Saves antigos:** toda fase vencida antes desta versão começa com **1 ⭐** (a de vencer); as outras são conquistadas jogando. A conta **ADM** tem 3 ⭐ em todas as fases e dificuldades.
+- **Observação:** no Auto, a fase 1 costuma terminar perto do turno 25–30; a estrela de "até 15 turnos" pede um jogo mais agressivo. Ajuste fino depois, se precisar.
+
+### "Raridade" no lugar de "cor"
+- As telas chamam o tier da carta de **raridade** ("nova raridade", "evolução por raridade", "Raridades das cartas e Despertar"). As cores continuam no visual. Ver a nota no início da seção 10.

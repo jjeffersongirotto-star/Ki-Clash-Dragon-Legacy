@@ -1192,3 +1192,20 @@ body.native-landscape .rotate-prompt { display: none !important; }
   .download-btn { position: static; display: table; margin: 14px 0 0 auto; }
   .screen.home { padding-bottom: 24px; }
 }
+
+/* ---- v0.21.0: ⭐ estrelas por fase ---- */
+.stars-row { display: inline-flex; gap: 1px; letter-spacing: 0; }
+.stars-row i { font-style: normal; color: #3a4170; text-shadow: 0 1px 2px #000; }
+.stars-row i.on { color: #ffd84a; text-shadow: 0 0 6px rgba(255,200,40,.7), 0 1px 2px #000; }
+.stars-row i.new { animation: starPop .6s ease-out 1; }
+@keyframes starPop { 0% { transform: scale(2.2); } 100% { transform: scale(1); } }
+.adv-stars { position: absolute; top: 61px; left: -15px; width: 90px; text-align: center; font-size: 14px; z-index: 3; }
+.adv-node.done .adv-name { top: 79px; }
+.adv-node.done .adv-left { top: 95px; }
+.win-stars { font-size: 34px; margin: 4px 0; }
+.stage-goals { list-style: none; padding: 0; margin: 8px auto 2px; display: grid; gap: 3px; text-align: left; width: fit-content; font-size: 13px; color: #8f98c4; }
+.stage-goals li i { font-style: normal; color: #3a4170; margin-right: 4px; }
+.stage-goals li.on { color: #e9ecff; }
+.stage-goals li.on i { color: #ffd84a; }
+.stage-goals .new-tag { color: #7ef0a8; font-size: 11px; }
+.stage-note { margin: 6px 0 0; font-size: 12px; color: var(--muted); }

@@ -5,7 +5,7 @@ import { isSpell } from '../core/spells';
 import type { CardInstance } from '../core/types';
 import { DEFAULT_LEADER, LEADERS } from '../core/leaders';
 import { newOwned, type OwnedCard, type XpItemId } from '../core/progression';
-import { DIFFICULTIES, type DailyUse, type Difficulty } from '../core/adventure';
+import { DIFFICULTIES, clearedIn, type DailyUse, type Difficulty } from '../core/adventure';
 
 export interface SaveData {
   version: 1;
@@ -37,6 +37,8 @@ export interface SaveData {
   daily?: DailyUse;
   /** v0.20.0: última dificuldade escolhida na Aventura */
   difficulty?: Difficulty;
+  /** v0.21.0: ⭐ de cada fase por dificuldade ("dificuldade:fase" → bits dos 3 objetivos) */
+  stars?: Record<string, number>;
 }
 
 let KEY = 'kicdl-save-v1';
@@ -236,6 +238,11 @@ export function normalizeV20(d: SaveData): SaveData {
   d.clearedDiff = { normal: ids(cd.normal), dificil: ids(cd.dificil) };
   if (!d.daily || typeof d.daily.day !== 'string' || typeof d.daily.used !== 'object' || !d.daily.used) d.daily = undefined;
   if (!DIFFICULTIES.includes(d.difficulty as Difficulty)) d.difficulty = 'facil';
+  // v0.21.0: estrelas. Fase vencida antes desta versão começa com 1 ⭐ (a de vencer); as outras são conquistadas jogando.
+  const st: Record<string, number> = {};
+  for (const [k, v] of Object.entries(d.stars && typeof d.stars === 'object' ? d.stars : {})) if (Number.isInteger(v) && v > 0 && v < 8) st[k] = v;
+  for (const diff of DIFFICULTIES) for (const id of clearedIn(d, diff)) st[`${diff}:${id}`] = (st[`${diff}:${id}`] ?? 0) | 1;
+  d.stars = st;
   return d;
 }
 

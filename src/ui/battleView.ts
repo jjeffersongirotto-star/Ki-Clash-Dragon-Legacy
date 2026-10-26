@@ -15,7 +15,8 @@ import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reach
 export interface BattleCallbacks {
   speed: () => number;
   setSpeed: (s: number) => void;
-  onFinish: (winner: Side | 'empate') => void;
+  /** v0.21.0: também informa o fim da partida (vida do seu Comandante e turno) para as ⭐ da fase */
+  onFinish: (winner: Side | 'empate', end: { playerHp: number; playerMaxHp: number; turn: number }) => void;
   onExit: () => void;
   /** v0.13: vida do Comandante do jogador (nível do Comandante). Sem informar: nível 1 */
   playerHeroHp?: number;
@@ -603,7 +604,7 @@ export class BattleView {
       this.autoMode = false;
       await sleep(600);
       if (this.disposed) return;
-      this.cb.onFinish(this.state.winner);
+      this.cb.onFinish(this.state.winner, { playerHp: this.state.heroes.player.hp, playerMaxHp: this.state.heroes.player.maxHp, turn: this.state.turn });
     }
   }
 

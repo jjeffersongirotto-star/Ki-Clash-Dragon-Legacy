@@ -4,7 +4,13 @@
 > Quando um item for feito, ele sai daqui e vai para o [CHANGELOG.md](CHANGELOG.md) (e as regras para o [REGRAS.md](REGRAS.md)).
 
 ## 🔜 Próxima atualização (decidido, falta fazer)
-_Nada pendente. Os itens 1 a 9 entraram na v0.20.0 (ver [CHANGELOG.md](CHANGELOG.md))._
+Roteiro aprovado em 26/10/2026 (pergunta 23), uma versão por vez, cada uma com PR e merge:
+1. ✅ **v0.21.0:** ⭐ estrelas por fase (3 objetivos) + Repetir só nas fases com 3 ⭐ + "raridade" no lugar de "cor" — feito (perguntas 24–25: estrelas por dificuldade; fases já vencidas começam com 1 ⭐).
+2. **v0.22.0:** 🔮 Orbes por raridade (no lugar de 📜 e 💎) + XP por jogar.
+3. **v0.23.0:** itens de ascensão + degraus "+"/"++" + carta sem nível numerado (a maior: conversão dos saves e simulação).
+4. **v0.24.0:** energia (antes, perguntas sobre como ela funciona).
+
+Antes de cada versão, perguntas só do que faltar decidir, uma por vez.
 
 ## ❓ A decidir (perguntas abertas)
 - **Ajuste fino das dificuldades:** hoje Normal = +3 níveis e Difícil = +6 níveis nos inimigos, sem cartas trocadas, e a mesma recompensa nas três. Você vai dizer como ajustar (níveis, quais cartas trocar em cada fase, recompensa maior no Normal/Difícil?).
@@ -14,13 +20,6 @@ _Nada pendente. Os itens 1 a 9 entraram na v0.20.0 (ver [CHANGELOG.md](CHANGELOG
 - **Informações dentro dos botões (não são explicações):** "Fase 4: Deserto Rubro" no ⚔ Aventura, "11/13 personagens" no 🃏 Coleção & Baralho, "(atual)" na aba da cor da carta, o custo "(✴ 120)" no ✨ Despertar e a contagem em 🌟 Todos (13). Tirar também?
 
 ## 💡 Ideias para o futuro (ainda sem data)
-
-### Estrelas por fase e Repetir automático (perguntas 21 e 22)
-- Ao vencer uma fase, o jogador ganha **1, 2 ou 3 ⭐**. Cada estrela é um **objetivo**, que pode ser cumprido em vitórias diferentes:
-  - ⭐ **vencer** a fase;
-  - ⭐ vencer com o **seu Comandante com 50% ou mais da vida**;
-  - ⭐ vencer em **até 15 turnos**.
-- O **Repetir automático** (recompensa sem jogar a batalha) só fica liberado nas fases com **3 ⭐**. O **Repetir continua dando a recompensa inteira**.
 
 ### Energia
 - Uma **energia** que limita quantas vezes dá para jogar ou repetir. O jogador vai ter que escolher onde gastar.
@@ -45,9 +44,6 @@ _Respostas às perguntas 3 a 15. Substitui a ideia "Equipamentos para ascender p
 - **Junto com isso:** diminuir os bônus das recompensas atuais.
 - **A conferir quando for fazer:** isso muda a regra do plano "crescimento de ataque e vida fica como está" (hoje o status também sobe por nível) e as habilidades que melhoram no nível 20/25/30. Os saves antigos precisam de uma conversão (nível atual → barra de XP).
 
-### "Raridade" no lugar de "cor" (pergunta 18)
-- Em todo o jogo (telas, REGRAS e textos), quando falar das cartas, usar **raridade** em vez de **cor** (ex.: "evolui de raridade", "raridade atual"). As cores continuam no visual; só o nome muda.
-
 ### Combinados de trabalho (26/10/2026)
 - Depois que a CI passa, **eu mesmo faço o merge** do PR.
 - O plano do Grok (38 decisões e perguntas abertas) está no repositório como **[PLANO.md](PLANO.md)**, sem os nomes da obra original e sem os caminhos do APK.
@@ -61,6 +57,7 @@ Vitória ao chegar em cada fase (fases 1 a 10), jogador simulado com a IA do Aut
 - **Decisão (pergunta 21):** o Repetir **continua dando tudo**; o equilíbrio vai vir da **energia**, dos **itens espalhados em grupos diferentes** e do **Repetir só em fases com 3 ⭐**. Refazer a simulação quando isso existir.
 
 ## 📋 Pendências técnicas (da análise do jogo)
+- A ⭐ de "vencer em até 15 turnos" pode ser difícil no começo (no Auto a fase 1 termina perto do turno 25–30). Rever no ajuste fino.
 - ✅ ~~Reflexo de Magia (Nyx) devolvia dano depois de derrotada~~ — corrigido na v0.20.1.
 - Feitiços contra inimigos acertam a qualquer distância (decisão de design a confirmar).
 - Fases 2 e 3 estão com a dificuldade praticamente igual (89% e 90% de vitória no simulador).
