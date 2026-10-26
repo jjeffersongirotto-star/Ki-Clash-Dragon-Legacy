@@ -187,8 +187,11 @@ describe('v0.16.0 — contas locais e ADM', () => {
       expect(o.plus).toBe(true);
       expect(o.level).toBe(maxLevel(def.maxStars, true));
     }
-    expect(d.deck).toHaveLength(10);
-    expect(new Set(d.deck).size).toBe(10);
+    // v0.17: baralho de 40 (máximo) = 10 personagens × 3 + feitiços
+    expect(new Set(d.deck).size).toBe(d.deck.length);
+    expect(d.deck.filter((id) => !id.startsWith('f-'))).toHaveLength(10);
+    expect(d.deck.some((id) => id.startsWith('f-'))).toBe(true);
+    expect(d.deck.reduce((n, id) => n + (d.copies?.[id] ?? 3), 0)).toBe(40);
     expect(d.cleared).toEqual(STAGES.map((s) => s.id));
     for (const l of LEADERS) expect(d.leaders![l.id].level).toBe(l.hpByLevel.length);
     setSaveKey(saveKeyFor('adm')); writeSave(d);

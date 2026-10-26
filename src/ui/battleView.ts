@@ -1,5 +1,6 @@
 import { aiDeploy } from '../core/ai';
-import { createBattle, deploy, deployCells, endPlayerTurn, effectiveAtk, unitAt, waitFor, waitOf, DEPLOY_DEPTH, Ctx } from '../core/battle';
+import { allyBuff, auraPenalty, castSpell, createBattle, deploy, deployCells, endPlayerTurn, effectiveAtk, spellCasters, spellTargets, unitAt, waitFor, waitOf, DEPLOY_DEPTH, Ctx } from '../core/battle';
+import { getSpell, isSpell } from '../core/spells';
 import { RACE_INFO, getChar } from '../core/characters';
 import { pileCount } from '../core/deck';
 import type { BattleState, CardInstance, RecordedEvent, Side, Snapshot, Unit } from '../core/types';
@@ -9,7 +10,7 @@ import { enemyLeaderImg, playerLeaderImg, unitSpriteSVG } from './art';
 import { gameConfirm } from './dialog';
 import { requestLandscape } from './orientation';
 import { dropAction, ghostTransform, shouldStartDrag } from './drag';
-import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, starStyle, tierHTML } from './components';
+import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from './components';
 
 export interface BattleCallbacks {
   speed: () => number;
@@ -56,7 +57,7 @@ export class BattleView {
 
   snap(): Snapshot {
     const s = this.state;
-    return { units: s.units.map((u) => ({ ...u })), heroes: { player: { ...s.heroes.player }, enemy: { ...s.heroes.enemy } }, turn: s.turn, active: s.active };
+    return { units: s.units.map((u) => ({ ...u, effects: u.effects?.map((e) => ({ ...e })) })), heroes: { player: { ...s.heroes.player }, enemy: { ...s.heroes.enemy } }, turn: s.turn, active: s.active };
   }
 
   mount() {
@@ -220,7 +221,10 @@ export class BattleView {
     hand.innerHTML = s.decks.player.hand
       .map((c, i) => {
         const afford = waitOf(c) === 0 && s.active === 'player' && !s.winner;
-        return cardHTML(c, { wait: waitOf(c), extraClass: `hand-card ${afford ? '' : 'cant'} ${this.selected === i ? 'sel' : ''}`, attrs: `data-i="${i}"` });
+        const cls = `hand-card ${afford ? '' : 'cant'} ${this.selected === i ? 'sel' : ''}`;
+        // v0.17.0: feitiço pronto mas sem conjurador/alvo fica apagado (mostra o motivo ao tocar)
+        if (isSpell(c.charId)) return spellCardHTML(c.charId, { wait: waitOf(c), extraClass: `${cls} ${afford && !spellTargets(s, 'player', c.charId).length ? 'no-caster' : ''}`, attrs: `data-i="${i}"` });
+        return cardHTML(c, { wait: waitOf(c), extraClass: cls, attrs: `data-i="${i}"` });
       })
       .join('') || '<div class="empty-hand">Sem cartas na mão</div>';
     hand.querySelectorAll<HTMLElement>('.hand-card').forEach((el) => {
@@ -257,7 +261,7 @@ export class BattleView {
           }
           drag.ghost = this.makeDragGhost(el);
           el.classList.add('dragging');
-          this.highlightDeploy();
+          this.highlightDeploy(i);
         }
         ev.preventDefault();
         drag.ghost.style.transform = ghostTransform(ev.clientX, ev.clientY, drag.gx, drag.gy);
@@ -368,19 +372,33 @@ export class BattleView {
   }
 
   /** durante o arrasto: destaca as mesmas casas que o toque destaca (casas livres da sua zona) */
-  highlightDeploy() {
+  highlightDeploy(i?: number) {
     const cells = this.root.querySelectorAll<HTMLElement>('.cell');
-    cells.forEach((c) => c.classList.remove('can'));
+    cells.forEach((c) => c.classList.remove('can', 'spell-t'));
     if (this.busy) return;
-    for (const [r, c] of deployCells(this.state, 'player')) {
-      this.root.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`)?.classList.add('can');
+    const card = i == null ? undefined : this.state.decks.player.hand[i];
+    for (const [r, c] of this.targetCells(card)) {
+      this.root.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`)?.classList.add('can', ...(card && isSpell(card.charId) ? ['spell-t'] : []));
     }
+  }
+
+  /** casas válidas para a carta: zona livre (personagem) ou alvos do feitiço (v0.17.0) */
+  targetCells(card?: CardInstance): [number, number][] {
+    if (card && isSpell(card.charId)) return spellTargets(this.state, 'player', card.charId);
+    return deployCells(this.state, 'player');
+  }
+
+  /** usa a carta da mão na casa: invoca o personagem ou lança o feitiço */
+  useCard(i: number, r: number, c: number) {
+    const card = this.state.decks.player.hand[i];
+    if (card && isSpell(card.charId)) return castSpell(this.state, 'player', i, r, c);
+    return deploy(this.state, 'player', i, r, c);
   }
 
   /** v0.14.4: soltar a carta arrastada numa casa — mesmas regras do toque (carta pronta, zona, casa livre) */
   async dropCard(i: number, r: number, c: number) {
     if (this.busy) return;
-    const res = deploy(this.state, 'player', i, r, c);
+    const res = this.useCard(i, r, c);
     if (!res.ok) {
       this.toast(res.reason ?? 'Inválido');
       this.renderHand();
@@ -405,6 +423,17 @@ export class BattleView {
   showCardInfo(i: number) {
     const c = this.state.decks.player.hand[i];
     if (!c) return;
+    if (isSpell(c.charId)) {
+      const sp = getSpell(c.charId);
+      const caster = spellCasters(this.state, 'player', sp.id)[0];
+      const w = waitOf(c);
+      this.setInfo(
+        `<div class="info-head"><span><b>${sp.icon} ${esc(sp.name)}</b> · feitiço · espera ${waitFor(sp.id)} rodada(s)${w ? ` (falta${w > 1 ? 'm' : ''} ${w})` : ' (pronto)'} · ${caster ? `conjurador: <b>${esc(getChar(caster.charId).name)}</b>` : `<span class="warn">precisa de um aliado ${esc(spellCastersLabel(sp))} em campo</span>`}</span><button class="btn small ghost info-inspect" data-inspect-hand="${i}">🔍 Detalhes</button></div>${spellInfoHTML(sp.id)}`,
+      );
+      this.root.querySelector('[data-inspect-hand]')?.addEventListener('click', () => this.openCardModal(c, 'player'));
+      this.infoUid = null;
+      return;
+    }
     const def = getChar(c.charId);
     this.setInfo(
       `<div class="info-head"><span><b>${esc(def.name)}</b> ${tierHTML(c.stars, !!c.plus)} · ${raceHTML(def)} · espera ${waitFor(def.id)} rodada(s)${waitOf(c) ? ` (falta${waitOf(c) > 1 ? 'm' : ''} ${waitOf(c)})` : ' (pronta)'} · ${dmgLabel(def)} · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-hand="${i}">🔍 Detalhes</button></div>${abilityListHTML(def, c.stars, c.level)}`,
@@ -415,8 +444,9 @@ export class BattleView {
 
   showUnitInfo(u: Unit) {
     const def = getChar(u.charId);
+    const fx = this.statusList(this.state, u);
     this.setInfo(
-      `<div class="info-head"><span><b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${tierHTML(u.stars, !!u.plus)} Nv.${u.level} · ${raceHTML(def)} · ❤ ${u.hp}/${u.maxHp} · ATQ ${effectiveAtk(this.state, u)} (${dmgLabel(def)}) · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-unit="${u.uid}">🔍 Ver Carta</button></div>${abilityListHTML(def, u.stars, u.level)}`,
+      `<div class="info-head"><span><b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${tierHTML(u.stars, !!u.plus)} Nv.${u.level} · ${raceHTML(def)} · ❤ ${u.hp}/${u.maxHp} · ATQ ${effectiveAtk(this.state, u)} (${dmgLabel(def)}) · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-unit="${u.uid}">🔍 Ver Carta</button></div>${fx.length ? `<div class="u-status-list">${fx.map((f) => `<span>${f.icon} ${esc(f.label)}</span>`).join('')}</div>` : ''}${abilityListHTML(def, u.stars, u.level)}`,
     );
     this.root.querySelector('[data-inspect-unit]')?.addEventListener('click', () =>
       this.openCardModal({ charId: u.charId, level: u.level, stars: u.stars, plus: !!u.plus }, u.side),
@@ -427,6 +457,7 @@ export class BattleView {
   /** Modal de detalhes da carta em batalha (idêntico à referência Legend of Dragon) */
   openCardModal(card: CardInstance, side: Side) {
     document.querySelector('.battle-card-modal-bg')?.remove();
+    if (isSpell(card.charId)) return this.openSpellModal(card.charId);
     const def = getChar(card.charId);
     const race = RACE_INFO[def.race];
     const bg = document.createElement('div');
@@ -464,6 +495,53 @@ export class BattleView {
     });
   }
 
+  /** v0.17.0: janela de detalhes do feitiço */
+  openSpellModal(id: string) {
+    const sp = getSpell(id);
+    const bg = document.createElement('div');
+    bg.className = 'battle-card-modal-bg';
+    bg.innerHTML = `
+      <div class="battle-card-modal" style="--rc:#7c5cff;--rg:#b9a8ff">
+        <button class="bcm-close" aria-label="Fechar">✕</button>
+        <div class="bcm-body">
+        <div class="bcm-left">${spellCardHTML(id)}</div>
+        <div class="bcm-right">
+          <h3 class="bcm-title">${sp.icon} ${esc(sp.name)}</h3>
+          <div class="bcm-sub">Feitiço · ${esc(spellCastersLabel(sp))}</div>
+          <div class="bcm-sec">Efeito</div>
+          ${spellInfoHTML(id)}
+        </div>
+        </div>
+      </div>
+      <div class="bcm-hint">Toque no botão '✕' ou fora da janela para fechar.</div>`;
+    document.body.appendChild(bg);
+    const close = () => {
+      bg.remove();
+      if (this.selected != null) this.clearSelection();
+    };
+    bg.querySelector('.bcm-close')!.addEventListener('click', close);
+    bg.addEventListener('click', (e) => {
+      if (e.target === bg) close();
+    });
+  }
+
+  /** v0.17.0 (decisões 16 e 17): efeitos com duração e auras recebidas pela unidade */
+  statusList(state: BattleState, u: Unit): { icon: string; label: string; key: string }[] {
+    const out: { icon: string; label: string; key: string }[] = [];
+    const buff = allyBuff(state, u);
+    const pen = auraPenalty(state, u);
+    if (buff > 0) out.push({ icon: '🥁', label: `aura +${buff} ATQ`, key: `b${buff}` });
+    if (pen > 0) out.push({ icon: '🌀', label: `drenado −${pen} ATQ`, key: `p${pen}` });
+    const ICON = { veneno: '🧪', queimadura: '🔥', atordoado: '💫', escudo: '🛡', anjo: '👼' } as const;
+    for (const e of u.effects ?? []) {
+      if (e.turns <= 0) continue;
+      const label =
+        e.kind === 'veneno' ? `veneno ${e.amount}/rodada (${e.turns})` : e.kind === 'queimadura' ? `queimadura ${e.amount}/rodada (${e.turns})` : e.kind === 'atordoado' ? 'atordoado' : e.kind === 'escudo' ? `escudo ${e.amount} (${e.turns})` : 'Anjo da Guarda';
+      out.push({ icon: ICON[e.kind], label, key: `${e.kind}${e.amount}` });
+    }
+    return out;
+  }
+
   setInfo(html: string) {
     this.root.querySelector('#info')!.innerHTML = html;
     // no layout deitado o painel vira uma janela por cima da arena: só aparece com conteúdo
@@ -472,13 +550,14 @@ export class BattleView {
 
   highlight() {
     const cells = this.root.querySelectorAll<HTMLElement>('.cell');
-    cells.forEach((c) => c.classList.remove('can'));
+    cells.forEach((c) => c.classList.remove('can', 'spell-t'));
     if (this.selected == null || this.busy) return;
     // v0.16.0: carta ainda na contagem não acende casas (só a carta pronta, com 0, pode ser invocada)
     const card = this.state.decks.player.hand[this.selected];
     if (!card || waitOf(card) > 0) return;
-    for (const [r, c] of deployCells(this.state, 'player')) {
-      this.root.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`)?.classList.add('can');
+    const spell = isSpell(card.charId);
+    for (const [r, c] of this.targetCells(card)) {
+      this.root.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`)?.classList.add('can', ...(spell ? ['spell-t'] : []));
     }
   }
 
@@ -489,7 +568,7 @@ export class BattleView {
       if (u) this.showUnitInfo(u);
       return;
     }
-    const res = deploy(this.state, 'player', this.selected, r, c);
+    const res = this.useCard(this.selected, r, c);
     if (!res.ok) {
       if (u) {
         this.showUnitInfo(u);
@@ -570,6 +649,7 @@ export class BattleView {
           <div class="u-portrait">${unitSpriteSVG(def, { flip: u.side === 'enemy', stars: u.stars, side: u.side })}</div>
           <div class="u-hp"><i></i></div>
           <div class="u-stat-plate"><span class="u-atk"></span><b class="u-sep">|</b><span class="u-hpn"></span></div>
+          <div class="u-fx"></div>
         `;
         el.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -594,6 +674,15 @@ export class BattleView {
       atkEl.classList.toggle('debuff', atk < u.atk);
       atkEl.classList.toggle('buff', atk > u.atk);
       (el.querySelector('.u-hpn') as HTMLElement).textContent = String(Math.max(0, u.hp));
+      // v0.17.0: selos estáticos de efeito/aura (só troca o HTML quando muda)
+      const st = this.statusList(fake, u);
+      const key = st.map((x) => x.key).join(',');
+      const fxEl = el.querySelector('.u-fx') as HTMLElement;
+      if (fxEl.dataset.k !== key) {
+        fxEl.dataset.k = key;
+        fxEl.innerHTML = st.map((x) => `<i title="${esc(x.label)}">${x.icon}</i>`).join('');
+      }
+      el.classList.toggle('stunned', !!u.effects?.some((e) => e.kind === 'atordoado' && e.turns > 0));
     }
     if (this.infoUid != null && !seen.has(this.infoUid)) {
       this.infoUid = null;
@@ -818,6 +907,34 @@ export class BattleView {
           this.floatText(x, y - 10, `+${ev.amount}`, 'heal');
         }
         await sleep(this.dur(300));
+        break;
+      }
+      case 'effect': {
+        const t = ev.snap.units.find((x) => x.uid === ev.uid) ?? this.lastUnits.get(ev.uid);
+        const TAG: Record<string, string> = { veneno: '🧪', queimadura: '🔥', atordoado: '💫 ATORDOADO', escudo: '🛡 ESCUDO', anjo: '👼 SALVO!', renascer: '♻ RENASCE!', reflexo: '🪞 REFLETE', necropolis: '⚰️ VOLTA!' };
+        if (t) {
+          const [x, y] = this.center(t.row, t.col);
+          this.floatText(x, y - 22, TAG[ev.kind] ?? '✦', `fx-tag fx-${ev.kind}`);
+        }
+        if (ev.kind === 'necropolis') this.renderHand();
+        await sleep(this.dur(ev.kind === 'veneno' || ev.kind === 'queimadura' ? 200 : 380));
+        break;
+      }
+      case 'cast': {
+        const sp = getSpell(ev.spellId);
+        const c = ev.snap.units.find((x) => x.uid === ev.caster);
+        if (c) {
+          const [x, y] = this.center(c.row, c.col);
+          this.floatText(x, y - 24, `${sp.icon} ${sp.name}`, 'fx-tag fx-cast');
+          this.tokens.get(c.uid)?.classList.add('casting');
+        }
+        if (ev.target && sp.target !== 'none') {
+          const [tx, ty] = this.center(ev.target[0], sp.target === 'row' ? Math.floor(this.state.cols / 2) : ev.target[1]);
+          this.spark(tx, ty, sp.damageType ?? 'heal');
+        }
+        if (ev.side === 'player') this.renderHand();
+        await sleep(this.dur(520));
+        if (c) this.tokens.get(c.uid)?.classList.remove('casting');
         break;
       }
       case 'death':

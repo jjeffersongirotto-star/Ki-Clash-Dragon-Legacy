@@ -6,6 +6,7 @@ import { portraitImg } from './art';
 import { gridArtHTML } from './gridArt';
 import { cardPower } from '../core/power';
 import { waitFor } from '../core/battle';
+import { getSpell, type SpellDef } from '../core/spells';
 import peitoralUrl from '../assets/card/ab-peitoral.svg';
 
 /** v0.14.2: ícone de habilidade — a Resistência Física (Postura de Guarda) usa o peitoral de armadura (SVG) no lugar do 🛡. */
@@ -123,4 +124,42 @@ export function abilityListHTML(def: CharacterDef, stars?: number, level?: numbe
   if (def.physRes) rows.push(`<li><b>${abilityIconHTML('guarda')} Resistência física ${def.physRes}</b> — reduz cada golpe físico em ${def.physRes}.</li>`);
   if (def.magRes) rows.push(`<li><b>🔰 Resistência mágica ${def.magRes}</b> — reduz cada golpe mágico em ${def.magRes}.</li>`);
   return `<ul class="abilities">${rows.join('')}</ul>`;
+}
+
+// ---------- v0.17.0: cartas de FEITIÇO ----------
+
+const CAT_COLOR: Record<string, string> = { tanque: '#64748b', suporte: '#22c55e', dps: '#ef4444', mago: '#a855f7', arqueiro: '#eab308', assassino: '#334155' };
+const SPELL_TARGET_LABEL: Record<SpellDef['target'], string> = { enemy: '🎯 1 inimigo', ally: '🤝 1 aliado', row: '↔ 1 fileira', none: '✦ sem alvo' };
+export const spellTargetLabel = (s: SpellDef) => SPELL_TARGET_LABEL[s.target];
+export const spellCastersLabel = (s: SpellDef) => s.categories.map((c) => `${CATEGORY_INFO[c].icon} ${CATEGORY_INFO[c].label}`).join(' ou ');
+
+/**
+ * Carta de feitiço: mesma moldura/medidas da carta de personagem (cabe na mão e na grade), fundo estático
+ * na cor da categoria e o ícone grande no lugar da arte. Sem animação nova.
+ */
+export function spellCardHTML(id: string, opts: { extraClass?: string; attrs?: string; badge?: string; compact?: boolean; wait?: number; copies?: number } = {}): string {
+  const s = getSpell(id);
+  const c1 = CAT_COLOR[s.categories[0]];
+  const c2 = CAT_COLOR[s.categories[1] ?? s.categories[0]];
+  const w = opts.wait ?? waitFor(id);
+  return `<div class="card spell-card s3 ${opts.compact ? 'compact' : 'ab'} ${opts.extraClass ?? ''}" style="--rc:#7c5cff;--rg:#b9a8ff;--sc1:${c1};--sc2:${c2}" ${opts.attrs ?? ''}>
+    <div class="card-metal"><div class="card-frame">
+      <div class="card-art spell-art"><span class="spell-ico">${s.icon}</span></div>
+      <div class="ck-cost${opts.wait === 0 ? ' ready' : ''}" title="${opts.wait == null ? `Espera ${w} rodada(s) na mão` : opts.wait ? `Falta(m) ${opts.wait} rodada(s)` : 'Pronto para lançar'}"><span>${w}</span></div>
+      <div class="ck-pow spell-tag" title="Feitiço">✦ Feitiço</div>
+      ${opts.copies ? `<div class="ck-star" title="Cópias no baralho"><small>×</small><b>${opts.copies}</b></div>` : ''}
+      ${opts.badge ? `<div class="card-badge">${opts.badge}</div>` : ''}
+      <div class="ck-banner"><span class="ck-name"><span class="full">${esc(s.name)}</span><span class="short">${esc(s.name.split(' ')[0])}</span></span><i class="ck-gem"></i></div>
+      <div class="ck-panel spell-panel">
+        <div class="ck-foot"><div class="ck-icons">${s.categories.map((k) => `<span title="${CATEGORY_INFO[k].label}">${CATEGORY_INFO[k].icon}</span>`).join('')}</div></div>
+        <div class="spell-target">${spellTargetLabel(s)}</div>
+      </div>
+    </div></div>
+  </div>`;
+}
+
+/** texto do feitiço (painel de informações, coleção) */
+export function spellInfoHTML(id: string): string {
+  const s = getSpell(id);
+  return `<ul class="abilities"><li><b>${s.icon} ${esc(s.name)}</b> — ${esc(s.description)}</li><li><b>✦ Conjurador</b> — precisa de um aliado ${esc(spellCastersLabel(s))} em campo; o de maior ataque conjura (a força vem do ataque dele).</li><li><b>⏳ Espera</b> — ${waitFor(id)} rodada(s) na mão; depois de lançado volta para o baralho.</li></ul>`;
 }

@@ -1085,3 +1085,28 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
   .battle .cell-coord { display: none; }
   .battle .u-stat-plate { font-size: 8px; padding: 0 2px; gap: 1px; bottom: 1px; }
 }
+
+/* ---------- v0.17.0: feitiços, cópias no baralho, selos de efeito/aura (tudo estático, sem animação contínua nova) ---------- */
+.spell-card .card-art.spell-art { background: radial-gradient(circle at 50% 42%, rgba(255,255,255,.28), transparent 58%), linear-gradient(140deg, var(--sc1), #1b1240 55%, var(--sc2)); display: grid; place-items: center; }
+.spell-card .spell-ico { font-size: 34cqw; line-height: 1; transform: translateY(4cqw); text-shadow: 0 1cqw 3cqw rgba(0,0,0,.6); }
+.spell-card .spell-tag { font-size: max(7px, 7.5cqw); font-weight: 900; padding: 0 3cqw; white-space: nowrap; }
+.spell-card .spell-panel { min-height: 26cqw; justify-content: center; gap: 1cqw; }
+.spell-card .spell-target { font-size: max(7px, 8cqw); font-weight: 800; color: #e9e3ff; white-space: nowrap; text-shadow: 0 0 2px #000; }
+.hand .spell-card.no-caster { filter: grayscale(.6) brightness(.75); }
+.deck-copies { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); }
+.deck-entry { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.copies { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; }
+.copies b { min-width: 24px; text-align: center; }
+.cp-btn { width: 26px; height: 26px; border-radius: 50%; border: 1px solid #5866b8; background: #1a2148; color: #fff; font-weight: 900; font-size: 15px; line-height: 1; cursor: pointer; padding: 0; }
+.cp-btn:disabled { opacity: .35; cursor: default; }
+.spell-grid .card { max-width: 150px; }
+.cell.spell-t { background: rgba(167,139,250,.32); box-shadow: inset 0 0 0 2px #a78bfa, 0 0 14px rgba(167,139,250,.45); }
+.u-fx { position: absolute; top: 1px; left: 1px; display: flex; flex-wrap: wrap; gap: 1px; max-width: 70%; z-index: 7; pointer-events: none; }
+.u-fx i { font-style: normal; font-size: clamp(8px, calc(var(--cell) * .17), 13px); line-height: 1; background: rgba(5,8,20,.78); border-radius: 4px; padding: 1px; }
+.unit.stunned .u-portrait { opacity: .7; }
+.u-status-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; font-size: 12px; }
+.u-status-list span { background: rgba(255,255,255,.08); border-radius: 6px; padding: 1px 6px; }
+.float.fx-tag { font-size: 12px; font-weight: 900; color: #e9e3ff; text-shadow: 0 0 3px #000, 0 0 3px #000; white-space: nowrap; }
+.float.fx-anjo, .float.fx-renascer { color: #ffe58a; }
+.float.fx-veneno { color: #9cff8a; }
+.float.fx-queimadura { color: #ffb36b; }

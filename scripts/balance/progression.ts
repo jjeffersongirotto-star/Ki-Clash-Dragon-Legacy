@@ -16,6 +16,7 @@ import { STARTER_IDS } from '../../src/core/characters';
 import { newOwned, feedXp, ascend, canAscend, ascendCost, cardMaxLevel, XP_ITEMS, type OwnedCard } from '../../src/core/progression';
 import { cardPower, deckPower } from '../../src/core/power';
 import type { CardInstance } from '../../src/core/types';
+import { autoDeck, deckMaxFor, profileLevelFor } from '../../src/core/deckbuild';
 
 export interface Schedule { name: string; hp: number[]; thresholds: number[]; enemyHp: (stageIdx: number) => number }
 
@@ -27,6 +28,19 @@ function team(p: Player): OwnedCard[] {
   return Object.values(p.cards).sort((a, b) => cardPower(b) - cardPower(a)).slice(0, 10);
 }
 const asDeck = (t: OwnedCard[]): CardInstance[] => t.map((c) => ({ charId: c.charId, level: c.level, stars: c.stars, plus: c.plus }));
+/**
+ * v0.17.0: baralho de batalha do jogador simulado — os 10 mais fortes × 3 e, quando o nível de perfil
+ * (1 + fases vencidas) abre espaço além de 30, até 4 cartas de feitiço (2 feitiços × 2) que combinam com a equipe.
+ * (Encher o resto do espaço dilui as melhores cartas: no simulador até uma 11ª carta de personagem piora.)
+ * SIM_SPELLS=0 desliga os feitiços (para comparar).
+ */
+const SIM_SPELLS = process.env.SIM_SPELLS !== '0';
+const battleDeck = (p: Player, cleared: number): CardInstance[] => {
+  const max = deckMaxFor(profileLevelFor(cleared));
+  const owned = asDeck(team(p));
+  const room = Math.max(0, max - 3 * owned.length);
+  return SIM_SPELLS ? autoDeck(owned, 3 * owned.length + Math.min(4, room), Math.min(4, room)) : autoDeck(owned, Math.min(max, 3 * owned.length), 0);
+};
 
 function spend(p: Player) {
   for (let guard = 0; guard < 2000; guard++) {
@@ -74,7 +88,7 @@ export function runCampaign(sc: Schedule, players: number, probe = 40) {
       const hp = sc.hp[p.leader - 1];
       let w = 0;
       for (let k = 0; k < probe; k++) {
-        const r = simulate(asDeck(team(p)), STAGES[i].enemyDeck, hp, sc.enemyHp(i), seed++);
+        const r = simulate(battleDeck(p, i), STAGES[i].enemyDeck, hp, sc.enemyHp(i), seed++);
         if (r.winner === 'player') { w++; st.hpLeftWin.push(r.playerHpLeft / hp); }
         st.burst.push(r.maxBurstOnPlayer / hp); st.maxAtk.push(r.maxEnemyAtk);
       }
@@ -83,13 +97,13 @@ export function runCampaign(sc: Schedule, players: number, probe = 40) {
       for (;;) {
         attempts++;
         spend(p); levelUp(p, sc);
-        const r = simulate(asDeck(team(p)), STAGES[i].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i), seed++);
+        const r = simulate(battleDeck(p, i), STAGES[i].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i), seed++);
         if (r.winner === 'player') { reward(p, i, true); break; }
         p.items.pergaminho += 1;
         if (attempts > 300) break;
         if (i > 0) {
           spend(p); levelUp(p, sc);
-          const rr = simulate(asDeck(team(p)), STAGES[i - 1].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i - 1), seed++);
+          const rr = simulate(battleDeck(p, i), STAGES[i - 1].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i - 1), seed++);
           if (rr.winner === 'player') reward(p, i - 1, false); else p.items.pergaminho += 1;
         }
       }

@@ -233,12 +233,12 @@ describe('fúria de batalha (anti-empate)', () => {
 
 describe('mão e baralho', () => {
   const deck10 = ['riku', 'nara', 'toru', 'aiko', 'gorath', 'lyra', 'mei', 'yume', 'zarek', 'kenji'].map((id) => c(id, 1, id === 'kenji' ? 5 : 3));
-  it('começa com 6 cartas na mão, baralho de 40 (10 × 4); compra o que falta para voltar a 6 e cartas não usadas ficam', () => {
+  it('começa com 6 cartas na mão, baralho de 30 (10 × 3, v0.17); compra o que falta para voltar a 6 e cartas não usadas ficam', () => {
     const s = createBattle({ playerDeck: deck10, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 5 });
     expect(s.decks.player.hand).toHaveLength(6);
     expect(new Set(s.decks.player.hand.map((x) => x.charId)).size).toBe(6);
-    expect(totalCards(s.decks.player)).toBe(40);
-    expect(pileCount(s.decks.player)).toBe(34);
+    expect(totalCards(s.decks.player)).toBe(30);
+    expect(pileCount(s.decks.player)).toBe(24);
     // mão cheia: a rodada não compra
     endPlayerTurn(s, () => {});
     expect(s.decks.player.hand).toHaveLength(6);
@@ -257,26 +257,27 @@ describe('mão e baralho', () => {
     expect(s.decks.player.step).toBe(step + 1);
     expect(s.decks.player.hand.slice(0, 3).map((x) => x.charId)).toEqual(before);
   });
-  it('só começa a batalha com 10 cartas diferentes (sem preencher com repetidas)', () => {
-    const nine = deck10.slice(0, 9);
-    expect(() => createBattle({ playerDeck: nine, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow(/9 de 10/);
-    expect(() => createBattle({ playerDeck: deck10, enemyDeck: nine, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow();
-    expect(() => createBattle({ playerDeck: nine.concat([c('riku')]), enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow(/repetidos/);
+  it('v0.17: só começa a batalha com baralho de 20 a 40 cartas, sem entradas repetidas', () => {
+    const six = deck10.slice(0, 6); // 6 × 3 = 18
+    expect(() => createBattle({ playerDeck: six, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow(/18 de no mínimo 20/);
+    expect(() => createBattle({ playerDeck: deck10, enemyDeck: six, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow();
+    expect(() => createBattle({ playerDeck: deck10.slice(0, 9).concat([c('riku')]), enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow(/repetidas/);
+    expect(() => createBattle({ playerDeck: deck10.slice(0, 7), enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).not.toThrow();
   });
   it('cópia jogada fica em campo; quando a unidade morre vai para as derrotadas e não volta', () => {
     const s = createBattle({ playerDeck: deck10, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 5 });
     s.decks.player.hand.forEach((h) => (h.wait = 0));
     const card = s.decks.player.hand[0];
     expect(deploy(s, 'player', 0, 0, 2).ok).toBe(true);
-    expect(pileCount(s.decks.player) + s.decks.player.hand.length).toBe(39);
+    expect(pileCount(s.decks.player) + s.decks.player.hand.length).toBe(29);
     const u = s.units.find((x) => x.side === 'player')!;
     expect(u.slot).toBe(card.slot);
     const killer = placeUnit(s, c('nara'), 'enemy', 0, 3, { atk: 99 });
     act(s, new Ctx(), killer);
     expect(s.units.includes(u)).toBe(false);
     expect(s.decks.player.defeated.map((x) => x.charId)).toEqual([card.charId]);
-    expect(s.decks.player.slots[card.slot!].copies - s.decks.player.slots[card.slot!].defeated).toBe(3);
-    expect(pileCount(s.decks.player) + s.decks.player.hand.length).toBe(39);
+    expect(s.decks.player.slots[card.slot!].copies - s.decks.player.slots[card.slot!].defeated).toBe(2);
+    expect(pileCount(s.decks.player) + s.decks.player.hand.length).toBe(29);
   });
   it('a mão não esvazia de vez e o mesmo personagem pode estar em campo mais de uma vez', () => {
     const s = createBattle({ playerDeck: deck10, enemyDeck: deck10, playerHeroHp: 999, enemyHeroHp: 999, seed: 2, maxTurns: 99 });

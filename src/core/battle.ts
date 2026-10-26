@@ -1,12 +1,15 @@
 import { ABILITIES, AURA_CAP, BUFF_CAP, MINION_CAP, RES_CAP, abilityPower, has } from './abilities';
 import { getChar } from './characters';
 import { statsFor, tierLabel } from './progression';
-import { createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, HAND_SIZE } from './deck';
+import { castFromHand, createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, returnFromNecropolis, HAND_SIZE } from './deck';
+import { SPELL_NUM, getSpell, isSpell } from './spells';
 import type {
   AbilityId,
   BattleEvent,
   BattleState,
   CardInstance,
+  Effect,
+  EffectKind,
   RecordedEvent,
   Side,
   Snapshot,
@@ -23,7 +26,7 @@ export const HAND_MAX = HAND_SIZE;
  * e só pode ser invocada quando chega a 0. Escolhido pela simulação das 10 fases
  * (espera = custo deixava as fases 4–6 e 10 muito difíceis: enxurrada de unidades caras).
  */
-export const waitFor = (charId: string) => Math.max(1, 2 * getChar(charId).cost - 1);
+export const waitFor = (charId: string) => (isSpell(charId) ? Math.max(1, getSpell(charId).cost - 1) : Math.max(1, 2 * getChar(charId).cost - 1));
 /** A mão inicial começa 2 rodadas adiantada: cartas de custo 2 ficam prontas já no turno 1. */
 export const OPENING_HEADSTART = 2;
 
@@ -51,7 +54,7 @@ export class Ctx {
 
 export function snapshot(state: BattleState): Snapshot {
   return {
-    units: state.units.map((u) => ({ ...u, abilities: u.abilities.slice() })),
+    units: state.units.map((u) => ({ ...u, abilities: u.abilities.slice(), effects: u.effects?.map((e) => ({ ...e })) })),
     heroes: { player: { ...state.heroes.player }, enemy: { ...state.heroes.enemy } },
     turn: state.turn,
     active: state.active,
@@ -163,8 +166,9 @@ export function makeUnit(
   const def = getChar(card.charId);
   const s = statsFor(def, card.level, card.stars, !opts.minion && !!card.plus);
   const hp = opts.hp ?? s.hp;
-  let physRes = def.physRes;
-  let magRes = def.magRes;
+  // v0.17.0 (decisão 14): resistência só vem de habilidade
+  let physRes = 0;
+  let magRes = 0;
   for (const id of def.abilities) {
     const rb = ABILITIES[id].resBonus?.(card.stars);
     if (rb) {
@@ -333,6 +337,150 @@ export interface AttackOpts {
   label?: string;
 }
 
+// ---------- v0.17.0: efeitos com duração, dano centralizado, salvamentos ----------
+
+export const effectOf = (u: Unit, kind: EffectKind): Effect | undefined => u.effects?.find((e) => e.kind === kind && e.turns > 0);
+export const isStunned = (u: Unit) => !!effectOf(u, 'atordoado');
+const EFFECT_ICON: Record<EffectKind, string> = { veneno: '🧪', queimadura: '🔥', atordoado: '💫', escudo: '🛡', anjo: '👼' };
+const EFFECT_NAME: Record<EffectKind, string> = { veneno: 'envenenado', queimadura: 'em chamas', atordoado: 'atordoado', escudo: 'com escudo', anjo: 'protegido pelo Anjo da Guarda' };
+
+/**
+ * Aplica um efeito com duração. Veneno/queimadura: fica o mais forte e a duração maior (não acumula).
+ * Escudo: soma os pontos (teto 99) e fica a duração maior. Atordoar/anjo: só renova.
+ */
+export function addEffect(state: BattleState, ctx: Ctx, u: Unit, kind: EffectKind, amount: number, turns: number) {
+  if (u.hp <= 0) return;
+  u.effects ??= [];
+  const cur = u.effects.find((e) => e.kind === kind);
+  if (cur) {
+    cur.amount = kind === 'escudo' ? Math.min(99, cur.amount + amount) : Math.max(cur.amount, amount);
+    cur.turns = Math.max(cur.turns, turns);
+  } else u.effects.push({ kind, amount, turns });
+  const extra = kind === 'veneno' || kind === 'queimadura' ? ` (${amount}/rodada, ${turns} rodada${turns > 1 ? 's' : ''})` : kind === 'escudo' ? ` (${amount}, ${turns} rodadas)` : '';
+  ctx.emit(state, { type: 'effect', uid: u.uid, kind, text: `  ${EFFECT_ICON[kind]} ${nameOf(u)} fica ${EFFECT_NAME[kind]}${extra}.` });
+}
+
+function dropExpired(u: Unit) {
+  if (u.effects) u.effects = u.effects.filter((e) => e.turns > 0 && (e.kind !== 'escudo' || e.amount > 0));
+}
+
+/** Início do lado: veneno (ignora resistência) e queimadura (reduzida pela resistência mágica) fazem dano. */
+function tickDots(state: BattleState, ctx: Ctx, side: Side) {
+  for (const u of state.units.filter((x) => x.side === side && x.hp > 0)) {
+    for (const kind of ['veneno', 'queimadura'] as const) {
+      const e = effectOf(u, kind);
+      if (!e || state.winner || u.hp <= 0) continue;
+      const dmg = kind === 'veneno' ? e.amount : computeDamage(e.amount, 'magico', u);
+      e.turns--;
+      ctx.emit(state, { type: 'effect', uid: u.uid, kind, text: `${EFFECT_ICON[kind]} ${nameOf(u)} sofre ${dmg} de ${kind === 'veneno' ? 'veneno' : 'queimadura'}.` });
+      applyDamage(state, ctx, u, dmg, kind === 'veneno' ? 'fisico' : 'magico', { side: enemyOf(side), dot: true });
+    }
+    dropExpired(u);
+  }
+}
+
+/** Fim do lado: atordoar e escudo temporário perdem 1 rodada. */
+function tickEnd(state: BattleState, side: Side) {
+  for (const u of state.units.filter((x) => x.side === side)) {
+    for (const e of u.effects ?? []) if (e.kind === 'atordoado' || e.kind === 'escudo') e.turns--;
+    dropExpired(u);
+  }
+}
+
+export interface DamageSource {
+  side: Side;
+  unit?: Unit;
+  spell?: boolean;
+  dot?: boolean;
+}
+
+/**
+ * Aplica dano numa unidade: escudo temporário absorve primeiro; Reflexo de Magia devolve parte do dano mágico
+ * ou de feitiço; depois confere morte (Anjo da Guarda e Renascer salvam). Retorna true se a unidade caiu.
+ */
+export function applyDamage(state: BattleState, ctx: Ctx, target: Unit, dmg: number, type: 'fisico' | 'magico', src: DamageSource, note = ''): boolean {
+  let amount = Math.max(0, dmg);
+  // Reflexo de Magia (só contra dano mágico de ataque ou de feitiço; não reflete veneno/queimadura)
+  const refl = !src.dot && (type === 'magico' || src.spell) ? pw(target, 'reflexo') : 0;
+  let reflected = 0;
+  if (refl && amount > 0) {
+    reflected = Math.floor((amount * refl) / 100);
+    amount -= reflected;
+  }
+  const sh = effectOf(target, 'escudo');
+  let absorbed = 0;
+  if (sh && amount > 0) {
+    absorbed = Math.min(sh.amount, amount);
+    sh.amount -= absorbed;
+    amount -= absorbed;
+    dropExpired(target);
+  }
+  target.hp -= amount;
+  if (!src.dot || absorbed)
+    ctx.emit(state, {
+      type: 'damage',
+      uid: target.uid,
+      amount,
+      damageType: type,
+      text: `  → ${amount} de dano ${type === 'fisico' ? 'físico' : 'mágico'}${note}${absorbed ? ` (🛡 escudo absorve ${absorbed})` : ''}.`,
+    });
+  else ctx.emit(state, { type: 'damage', uid: target.uid, amount, damageType: type, text: `  → ${amount} de dano.` });
+  const dead = target.hp <= 0 ? checkDeath(state, ctx, target, src.unit) : false;
+  if (reflected > 0) {
+    ctx.emit(state, { type: 'effect', uid: target.uid, kind: 'reflexo', text: `  🪞 ${nameOf(target)} reflete ${reflected} de dano mágico!` });
+    if (src.unit && !src.spell && src.unit.hp > 0 && state.units.includes(src.unit)) applyDamage(state, ctx, src.unit, reflected, 'magico', { side: target.side, unit: target, dot: false, spell: false });
+    else if (src.spell) hitHero(state, ctx, src.side, reflected, `🪞 O reflexo atinge o Comandante ${src.side === 'player' ? 'aliado' : 'inimigo'}`);
+  }
+  return dead;
+}
+
+function hitHero(state: BattleState, ctx: Ctx, side: Side, amount: number, why: string) {
+  if (state.winner) return;
+  state.heroes[side].hp = Math.max(0, state.heroes[side].hp - amount);
+  ctx.emit(state, { type: 'hero', side, amount, text: `${why}: ${amount} de dano (${state.heroes[side].hp}/${state.heroes[side].maxHp}).` });
+  checkWinner(state, ctx);
+}
+
+/** A unidade chegou a 0: Anjo da Guarda (efeito do feitiço, depois a habilidade de um vizinho) e Renascer salvam. */
+function checkDeath(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit): boolean {
+  if (victim.hp > 0) return false;
+  const shield = effectOf(victim, 'anjo');
+  if (shield) {
+    shield.turns = 0;
+    dropExpired(victim);
+    victim.hp = 1;
+    ctx.emit(state, { type: 'effect', uid: victim.uid, kind: 'anjo', text: `  👼 O Anjo da Guarda salva ${nameOf(victim)} (fica com 1 de vida)!` });
+    return false;
+  }
+  const angel = state.units.find((a) => a.side === victim.side && (a.hp > 0 || a === victim) && !a.angelUsed && a.abilities.includes('anjo') && Math.abs(a.row - victim.row) <= 1 && Math.abs(a.col - victim.col) <= 1);
+  if (angel) {
+    angel.angelUsed = true;
+    victim.hp = 1;
+    ctx.emit(state, { type: 'effect', uid: victim.uid, kind: 'anjo', text: angel === victim ? `  👼 ${nameOf(angel)} (Anjo da Guarda) se salva: fica com 1 de vida!` : `  👼 ${nameOf(angel)} (Anjo da Guarda) salva ${nameOf(victim)}: fica com 1 de vida!` });
+    return false;
+  }
+  if (victim.abilities.includes('renascer') && !victim.revived && !victim.isMinion) {
+    victim.revived = true;
+    victim.effects = [];
+    victim.hp = Math.max(1, Math.ceil((victim.maxHp * pw(victim, 'renascer')) / 100));
+    ctx.emit(state, { type: 'effect', uid: victim.uid, kind: 'renascer', text: `  ♻ ${nameOf(victim)} renasce com ${victim.hp} de vida!` });
+    return false;
+  }
+  kill(state, ctx, victim, killer);
+  return true;
+}
+
+/** Empurra a unidade 1 casa para trás (do ponto de vista dela), se a casa estiver livre e ela não for Inabalável. */
+export function pushBack(state: BattleState, ctx: Ctx, u: Unit): boolean {
+  if (u.hp <= 0 || has(u.abilities, (a) => a.unpushable)) return false;
+  const newCol = u.col - dir(u.side);
+  if (!inBoard(state, u.row, newCol) || unitAt(state, u.row, newCol)) return false;
+  const from: [number, number] = [u.row, u.col];
+  u.col = newCol;
+  ctx.emit(state, { type: 'push', uid: u.uid, from, to: [u.row, u.col], text: `  ${nameOf(u)} é empurrado para trás.` });
+  return true;
+}
+
 export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'hero', opts: AttackOpts = {}) {
   let atk = opts.fixed ?? Math.round(effectiveAtk(state, u) * (opts.mult ?? 1)) + (opts.bonus ?? 0);
   if (opts.pct != null && opts.fixed == null) atk = Math.max(1, Math.ceil((atk * opts.pct) / 100));
@@ -359,54 +507,37 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   const ranged = !(u.damageType === 'fisico' && dist <= 1 && !hasRangeBonus(u));
   const dmg = computeDamage(atk, u.damageType, target, pierce);
   ctx.emit(state, { type: 'attack', uid: u.uid, target: target.uid, targetSide: target.side, ranged, damageType: u.damageType, text: `${nameOf(u)} ${verb} ${nameOf(target)}` });
-  target.hp -= dmg;
   const resisted = atk - dmg;
-  ctx.emit(state, {
-    type: 'damage',
-    uid: target.uid,
-    amount: dmg,
-    damageType: u.damageType,
-    text: `  → ${dmg} de dano ${u.damageType === 'fisico' ? 'físico' : 'mágico'}${resisted > 0 ? ` (${resisted} resistido)` : ''}.`,
-  });
-  if (target.hp <= 0) {
-    kill(state, ctx, target, u);
-    return;
-  }
+  const front = isMeleeFrontAttack(u, target);
+  if (applyDamage(state, ctx, target, dmg, u.damageType, { side: u.side, unit: u }, resisted > 0 ? ` (${resisted} resistido)` : '')) return;
+  if (state.winner || u.hp <= 0 || !state.units.includes(u)) return;
   // gancho: Couraça de Espinhos (só golpe principal, físico corpo a corpo de frente)
-  if (!opts.counter && !opts.secondary && u.hp > 0 && has(target.abilities, (a) => a.thorns) && isMeleeFrontAttack(u, target)) {
+  if (!opts.counter && !opts.secondary && has(target.abilities, (a) => a.thorns) && front) {
     const back = pw(target, 'espinhos');
-    u.hp -= back;
-    ctx.emit(state, { type: 'damage', uid: u.uid, amount: back, damageType: 'fisico', text: `  🌵 ${nameOf(u)} se fere nos espinhos de ${nameOf(target)}: ${back} de dano.` });
-    if (u.hp <= 0) {
-      kill(state, ctx, u, target);
-      return;
-    }
+    if (applyDamage(state, ctx, u, back, 'fisico', { side: target.side, unit: target }, ` 🌵 dos espinhos de ${nameOf(target)} em ${nameOf(u)}`)) return;
   }
   // gancho: contra-golpe
-  if (!opts.counter && !opts.secondary && u.hp > 0 && has(target.abilities, (a) => a.counter) && isMeleeFrontAttack(u, target)) {
+  if (!opts.counter && !opts.secondary && u.hp > 0 && has(target.abilities, (a) => a.counter) && front) {
     ctx.emit(state, { type: 'counter', uid: target.uid, target: u.uid, text: `🔁 ${nameOf(target)} ativa ${ABILITIES.contraGolpe.name}!` });
     attack(state, ctx, target, u, { mult: pw(target, 'contraGolpe'), counter: true });
-    if (u.hp > 0 && !has(u.abilities, (a) => a.unpushable)) {
-      const newCol = u.col - dir(u.side);
-      if (inBoard(state, u.row, newCol) && !unitAt(state, u.row, newCol)) {
-        const from: [number, number] = [u.row, u.col];
-        u.col = newCol;
-        ctx.emit(state, { type: 'push', uid: u.uid, from, to: [u.row, u.col], text: `  ${nameOf(u)} é empurrado para trás.` });
-      }
-    }
+    if (u.hp > 0 && state.units.includes(u)) pushBack(state, ctx, u);
+    return;
   }
+  // v0.17.0 gancho: Ombrada (Gorath) — empurra o alvo ao acertar corpo a corpo de frente
+  if (!opts.counter && !opts.secondary && front && has(u.abilities, (a) => a.pushOnHit) && target.hp > 0 && state.units.includes(target)) pushBack(state, ctx, target);
 }
 
-function kill(state: BattleState, ctx: Ctx, victim: Unit, killer: Unit) {
+function kill(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit) {
   victim.hp = 0;
   state.units = state.units.filter((x) => x !== victim);
   if (victim.slot != null) defeatCopy(state.decks[victim.side], victim.slot);
   ctx.emit(state, { type: 'death', uid: victim.uid, text: `✖ ${nameOf(victim)} foi derrotado.` });
+  if (!killer) return;
   // v0.15.0: sem "passo da vitória" — quem derrota fica onde está.
   const oldPos: [number, number] = [killer.row, killer.col];
   // gancho: invocar ao derrotar
   const summon = has(killer.abilities, (a) => a.onKillSummon)?.onKillSummon;
-  if (summon) {
+  if (summon && killer.side !== victim.side) {
     const alive = state.units.filter((x) => x.side === killer.side && x.charId === summon).length;
     if (alive < MINION_CAP) {
       const spot = [[victim.row, victim.col], oldPos].find(([r, c]) => inBoard(state, r, c) && !unitAt(state, r, c));
@@ -587,6 +718,10 @@ export function canLeapOver(state: BattleState, u: Unit, t: Unit | 'hero'): bool
 /** Ação automática: (cura) → ataca se houver alvo; senão anda e tenta atacar. */
 export function act(state: BattleState, ctx: Ctx, u: Unit) {
   if (u.hp <= 0 || state.winner) return;
+  if (isStunned(u)) {
+    ctx.emit(state, { type: 'effect', uid: u.uid, kind: 'atordoado', text: `💫 ${nameOf(u)} está atordoado e perde a ação.` });
+    return;
+  }
   healNeighbors(state, ctx, u);
   healRow(state, ctx, u);
   let t = findTarget(state, u);
@@ -606,16 +741,28 @@ export function act(state: BattleState, ctx: Ctx, u: Unit) {
   if (t) strike(state, ctx, u, t, jumped ? pw(u, 'salto') : 0);
 }
 
+/**
+ * Ordem de ação do lado: primeiro os Vigias (v0.17.0), do mais recuado para o mais avançado;
+ * depois os demais, do mais avançado para o mais recuado. Desempate: fileira de cima primeiro.
+ */
+export function actionOrder(state: BattleState, side: Side): Unit[] {
+  const mine = state.units.filter((u) => u.side === side && u.hp > 0);
+  const alert = (u: Unit) => !!has(u.abilities, (a) => a.alert);
+  const watch = mine.filter(alert).sort((a, b) => (a.col - b.col) * dir(side) || a.row - b.row);
+  const rest = mine.filter((u) => !alert(u)).sort((a, b) => (b.col - a.col) * dir(side) || a.row - b.row);
+  return [...watch, ...rest];
+}
+
 export function resolveSide(state: BattleState, ctx: Ctx, side: Side) {
-  const order = state.units
-    .filter((u) => u.side === side)
-    .sort((a, b) => (b.col - a.col) * dir(side) || a.row - b.row)
-    .map((u) => u.uid);
+  tickDots(state, ctx, side);
+  if (state.winner) return;
+  const order = actionOrder(state, side).map((u) => u.uid);
   for (const uid of order) {
     if (state.winner) return;
     const u = state.units.find((x) => x.uid === uid);
     if (u) act(state, ctx, u);
   }
+  tickEnd(state, side);
 }
 
 export function deploy(state: BattleState, side: Side, handIndex: number, row: number, col: number, ctx = new Ctx()): { ok: boolean; reason?: string; events: RecordedEvent[] } {
@@ -623,6 +770,7 @@ export function deploy(state: BattleState, side: Side, handIndex: number, row: n
   if (state.active !== side) return { ok: false, reason: 'Não é sua vez', events: [] };
   const card = state.decks[side].hand[handIndex];
   if (!card) return { ok: false, reason: 'Carta inválida', events: [] };
+  if (isSpell(card.charId)) return { ok: false, reason: 'Feitiço: toque num alvo destacado', events: [] };
   const def = getChar(card.charId);
   const w = waitOf(card);
   if (w > 0) return { ok: false, reason: `Carta ainda não está pronta (falta${w > 1 ? 'm' : ''} ${w} rodada${w > 1 ? 's' : ''})`, events: [] };
@@ -634,8 +782,126 @@ export function deploy(state: BattleState, side: Side, handIndex: number, row: n
   ctx.emit(state, { type: 'deploy', uid: u.uid, text: `${side === 'player' ? 'Você invoca' : 'Inimigo invoca'} ${def.name} (${tierLabel(card.stars, !!card.plus)} Nv.${card.level}).` });
   const aura = has(u.abilities, (a) => a.enemyAtkAura);
   if (aura) ctx.emit(state, { type: 'aura', uid: u.uid, text: `🌀 ${def.name} drena o ataque de todos os inimigos!` });
+  if (has(u.abilities, (a) => a.necro)) bringBack(state, ctx, side, u.uid, def.name);
   return { ok: true, events: ctx.events };
 }
+
+function bringBack(state: BattleState, ctx: Ctx, side: Side, uid: number, who: string) {
+  const r = returnFromNecropolis(state.decks[side]);
+  ctx.emit(state, {
+    type: 'effect',
+    uid,
+    kind: 'necropolis',
+    text: r ? `⚰️ ${who} traz ${getChar(r.card.charId).name} de volta da Necropolis${r.toHand ? ' para a mão (pronta)' : ' para o baralho'}.` : `⚰️ ${who}: a Necropolis está vazia.`,
+  });
+}
+
+// ---------- v0.17.0: feitiços ----------
+
+/** Aliados em campo que podem conjurar o feitiço (categoria do feitiço), o de maior ataque primeiro. */
+export function spellCasters(state: BattleState, side: Side, spellId: string): Unit[] {
+  const sp = getSpell(spellId);
+  return state.units
+    .filter((u) => u.side === side && u.hp > 0 && !u.isMinion && sp.categories.includes(getChar(u.charId).category))
+    .sort((a, b) => effectiveAtk(state, b) - effectiveAtk(state, a) || a.uid - b.uid);
+}
+
+/** Casas válidas para o feitiço (vazio se não houver conjurador). */
+export function spellTargets(state: BattleState, side: Side, spellId: string): [number, number][] {
+  const sp = getSpell(spellId);
+  if (!spellCasters(state, side, spellId).length) return [];
+  const foe = enemyOf(side);
+  if (sp.target === 'enemy') return state.units.filter((u) => u.side === foe && u.hp > 0).map((u) => [u.row, u.col]);
+  if (sp.target === 'ally') return state.units.filter((u) => u.side === side && u.hp > 0).map((u) => [u.row, u.col]);
+  const out: [number, number][] = [];
+  if (sp.target === 'row') {
+    for (let r = 0; r < state.rows; r++) for (let c = 0; c < state.cols; c++) out.push([r, c]);
+    return out;
+  }
+  if (!state.decks[side].defeated.length) return [];
+  for (let r = 0; r < state.rows; r++) for (let c = 0; c < state.cols; c++) if (isDeployCell(state, side, r, c)) out.push([r, c]);
+  return out;
+}
+
+const pctOf = (v: number, p: number) => Math.max(1, Math.ceil((v * p) / 100));
+
+/** Lança o feitiço da mão na casa (row, col). */
+export function castSpell(state: BattleState, side: Side, handIndex: number, row: number, col: number, ctx = new Ctx()): { ok: boolean; reason?: string; events: RecordedEvent[] } {
+  if (state.winner) return { ok: false, reason: 'Batalha encerrada', events: [] };
+  if (state.active !== side) return { ok: false, reason: 'Não é sua vez', events: [] };
+  const card = state.decks[side].hand[handIndex];
+  if (!card || !isSpell(card.charId)) return { ok: false, reason: 'Carta inválida', events: [] };
+  const w = waitOf(card);
+  if (w > 0) return { ok: false, reason: `Carta ainda não está pronta (falta${w > 1 ? 'm' : ''} ${w} rodada${w > 1 ? 's' : ''})`, events: [] };
+  const sp = getSpell(card.charId);
+  const caster = spellCasters(state, side, sp.id)[0];
+  if (!caster) return { ok: false, reason: `Precisa de um aliado ${sp.categories.map((c) => CAT_LABEL[c]).join(' ou ')} em campo para conjurar`, events: [] };
+  if (!spellTargets(state, side, sp.id).some(([r, c]) => r === row && c === col)) return { ok: false, reason: 'Alvo inválido para este feitiço', events: [] };
+  const foe = enemyOf(side);
+  const target = unitAt(state, row, col);
+  castFromHand(state.decks[side], handIndex);
+  const atk = effectiveAtk(state, caster);
+  ctx.emit(state, { type: 'cast', side, spellId: sp.id, caster: caster.uid, target: [row, col], text: `${sp.icon} ${nameOf(caster)} conjura ${sp.name}${sp.target === 'row' ? ` na fileira ${row + 1}` : target && sp.target !== 'none' ? ` em ${nameOf(target)}` : ''}!` });
+  const src: DamageSource = { side, unit: caster, spell: true };
+  const hit = (u: Unit, p: number, type: 'fisico' | 'magico', ignoreRes = false) => {
+    const raw = pctOf(atk, p);
+    const dmg = ignoreRes ? raw : computeDamage(raw, type, u);
+    return applyDamage(state, ctx, u, dmg, type, src, raw > dmg ? ` (${raw - dmg} resistido)` : '');
+  };
+  const N = SPELL_NUM;
+  const rowFoes = () => state.units.filter((u) => u.side === foe && u.hp > 0 && u.row === row);
+  switch (sp.id) {
+    case 'f-investida':
+      if (target && !hit(target, N.investida, 'fisico')) pushBack(state, ctx, target);
+      break;
+    case 'f-giratoria':
+      for (const u of rowFoes()) if (!state.winner) hit(u, N.giratoria, 'fisico');
+      break;
+    case 'f-muralha':
+      if (target) addEffect(state, ctx, target, 'escudo', pctOf(caster.maxHp, N.muralhaHp), N.muralhaTurns);
+      break;
+    case 'f-tremor':
+      if (target && !hit(target, N.tremor, 'fisico') && state.units.includes(target)) {
+        addEffect(state, ctx, target, 'atordoado', 1, 1);
+        pushBack(state, ctx, target);
+      }
+      break;
+    case 'f-chuva':
+      for (const u of rowFoes()) if (!state.winner) hit(u, N.chuva, 'fisico');
+      break;
+    case 'f-flecha-veneno':
+      if (target && !hit(target, N.flechaHit, 'fisico') && state.units.includes(target)) addEffect(state, ctx, target, 'veneno', pctOf(atk, N.flechaDot), N.flechaTurns);
+      break;
+    case 'f-bola-fogo':
+      if (target && !hit(target, N.bolaHit, 'magico') && state.units.includes(target)) addEffect(state, ctx, target, 'queimadura', pctOf(atk, N.bolaDot), N.bolaTurns);
+      break;
+    case 'f-raio':
+      if (target && !hit(target, N.raio, 'magico') && state.units.includes(target)) addEffect(state, ctx, target, 'atordoado', 1, 1);
+      break;
+    case 'f-veneno':
+      if (target) addEffect(state, ctx, target, 'veneno', pctOf(atk, N.veneno), N.venenoTurns);
+      break;
+    case 'f-sombras':
+      if (target) hit(target, N.sombras, 'fisico', true);
+      break;
+    case 'f-cura':
+      for (const u of state.units.filter((x) => x.side === side && x.hp > 0 && x.row === row && x.hp < x.maxHp)) {
+        const h = Math.min(pctOf(u.maxHp, N.cura), u.maxHp - u.hp);
+        u.hp += h;
+        ctx.emit(state, { type: 'heal', uid: u.uid, amount: h, text: `💖 ${nameOf(u)} recupera ${h} de vida.` });
+      }
+      break;
+    case 'f-anjo':
+      if (target) addEffect(state, ctx, target, 'anjo', 1, 99);
+      break;
+    case 'f-necropolis':
+      bringBack(state, ctx, side, caster.uid, nameOf(caster));
+      break;
+  }
+  return { ok: true, events: ctx.events };
+}
+
+const CAT_LABEL: Record<string, string> = { tanque: 'Tanque', suporte: 'Suporte', dps: 'DPS', mago: 'Mago', arqueiro: 'Arqueiro', assassino: 'Assassino' };
 
 function endRoundIfNeeded(state: BattleState, ctx: Ctx) {
   if (state.winner) return;
