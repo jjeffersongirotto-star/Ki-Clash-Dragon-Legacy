@@ -781,7 +781,7 @@ Vitória ao chegar, fases 1 a 10:
 ### Barra de XP e Despertar
 - Cada degrau tem só uma **barra de XP**, que aparece **apenas na tela de Treinar**. Ela enche com **Orbes 🔮** e com o **XP por jogar** (e, no futuro, com cópias repetidas). O XP que passa da barra cheia **se perde**; com a barra cheia os botões de Orbe ficam desligados.
 - Com a barra cheia, o botão **✨ Subir para …** (Despertar) leva ao próximo degrau, pagando **Essências ✴**, e a barra volta a zero. Ainda **não existem itens de ascensão** (virão depois).
-- **Tamanho das barras:** a barra do degrau base tem o XP do antigo degrau base; a barra do "++" (que leva à próxima raridade) tem o XP do antigo "+" (1,5×); a do "+" fica no meio (1,25×).
+- **Tamanho das barras:** a barra do degrau base tem o XP do antigo degrau base; a barra do "++" (que leva à próxima raridade) tem o XP do antigo "+" (1,5×); a do "+" fica no meio (1,25×). _(v0.24.0: proporção 3 / 6 / 10, ver seção 23.)_
 - **Essências:** base → "+" = **4 × raridade** · "+" → "++" = **5 × raridade** · "++" → próxima raridade = **6 × raridade**.
 
 | Degrau | Status | Barra de XP | Despertar |
@@ -842,3 +842,69 @@ O jogador simulado agora enche **uma barra por vez** (o menor degrau primeiro) e
 - **Fase 1 ficou mais difícil (74%)** e não dá para baixar mais o inimigo (ele já está no degrau 0, Comum base). Antes, os Orbes do começo já davam alguns níveis (status) a todas as cartas; agora eles enchem ~1–2 barras e só uma ou duas cartas sobem para "+". Para voltar a ~90% seria preciso mudar o começo (mais Orbes/Essências iniciais ou uma fase 1 mais fraca) — a decidir.
 - Sem nível, os personagens de raridade alta ficam mais fortes que antes no começo da faixa deles (ex.: um Lendário inimigo vale 6,6× o Comum, contra ~3× do Kenji nível 14 da v0.22.0). Por isso as fases 8–10 caíram um pouco, mesmo com degraus baixos.
 - O XP por degrau agora soma **3,75 ×** a barra base por raridade (antes 2,5 ×) e as Essências **15 × raridade** (antes 10 ×): a evolução ficou mais lenta, e o XP é o limite (as Essências sobram).
+
+## 23. 🎒 Itens de ascensão e barras 3 / 6 / 10 (v0.24.0)
+O Despertar (subir um degrau) agora pede **barra de XP cheia + Essências ✴ + itens de ascensão**.
+
+### Os 30 itens
+Cada categoria de personagem tem o seu **conjunto de 5 itens**:
+
+| Categoria | Itens |
+|---|---|
+| 🛡 Tanque | Elmo, Armadura, Escudo, Manoplas, Botas de ferro |
+| ➕ Suporte | Tiara, Túnica, Amuleto, Bastão, Sandálias |
+| ⚔ DPS | Bandana, Colete, Espada, Luvas, Botas |
+| 🪄 Mago | Chapéu, Manto, Cajado, Cristal, Anel |
+| 🏹 Arqueiro | Capuz, Jaqueta, Arco, Aljava, Botas leves |
+| 💀 Assassino | Máscara, Capa, Adagas, Cinto, Diamante negro |
+
+- Cada item existe em **5 raridades**, mostradas **só pela cor do fundo do ícone**: Comum (cinza), Incomum (verde), Raro (azul), Épico (roxo), Lendário (laranja). **Não existe item Mítico.**
+- Os itens **não são de um personagem só**: servem para todos os personagens da categoria.
+
+### Quanto cada degrau pede (1 de cada item)
+| Degrau | Itens | Da raridade da carta | Da raridade **um acima** da carta |
+|---|---|---|---|
+| base → **"+"** | 3 | 2 | 1 |
+| "+" → **"++"** | 4 | 2 | 2 |
+| "++" → **nova raridade** (Despertar) | 5 (o conjunto todo) | 2 | 3 |
+
+- Exemplo, carta **Comum**: "+" = 2 cinza + 1 verde · "++" = 2 cinza + 2 verde · nova raridade = 2 cinza + 3 verde. Carta **Raro**: azuis + roxos.
+- **Cartas Lendárias e Míticas** pedem **só itens Lendários (laranja)**, nos mesmos números.
+- **Quais itens** e **quais são os "de cima"**: fixos para cada personagem. O jogo sorteia uma ordem dos 5 itens da categoria para cada personagem (o1…o5): "+" = o1 (de cima), o2, o3 · "++" = o2, o3, o4 (de cima), o5 (de cima) · nova raridade = os 5 (de cima: o1, o4, o5). A ordem muda de um personagem para outro, para os 5 itens serem usados. O **Treinar** mostra os itens de cada degrau, com a cor certa, e os que faltam ficam apagados.
+- Item de outra raridade não serve. As Essências do Despertar continuam as mesmas (seção 22).
+
+### Barras de XP na proporção 3 / 6 / 10
+- A barra que libera o **"+"** tem **30%** do XP da barra do **Despertar** (nova raridade), e a do **"++"** tem **60%** (ex.: 3 / 6 / 10). O status continua subindo **só nos degraus**.
+- O XP **total** de cada raridade é o mesmo da v0.23.0 (3,75 × o custo da raridade base), só redistribuído. Ex.: Comum: 700 / 1.400 / 2.333 XP (antes 1.182 / 1.478 / 1.773).
+- Saves da v0.23.0: cada carta fica com a **mesma fração** da barra (barra cheia continua cheia).
+
+### De onde vêm
+- **Cada fase dá sempre os mesmos 3 itens** (de 3 categorias diferentes) em **toda vitória e todo Repetir**. As 10 fases cobrem os 30 itens (1 vez cada):
+
+| Fase | Itens |
+|---|---|
+| 1 | Elmo, Tiara, Bandana |
+| 2 | Chapéu, Capuz, Máscara |
+| 3 | Armadura, Túnica, Colete |
+| 4 | Manto, Jaqueta, Capa |
+| 5 | Escudo, Amuleto, Espada |
+| 6 | Cajado, Arco, Adagas |
+| 7 | Manoplas, Bastão, Luvas |
+| 8 | Cristal, Aljava, Cinto |
+| 9 | Botas de ferro, Sandálias, Botas |
+| 10 | Anel, Botas leves, Diamante negro |
+
+- A **raridade** de cada item é sorteada **80/20** pela dificuldade: **Fácil** cinza 80% / verde 20% · **Normal** azul 80% / roxo 20% · **Difícil** roxo 80% / laranja 20% (tabela `GEAR_DROP` em `src/core/gear.ts`).
+- A janela da fase mostra os 3 itens e as chances; a vitória e o Repetir mostram os itens ganhos. A mochila fica em **Treinar → 🎒 Itens de ascensão**.
+- Saves antigos começam com a mochila **vazia**. A conta ADM tem 99 de cada item em cada raridade.
+
+### Simulação (100 jogadores simulados, `scripts/balance/v20.ts`; Fácil)
+| Vitória ao chegar | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| v0.23.0 | 74% | 90% | 95% | 81% | 86% | 78% | 84% | 72% | 74% | 69% |
+| barras 3 / 6 / 10, sem itens | 76% | 95% | 97% | 89% | 75% | 82% | 86% | 78% | 77% | 73% |
+| **v0.24.0** (barras + itens), sem Repetir | 71% | 87% | 88% | 65% | 65% | 62% | 62% | 48% | 50% | 46% |
+| v0.24.0 + 5 Repetir da última fase antes de cada fase nova | 71% | 87% | 88% | 66% | 66% | 64% | 67% | 55% | 45% | 48% |
+
+- Os itens **seguram a evolução**: só sobe de degrau quem tem os itens certos, e o Fácil dá quase só cinza (o verde, que todo degrau pede, sai em 20%). Repetir a **mesma** fase ajuda pouco, porque ela dá sempre os mesmos 3 itens: o jogador precisa escolher **em quais fases** jogar.
+- O reequilíbrio vem nas próximas etapas: **tutorial** (XP para começar) e **energia**. (`SIM_GEAR=0` desliga os itens no simulador, para comparar.)

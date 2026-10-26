@@ -62,15 +62,28 @@ const sumBase = (from: number, to: number) => {
 };
 /** XP que a raridade base custava até a v0.22.0 (Raro = níveis 20→30 da curva antiga, etc.). */
 const rarityBaseXp = (stars: number) => (stars === 1 ? sumBase(1, 10) : sumBase(10 * (stars - 1), 10 * stars));
-/** Tamanho da barra em cada degrau, em relação ao custo da raridade base: base 1 · "+" 1,25 · "++" 1,5. */
-export const STEP_BAR = [1, 1.25, 1.5];
-
+/** v0.23.0: tamanho de cada barra (base 1 · "+" 1,25 · "++" 1,5 × o custo da raridade base). Usado só para converter saves da v0.23. */
+export const STEP_BAR_V23 = [1, 1.25, 1.5];
+/** v0.24.0: proporção das barras — subir para "+" = 30%, para "++" = 60% e o Despertar (nova raridade) = 100% (ex.: 3 / 6 / 10). */
+export const STEP_BAR_RATIO = [0.3, 0.6, 1];
 /**
- * XP para encher a barra do degrau. Base = o XP do degrau base antigo; "++" = o XP do antigo "+"
- * (que levava à próxima cor, 1,5×); "+" (novo degrau do meio) fica no meio, 1,25×.
+ * Tamanho de cada barra em relação ao custo da raridade base. O XP TOTAL de uma raridade continua o da v0.23.0
+ * (3,75 × a barra base), só redistribuído na proporção 3 / 6 / 10.
  */
+export const STEP_BAR = STEP_BAR_RATIO.map((r) => (r * STEP_BAR_V23.reduce((a, b) => a + b, 0)) / STEP_BAR_RATIO.reduce((a, b) => a + b, 0));
+
+/** XP para encher a barra do degrau (a barra cheia libera o Despertar seguinte; o XP não muda os status). */
 export function stepXp(stars: number, step = 0): number {
   return Math.round(rarityBaseXp(stars) * STEP_BAR[Math.max(0, Math.min(MAX_STEP, step))]);
+}
+
+/** v0.24.0: converte a barra de uma carta da v0.23.0 mantendo a MESMA fração de progresso no degrau. */
+export function migrateBarV24(card: OwnedCard): OwnedCard {
+  if (isMaxTier(card)) return { ...card, xp: 0 };
+  const step = stepOf(card);
+  const oldBar = Math.round(rarityBaseXp(card.stars) * STEP_BAR_V23[step]);
+  const frac = Math.max(0, Math.min(1, card.xp / oldBar));
+  return { ...card, xp: frac >= 1 ? cardBarXp(card) : Math.round(frac * cardBarXp(card)) };
 }
 
 export interface OwnedCard {
