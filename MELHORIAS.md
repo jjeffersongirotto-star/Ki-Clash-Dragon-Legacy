@@ -15,6 +15,13 @@ _Nada pendente. Os itens 1 a 9 entraram na v0.20.0 (ver [CHANGELOG.md](CHANGELOG
 
 ## 💡 Ideias para o futuro (ainda sem data)
 
+### Estrelas por fase e Repetir automático (perguntas 21 e 22)
+- Ao vencer uma fase, o jogador ganha **1, 2 ou 3 ⭐**. Cada estrela é um **objetivo**, que pode ser cumprido em vitórias diferentes:
+  - ⭐ **vencer** a fase;
+  - ⭐ vencer com o **seu Comandante com 50% ou mais da vida**;
+  - ⭐ vencer em **até 15 turnos**.
+- O **Repetir automático** (recompensa sem jogar a batalha) só fica liberado nas fases com **3 ⭐**. O **Repetir continua dando a recompensa inteira**.
+
 ### Energia
 - Uma **energia** que limita quantas vezes dá para jogar ou repetir. O jogador vai ter que escolher onde gastar.
 - Quando a energia existir, ela pode substituir ou somar com o limite de 5 por fase.
@@ -31,7 +38,7 @@ _Respostas às perguntas 3 a 15. Substitui a ideia "Equipamentos para ascender p
 - **Sem nível numerado na carta:** em cada degrau existe só uma **barra de XP**. Quando ela enche, a carta pode subir o degrau gastando os itens.
   - A barra de XP **só aparece na tela de Treinar**, para não poluir o visual.
 - **Status:** ataque e vida sobem **só nos degraus e ao ascender**: "+" dá +10%, "++" mais +10% e a nova cor dá o bônus da cor (como hoje). Encher a barra de XP não aumenta status.
-- **De onde vêm:** cada fase dá **sempre o mesmo item** (sem sorteio do tipo). Cai **1 item por vitória ou Repetir**, com a **cor sorteada pela dificuldade**:
+- **De onde vêm (atualizado na pergunta 21):** cada fase dá itens de **grupos diferentes** (não só de um grupo ou personagem), para não ficar fácil de evoluir; com a energia, o jogador vai escolher em quais fases jogar para conseguir os itens que precisa. Cai **1 item por vitória ou Repetir**, com a **cor sorteada pela dificuldade**:
   - **Fácil:** cinza 70% ou verde 30% · **Normal:** azul 70% ou roxo 30% · **Difícil:** roxo 70% ou laranja 30%.
 - **De onde vem o XP (pergunta 16):** de **três fontes juntas**: Orbes (no Treinar), **cópias repetidas** do personagem (com chance de 1,5×, decisões 5 e 38 do plano) e **XP por jogar** (o personagem ganha XP nas batalhas).
 - **Orbes 🔮 (pergunta 17):** o Orbe **substitui o 📜 Pergaminho e o 💎 Cristal**. Existe nas **6 raridades** (Comum, Incomum, Raro, Épico, Lendário, Mítico), cada uma com a sua cor, e dá **mais XP quanto mais rara**. Os Pergaminhos e Cristais que o jogador já tem viram Orbes.
@@ -46,8 +53,14 @@ _Respostas às perguntas 3 a 15. Substitui a ideia "Equipamentos para ascender p
 - O plano do Grok (38 decisões e perguntas abertas) vai para o repositório como **`PLANO.md`**, sem nomes de Dragon Ball e sem os caminhos do APK.
 - Perguntas: **uma de cada vez**, com as opções **Sim / Não / Outros**.
 
+## 📊 Simulação da economia da v0.20.0 (pergunta 19)
+Vitória ao chegar em cada fase (fases 1 a 10), jogador simulado com a IA do Auto (`scripts/balance/v20.ts`, 300 jogadores):
+- **Antes** (repetir dava 50%, só depois de perder): 93 · 89 · 90 · 81 · 79 · 76 · 70 · 68 · 65 · 62%.
+- **v0.20.0** (5 Repetir de recompensa inteira antes de cada fase nova): 94 · **100** · **100** · **100** · **100** · **100** · **100** · **100** · **100** · **100**%. O jogador fica forte demais e a dificuldade some.
+- Outras opções testadas (100 jogadores): 1 Repetir por dia com 100% → 93–99% em todas; 5 Repetir com 20% → 82–95%; 5 Repetir com 10% → 68–93% (parecido com antes).
+- **Decisão (pergunta 21):** o Repetir **continua dando tudo**; o equilíbrio vai vir da **energia**, dos **itens espalhados em grupos diferentes** e do **Repetir só em fases com 3 ⭐**. Refazer a simulação quando isso existir.
+
 ## 📋 Pendências técnicas (da análise do jogo)
-- Unidade com Reflexo de Magia (Nyx) ainda devolve dano depois de derrotada.
 - Feitiços contra inimigos acertam a qualquer distância (decisão de design a confirmar).
 - Fases 2 e 3 estão com a dificuldade praticamente igual (89% e 90% de vitória no simulador).
 - Servidor para o modo online: a verificação das partidas já existe (`verifyMatch`); falta o servidor, as contas online e conferir os baralhos.

@@ -405,7 +405,7 @@ export interface DamageSource {
 
 /**
  * Aplica dano numa unidade: escudo temporário absorve primeiro; Reflexo de Magia devolve parte do dano mágico
- * ou de feitiço; depois confere morte (Anjo da Guarda e Renascer salvam). Retorna true se a unidade caiu.
+ * ou de feitiço (só se ela continuar de pé); depois confere morte (Anjo da Guarda e Renascer salvam). Retorna true se a unidade caiu.
  */
 export function applyDamage(state: BattleState, ctx: Ctx, target: Unit, dmg: number, type: 'fisico' | 'magico', src: DamageSource, note = ''): boolean {
   let amount = Math.max(0, dmg);
@@ -435,7 +435,8 @@ export function applyDamage(state: BattleState, ctx: Ctx, target: Unit, dmg: num
     });
   else ctx.emit(state, { type: 'damage', uid: target.uid, amount, damageType: type, text: `  → ${amount} de dano.` });
   const dead = target.hp <= 0 ? checkDeath(state, ctx, target, src.unit) : false;
-  if (reflected > 0) {
+  // v0.20.1: só reflete quem continua de pé (derrotada, a Nyx não devolve dano; salva pelo Anjo/Renascer, devolve)
+  if (reflected > 0 && !dead) {
     ctx.emit(state, { type: 'effect', uid: target.uid, kind: 'reflexo', text: `  🪞 ${nameOf(target)} reflete ${reflected} de dano mágico!` });
     if (src.unit && !src.spell && src.unit.hp > 0 && state.units.includes(src.unit)) applyDamage(state, ctx, src.unit, reflected, 'magico', { side: target.side, unit: target, dot: false, spell: false });
     else if (src.spell) hitHero(state, ctx, src.side, reflected, `🪞 O reflexo atinge o Comandante ${src.side === 'player' ? 'aliado' : 'inimigo'}`);
