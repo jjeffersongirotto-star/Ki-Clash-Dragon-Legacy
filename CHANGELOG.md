@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.18.0] — 26/10/2026 · PR #36 — Dificuldade crescente, feitiços da IA e partidas verificáveis
+- **Feitiços da IA:** os inimigos da Aventura agora usam feitiços (2 cópias de cada): Raio Paralisante nas fases 3 e 5, e de 2 a 3 feitiços por fase da 6 à 10 (tabela no REGRAS.md, seção 17).
+- **Dificuldade crescente:** nível das cartas da IA recalibrado no simulador (fases 1 a 10 = 1, 4, 4, 5, 6, 6, 11, 14, 17, 12). Vitória ao chegar (300 jogadores simulados): 93/89/90/81/79/76/70/68/65/62% (v0.17.1: 93/99/91/77/82/53/82/89/86/53%). A fase 2 deixou de ser mais fácil que a 1, e as fases 6 e 10 deixaram de ser picos de dificuldade. A vida dos Comandantes inimigos não mudou.
+- **Partidas verificáveis:** toda batalha grava a configuração (baralhos, vidas, semente) e as jogadas do jogador; `verifyMatch` refaz a partida e confere o resultado. É a base para o servidor validar as recompensas no futuro modo online (por enquanto nada muda para quem joga).
+- **Tela da Aventura:** cada fase mostra os ícones ✦ dos feitiços inimigos, e o nível inimigo mostra o maior nível das cartas da fase (antes mostrava o da primeira carta).
+- Novo script de equilíbrio `scripts/balance/v18.ts`.
+
 ## [0.17.1] — 26/10/2026 · PR #35 — Escudo, Anjo da Guarda e documentação
 - **🛡 Escudo temporário (Muralha):** a duração agora conta os **turnos do adversário**. A Muralha de 2 rodadas lançada no seu turno protege contra os 2 turnos inimigos seguintes; antes perdia 1 rodada já no fim do seu próprio turno e cobria só 1 turno inimigo. O atordoado não mudou.
 - **Conferidos os outros efeitos com duração** (Flecha Envenenada, Veneno Mortal, Bola de Fogo, Tremor, Raio Paralisante): já estavam certos, porque contam os turnos da unidade atingida, que é inimiga de quem lança. Veneno de 3 rodadas faz dano 3 vezes, queimadura de 2 faz 2 vezes e o atordoar tira exatamente 1 ação, lançados pelo jogador ou pelo inimigo (testes novos no ciclo real de turnos).

@@ -220,13 +220,16 @@ function adventure() {
     <div class="stages">${STAGES.map((s, i) => {
       const unlocked = i === 0 || save.cleared.includes(STAGES[i - 1].id);
       const done = save.cleared.includes(s.id);
+      // v0.18.0: o baralho da IA também tem feitiços
+      const foes = s.enemyDeck.filter((c) => !isSpell(c.charId));
+      const foeSpells = s.enemyDeck.filter((c) => isSpell(c.charId)).map((c) => getSpell(c.charId));
       return `<div class="stage ${unlocked ? '' : 'locked'} ${done ? 'done' : ''}">
         <div class="stage-num">${s.id}</div>
         <div class="stage-info"><b>${esc(s.name)}</b>
-          <small>Comandante inimigo ❤${s.enemyHeroHp} · Nível inimigo ~${s.enemyDeck[0].level}</small>
+          <small>Comandante inimigo ❤${s.enemyHeroHp} · Nível inimigo até ${Math.max(...foes.map((c) => c.level))}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</small>
           <small>Recompensa: ✴${s.rewards.essencias} 📜${s.rewards.pergaminho}${s.rewards.cristal ? ` 💎${s.rewards.cristal}` : ''}${s.rewards.orbe ? ` 🔮${s.rewards.orbe}` : ''}${s.unlock && !save.cards[s.unlock] ? ` · desbloqueia <b>${esc(getChar(s.unlock).name)}</b>` : ''}</small>
         </div>
-        <div class="stage-enemies">${s.enemyDeck.filter((c, k, a) => a.findIndex((x) => x.charId === c.charId) === k).slice(0, 5).map((c) => `<span class="mini" style="${starStyle(c.stars)}">${portraitImg(getChar(c.charId), { stars: c.stars })}</span>`).join('')}</div>
+        <div class="stage-enemies">${foes.filter((c, k, a) => a.findIndex((x) => x.charId === c.charId) === k).slice(0, 5).map((c) => `<span class="mini" style="${starStyle(c.stars)}">${portraitImg(getChar(c.charId), { stars: c.stars })}</span>`).join('')}</div>
         <button class="btn small ${unlocked ? 'primary' : ''}" data-stage="${s.id}" ${unlocked ? '' : 'disabled'}>${done ? 'Repetir' : unlocked ? 'Lutar' : '🔒'}</button>
       </div>`;
     }).join('')}</div></div>`;
@@ -655,5 +658,5 @@ warmLeader();
 warmPortraits([
   ...PLAYABLE.map((def) => ({ def, stars: save.cards[def.id]?.stars ?? def.minStars })),
   // miniaturas dos inimigos da Aventura
-  ...STAGES.flatMap((st) => st.enemyDeck.map((c) => ({ def: getChar(c.charId), stars: c.stars, layers: ['all' as const] }))).filter((x, i, a) => a.findIndex((y) => y.def.id === x.def.id && y.stars === x.stars) === i),
+  ...STAGES.flatMap((st) => st.enemyDeck.filter((c) => !isSpell(c.charId)).map((c) => ({ def: getChar(c.charId), stars: c.stars, layers: ['all' as const] }))).filter((x, i, a) => a.findIndex((y) => y.def.id === x.def.id && y.stars === x.stars) === i),
 ]);

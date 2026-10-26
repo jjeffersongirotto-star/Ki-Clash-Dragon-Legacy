@@ -1,0 +1,16 @@
+/**
+ * v0.18.0 — calibra a dificuldade por fase (com os feitiços da IA).
+ * Rodar: npx vite-node scripts/balance/v18.ts [jogadores] ['[vida do Comandante inimigo × 10]'] ['[nível das cartas da IA × 10]'] ['[[feitiços da fase 1], …]']
+ * Sem as listas, usa os valores de campaign.ts. Meta: vitória ao chegar caindo de fase em fase.
+ */
+import { runCampaign, report } from './progression';
+import { ENEMY_LEVELS, ENEMY_SPELLS, STAGES, enemyDeckFor } from '../../src/core/campaign';
+import { LEADER_HP, LEADER_THRESHOLDS } from '../../src/core/leaders';
+
+const N = Number(process.argv[2] ?? 100);
+const hpTable: number[] = process.argv[3] ? JSON.parse(process.argv[3]) : STAGES.map((s) => s.enemyHeroHp);
+const lvTable: number[] = process.argv[4] ? JSON.parse(process.argv[4]) : ENEMY_LEVELS;
+const spells: string[][] = process.argv[5] ? JSON.parse(process.argv[5]) : ENEMY_SPELLS;
+STAGES.forEach((s, i) => (s.enemyDeck = enemyDeckFor(i, lvTable[i], spells[i])));
+console.log('Comandante inimigo:', hpTable.join(', '), '· nível da IA:', lvTable.join(', '), '· feitiços:', JSON.stringify(spells));
+report('v0.18.0', runCampaign({ name: 'v18', hp: LEADER_HP, thresholds: LEADER_THRESHOLDS.slice(1), enemyHp: (i) => hpTable[i] }, N));

@@ -1,5 +1,5 @@
-import { aiDeploy } from '../core/ai';
-import { allyBuff, auraPenalty, castSpell, createBattle, deploy, deployCells, endPlayerTurn, effectiveAtk, spellCasters, spellTargets, unitAt, waitFor, waitOf, DEPLOY_DEPTH, Ctx } from '../core/battle';
+import { playerAuto, playerEndTurn, playerUse } from '../core/match';
+import { allyBuff, auraPenalty, createBattle, deployCells, effectiveAtk, spellCasters, spellTargets, unitAt, waitFor, waitOf, DEPLOY_DEPTH, Ctx } from '../core/battle';
 import { getSpell, isSpell } from '../core/spells';
 import { RACE_INFO, getChar } from '../core/characters';
 import { pileCount } from '../core/deck';
@@ -193,7 +193,7 @@ export class BattleView {
   async runAutoTurn() {
     while (this.autoMode && !this.disposed && !this.busy && !this.state.winner && this.state.active === 'player') {
       const ctx = new Ctx();
-      aiDeploy(this.state, ctx, 'player');
+      playerAuto(this.state, ctx);
       if (ctx.events.length) {
         this.busy = true;
         await this.play(ctx.events);
@@ -390,9 +390,7 @@ export class BattleView {
 
   /** usa a carta da mão na casa: invoca o personagem ou lança o feitiço */
   useCard(i: number, r: number, c: number) {
-    const card = this.state.decks.player.hand[i];
-    if (card && isSpell(card.charId)) return castSpell(this.state, 'player', i, r, c);
-    return deploy(this.state, 'player', i, r, c);
+    return playerUse(this.state, i, r, c);
   }
 
   /** v0.14.4: soltar a carta arrastada numa casa — mesmas regras do toque (carta pronta, zona, casa livre) */
@@ -595,7 +593,7 @@ export class BattleView {
     this.renderHand();
     this.mine = new Set(this.state.units.filter((u) => u.side === 'player' && u.slot != null).map((u) => u.uid));
     this.deadShown = this.state.decks.player.defeated.length;
-    const events = endPlayerTurn(this.state, aiDeploy);
+    const events = playerEndTurn(this.state);
     await this.play(events);
     this.busy = false;
     if (this.disposed) return;
