@@ -287,7 +287,7 @@ Cada um dos 9 novos tem um detalhe que o identifica desde Comum, além da evolu�
 
 ## 11. Evolução (nível, XP e Despertar)
 - **Status:** ataque e vida = base × (1 + 0,08 × (nível − 1)) × (1 + 0,15 × (cor − 1)), arredondado (cor: Comum = 1 … Mítico = 6). No degrau "+", soma **+10% (mín. +1)** no status do "+" do personagem (vida ou ataque).
-- **Itens de XP:** Pergaminho de Ki +100, Cristal de Ki +400, Orbe do Dragão Ancestral +1500. Ao chegar em 100% da barra, o nível sobe; cada nível pede mais XP que o anterior.
+- **Itens de XP (v0.22.0):** só **🔮 Orbes**, um por raridade: Comum +100, Incomum +250, Raro +400, Épico +800, Lendário +1.500, Mítico +3.000 (ver seção 21). Antes: Pergaminho de Ki +100, Cristal de Ki +400, Orbe do Dragão Ancestral +1500. Ao chegar em 100% da barra, o nível sobe; cada nível pede mais XP que o anterior.
 - **Nível máximo por degrau:** cor base = **10 × cor** (igual ao antigo 10 × estrelas); o "+" libera **mais 5 níveis**. Comum 10 · Comum+ 15 · Incomum 20 · Incomum+ 25 · Raro 30 · Raro+ 35 · Épico 40 · Épico+ 45 · Lendário 50 · Lendário+ 55 · Mítico 60 · Mítico+ 65.
 - **Despertar** (no nível máximo do degrau, pagando **Essências ✴**): o 1º leva da cor para o **"+"** (ex.: Raro → Raro+); o 2º leva do "+" para a **próxima cor** (Raro+ → Épico). O nível continua o mesmo; só o teto sobe.
 - **Mais difícil (v0.10): do "+" para a próxima cor custa 50% A MAIS** que da cor para o "+", **tanto em Essências quanto em XP**:
@@ -403,7 +403,7 @@ Habilidades em detalhe:
 - **Baralho da IA:** toda fase tem **10 personagens diferentes**. Fases 1 e 2 usam só personagens Comuns (a fase 1 sem tanques); a partir da 3 entram os de Incomum, Raro e Épico; Kenji (fases 8 e 9) e Vorax (fase 10) só aparecem como inimigos.
 - **Nível dos inimigos (v0.18.0):** fase 1 a 10 = **1, 4, 4, 5, 6, 6, 11, 14, 17, 12** (cada carta limitada ao nível máximo da cor dela; na fase 10 as cartas estão **uma cor acima**, por isso o nível é menor). Antes: 1, 2 e depois 1 + 1,5 × (fase − 1) → 1, 2, 4, 6, 7, 9, 10, 12, 13, 15. Ver seção 17.
 - **Vida do Comandante inimigo (v0.13):** 12 + 7 × (fase − 1) → 12, 19, 26, 33, 40, 47, 54, 61, 68, 75. Antes era 12 + 2 × (fase − 1); os +5 por fase a mais são **metade** do acréscimo de vida do seu Comandante no nível esperado daquela fase (ver seção 15).
-- Derrota dá 1 Pergaminho de Ki de consolo.
+- Derrota dá 1 **Orbe Comum** de consolo (antes, 1 Pergaminho de Ki).
 - Progresso salvo no navegador (localStorage). O **nível de perfil** conta as fases vencidas no **Fácil**.
 
 ## 15. Poder ⚡ e Comandante 👑 (v0.13)
@@ -724,3 +724,39 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 
 ### "Raridade" no lugar de "cor"
 - As telas chamam o tier da carta de **raridade** ("nova raridade", "evolução por raridade", "Raridades das cartas e Despertar"). As cores continuam no visual. Ver a nota no início da seção 10.
+
+## 21. 🔮 Orbes por raridade e XP por jogar (v0.22.0)
+### Orbes
+- O **Orbe** é o único item de XP (substitui o 📜 Pergaminho de Ki e o 💎 Cristal de Ki). Existe nas **6 raridades**, mostradas pela cor da esfera:
+
+| Orbe | XP |
+|---|---|
+| Comum (cinza) | 100 |
+| Incomum (verde) | 250 |
+| Raro (azul) | 400 |
+| Épico (roxo) | 800 |
+| Lendário (laranja) | 1.500 |
+| Mítico (vermelho) | 3.000 |
+
+- **Conversão dos saves (sem perder XP):** 📜 Pergaminho → **Orbe Comum**, 💎 Cristal → **Orbe Raro**, 🔮 Orbe do Dragão Ancestral → **Orbe Lendário**. Save novo começa com **10 Orbes Comuns e 3 Raros** (o mesmo XP de antes).
+- Usados no **Treinar** (um botão por raridade). Nas barras de recursos aparecem só os Orbes que o jogador tem.
+
+### Orbes nas fases (pela dificuldade)
+- **Fácil:** Orbes **Comuns** e **Incomuns**, com o mesmo XP de antes (o antigo 📜 virou Comuns; o 💎 e o 🔮 viraram Incomuns).
+- **Normal:** Orbes **Raros** (~60% do XP) e **Épicos** (~40%), com XP total parecido com o do Fácil.
+- **Difícil:** Orbes **Épicos** com XP parecido e, a cada vitória ou Repetir, **10% de chance** de **1 Orbe Lendário** e **2% de chance** de **1 Orbe Mítico** (sorteios separados). A janela da fase mostra essas chances.
+- As Essências ✴ são as mesmas nas três dificuldades.
+
+### XP por jogar
+- Ao **vencer jogando** uma fase, **todos os personagens do baralho** ganham **15 + 5 × fase** de XP (fase 1 = 20, fase 10 = 65). A tela de vitória mostra o XP ganho e quantos níveis subiram.
+- **Derrota e Repetir não dão** esse XP. O XP principal continua sendo os Orbes.
+
+### Simulação (300 jogadores simulados, sem usar o Repetir; `SIM_PLAYXP=0` desliga o XP por jogar)
+Vitória ao chegar, fases 1 a 10:
+
+| | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| v0.21.0 | 93% | 89% | 90% | 81% | 79% | 76% | 70% | 68% | 65% | 62% |
+| v0.22.0 | 93% | 91% | 96% | 84% | 85% | 79% | 86% | 82% | 79% | 73% |
+
+- O XP por jogar deixa a campanha **um pouco mais fácil** (até +16 pontos nas fases finais). O ajuste fica para quando vierem os itens de ascensão e a energia (MELHORIAS.md).

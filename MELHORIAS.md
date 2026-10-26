@@ -6,7 +6,10 @@
 ## 🔜 Próxima atualização (decidido, falta fazer)
 Roteiro aprovado em 26/10/2026 (pergunta 23), uma versão por vez, cada uma com PR e merge:
 1. ✅ **v0.21.0:** ⭐ estrelas por fase (3 objetivos) + Repetir só nas fases com 3 ⭐ + "raridade" no lugar de "cor" — feito (perguntas 24–25: estrelas por dificuldade; fases já vencidas começam com 1 ⭐).
-2. **v0.22.0:** 🔮 Orbes por raridade (no lugar de 📜 e 💎) + XP por jogar.
+2. ✅ **v0.22.0:** 🔮 Orbes por raridade (no lugar de 📜 e 💎) + XP por jogar — feito. Decidido (perguntas 26–30):
+   - XP de cada Orbe: Comum 100 · Incomum 250 · Raro 400 · Épico 800 · Lendário 1.500 · Mítico 3.000. Conversão sem perder XP: 📜 → Orbe Comum, 💎 → Orbe Raro, 🔮 antigo → Orbe Lendário.
+   - Raridade do Orbe sobe com a dificuldade: Fácil = Comum e Incomum · Normal = Raro e Épico · Difícil = Épicos + **10%** de chance de 1 Lendário e **2%** de 1 Mítico por vitória/Repetir. O XP total por fase fica parecido com o de hoje.
+   - XP por jogar: **todo o baralho** ganha **15 + 5 × fase** de XP, **só ao vencer jogando** (derrota e Repetir não dão). O XP principal continua sendo os Orbes.
 3. **v0.23.0:** itens de ascensão + degraus "+"/"++" + carta sem nível numerado (a maior: conversão dos saves e simulação).
 4. **v0.24.0:** energia (antes, perguntas sobre como ela funciona).
 
@@ -57,6 +60,7 @@ Vitória ao chegar em cada fase (fases 1 a 10), jogador simulado com a IA do Aut
 - **Decisão (pergunta 21):** o Repetir **continua dando tudo**; o equilíbrio vai vir da **energia**, dos **itens espalhados em grupos diferentes** e do **Repetir só em fases com 3 ⭐**. Refazer a simulação quando isso existir.
 
 ## 📋 Pendências técnicas (da análise do jogo)
+- O XP por jogar (v0.22.0) deixou a campanha um pouco mais fácil (vitória ao chegar 73–96%). Reequilibrar junto com os itens de ascensão e a energia.
 - A ⭐ de "vencer em até 15 turnos" pode ser difícil no começo (no Auto a fase 1 termina perto do turno 25–30). Rever no ajuste fino.
 - ✅ ~~Reflexo de Magia (Nyx) devolvia dano depois de derrotada~~ — corrigido na v0.20.1.
 - Feitiços contra inimigos acertam a qualquer distância (decisão de design a confirmar).

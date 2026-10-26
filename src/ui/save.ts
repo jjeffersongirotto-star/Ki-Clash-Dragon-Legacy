@@ -4,7 +4,7 @@ import { deckMaxFor, profileLevelFor } from '../core/deckbuild';
 import { isSpell } from '../core/spells';
 import type { CardInstance } from '../core/types';
 import { DEFAULT_LEADER, LEADERS } from '../core/leaders';
-import { newOwned, type OwnedCard, type XpItemId } from '../core/progression';
+import { LEGACY_ITEM_TO_ORB, XP_ITEMS, newOwned, type OwnedCard, type XpItemId } from '../core/progression';
 import { DIFFICULTIES, clearedIn, type DailyUse, type Difficulty } from '../core/adventure';
 
 export interface SaveData {
@@ -70,6 +70,21 @@ export { DECK_MIN, MAX_COPIES };
 /** v0.8: o jogador novo começa só com os personagens de Comum */
 export const STARTERS = STARTER_IDS;
 
+/** v0.22.0: as 6 raridades de Orbe sempre presentes (0 quando não tem) */
+export const emptyOrbs = (bag: Partial<Record<XpItemId, number>> = {}): Record<XpItemId, number> =>
+  Object.fromEntries(XP_ITEMS.map((o) => [o.id, bag[o.id] ?? 0])) as Record<XpItemId, number>;
+
+/** v0.22.0: 📜 Pergaminho → Orbe Comum, 💎 Cristal → Orbe Raro, 🔮 antigo → Orbe Lendário (o XP não muda); valores inválidos viram 0. */
+export function migrateOrbs(items: Record<string, unknown> | undefined): Record<XpItemId, number> {
+  const out = emptyOrbs();
+  const n = (v: unknown) => (Number.isFinite(v as number) && (v as number) > 0 ? Math.floor(v as number) : 0);
+  for (const [k, v] of Object.entries(items && typeof items === 'object' ? items : {})) {
+    const id = (LEGACY_ITEM_TO_ORB[k] ?? k) as XpItemId;
+    if (id in out) out[id] += n(v);
+  }
+  return out;
+}
+
 export function defaultSave(): SaveData {
   const cards: Record<string, OwnedCard> = {};
   for (const id of STARTERS) cards[id] = newOwned(id);
@@ -77,7 +92,8 @@ export function defaultSave(): SaveData {
     version: 1,
     cards,
     deck: STARTERS.slice(0, DECK_MAX),
-    items: { pergaminho: 10, cristal: 3, orbe: 0 },
+    // v0.22.0: o começo de antes (10 📜 e 3 💎) em Orbes
+    items: emptyOrbs({ orbe1: 10, orbe3: 3 }),
     essencias: 10,
     cleared: [],
     speed: 1,
@@ -225,6 +241,7 @@ export function loadSave(): SaveData {
     migrateV13(merged);
     migrateV17(merged);
     normalizeV20(merged);
+    merged.items = migrateOrbs(d.items as Record<string, unknown>);
     return merged;
   } catch {
     return defaultSave();

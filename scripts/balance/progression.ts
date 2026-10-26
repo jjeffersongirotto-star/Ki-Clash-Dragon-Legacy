@@ -13,7 +13,8 @@
 import { simulate } from './sim';
 import { STAGES, UNLOCKS } from '../../src/core/campaign';
 import { STARTER_IDS } from '../../src/core/characters';
-import { newOwned, feedXp, ascend, canAscend, ascendCost, cardMaxLevel, XP_ITEMS, type OwnedCard } from '../../src/core/progression';
+import { newOwned, feedXp, ascend, canAscend, ascendCost, cardMaxLevel, XP_ITEMS, playXp, type OwnedCard } from '../../src/core/progression';
+import { rewardsFor } from '../../src/core/adventure';
 import { cardPower, deckPower } from '../../src/core/power';
 import type { CardInstance } from '../../src/core/types';
 import { autoDeck, deckMaxFor, profileLevelFor } from '../../src/core/deckbuild';
@@ -50,7 +51,8 @@ function spend(p: Player) {
     if (asc) { p.ess -= ascend(asc, p.ess).cost; continue; }
     const target = t.filter((c) => c.level < cardMaxLevel(c)).sort((a, b) => a.level - b.level)[0];
     if (!target) return;
-    const item = ['pergaminho', 'cristal', 'orbe'].find((id) => p.items[id] > 0);
+    // v0.22.0: Orbes, do mais fraco para o mais forte
+    const item = XP_ITEMS.map((o) => o.id as string).find((id) => p.items[id] > 0);
     if (!item) return;
     p.items[item]--;
     feedXp(target, XP[item]);
@@ -58,13 +60,18 @@ function spend(p: Player) {
 }
 
 function reward(p: Player, i: number, first: boolean, repeatMult = 0.5) {
-  const r = STAGES[i].rewards;
+  // v0.22.0: recompensa do Fácil em Orbes (o simulador joga a campanha no Fácil)
+  const r = rewardsFor(i + 1, 'facil');
   const f = first ? 1 : repeatMult;
-  p.items.pergaminho += Math.floor(r.pergaminho * f);
-  p.items.cristal += Math.floor(r.cristal * f);
-  if (first) p.items.orbe += r.orbe;
+  for (const [id, k] of Object.entries(r.orbs)) p.items[id] = (p.items[id] ?? 0) + Math.floor((k ?? 0) * f);
   p.ess += Math.floor(r.essencias * f);
   if (first && UNLOCKS[i + 1] && !p.cards[UNLOCKS[i + 1]]) p.cards[UNLOCKS[i + 1]] = newOwned(UNLOCKS[i + 1]);
+}
+
+/** v0.22.0: XP por jogar — ao vencer jogando, a equipe ganha XP (SIM_PLAYXP=0 desliga, para comparar). */
+const SIM_PLAYXP = process.env.SIM_PLAYXP !== '0';
+function winXp(p: Player, i: number) {
+  if (SIM_PLAYXP) for (const c of team(p)) feedXp(c, playXp(i + 1));
 }
 
 function levelUp(p: Player, sc: Schedule) {
@@ -85,7 +92,7 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
   const stats: StageStat[] = STAGES.map(() => ({ arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [] }));
   let seed = 7;
   for (let pi = 0; pi < players; pi++) {
-    const p: Player = { cards: {}, items: { pergaminho: 10, cristal: 3, orbe: 0 }, ess: 10, cleared: 0, leader: 1 };
+    const p: Player = { cards: {}, items: { orbe1: 10, orbe3: 3 }, ess: 10, cleared: 0, leader: 1 };
     for (const id of STARTER_IDS) p.cards[id] = newOwned(id);
     for (let i = 0; i < STAGES.length; i++) {
       if (i > 0) for (let k = 0; k < repeats; k++) reward(p, i - 1, false, repeatMult);
@@ -106,13 +113,13 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
         attempts++;
         spend(p); levelUp(p, sc);
         const r = simulate(battleDeck(p, i), STAGES[i].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i), seed++);
-        if (r.winner === 'player') { reward(p, i, true, repeatMult); break; }
-        p.items.pergaminho += 1;
+        if (r.winner === 'player') { reward(p, i, true, repeatMult); winXp(p, i); break; }
+        p.items.orbe1 = (p.items.orbe1 ?? 0) + 1;
         if (attempts > 300) break;
         if (i > 0) {
           spend(p); levelUp(p, sc);
           const rr = simulate(battleDeck(p, i), STAGES[i - 1].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i - 1), seed++);
-          if (rr.winner === 'player') reward(p, i - 1, false, repeatMult); else p.items.pergaminho += 1;
+          if (rr.winner === 'player') { reward(p, i - 1, false, repeatMult); winXp(p, i - 1); } else p.items.orbe1 = (p.items.orbe1 ?? 0) + 1;
         }
       }
       st.attempts.push(attempts);
