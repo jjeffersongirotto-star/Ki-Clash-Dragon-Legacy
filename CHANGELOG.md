@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.26.1] — 26/10/2026 · PR #49 — Moeda com o dragão no meio
+- **🪙 Ouro de Dragão:** a moeda agora é a Ryo dourada redonda com o **dragão 🐉 dourado no meio**, no lugar do furo (pedido do jogador). O desenho oval da v0.26.0 saiu.
+
 ## [0.26.0] — 26/10/2026 · PR #48 — Energia, XP de perfil, Ouro de Dragão e Loja
 - **⚡ Energia:** Jogar ou Repetir gasta energia (Fácil 1 · Normal 3 · Difícil 6; na batalha, ao começar). Máximo pelo nível de perfil (nível 1 = 20 … nível 100 = 300), recupera 1 a cada 6 minutos. Ao subir de nível, ganha a energia máxima do nível novo (pode passar do máximo). O tutorial é grátis e o limite de 5 por dia continua.
 - **👤 Nível de perfil de verdade (1 a 100):** XP de perfil = 1 por energia gasta + (4 + fase) × custo a cada vitória ou Repetir (em dobro na primeira vitória). O nível continua aumentando o baralho (até 40). Barra de nível na Base.

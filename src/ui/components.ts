@@ -174,42 +174,14 @@ export function orbHTML(id: XpItemId, count?: number | string): string {
 export const orbBagHTML = (bag: OrbBag, prefix = '') =>
   XP_ITEMS.filter((o) => (bag[o.id] ?? 0) > 0).map((o) => orbHTML(o.id, `${prefix}${bag[o.id]}`)).join('');
 
-let coinSeq = 0;
 /**
- * v0.26.0: 🪙 Ouro de Dragão — moeda oval japonesa (Ryo/koban) dourada, com listras gravadas e um dragão dourado
- * no meio (desenho próprio em SVG, sem emoji).
+ * v0.26.1: 🪙 Ouro de Dragão — a moeda Ryo dourada (redonda, com borda), com o dragão 🐉 dourado no lugar
+ * do furo do meio. O dragão é o próprio 🐉, pintado de dourado pelo CSS (.coin-dragon).
  */
-export function coinSVG(): string {
-  const g = `kc${coinSeq++}`;
-  return `<svg class="coin-svg" viewBox="0 0 40 56" aria-hidden="true"><defs>
-    <linearGradient id="${g}a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".35" stop-color="#ffd23f"/><stop offset=".7" stop-color="#e0a100"/><stop offset="1" stop-color="#9a6400"/></linearGradient>
-    <linearGradient id="${g}b" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6c4"/><stop offset=".5" stop-color="#ffcf2e"/><stop offset="1" stop-color="#c98a00"/></linearGradient></defs>
-    <ellipse cx="20" cy="28" rx="19" ry="27" fill="url(#${g}a)" stroke="#7a4d00" stroke-width="1.4"/>
-    <ellipse cx="20" cy="28" rx="15.2" ry="23" fill="none" stroke="#8a5a00" stroke-width=".9" opacity=".8"/>
-    <g stroke="#a86f00" stroke-width=".7" opacity=".35">${[12, 16, 20, 24, 32, 36, 40, 44].map((y) => `<line x1="${20 - 13 * Math.sqrt(1 - ((y - 28) / 23) ** 2)}" y1="${y}" x2="${20 + 13 * Math.sqrt(1 - ((y - 28) / 23) ** 2)}" y2="${y}"/>`).join('')}</g>
-    <g stroke-linecap="round" stroke-linejoin="round">
-      <g fill="url(#${g}b)" stroke="#5c3900" stroke-width=".7">
-        <path d="M9.8 22.6 L7 20.4 L10.4 19.9 Z M24.6 30.8 L28.6 29.4 L26.8 32.6 Z M16.2 39.6 L13.6 42.6 L17.6 41.8 Z M27.6 34.4 L31 36 L27.4 37 Z M14.6 16.9 L11.6 16.4 L13.2 19.2 Z"/>
-      </g>
-      <path d="M12 46 C4 40 30 37 23 29 S8 21 18 14" fill="none" stroke="#5c3900" stroke-width="5.6"/>
-      <path d="M12 46 C4 40 30 37 23 29 S8 21 18 14" fill="none" stroke="url(#${g}b)" stroke-width="3.6"/>
-      <path d="M12.6 45 C6.6 40 27 37.4 21.6 29.6 S10.2 21.8 18 15" fill="none" stroke="#fff3b0" stroke-width=".8" opacity=".75"/>
-      <path d="M12 46 c-3 .6 -5 3.6 -4.2 7 c.9 -1.8 2 -2.2 3 -1.4 c-.2 -2 .6 -3.6 1.2 -5.6 Z" fill="url(#${g}b)" stroke="#5c3900" stroke-width=".7"/>
-      <path d="M23.6 30.6 l4 2.4 M27.6 33 l1.6 -1.4 M27.6 33 l1.9 .2 M27.6 33 l.9 1.6 M13.2 23.4 l-4 1.6 M9.2 25 l-1.4 -1.6 M9.2 25 l-1.8 .4 M9.2 25 l-.6 1.8" fill="none" stroke="#5c3900" stroke-width="2.2"/>
-      <path d="M23.6 30.6 l4 2.4 M13.2 23.4 l-4 1.6" fill="none" stroke="#ffd84d" stroke-width="1"/>
-      <path d="M18.4 9.6 C16.6 7.6 14.6 6.4 12.4 6 M20 9 C19 6.8 17.6 5.2 15.8 4.4" fill="none" stroke="#5c3900" stroke-width="1.5"/>
-      <path d="M18.4 9.6 C16.6 7.6 14.6 6.4 12.4 6 M20 9 C19 6.8 17.6 5.2 15.8 4.4" fill="none" stroke="#ffe27a" stroke-width=".6"/>
-      <path d="M16 13 C16 9.4 19.6 8.2 23 9 L29 10.6 C30.2 11 30.2 12.6 29 13 L24.4 13.6 L27.6 15.2 C26 16.6 23 16.6 21 15.8 C18 15.8 16 15.2 16 13 Z" fill="url(#${g}b)" stroke="#5c3900" stroke-width=".9"/>
-      <path d="M28.6 12.4 C31.6 13 33 15 33.6 18.4 M27 15.6 C28.6 17.2 29 19.2 28.4 21.2" fill="none" stroke="#8a5a00" stroke-width=".7"/>
-      <path d="M16.4 14.6 l-2.6 .4 l1.4 1.4 l-2.4 1" fill="none" stroke="#5c3900" stroke-width=".9"/>
-    </g>
-    <circle cx="21.6" cy="11.4" r=".9" fill="#5c3900"/>
-    <circle cx="28.2" cy="11.4" r=".35" fill="#5c3900"/>
-  </svg>`;
-}
+export const coinFace = () => `<span class="coin-face" aria-hidden="true"><span class="coin-dragon">🐉</span></span>`;
 /** Ouro de Dragão com quantidade (opcional). */
 export const goldHTML = (count?: number | string) =>
-  `<span class="coin" title="Ouro de Dragão" aria-label="Ouro de Dragão">${coinSVG()}${count != null ? `<b>${count}</b>` : ''}</span>`;
+  `<span class="coin" title="Ouro de Dragão" aria-label="Ouro de Dragão">${coinFace()}${count != null ? `<b>${count}</b>` : ''}</span>`;
 /** v0.26.0: energia ⚡ atual / máxima (acima do máximo fica dourada). */
 export const energyHTML = (cur: number, max: number) =>
   `<span class="energy${cur > max ? ' over' : ''}" title="Energia (Fácil 1 · Normal 3 · Difícil 6; recupera 1 a cada 6 min)">⚡<b>${cur}</b><small>/${max}</small></span>`;
