@@ -6,19 +6,28 @@
 Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandante do jogador: **20** de vida no nível 1, até **110** no nível 10 (ver seção 15). Comandante inimigo: de **12** (fase 1) a **75** (fase 10).
 
 ## 2. Arena e Lutadores Interativos
-- **2 fileiras × 7 colunas.** Você fica à esquerda, o inimigo à direita.
+- **2 fileiras × 12 colunas (v0.16.0; antes 2 × 7).** Você fica à esquerda, o inimigo à direita. As casas ficam menores para caber as 12 colunas: deitado no celular (915 × 412) cada casa tem ~52 px; no computador (1366 × 768) ~80 px; em pé (412 × 915) ~25 px, sem as coordenadas das casas e com a placa `ATQ | VIDA` mais enxuta.
 - Cada Comandante aparece em **corpo inteiro** logo **depois da última coluna** do seu lado (com barra de vida no topo da tela e nos pés). Ele conta como uma unidade parada numa **coluna virtual** após o fim da arena, alcançável pelas **duas fileiras**.
-- **Zona de invocação:** as **3 primeiras colunas** do seu lado (colunas 1–3). A IA usa as 3 do lado dela (colunas 5–7).
+- **Zona de invocação:** as **3 primeiras colunas** do seu lado (colunas 1–3). A IA usa as 3 do lado dela (colunas 10–12). Entre as duas zonas ficam **6 colunas livres**.
 - **Unidades na Arena:** cada carta invocada entra em campo como um **lutador anime de corpo inteiro** sobre um círculo tático de invocação, exibindo `ATQ | VIDA` nos pés e animando cada ação:
   - **Caminhada (`MOVE` / `JUMP`):** pernas articuladas andando/correndo pelas casas com nuvens de poeira e seta indicadora `MOVE`.
   - **Ataque corpo a corpo (`HIT!`):** investida com golpe de arma/punho, onda de corte crescente e impacto `HIT!`.
   - **Ataque à distância / Feixe de Ki:** postura de disparo com **feixe de Ki contínuo** (estilo Kamehameha) para ataques mágicos ou projéteis velozes para arqueiros.
   - **Dano e Derrota (`Necropolis`):** animação de recuo ao sofrer dano com números flutuantes e ida para a **Necropolis (Derrotadas)** ao cair.
 
-## 3. Turnos, energia e modo Auto
-1. No início do seu turno você recebe **energia ⚡** = 2 + número do turno (3 no 1º turno), máximo **10**. A energia não acumula.
-2. Você compra **as cartas que faltarem para a mão voltar a ter 6** (jogou 3, compra 3; com a mão cheia, não compra — ver seção 4).
-3. Invoca quantas cartas a energia permitir (cada carta tem um custo), em casas livres da sua zona.
+## 3. Turnos, contagem de rodadas e modo Auto
+**v0.16.0: a energia acabou.** Cada carta na mão tem uma **contagem de rodadas ⏳**, mostrada na **gota** da carta (no canto superior esquerdo):
+- Ao entrar na mão, a carta espera **2 × custo − 1** rodadas: custo 2 → **3**, custo 3 → **5**, custo 4 → **7**, custo 5 → **9**, custo 6 → **11**. Fora da batalha (Coleção, detalhes) a gota mostra essa espera cheia; na mão, quantas rodadas **faltam**.
+- No **início de cada turno seu**, a contagem das cartas que já estavam na mão cai **1**. A carta só pode ser invocada quando chega a **0** (fica colorida; as que ainda esperam ficam apagadas, não acendem casas e não podem ser arrastadas para o campo).
+- **A mão inicial começa 2 rodadas adiantada:** as cartas de custo 2 já ficam prontas no turno 1, as de custo 3 no turno 3, e assim por diante.
+- Não há limite por turno: dá para invocar **todas as cartas prontas** no mesmo turno, se houver casa livre. Uma carta pronta que você não joga continua pronta.
+- No lugar do antigo orbe de energia, o orbe **⏳** mostra quantas cartas da mão estão prontas.
+- A IA do inimigo (e o modo Auto) segue a mesma regra: invoca todas as suas cartas prontas, as de maior custo primeiro.
+- **Por que 2 × custo − 1:** na simulação das 10 fases, espera = custo deixava cartas caras baratas demais (enxurrada de unidades fortes) e as fases 4–6 e 10 ficavam muito mais difíceis (vitória ao chegar 13–25%). Ver a seção 15.
+
+1. No início do seu turno a contagem das cartas da mão anda 1 rodada.
+2. Você compra **as cartas que faltarem para a mão voltar a ter 6** (jogou 3, compra 3; com a mão cheia, não compra — ver seção 4). Cada carta comprada entra com a espera cheia.
+3. Invoca as cartas prontas (contagem 0) que quiser, em casas livres da sua zona.
 4. Ao tocar **LUTAR** (ou ativar o botão **Auto**), suas unidades agem sozinhas, da mais avançada para a mais recuada. Depois o inimigo compra, invoca e age.
 
 ### Tela de batalha
@@ -26,7 +35,7 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 - **Botão Auto (`Auto: OFF` / `Auto: ON`):** com o Auto ligado, o jogo **invoca suas cartas sozinho** (com a mesma lógica de invocação da IA) e toca **LUTAR** a cada turno, até a batalha acabar ou você desligar. Ele desliga sozinho ao fim da batalha ou ao sair (cancelar a saída não desliga).
 - **Contador `Em campo (N)`:** mostra quantas unidades suas estão vivas na arena.
 - **Selecionar carta da mão:** tocar seleciona (e mostra as informações no painel); **tocar de novo na mesma carta tira a seleção**.
-- **Arrastar para invocar (v0.14.4):** além de tocar na carta e depois na casa, dá para **segurar a carta da mão e arrastá-la até uma casa** (dedo ou mouse). Enquanto arrasta, a carta segue o dedo, a carta na mão fica apagada e as **casas livres da sua zona ficam destacadas** (a casa embaixo do dedo brilha mais). **Soltar numa casa destacada invoca** a carta, com as mesmas regras do toque (energia suficiente, sua zona, casa livre); soltar em outra casa ou fora do campo **cancela** e a carta volta para a mão. Um toque curto continua só selecionando, e segurar parado (~0,5 s) continua abrindo os detalhes. Com o celular em pé, arrastar para o lado continua rolando a mão; para invocar, arraste para cima, em direção ao campo. A carta que segue o dedo só se move (sem redesenhar a tela), mantendo ~60 FPS.
+- **Arrastar para invocar (v0.14.4):** além de tocar na carta e depois na casa, dá para **segurar a carta da mão e arrastá-la até uma casa** (dedo ou mouse). Enquanto arrasta, a carta segue o dedo, a carta na mão fica apagada e as **casas livres da sua zona ficam destacadas** (a casa embaixo do dedo brilha mais). **Soltar numa casa destacada invoca** a carta, com as mesmas regras do toque (carta pronta, sua zona, casa livre); soltar em outra casa ou fora do campo **cancela** e a carta volta para a mão. Um toque curto continua só selecionando, e segurar parado (~0,5 s) continua abrindo os detalhes. Com o celular em pé, arrastar para o lado continua rolando a mão; para invocar, arraste para cima, em direção ao campo. A carta que segue o dedo só se move (sem redesenhar a tela), mantendo ~60 FPS.
 - **Inspecionar carta em batalha:** **segurar** a carta da mão (~0,5 s), ou tocar em **🔍 Detalhes** / **🔍 Ver Carta** (no painel de informações de uma carta da mão ou de uma unidade, aliada ou inimiga), abre a janela de detalhes da carta, no estilo do jogo. Ao fechar a janela, a carta **não fica selecionada**.
 - **Janela de detalhes no celular:** cabe na tela e **rola por dentro**; o **✕** fica sempre visível no canto. Tocar fora da janela também fecha.
 - **Painel de informações:** quando a unidade mostrada no painel é **derrotada**, o painel volta ao texto inicial.
@@ -38,7 +47,7 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 - **Sem rolagem:** a batalha ocupa exatamente a altura visível (`100dvh`, acompanha a barra de endereço do Chrome) e respeita os recortes da tela (safe-area). Nenhuma parte da tela rola.
 - **Topo:** HUD VS fino (vida dos dois Comandantes, turno), com **Sair**, **Auto**, velocidade, **Em campo (N)** e **📜** (registro) à direita.
 - **Centro:** a arena 2×7 fica **o maior possível**, com as colunas dos Comandantes visíveis nas pontas.
-- **Embaixo, numa linha só:** **Baralho** à esquerda, as **6 cartas da mão inteiras** no meio, **Necropolis (Derrotadas)**, a **energia ⚡** e o botão **LUTAR** na ponta direita.
+- **Embaixo, numa linha só:** **Baralho** à esquerda, as **6 cartas da mão inteiras** no meio, **Necropolis (Derrotadas)**, o orbe **⏳ de cartas prontas** (antes a energia) e o botão **LUTAR** na ponta direita.
 - **Painel de informações:** vira uma **janela sobreposta** sobre a metade inimiga da arena (com **✕** para fechar). Ela abre ao selecionar uma carta/unidade e **fecha sozinha ao tocar LUTAR** (não cobre a luta). Se o texto for longo, rola só por dentro da janela.
 - **Registro da batalha:** fica escondido; o botão **📜** abre/fecha uma gaveta lateral.
 - **Janela de detalhes da carta:** cabe na altura da tela deitada, rola por dentro, ✕ sempre visível.
@@ -94,23 +103,24 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
    - **Na última coluna:** ataca o Comandante normalmente.
    - A investida vale em todo ataque feito logo depois de um salto.
 7. **Sem passo da vitória (v0.15.0):** quem **derrota um inimigo fica onde está** (antes avançava 1 casa).
+8. **Ordem de ação:** as unidades agem da **mais avançada para a mais recuada**. **Desempate (v0.16.0, confirmado):** na **mesma coluna, a fileira de cima age primeiro** — vale para os dois lados.
 
 ## 6. Alcance e alvos
 - **Só a própria fileira:** ninguém ataca unidades da outra fileira, exceto as habilidades **diagonais** (Corte Diagonal e Golpe Reverso) e a **lateral** Explosão de Brasas (Kael), que atinge a casa da mesma coluna na outra fileira.
-- **Corpo a corpo (alcance 1):** só a casa **logo à frente**.
-- **Longo alcance (alcance 3):** o inimigo **mais próximo** até **3 casas à frente**. Não avança quando pode atacar.
+- **Corpo a corpo (alcance 1):** só a casa **logo à frente** (regra confirmada na v0.16.0; atacar a 2 casas fica só para habilidades).
+- **Longo alcance (alcance 4, v0.16.0; antes 3):** magos, arqueiros e suportes à distância atingem o inimigo **mais próximo** até **4 casas à frente**. Não avança quando pode atacar. A Cria Sombria (alcance 2) e as miras especiais de 2 casas não mudaram.
 - **Miras especiais** (sempre na própria fileira):
   - **Emboscada (Zarek):** o inimigo **mais distante** até 2 casas.
   - **Instinto Predador (Yume):** o inimigo com **menos vida** até 2 casas.
   - **Caça-Conjuradores (Ren):** prioriza inimigos de **longo alcance** (magos, arqueiros, suportes à distância) até 2 casas; sem eles, ataca normalmente.
   - **Ataque Surpresa (Kuro):** o inimigo de **maior ataque** até 2 casas.
-  - **Feixe Perfurante (Lyra):** o mais próximo e também **os que estão atrás dele** no alcance 3.
+  - **Feixe Perfurante (Lyra):** o mais próximo e também **os que estão atrás dele** no alcance 4.
   - **Corte Diagonal (Nara):** a casa diagonal logo à frente, se não houver ninguém em frente.
   - **Golpe Reverso (Toru):** prioriza a casa diagonal logo atrás.
 - **Comandante:** se não houver unidade inimiga válida, a unidade ataca o Comandante com seu alcance normal:
   - corpo a corpo: da **última coluna**;
   - Zarek, Yume, Ren e Kuro (mira 2) e a Cria Sombria (alcance 2): da **penúltima**;
-  - longo alcance (3): a partir da **antepenúltima**.
+  - longo alcance (4): a partir da **4ª coluna contando do fim** (coluna 9 de 12).
 - Unidades inimigas no alcance sempre têm **prioridade** sobre o Comandante.
 
 ## 7. Dano
@@ -128,8 +138,8 @@ A partir do **turno 8**, todas as unidades dos dois lados ganham **+1 de ataque*
 | 🛡️ | Tanque | Muita vida e resistência, pouco ataque. Segura a linha. |
 | ➕ | Suporte | Cura aliados ou enfraquece inimigos. |
 | ⚔️ | DPS | Dano físico corpo a corpo. |
-| 🪄 | Mago | Dano mágico à distância (alcance 3), pouca vida. |
-| 🏹 | Arqueiro | Dano físico à distância (alcance 3), pouca vida. |
+| 🪄 | Mago | Dano mágico à distância (alcance 4), pouca vida. |
+| 🏹 | Arqueiro | Dano físico à distância (alcance 4), pouca vida. |
 | 💀 | Assassino | Frágil, mas escolhe o alvo dentro da fileira. |
 
 ### Raças e Origens Anime
@@ -179,7 +189,7 @@ Desde a v0.10 **não há mais estrelas**: a **cor da carta é o tier** do person
 ### Visual das cartas — padrão v0.14 (acabamento v0.14.2)
 Todas as cartas (mão, coleção, equipe, treino, troca de equipe, detalhes, inspeção em batalha e recompensas) seguem o mesmo padrão:
 - **Moldura metálica** na cor do tier (Comum prata/cinza, Incomum verde, Raro azul, Épico roxo, Lendário laranja, Mítico vermelho).
-- **Topo esquerdo:** grande **gota azul com o custo** de energia, passando por cima do canto da moldura. O número tem **contorno preto grosso**, sombra forte e um leve **brilho azul neon**.
+- **Topo esquerdo:** grande **gota azul com a contagem de rodadas** (v0.16.0: antes o custo de energia), passando por cima do canto da moldura. O número tem **contorno preto grosso**, sombra forte e um leve **brilho azul neon**.
 - **Topo, no centro:** pílula escura só com o **⚡Poder**. A largura acompanha o número (47, 100, 1000, 10000…) e ela fica sempre centralizada, sem encostar na gota nem na estrela.
 - **Topo direito:** **estrela dourada metálica com asinhas** mostrando o **nível** ("Nv." em cima do número), passando por cima do canto da moldura como a gota. Nas cartas pequenas (até 104 px) só o número aparece, maior, para continuar legível.
 - **Centro:** a arte grande do personagem (fundo, aura e personagem). Nas cartas com habilidades a arte é mais alta e o personagem fica um pouco mais para cima (peito e colar aparecem acima da faixa). O personagem fica **preso na janela da arte**: nada sai da carta (ex.: a lâmina reversa do Toru).
@@ -217,7 +227,7 @@ O jogo mira **60 quadros por segundo** em todas as telas. Para isso, os efeitos 
 - **Carta em foco** (detalhes da Coleção, carta grande do Treinar, mão da batalha, janela de inspeção e Despertar): **todos os efeitos** da cor — reflexo (Raro+), aura pulsando com raios girando (Épico+), brilho premium pulsante e faíscas (Lendário/Mítico) e metal em movimento (Mítico).
 - **Cartas em grade** (Coleção, Equipe, lista do Treinar, janela de troca) — **v0.10.2:** são um **quadro congelado** do visual atual: fundo, aura de Ki, raios (Épico+) e personagem com sombra são desenhados **uma única vez** numa imagem pronta (por personagem, cor e bloqueado/obtido, no tamanho certo para a tela), e as faíscas Lendário/Mítico aparecem acesas e paradas. Nenhuma animação, filtro ou mistura de cores roda na grade, então **rolar a Coleção não redesenha nenhuma carta**. Toque na carta para ver tudo animado nos detalhes.
 - **Cartas "Ainda não obtidos" (v0.10.3):** aparecem em cinza escurecido como antes, mas o cinza vem pronto (arte em bitmap e moldura/medalhões em tons cinza), sem filtro de imagem — entrar na tela não custa nada ao rolar.
-- **Cartas apagadas da mão** (sem energia para invocar) ficam com os efeitos parados até voltarem a ficar disponíveis.
+- **Cartas apagadas da mão** (ainda na contagem de rodadas) ficam com os efeitos parados até voltarem a ficar disponíveis.
 - **Atrás de janelas** (detalhes, troca, avisos, fim de luta, inspeção, Despertar) as animações ficam pausadas; voltam ao fechar a janela.
 - **Fundo da página:** é uma camada fixa pintada uma vez (antes era redesenhado a cada passo da rolagem). No celular, a carta não "levanta" ao ser tocada durante a rolagem.
 - O fundo atrás das janelas fica **escurecido, sem desfoque** (o desfoque era refeito a cada quadro e derrubava o FPS pela metade).
@@ -303,7 +313,7 @@ Cada um dos 9 novos tem um detalhe que o identifica desde Comum, além da evolu�
 ## 12. Personagens
 Ataque/vida mostrados em Comum nível 1 (base) e, entre parênteses, na cor inicial do personagem. A coluna **"+" melhora** diz qual status o degrau "+" aumenta. A antiga coluna de raridade saiu: a raridade agora é a cor.
 
-| Personagem | Raça | Categoria | Cores | "+" melhora | Custo | Ataque / Vida | Dano | Alcance | Resist. fís./mág. | Habilidade e evolução |
+| Personagem | Raça | Categoria | Cores | "+" melhora | Custo (espera = 2 × custo − 1) | Ataque / Vida | Dano | Alcance (à distância: 4 desde a v0.16.0) | Resist. fís./mág. | Habilidade e evolução |
 |---|---|---|---|---|---|---|---|---|---|---|
 | Riku Vendaval | 🌍 Humano | ⚔️ DPS | Comum → Épico+ | ataque | 2 | 3 / 6 (3 / 6 em Comum) | Físico | 1 | 0/0 | Salto Vendaval — Move-se sempre saltando até a 3ª casa (fixo, não aumenta com cor nem nível) · Bônus de investida (ao atacar logo depois do salto): +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3). |
 | Nara Lâmina-Lunar | 🪐 Extraterrestre | ⚔️ DPS | Comum → Épico+ | ataque | 2 | 3 / 6 (3 / 6 em Comum) | Físico | 1 | 0/0 | Corte Diagonal — Raro em diante: ao bater em frente, também corta a diagonal com 50% do dano (máx.). |
@@ -323,7 +333,7 @@ Ataque/vida mostrados em Comum nível 1 (base) e, entre parênteses, na cor inic
 | Kael Chama-Rubra | 🔮 Mago Arcano | 🪄 Mago | Comum → Épico+ | ataque | 3 | 3 / 4 | Mágico | 3 | 0/1 | Explosão de Brasas — explosão de 1 (Comum–Incomum) · 2 (Raro–Épico). |
 | Suri Maré-Gélida | 🪐 Extraterrestre | 🪄 Mago | Comum → Épico+ | vida | 2 | 2 / 5 | Mágico | 3 | 0/1 | Maré Implacável — +1 no Comandante (Comum–Incomum) · +2 (Raro) · +3 (Épico). |
 | Hana Pena-Veloz | 🌍 Humano | 🏹 Arqueiro | Comum → Épico+ | ataque | 2 | 2 / 5 | Físico | 3 | 0/0 | Tiro Certeiro — ignora 1 de resistência física (Comum–Incomum) · 2 (Raro–Épico). |
-| Jin Arco-Trovão | 🤖 Androide | 🏹 Arqueiro | Comum → Épico+ | ataque | 3 | 3 / 5 | Físico | 3 | 0/0 | Olho de Águia — +1 de dano a 2–3 casas (Comum–Incomum) · +2 (Raro–Épico). |
+| Jin Arco-Trovão | 🤖 Androide | 🏹 Arqueiro | Comum → Épico+ | ataque | 3 | 3 / 5 | Físico | 3 | 0/0 | Olho de Águia — +1 de dano a 2–4 casas (Comum–Incomum) · +2 (Raro–Épico). |
 | Ren Presa-Oculta | 🌍 Humano | 💀 Assassino | Comum → Épico+ | ataque | 2 | 3 / 5 | Físico | 1 (mira 2) | 0/0 | Caça-Conjuradores — +1 de dano em quem ataca de longe (Comum–Incomum) · +2 (Raro–Épico). |
 | Kuro Garra-Noturna | 👹 Monstro | 💀 Assassino | Comum → Épico+ | ataque | 3 | 3 / 5 | Físico | 1 (mira 2) | 0/0 | Ataque Surpresa — +1 em alvo com vida cheia (Comum–Incomum) · +2 (Raro–Épico). |
 | *Cria Sombria* (invocada) | ☠️ Necromante | 🪄 Mago | — | — | — | 2 ou 3 / 1 ou 2 | Mágico | 2 | 0/0 | Disparo Sombrio (alcance 2) e Prole Sombria. |
@@ -336,7 +346,7 @@ Habilidades em detalhe:
 - **Golpe Reverso:** prioriza o inimigo na diagonal logo atrás.
 - **Postura de Guarda:** resistência física extra por cor.
 - **Flecha Dupla:** segunda flecha de dano fixo no mesmo alvo.
-- **Feixe Perfurante:** atravessa a fileira, ferindo também quem está atrás do alvo (dentro do alcance 3) com 50% (Incomum) ou **75% (Raro em diante, teto, v0.15.1)**.
+- **Feixe Perfurante:** atravessa a fileira, ferindo também quem está atrás do alvo (dentro do alcance 4) com 50% (Incomum) ou **75% (Raro em diante, teto, v0.15.1)**.
 - **Inabalável:** não pode ser empurrado; ganha resistência em Raro/Épico.
 - **Bênção do Lótus:** no início da ação, cura **só os 2 aliados vizinhos mais feridos** (inclusive diagonais e a outra fileira; v0.15.1). Mais ferido = mais vida perdida; empate: quem tem menos vida, depois quem entrou em campo antes.
 - **Instinto Predador:** menor vida da fileira até 2 casas; dano extra em alvos com metade da vida ou menos.
@@ -345,12 +355,12 @@ Habilidades em detalhe:
 - **Sifão de Energia:** enquanto em campo, todos os inimigos perdem ataque (ataque mínimo 1).
 - **Prole Sombria:** ao derrotar, surge uma **Cria Sombria** na casa do derrotado ou na antiga casa de Vorax. Crias também geram crias (máx. 3 por lado). A cria tem **ataque 2** com Vorax em **Lendário** e **ataque 3** com Vorax em **Mítico**; vida 1 (Lendário) ou 2 (Mítico); o "+" do Vorax não muda a Cria. Uma cria gerada por outra cria herda as mesmas estrelas.
 - **Couraça de Espinhos (Daichi):** quem o ataca **corpo a corpo de frente** (golpe principal) sofre dano fixo de volta, se Daichi sobreviver ao golpe. Ataques à distância e golpes secundários não ativam.
-- **Sopro Restaurador (Sora):** no início da ação, cura o aliado **mais ferido da própria fileira**, a qualquer distância. Sora ataca à distância (alcance 3, mágico).
+- **Sopro Restaurador (Sora):** no início da ação, cura o aliado **mais ferido da própria fileira**, a qualquer distância. Sora ataca à distância (alcance 4, mágico).
 - **Tambor de Guerra (Tobi):** enquanto Tobi estiver em campo, os aliados nos **8 vizinhos** (inclusive a outra fileira) ganham ataque. Vários tambores **não se somam** (vale o maior); bônus de aliados tem teto de **+2**. Crias não recebem.
 - **Explosão de Brasas (Kael):** ao acertar uma unidade, a explosão causa dano mágico fixo no inimigo da **mesma coluna na outra fileira** (habilidade lateral).
 - **Maré Implacável (Suri):** dano extra quando ataca o **Comandante** inimigo.
 - **Tiro Certeiro (Hana):** ignora parte da **resistência física** do alvo.
-- **Olho de Águia (Jin):** dano extra em unidades a **2 ou 3 casas** (colado, só o dano normal).
+- **Olho de Águia (Jin):** dano extra em unidades a **2 casas ou mais** (até o alcance 4; colado, só o dano normal).
 - **Caça-Conjuradores (Ren):** prioriza inimigos de longo alcance da fileira até 2 casas e causa dano extra neles.
 - **Ataque Surpresa (Kuro):** mira o inimigo de maior ataque da fileira até 2 casas; dano extra se o alvo estiver com a **vida cheia**.
 - **Disparo Sombrio (Cria):** ataque **mágico** no inimigo **mais próximo até 2 casas à frente** na própria fileira (como as unidades de longo alcance, mas com alcance 2), inclusive o Comandante a partir da penúltima coluna. Não avança quando pode atacar.
@@ -362,7 +372,15 @@ Habilidades em detalhe:
 - **Saves antigos (migração da v0.10, uma única vez):** as estrelas viram a cor de mesmo número (1★ Comum, 2★ Incomum, 3★ Raro, 4★ Épico, 5★ Lendário, 6★ Mítico), sempre na **cor base** (sem "+"). Cada personagem mantém a cor que já tinha, o nível e o XP (o nível máximo da cor base é o mesmo do antigo nível máximo).
 - Com a equipe cheia, **Colocar na equipe** abre a janela de **troca**: todas as cartas da equipe começam marcadas; toque nas que vão **sair** (ficam cinza com ✖). **Trocar** só libera quando o número certo estiver desmarcado; **Cancelar** não muda nada.
 - **Saves antigos (migração da v0.13):** todo save ganha o **Comandante Bárbaro no nível 1** (20 de vida, como antes). Cartas, itens e fases não mudam.
-- Todas as confirmações e avisos (sair da batalha, apagar progresso, equipe incompleta, evoluir o Comandante) usam janelas do próprio jogo, no tema escuro/dourado.
+- Todas as confirmações e avisos (sair da batalha, apagar progresso, equipe incompleta, evoluir o Comandante, conta) usam janelas do próprio jogo, no tema escuro/dourado.
+
+## 13.2 Contas locais e conta de teste ADM (v0.16.0)
+- No **canto superior esquerdo da Base** fica o botão **👤 Entrar / Criar conta**. Ele abre a janela **Conta** com **Nome** e **Senha** e os botões **Entrar** e **Criar conta** (erros aparecem na própria janela: nome já existe, conta não encontrada, senha incorreta, senha curta).
+- **Nome:** até 16 caracteres (letras, números, espaço, ponto, hífen ou _), sem diferenciar maiúsculas. **Senha:** pelo menos 3 caracteres.
+- Conectado, o canto mostra **👤 Nome** e o botão **Sair**. A conta continua conectada ao recarregar a página.
+- **Cada conta guarda o próprio progresso neste aparelho** (cartas, níveis, itens, fases, Comandante). Sem conta, o jogo usa o progresso de antes (quem já jogava não perde nada). **Apagar progresso** apaga só o da conta atual.
+- **Conta de teste ADM** (senha **12345**), já criada: perfil no **máximo** — todos os personagens (inclusive Kenji e Vorax) na **cor máxima com "+"** e **nível máximo**, equipe com os 10 de maior Poder, **as 10 fases concluídas**, Comandante no **nível máximo** e itens de sobra. Se o progresso da ADM for apagado, ele volta ao máximo na próxima vez que a conta for aberta.
+- ⚠ **Não é segurança de verdade:** não há servidor; tudo fica no armazenamento do navegador deste aparelho, a senha da ADM está no código e a senha das contas é guardada só com um embaralhamento simples. Serve para separar o progresso de quem divide o aparelho e para testes. A janela avisa isso.
 
 ## 13.1 Progressão de personagens
 - **Começo:** só personagens de **Comum** (os 12 iniciais).
@@ -478,3 +496,22 @@ Vitória ao chegar, antes → depois: fase 1 99% → 99% · 2 95% → 95% · 3 9
 
 ### v0.15.4 — Riku sempre se move saltando (100 jogadores simulados)
 Vitória ao chegar, antes → depois: fase 1 99% → 98% · 2 95% → 94% · 3 93% → 92% · 4 59% → 61% · 5 80% → 81% · 6 42% → 45% · 7 78% → 81% · 8 46% → 49% · 9 75% → 75% · 10 37% → 37%. Diferenças de até 3 pontos (ruído).
+
+### v0.16.0 — arena 2 × 12, contagem de rodadas e alcance 4 (300 jogadores simulados, `scripts/balance/move15.ts`)
+Vitória ao chegar, v0.15.4 → v0.16.0 (mesma simulação, 300 jogadores cada):
+
+| Fase | Vitória ao chegar | Turno inimigo p95 ÷ vida | Turnos ≥ 50% da vida |
+|---|---|---|---|
+| 1 | 98% → 92% | 15% → 45% | 0% → 4% |
+| 2 | 95% → 98% | 20% → 10% | 0% → 1% |
+| 3 | 92% → 76% | 25% → 53% | 2% → 6% |
+| 4 | 61% → 76% | 70% → 48% | 19% → 5% |
+| 5 | 82% → 80% | 55% → 45% | 8% → 3% |
+| 6 | 45% → 47% | 68% → 52% | 20% → 7% |
+| 7 | 80% → 81% | 50% → 40% | 5% → 2% |
+| 8 | 49% → 86% | 59% → 30% | 9% → 1% |
+| 9 | 76% → 87% | 51% → 34% | 6% → 1% |
+| 10 | 38% → 66% | 57% → 47% | 10% → 4% |
+
+- Esperas testadas (40 jogadores cada): **espera = custo** → fases 4–6 e 10 com 13–25% (muito difíceis); **2 × custo − 2** → 86/97/68/67/74/39/79/85/88/65; **2 × custo − 1 com a mão inicial 2 rodadas adiantada (escolhida)** → 90/98/75/76/80/46/80/88/87/65. Zona de invocação com 4 colunas e Fúria mais tarde não ajudaram.
+- Resultado: o começo fica parecido (fase 3 um pouco mais difícil), os turnos inimigos muito fortes ficaram **mais raros**, e as fases 8–10 ficaram **mais fáceis** (+11 a +37 pontos). Nenhum Comandante, baralho inimigo, ataque ou vida foi mexido; se quiser as fases finais tão difíceis quanto antes, o próximo ajuste é a vida ou o nível dos inimigos dessas fases.

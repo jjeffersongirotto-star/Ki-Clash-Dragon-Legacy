@@ -23,21 +23,21 @@ import type { BattleState, CardInstance } from '../src/core/types';
 const c = (charId: string, level = 1, stars = 1): CardInstance => ({ charId, level, stars });
 
 function emptyBattle(): BattleState {
-  return createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
+  return createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1, cols: 7 /* arena compacta de teste: mesmas regras */ });
 }
 
 describe('arena', () => {
-  it('tem 2 fileiras × 7 colunas', () => {
-    const s = emptyBattle();
-    expect([ROWS, COLS]).toEqual([2, 7]);
-    expect([s.rows, s.cols]).toEqual([2, 7]);
+  it('tem 2 fileiras × 12 colunas (v0.16.0)', () => {
+    const s = createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
+    expect([ROWS, COLS]).toEqual([2, 12]);
+    expect([s.rows, s.cols]).toEqual([2, 12]);
   });
   it('zona de invocação = 3 primeiras colunas de cada lado', () => {
-    const s = emptyBattle();
+    const s = createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
     expect(DEPLOY_DEPTH).toBe(3);
-    for (let col = 0; col < 7; col++) {
+    for (let col = 0; col < 12; col++) {
       expect(isDeployCell(s, 'player', 0, col)).toBe(col <= 2);
-      expect(isDeployCell(s, 'enemy', 1, col)).toBe(col >= 4);
+      expect(isDeployCell(s, 'enemy', 1, col)).toBe(col >= 9);
     }
   });
 });
@@ -192,7 +192,7 @@ describe('herói como alvo (coluna virtual após a arena)', () => {
     expect(s2.heroes.enemy.hp).toBe(30 - r.atk);
   });
   it('fúria pode ser desligada (para simulações)', () => {
-    const s = createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1, fury: false });
+    const s = createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1, fury: false, cols: 7 });
     const a = placeUnit(s, c('riku'), 'player', 0, 0, { atk: 3 });
     s.turn = 20;
     expect(effectiveAtk(s, a)).toBe(3);
@@ -242,12 +242,12 @@ describe('mão e baralho', () => {
     // mão cheia: a rodada não compra
     endPlayerTurn(s, () => {});
     expect(s.decks.player.hand).toHaveLength(6);
-    s.energy.player = 10;
+    s.decks.player.hand.forEach((h) => (h.wait = 0));
     const before = s.decks.player.hand.slice(3).map((x) => x.charId);
     expect(deploy(s, 'player', 0, 0, 0).ok).toBe(true);
-    s.energy.player = 10;
+    s.decks.player.hand.forEach((h) => (h.wait = 0));
     expect(deploy(s, 'player', 0, 1, 0).ok).toBe(true);
-    s.energy.player = 10;
+    s.decks.player.hand.forEach((h) => (h.wait = 0));
     expect(deploy(s, 'player', 0, 0, 1).ok).toBe(true);
     expect(s.decks.player.hand).toHaveLength(3);
     const step = s.decks.player.step;
@@ -265,7 +265,7 @@ describe('mão e baralho', () => {
   });
   it('cópia jogada fica em campo; quando a unidade morre vai para as derrotadas e não volta', () => {
     const s = createBattle({ playerDeck: deck10, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 5 });
-    s.energy.player = 10;
+    s.decks.player.hand.forEach((h) => (h.wait = 0));
     const card = s.decks.player.hand[0];
     expect(deploy(s, 'player', 0, 0, 2).ok).toBe(true);
     expect(pileCount(s.decks.player) + s.decks.player.hand.length).toBe(39);
@@ -282,7 +282,7 @@ describe('mão e baralho', () => {
     const s = createBattle({ playerDeck: deck10, enemyDeck: deck10, playerHeroHp: 999, enemyHeroHp: 999, seed: 2, maxTurns: 99 });
     let maxSame = 0;
     for (let t = 0; t < 12 && !s.winner; t++) {
-      s.energy.player = 10;
+      s.decks.player.hand.forEach((h) => (h.wait = 0));
       for (let k = 0; k < 6; k++) {
         const cells: [number, number][] = [];
         for (let r = 0; r < 2; r++) for (let col = 0; col < 3; col++) cells.push([r, col]);
@@ -301,18 +301,17 @@ describe('mão e baralho', () => {
 });
 
 describe('fluxo de batalha', () => {
-  it('invocar gasta energia e só vale na zona de invocação', () => {
+  it('invocar exige carta pronta (contagem 0) e só vale na zona de invocação', () => {
     const ten = ['riku', 'nara', 'toru', 'daichi', 'sora', 'tobi', 'kael', 'suri', 'hana', 'jin'].map((id) => c(id));
     const s = createBattle({ playerDeck: ten, enemyDeck: ten, playerHeroHp: 30, enemyHeroHp: 30, seed: 3 });
-    expect(s.energy.player).toBe(3);
     const idx = s.decks.player.hand.findIndex((x) => x.charId === 'riku' || x.charId === 'nara');
+    expect(s.decks.player.hand[idx].wait).toBe(0);
     expect(deploy(s, 'player', idx, 0, 3).ok).toBe(false);
     expect(deploy(s, 'player', idx, 0, 2).ok).toBe(true);
-    expect(s.energy.player).toBe(1);
   });
   it('vitória ao zerar a vida do herói inimigo', () => {
     const s = createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 2, seed: 1 });
-    placeUnit(s, c('riku'), 'player', 0, 6);
+    placeUnit(s, c('nara'), 'player', 0, s.cols - 1);
     endPlayerTurn(s, aiDeploy);
     expect(s.winner).toBe('player');
   });

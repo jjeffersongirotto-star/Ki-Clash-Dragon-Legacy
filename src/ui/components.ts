@@ -5,6 +5,7 @@ import type { AbilityId, CardInstance, CharacterDef } from '../core/types';
 import { portraitImg } from './art';
 import { gridArtHTML } from './gridArt';
 import { cardPower } from '../core/power';
+import { waitFor } from '../core/battle';
 import peitoralUrl from '../assets/card/ab-peitoral.svg';
 
 /** v0.14.2: ícone de habilidade — a Resistência Física (Postura de Guarda) usa o peitoral de armadura (SVG) no lugar do 🛡. */
@@ -66,7 +67,7 @@ const LOCKED_GRID_STYLE = '--rc:#535559;--rg:#7b7d80;--ac:#55575a;--race-c:#5557
 
 export function cardHTML(
   card: CardInstance,
-  opts: { extraClass?: string; attrs?: string; locked?: boolean; badge?: string; compact?: boolean; grid?: boolean; power?: number } = {},
+  opts: { extraClass?: string; attrs?: string; locked?: boolean; badge?: string; compact?: boolean; grid?: boolean; power?: number; wait?: number } = {},
 ): string {
   const def = getChar(card.charId);
   const st = statsFor(def, card.level, card.stars, !!card.plus);
@@ -92,7 +93,7 @@ export function cardHTML(
         ${t >= 3 && !ga ? '<div class="card-shine"></div>' : ''}
       </div>
       <div class="card-fig">${ga ? ga.fg : portraitImg(def, { stars: t, layer: 'fg' })}</div>
-      <div class="ck-cost" title="Custo de energia"><span>${def.cost}</span></div>
+      <div class="ck-cost${opts.wait === 0 ? ' ready' : ''}" title="${opts.wait == null ? `Espera ${waitFor(def.id)} rodada(s) na mão` : opts.wait ? `Falta(m) ${opts.wait} rodada(s)` : 'Pronta para invocar'}"><span>${opts.wait ?? waitFor(def.id)}</span></div>
       <div class="ck-pow" title="Poder">⚡${power}</div>
       <div class="ck-star" title="Nível"><small>Nv.</small><b>${card.level}</b></div>
       ${opts.badge ? `<div class="card-badge">${opts.badge}</div>` : ''}

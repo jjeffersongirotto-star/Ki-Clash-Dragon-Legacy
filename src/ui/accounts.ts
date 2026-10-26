@@ -1,0 +1,129 @@
+/**
+ * v0.16.0 — Contas LOCAIS (só neste aparelho).
+ * ATENÇÃO: isto NÃO é segurança de verdade. Não há servidor; tudo fica no armazenamento do navegador
+ * e a senha da conta de teste ADM está visível no código. Serve só para separar o progresso de
+ * pessoas que dividem o mesmo aparelho e para testes.
+ */
+import { CHAR_BY_ID, PLAYABLE } from '../core/characters';
+import { DECK_SLOTS } from '../core/deck';
+import { LEADERS } from '../core/leaders';
+import { STAGES } from '../core/campaign';
+import { maxLevel, type OwnedCard } from '../core/progression';
+import { cardPower } from '../core/power';
+import { defaultSave, type SaveData } from './save';
+
+export const ACCOUNTS_KEY = 'kicdl-accounts-v1';
+/** chave do progresso sem conta (o progresso antigo de quem já jogava continua aqui) */
+export const GUEST_SAVE_KEY = 'kicdl-save-v1';
+/** conta de testes pré-criada: perfil no nível máximo */
+export const ADMIN_NAME = 'ADM';
+export const ADMIN_PASS = '12345';
+export const NAME_MAX = 16;
+export const PASS_MIN = 3;
+
+export interface Account { name: string; hash: string; admin?: boolean }
+export interface AccountStore { accounts: Record<string, Account>; current: string | null }
+
+/** "hash" simples (FNV-1a) só para não guardar a senha em texto puro — NÃO é criptografia. */
+export function weakHash(s: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(16).padStart(8, '0');
+}
+
+export const accountId = (name: string) => name.trim().toLowerCase();
+export const saveKeyFor = (id: string | null) => (id ? `${GUEST_SAVE_KEY}:${id}` : GUEST_SAVE_KEY);
+
+function storage(): Storage | null {
+  try {
+    return typeof localStorage === 'undefined' ? null : localStorage;
+  } catch {
+    return null;
+  }
+}
+
+export function loadAccounts(): AccountStore {
+  let st: AccountStore = { accounts: {}, current: null };
+  try {
+    const raw = storage()?.getItem(ACCOUNTS_KEY);
+    if (raw) {
+      const d = JSON.parse(raw) as AccountStore;
+      if (d && typeof d.accounts === 'object') st = { accounts: d.accounts, current: d.current ?? null };
+    }
+  } catch {
+    /* corrompido: recomeça */
+  }
+  // a conta ADM sempre existe, com a senha padrão
+  st.accounts[accountId(ADMIN_NAME)] = { name: ADMIN_NAME, hash: weakHash(ADMIN_PASS), admin: true };
+  if (st.current && !st.accounts[st.current]) st.current = null;
+  return st;
+}
+
+export function writeAccounts(st: AccountStore) {
+  try {
+    storage()?.setItem(ACCOUNTS_KEY, JSON.stringify(st));
+  } catch {
+    /* armazenamento indisponível */
+  }
+}
+
+export function validateName(name: string): string | null {
+  const n = name.trim();
+  if (!n) return 'Digite um nome.';
+  if (n.length > NAME_MAX) return `O nome pode ter até ${NAME_MAX} letras.`;
+  if (!/^[\p{L}\p{N} _.-]+$/u.test(n)) return 'Use só letras, números, espaço, ponto, hífen ou _.';
+  return null;
+}
+
+export type AuthResult = { ok: true; id: string; created?: boolean } | { ok: false; error: string };
+
+/** Cria a conta (nome livre + senha) e já entra nela. */
+export function createAccount(st: AccountStore, name: string, pass: string): AuthResult {
+  const bad = validateName(name);
+  if (bad) return { ok: false, error: bad };
+  if (pass.length < PASS_MIN) return { ok: false, error: `A senha precisa de pelo menos ${PASS_MIN} caracteres.` };
+  const id = accountId(name);
+  if (st.accounts[id]) return { ok: false, error: 'Esse nome já existe neste aparelho. Use "Entrar".' };
+  st.accounts[id] = { name: name.trim(), hash: weakHash(pass) };
+  st.current = id;
+  writeAccounts(st);
+  return { ok: true, id, created: true };
+}
+
+export function login(st: AccountStore, name: string, pass: string): AuthResult {
+  const id = accountId(name);
+  const acc = st.accounts[id];
+  if (!acc) return { ok: false, error: 'Conta não encontrada neste aparelho. Use "Criar conta".' };
+  if (acc.hash !== weakHash(pass)) return { ok: false, error: 'Senha incorreta.' };
+  st.current = id;
+  writeAccounts(st);
+  return { ok: true, id };
+}
+
+export function logout(st: AccountStore) {
+  st.current = null;
+  writeAccounts(st);
+}
+
+/**
+ * Perfil da conta ADM: todos os personagens na cor máxima ("+"), nível máximo,
+ * todas as fases concluídas, Comandantes no nível máximo e itens de sobra para testar.
+ */
+export function adminSave(): SaveData {
+  const d = defaultSave();
+  const cards: Record<string, OwnedCard> = {};
+  for (const def of PLAYABLE) {
+    if (!CHAR_BY_ID[def.id]) continue;
+    cards[def.id] = { charId: def.id, level: maxLevel(def.maxStars, true), xp: 0, stars: def.maxStars, plus: true };
+  }
+  d.cards = cards;
+  d.deck = Object.values(cards).sort((a, b) => cardPower(b) - cardPower(a)).slice(0, DECK_SLOTS).map((c) => c.charId);
+  d.cleared = STAGES.map((s) => s.id);
+  d.items = { pergaminho: 999, cristal: 999, orbe: 999 };
+  d.essencias = 99999;
+  d.leaders = Object.fromEntries(LEADERS.map((l) => [l.id, { level: l.hpByLevel.length }]));
+  return d;
+}

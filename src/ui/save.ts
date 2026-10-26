@@ -25,7 +25,20 @@ export interface SaveData {
   v13?: boolean;
 }
 
-const KEY = 'kicdl-save-v1';
+let KEY = 'kicdl-save-v1';
+/** v0.16.0: cada conta local tem a sua chave de progresso (sem conta = 'kicdl-save-v1') */
+export function setSaveKey(key: string) {
+  KEY = key;
+}
+export const currentSaveKey = () => KEY;
+/** Já existe progresso salvo na chave atual? */
+export function hasSave(): boolean {
+  try {
+    return !!localStorage.getItem(KEY);
+  } catch {
+    return false;
+  }
+}
 /** a equipe é o baralho: exatamente 10 cartas distintas × 4 cópias = 40 (sem isso não há batalha) */
 export const DECK_MAX = DECK_SLOTS;
 export const DECK_REQUIRED = DECK_SLOTS;

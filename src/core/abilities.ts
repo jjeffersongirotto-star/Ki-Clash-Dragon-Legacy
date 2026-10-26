@@ -48,7 +48,7 @@ export interface AbilityDef {
   heroBonus?: boolean;
   /** ignora `power` de resistência */
   pierce?: boolean;
-  /** `power` de dano extra em alvos a 2 ou 3 casas */
+  /** `power` de dano extra em alvos a 2 ou mais casas */
   farBonus?: boolean;
   /** `power` de dano extra contra unidades de longo alcance */
   rangedBonus?: boolean;
@@ -108,9 +108,9 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   longoAlcance: {
     id: 'longoAlcance',
     name: 'Longo Alcance',
-    description: 'Ataca o inimigo mais próximo até 3 casas à frente na sua fileira (inclusive o Comandante). Não avança quando consegue atacar.',
+    description: 'Ataca o inimigo mais próximo até 4 casas à frente na sua fileira (inclusive o Comandante). Não avança quando consegue atacar.',
     icon: '🎯',
-    rangeBonus: 2,
+    rangeBonus: 3,
   },
   flechaDupla: {
     id: 'flechaDupla',
@@ -273,7 +273,7 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   olhoAguia: {
     id: 'olhoAguia',
     name: 'Olho de Águia',
-    description: 'Causa dano extra em unidades a 2 ou 3 casas de distância (quanto mais longe, mais certeiro).',
+    description: 'Causa dano extra em unidades a 2 ou mais casas de distância (quanto mais longe, mais certeiro).',
     icon: '🦅',
     farBonus: true,
     scaling: '+1 de dano à distância (Comum–Incomum) · +2 (Raro–Épico, máx.).',

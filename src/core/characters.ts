@@ -13,8 +13,8 @@ export const CATEGORY_INFO: Record<Category, { label: string; icon: string; desc
   tanque: { label: 'Tanque', icon: '🛡️', desc: 'Muita vida e resistência, pouco ataque. Segura a linha.' },
   suporte: { label: 'Suporte', icon: '➕', desc: 'Cura aliados ou enfraquece inimigos.' },
   dps: { label: 'DPS', icon: '⚔️', desc: 'Dano físico corpo a corpo.' },
-  mago: { label: 'Mago', icon: '🪄', desc: 'Dano mágico à distância (até 3 casas), pouca vida.' },
-  arqueiro: { label: 'Arqueiro', icon: '🏹', desc: 'Dano físico à distância (até 3 casas), pouca vida.' },
+  mago: { label: 'Mago', icon: '🪄', desc: 'Dano mágico à distância (até 4 casas), pouca vida.' },
+  arqueiro: { label: 'Arqueiro', icon: '🏹', desc: 'Dano físico à distância (até 4 casas), pouca vida.' },
   assassino: { label: 'Assassino', icon: '💀', desc: 'Frágil, mas escolhe o alvo dentro da fileira.' },
 };
 

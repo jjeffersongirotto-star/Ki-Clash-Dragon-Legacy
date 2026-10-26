@@ -22,16 +22,16 @@ describe('v0.14.4 — arrastar a carta até o campo', () => {
     expect(dropAction({ valid: false })).toBe('cancel');
     expect(dropAction(null)).toBe('cancel');
   });
-  it('as casas destacadas no arrasto são as mesmas do toque (só a sua zona) e as regras de energia valem igual', () => {
+  it('as casas destacadas no arrasto são as mesmas do toque (só a sua zona) e as regras da contagem valem igual', () => {
     const s = createBattle({ playerDeck: deck10, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 5 });
     const cells = deployCells(s, 'player');
     expect(cells.length).toBeGreaterThan(0);
     for (const [, c] of cells) expect(c).toBeLessThan(DEPLOY_DEPTH);
-    s.energy.player = 10;
+    s.decks.player.hand.forEach((h) => (h.wait = 0));
     expect(deploy(s, 'player', 0, 0, s.cols - 1).ok).toBe(false); // zona inimiga: cancela
-    s.energy.player = 0;
-    expect(deploy(s, 'player', 0, 0, 0).ok).toBe(false); // sem energia: não invoca
-    s.energy.player = 10;
+    s.decks.player.hand[0].wait = 2;
+    expect(deploy(s, 'player', 0, 0, 0).ok).toBe(false); // carta ainda esperando: não invoca
+    s.decks.player.hand.forEach((h) => (h.wait = 0));
     expect(deploy(s, 'player', 0, 0, 0).ok).toBe(true);
   });
 });

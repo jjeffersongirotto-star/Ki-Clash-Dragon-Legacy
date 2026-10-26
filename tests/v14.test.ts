@@ -16,9 +16,9 @@ import heart from '../src/assets/card/heart.svg?raw';
 const ICONS: Record<string, string> = { dps, mago, arqueiro, assassino, tanque, suporte };
 
 describe('v0.14 — padrão de carta', () => {
-  it('Toru: custo 3 na gota, ⚡47 e estrela Nv. 1, nome, "Comum", raça + categoria, ATQ 2, VIDA 11', () => {
+  it('Toru: espera 5 rodadas na gota (v0.16.0), ⚡47 e estrela Nv. 1, nome, "Comum", raça + categoria, ATQ 2, VIDA 11', () => {
     const h = cardHTML({ charId: 'toru', level: 1, stars: 1 });
-    expect(h).toContain('<div class="ck-cost" title="Custo de energia"><span>3</span></div>');
+    expect(h).toContain('<div class="ck-cost" title="Espera 5 rodada(s) na mão"><span>5</span></div>');
     expect(h).toContain('<div class="ck-pow" title="Poder">⚡47</div>');
     expect(h).toContain('<div class="ck-star" title="Nível"><small>Nv.</small><b>1</b></div>');
     expect(h).toContain('Toru Sombra\u2011Reversa');
