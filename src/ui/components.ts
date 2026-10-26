@@ -84,8 +84,9 @@ export function cardHTML(
   // v0.14.3: as cartas pequenas (compactas, mão) também mostram a fileira, entre o ataque e a vida
   const abil = `${opts.compact ? '' : '<div class="ck-sep"><i></i><i></i><i></i></div>'}<div class="ck-abil n${def.abilities.length}">${def.abilities.map((a) => `<span class="ck-ab" title="${esc(ABILITIES[a].name)}">${abilityIconHTML(a)}</span>`).join('<i class="ck-dot"></i>')}</div>`;
   // v0.14.2: nomes com uma palavra muito comprida (ex.: "Tambor-de-Guerra") encolhem um pouco para caber inteiros
+  // (v0.20.1: a partir de 13 letras; antes "Punho-de-Rocha" e "Sombra-Reversa" ainda eram cortadas)
   const longest = Math.max(...def.name.split(' ').map((w) => w.length));
-  const nfit = longest > 14 ? ` style="--nfit:${(13.6 / longest).toFixed(3)}"` : '';
+  const nfit = longest > 12 ? ` style="--nfit:${(12.2 / longest).toFixed(3)}"` : '';
   return `<div class="card s${t} race-${def.race} cat-${def.category} ${opts.compact ? 'compact' : 'ab'} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}${ga ? ` grid-card${ga.baked ? ' baked' : ''}` : ''}" style="${ga && opts.locked ? LOCKED_GRID_STYLE : `${starStyle(t)};--ac:${def.palette.aura};--race-c:${race.color}`}" ${opts.attrs ?? ''}>
     <div class="card-metal"><div class="card-frame">
       <div class="card-art">

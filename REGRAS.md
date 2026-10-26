@@ -708,3 +708,4 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 - Conferido em 8 tamanhos: celular pequeno e grande em pé (360×640, 412×915), celular deitado (915×412), tablet em pé e deitado (768×1024, 1024×768), notebook (1366×768), Full HD (1920×1080) e 2K (2560×1440).
 - **Telas grandes:** a partir de 1700×950 a interface (menus e batalha) cresce **1,3×**, e a partir de 2300×1300 cresce **1,75×**, para não ficar tudo pequeno no meio da tela.
 - **Batalha em pé** (quando o jogador escolhe "Jogar em pé"): nada passa mais da largura da tela (antes a arena vazava para os lados no celular pequeno e no tablet).
+- **Batalha em pé (ajuste seguinte):** os dois Comandantes ficam numa faixa **acima da arena**, e a arena usa a **largura toda** da tela. No tablet em pé, as 6 cartas da mão cabem numa linha, com energia e LUTAR embaixo. Só muda a posição na tela: as regras da batalha são as mesmas.

@@ -66,6 +66,8 @@ describe('v0.14.2 — acabamento da carta (prévia v14.2f)', () => {
   it('nomes com palavra comprida encolhem para caber (Tobi Tambor-de-Guerra, Gorath Muralha-de-Ferro)', () => {
     expect(cardHTML({ charId: 'tobi', level: 1, stars: getChar('tobi').minStars })).toMatch(/class="ck-name" style="--nfit:0\.\d+"/);
     expect(cardHTML({ charId: 'gorath', level: 1, stars: getChar('gorath').minStars })).toMatch(/--nfit:/);
-    expect(cardHTML({ charId: 'toru', level: 1, stars: 1 })).not.toMatch(/--nfit:/);
+    // v0.20.1: palavras a partir de 13 letras também encolhem ("Sombra-Reversa" e "Punho-de-Rocha" eram cortadas)
+    expect(cardHTML({ charId: 'toru', level: 1, stars: 1 })).toMatch(/--nfit:/);
+    expect(cardHTML({ charId: 'riku', level: 1, stars: 1 })).not.toMatch(/--nfit:/);
   });
 });

@@ -1192,3 +1192,96 @@ body.native-landscape .rotate-prompt { display: none !important; }
   .download-btn { position: static; display: table; margin: 14px 0 0 auto; }
   .screen.home { padding-bottom: 24px; }
 }
+
+/* =====================================================================
+   v0.20.1 — revisão de layout responsivo (360x640, 768x1024, 1920x1080)
+   ===================================================================== */
+/* botão Baixar: era um <a> com o azul padrão de link */
+.download-btn { color: var(--text); }
+
+/* Base: menos espaço vazio em cima e entre blocos; sem rolar no celular pequeno */
+.home { padding-top: 10px; }
+.home-heroes { margin: 12px 0; }
+.home > .link-btn { margin-top: 14px; }
+@media (min-width: 900px) { .screen.home { padding-bottom: 24px; } }
+@media (max-width: 480px) and (max-height: 760px) {
+  .download-btn { display: inline-block; margin: 0 0 0 14px; padding: 6px 12px; font-size: 13px; vertical-align: middle; }
+}
+/* telas altas (tablet em pé, monitor): o conteúdo fica centrado na altura em vez de deixar metade da tela vazia */
+@media (min-height: 800px) {
+  .screen.home { display: flex; flex-direction: column; min-height: 100dvh; }
+  .screen.home > .logo { margin-top: auto; }
+  .screen.home > .link-btn { align-self: center; margin-bottom: auto; }
+  .screen.home > .menu { width: 100%; }
+  .screen.home > .download-btn { align-self: flex-end; }
+}
+@media (min-width: 1700px) and (min-height: 950px) { .screen.home { min-height: calc(100dvh / 1.3); } }
+@media (min-width: 2300px) and (min-height: 1300px) { .screen.home { min-height: calc(100dvh / 1.75); } }
+
+/* barra de topo: título centrado de verdade (antes o bloco de recursos, mais largo, empurrava o título) */
+@media (min-width: 900px) {
+  .topbar { display: grid; grid-template-columns: 1fr auto 1fr; }
+  .topbar > :first-child { justify-self: start; }
+  .topbar h2 { flex: none; }
+  .topbar > .res { justify-self: end; }
+}
+
+/* Aventura: a fase que passa da borda de cima do mapa some num degradê (antes parecia escondida pelas abas) */
+.adv-map { -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 32px); mask-image: linear-gradient(180deg, transparent 0, #000 32px); }
+.diff-tab.locked { opacity: .8; }
+.adv-node.lock .adv-name { color: #7880ad; }
+
+/* Coleção */
+.lp-hp small { white-space: nowrap; }
+.card-grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
+@media (max-width: 640px) { .card-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; } }
+@media (min-width: 641px) and (max-width: 1000px) { .race-filters { gap: 4px; } .rf-btn { padding: 5px 7px; font-size: 12.5px; } }
+
+/* Batalha: nomes do placar numa linha só, com reticências (antes quebravam por sílaba) */
+.vs-label b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vs-label small { flex: none; }
+@media (max-width: 640px) {
+  .vs-label { white-space: nowrap; flex-direction: column; align-items: flex-start; gap: 0; }
+  .vs-e .vs-label { flex-direction: column-reverse; align-items: flex-end; }
+  .vs-label b { overflow-wrap: normal; max-width: 100%; }
+}
+
+/* Batalha EM PÉ: os Comandantes sobem para uma faixa acima da arena e a arena usa a largura toda */
+@media (orientation: portrait) {
+  .battle-screen { --cell: clamp(16px, calc((100vw - 22px) / var(--ncols)), 72px); }
+  .battle .field { flex-wrap: wrap; gap: 4px; }
+  .battle .board-wrap { order: 2; flex: 0 0 auto; }
+  .battle .hero { order: 1; flex: 1 1 0; width: auto; min-height: 0; flex-direction: row; align-items: flex-end; gap: 6px; padding: 2px 6px 4px; }
+  .battle .hero-e { flex-direction: row-reverse; }
+  .battle .hero-fig { flex: 0 0 auto; width: clamp(40px, 11vw, 84px); height: clamp(52px, 14vw, 110px); min-height: 0; }
+  .battle .hero-hp { flex: 1; min-width: 0; padding-bottom: 2px; }
+  /* a mão rola de lado: a borda direita esmaece para mostrar que tem mais cartas */
+  .battle .hand { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 18px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 18px), transparent); }
+}
+/* tablet em pé: mão em linha inteira (6 cartas cabem), energia + LUTAR embaixo, e o registro ocupa o resto da tela */
+@media (orientation: portrait) and (min-width: 641px) and (max-width: 1100px) {
+  .bottom { grid-template-columns: auto 1fr; }
+  .bottom .hand-row { grid-column: 1 / -1; grid-row: 1; }
+  .bottom .energy { grid-row: 2; display: flex; align-items: center; gap: 6px; }
+  .bottom .btn.fight { grid-column: 2; grid-row: 2; padding: 12px; }
+  .hand .card { flex-basis: clamp(66px, calc((100vw - 190px) / 6 - 8px), 100px); width: clamp(66px, calc((100vw - 190px) / 6 - 8px), 100px); }
+  .battle .hand { -webkit-mask-image: none; mask-image: none; }
+}
+@media (orientation: portrait) and (min-height: 900px) {
+  .log { max-height: 34dvh; }
+}
+
+/* Batalha deitada: menos espaço reservado ao redor da mão (cartas um pouco maiores no celular deitado) */
+@media (orientation: landscape) {
+  .battle-screen { --hand-w: clamp(52px, min(calc((var(--vh) - var(--hud-h)) * .2), calc((var(--vw) - 290px) / 6 - 6px)), 104px); }
+}
+/* monitor: Comandantes mais estreitos e mão maior, para a arena e as cartas aproveitarem a tela */
+@media (orientation: landscape) and (min-width: 1700px) and (min-height: 950px) {
+  .battle-screen { --hero-w: clamp(64px, 9vw, 180px); --hand-w: clamp(52px, min(calc((var(--vh) - var(--hud-h)) * .2), calc((var(--vw) - 290px) / 6 - 6px)), 132px); }
+}
+/* mão com cartas grandes (monitor): continua mostrando só o primeiro nome, como nas cartas pequenas */
+.hand .ck-name .full { display: none; } .hand .ck-name .short { display: inline; }
+@media (orientation: portrait) and (min-height: 900px) {
+  .battle { display: flex; flex-direction: column; min-height: calc(100dvh - 26px); }
+  .battle > .log-panel { flex: 1 1 auto; }
+}
