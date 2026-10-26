@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.22.0] — 26/10/2026 · PR #43 — Orbes por raridade e XP por jogar
+- **🔮 Orbes por raridade:** o único item de XP, em 6 raridades (Comum 100 · Incomum 250 · Raro 400 · Épico 800 · Lendário 1.500 · Mítico 3.000 XP), com a cor da raridade. Substituem o 📜 Pergaminho e o 💎 Cristal; os saves são convertidos sem perder XP (📜 → Comum, 💎 → Raro, 🔮 antigo → Lendário).
+- **Orbes pela dificuldade:** Fácil dá Comuns e Incomuns; Normal, Raros e Épicos; Difícil, Épicos com 10% de chance de 1 Lendário e 2% de 1 Mítico. XP total parecido nas três.
+- **XP por jogar:** ao vencer jogando, todo o baralho ganha 15 + 5 × fase de XP (derrota e Repetir não dão).
+- Derrota dá 1 Orbe Comum de consolo. Barras de recursos mostram só os Orbes que o jogador tem.
+- Simulação: a campanha ficou um pouco mais fácil com o XP por jogar (vitória ao chegar 93/91/96/84/85/79/86/82/79/73%). Ajuste junto com os itens de ascensão e a energia.
+
 ## [0.21.0] — 26/10/2026 · PR #42 — Estrelas por fase e "raridade"
 - **⭐ Estrelas por fase:** 3 objetivos por fase e por dificuldade: vencer · vencer com o Comandante com 50%+ da vida · vencer em até 15 turnos. Somam entre vitórias e aparecem no mapa, na janela da fase e na vitória ("nova!").
 - **⟲ Repetir só com 3 ⭐** naquela fase e dificuldade.

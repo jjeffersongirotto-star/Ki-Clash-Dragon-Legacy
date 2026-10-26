@@ -175,9 +175,24 @@ export function ascend(card: OwnedCard, essences: number): { ok: boolean; cost: 
   return { ok: true, cost };
 }
 
+/**
+ * v0.22.0 — 🔮 Orbes por raridade: o único item de XP (substituem o 📜 Pergaminho e o 💎 Cristal).
+ * `rarity` = raridade (1 Comum … 6 Mítico), mostrada pela cor do Orbe.
+ */
 export const XP_ITEMS = [
-  { id: 'pergaminho', name: 'Pergaminho de Ki', xp: 100, icon: '📜' },
-  { id: 'cristal', name: 'Cristal de Ki', xp: 400, icon: '💎' },
-  { id: 'orbe', name: 'Orbe do Dragão Ancestral', xp: 1500, icon: '🔮' },
+  { id: 'orbe1', rarity: 1, name: 'Orbe Comum', xp: 100, icon: '🔮' },
+  { id: 'orbe2', rarity: 2, name: 'Orbe Incomum', xp: 250, icon: '🔮' },
+  { id: 'orbe3', rarity: 3, name: 'Orbe Raro', xp: 400, icon: '🔮' },
+  { id: 'orbe4', rarity: 4, name: 'Orbe Épico', xp: 800, icon: '🔮' },
+  { id: 'orbe5', rarity: 5, name: 'Orbe Lendário', xp: 1500, icon: '🔮' },
+  { id: 'orbe6', rarity: 6, name: 'Orbe Mítico', xp: 3000, icon: '🔮' },
 ] as const;
 export type XpItemId = (typeof XP_ITEMS)[number]['id'];
+export type OrbBag = Partial<Record<XpItemId, number>>;
+export const orbXp = (id: XpItemId) => XP_ITEMS.find((o) => o.id === id)!.xp;
+/** XP total de um conjunto de Orbes */
+export const bagXp = (bag: OrbBag) => Object.entries(bag).reduce((n, [id, k]) => n + orbXp(id as XpItemId) * (k ?? 0), 0);
+/** v0.22.0: conversão sem perder XP — 📜 Pergaminho → Orbe Comum, 💎 Cristal → Orbe Raro, 🔮 antigo → Orbe Lendário */
+export const LEGACY_ITEM_TO_ORB: Record<string, XpItemId> = { pergaminho: 'orbe1', cristal: 'orbe3', orbe: 'orbe5' };
+/** XP por jogar (v0.22.0): todo o baralho ganha isto ao VENCER jogando a fase (derrota e Repetir não dão). */
+export const playXp = (stageId: number) => 15 + 5 * stageId;

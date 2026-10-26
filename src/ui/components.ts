@@ -1,6 +1,6 @@
 import { ABILITIES } from '../core/abilities';
 import { CATEGORY_INFO, RACE_INFO, STAR_COLORS, getChar } from '../core/characters';
-import { statsFor, tierLabel } from '../core/progression';
+import { XP_ITEMS, statsFor, tierLabel, type OrbBag, type XpItemId } from '../core/progression';
 import type { AbilityId, CardInstance, CharacterDef } from '../core/types';
 import { portraitImg } from './art';
 import { gridArtHTML } from './gridArt';
@@ -163,3 +163,12 @@ export function spellInfoHTML(id: string): string {
   const s = getSpell(id);
   return `<ul class="abilities"><li><b>${s.icon} ${esc(s.name)}</b> — ${esc(s.description)}</li><li><b>✦ Conjurador</b> — precisa de um aliado ${esc(spellCastersLabel(s))} em campo; o de maior ataque conjura (a força vem do ataque dele).</li><li><b>⏳ Espera</b> — ${waitFor(id)} rodada(s) na mão; depois de lançado volta para o baralho.</li></ul>`;
 }
+
+/** v0.22.0: 🔮 Orbe com a cor da raridade (e a quantidade, se houver). */
+export function orbHTML(id: XpItemId, count?: number | string): string {
+  const o = XP_ITEMS.find((x) => x.id === id)!;
+  return `<span class="orb" style="--oc:${STAR_COLORS[o.rarity].color}" title="${o.name} (+${o.xp} XP)" aria-label="${o.name}"><i></i>${count != null ? `<b>${count}</b>` : ''}</span>`;
+}
+/** Os Orbes de uma recompensa, da raridade mais baixa para a mais alta. */
+export const orbBagHTML = (bag: OrbBag, prefix = '') =>
+  XP_ITEMS.filter((o) => (bag[o.id] ?? 0) > 0).map((o) => orbHTML(o.id, `${prefix}${bag[o.id]}`)).join('');

@@ -2,12 +2,12 @@ import { waitFor } from './core/battle';
 import './ui/style.css';
 import { CATEGORY_INFO, PLAYABLE, RACE_INFO, STAR_COLORS, getChar, isComingSoon } from './core/characters';
 import { STAGES, type Stage } from './core/campaign';
-import { TIER_NAMES, XP_ITEMS, ascend, ascendCost, ascendCostFor, canAscend, cardMaxLevel, cardXpToNext, feedXp, maxLevel, newOwned, nextTier, statsFor, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
+import { TIER_NAMES, XP_ITEMS, playXp, ascend, ascendCost, ascendCostFor, canAscend, cardMaxLevel, cardXpToNext, feedXp, maxLevel, newOwned, nextTier, statsFor, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
 import { playerLeaderImg, portraitImg, portraitSVG, unitSpriteSVG, warmLeader, warmPortraits } from './ui/art';
 import { cardPower, deckPower } from './core/power';
 import { canEvolve, evolveLeader, getLeader, leaderHp, leaderMaxLevel, nextRequirement } from './core/leaders';
 import { BattleView } from './ui/battleView';
-import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from './ui/components';
+import { abilityListHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from './ui/components';
 import { SPELLS, getSpell, isSpell } from './core/spells';
 import { gameAlert, gameConfirm, showDialog } from './ui/dialog';
 import { installPerfGuards } from './ui/perf';
@@ -15,7 +15,7 @@ import { enterBattleMode, leaveBattleMode } from './ui/orientation';
 import { bakeGridArt } from './ui/gridArt';
 import { DECK_MIN, MAX_COPIES, addToDeck, rawSaveHas, copiesIn, deckCards, deckCount, deckIssue, deckMax, hasSave, loadSave, migrateV17, profileLevel, removeFromDeck, resetSave, setCopies, setSaveKey, teamReady, writeSave, type SaveData } from './ui/save';
 import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from './ui/update';
-import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, DIFFICULTY_LABEL, STAR_GOALS, addStars, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from './core/adventure';
+import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, DIFFICULTY_LABEL, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_GOALS, addStars, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from './core/adventure';
 import { LEADER_ENEMY_URL } from './ui/art';
 import { adminSave, createAccount, loadAccounts, login, logout, saveKeyFor, NAME_MAX, PASS_MIN } from './ui/accounts';
 
@@ -125,7 +125,7 @@ function topbar(title: string, back = true) {
   return `<header class="topbar">
     ${back ? '<button class="btn small ghost" data-nav="home">← Base</button>' : '<span></span>'}
     <h2>${title}</h2>
-    <div class="res"><span title="Essências Estelares">✴ ${save.essencias}</span>${XP_ITEMS.map((i) => `<span title="${i.name}">${i.icon} ${save.items[i.id]}</span>`).join('')}</div>
+    <div class="res"><span title="Essências Estelares">✴ ${save.essencias}</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
   </header>`;
 }
 
@@ -158,7 +158,7 @@ function home() {
       <div class="logo-sub">DRAGON LEGACY</div>
     </div>
     <div class="home-heroes">${['kenji', 'vorax', 'nyx'].map((id) => `<div class="home-hero" style="${starStyle(getChar(id).maxStars)}">${portraitImg(getChar(id), { stars: getChar(id).maxStars })}</div>`).join('')}</div>
-    <div class="res big"><span>✴ ${save.essencias} Essências</span>${XP_ITEMS.map((i) => `<span>${i.icon} ${save.items[i.id]}</span>`).join('')}</div>
+    <div class="res big"><span>✴ ${save.essencias} Essências</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
     <nav class="menu">
       <button class="btn primary" data-nav="adventure">⚔ Aventura <small>${next ? `Fase ${next.id}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
       <button class="btn" data-nav="collection">🃏 Coleção & Baralho <small>${Object.keys(save.cards).length}/${PLAYABLE.length} personagens</small></button>
@@ -343,7 +343,7 @@ function stageDialog(stageId: number) {
   const st = stageFor(stageId, diff);
   const foes = st.enemyDeck.filter((c) => !isSpell(c.charId));
   const foeSpells = st.enemyDeck.filter((c) => isSpell(c.charId)).map((c) => getSpell(c.charId));
-  const r = st.rewards;
+  const r = rewardsFor(stageId, diff, () => 1); // só a parte fixa; as chances aparecem escritas
   const done = state === 'done';
   const left = dailyLeft(save.daily, diff, stageId);
   const play = canPlay(save, save.daily, diff, stageId);
@@ -356,7 +356,7 @@ function stageDialog(stageId: number) {
       <img class="stage-cmd" src="${LEADER_ENEMY_URL}" alt="">
       <p class="stage-diff">Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
       <p class="stage-line">Comandante inimigo ❤${st.enemyHeroHp} · Nível inimigo até ${Math.max(...foes.map((c) => c.level))}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</p>
-      <p class="stage-line">Recompensa: ✴${r.essencias} 📜${r.pergaminho}${r.cristal ? ` 💎${r.cristal}` : ''}${r.orbe ? ` 🔮${r.orbe}` : ''}${!done && st.unlock && !save.cards[st.unlock] ? ` · desbloqueia <b>${esc(getChar(st.unlock).name)}</b>` : ''}</p>
+      <p class="stage-line">Recompensa: ✴${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && st.unlock && !save.cards[st.unlock] ? ` · desbloqueia <b>${esc(getChar(st.unlock).name)}</b>` : ''}</p>
       <ul class="stage-goals">${STAR_GOALS.map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}</li>`).join('')}</ul>
       ${done ? `<p class="stage-left ${left ? '' : 'out'}">${left ? `Hoje: <b>${left}/${DAILY_LIMIT}</b> restantes` : 'Limite de hoje atingido. Volta amanhã.'}</p>` : ''}
       <div class="stage-actions">
@@ -380,14 +380,20 @@ function stageDialog(stageId: number) {
   });
 }
 
-/** Dá a recompensa inteira da fase (vitória ou Repetir). */
-function grantRewards(st: Stage) {
-  const r = st.rewards;
-  save.items.pergaminho += r.pergaminho;
-  save.items.cristal += r.cristal;
-  save.items.orbe += r.orbe;
+/** Dá a recompensa inteira da fase na dificuldade (vitória ou Repetir; v0.22.0: Orbes pela dificuldade, com as chances do Difícil). */
+function grantRewards(st: Stage, diff: Difficulty) {
+  const r = rewardsFor(st.id, diff);
+  for (const o of XP_ITEMS) save.items[o.id] += r.orbs[o.id] ?? 0;
   save.essencias += r.essencias;
-  return `<div class="res big"><span>✴ +${r.essencias}</span><span>📜 +${r.pergaminho}</span>${r.cristal ? `<span>💎 +${r.cristal}</span>` : ''}${r.orbe ? `<span>🔮 +${r.orbe}</span>` : ''}</div>`;
+  return `<div class="res big"><span>✴ +${r.essencias}</span>${XP_ITEMS.filter((o) => r.orbs[o.id]).map((o) => `<span class="orb-pill">${orbHTML(o.id, `+${r.orbs[o.id]}`)}</span>`).join('')}</div>`;
+}
+
+/** v0.22.0: XP por jogar — ao vencer jogando, todo o baralho ganha XP. */
+function grantPlayXp(stageId: number): string {
+  const xp = playXp(stageId);
+  let ups = 0;
+  for (const id of save.deck) if (!isSpell(id) && save.cards[id]) ups += feedXp(save.cards[id], xp).levelsGained;
+  return `<p class="hint">📈 +${xp} XP para cada personagem do baralho${ups ? ` · ${ups} nível(is) a mais` : ''}</p>`;
 }
 
 /** Repetir: recompensa na hora, sem jogar a batalha (gasta 1 vez do dia). */
@@ -395,7 +401,7 @@ function repeatStage(stageId: number, diff: Difficulty) {
   if (!canRepeat(save, save.daily, diff, stageId)) return;
   const st = stageFor(stageId, diff);
   save.daily = useDaily(save.daily, diff, stageId);
-  const got = grantRewards(st);
+  const got = grantRewards(st, diff);
   persist();
   resultModal(`<h2 class="win">⟲ Fase ${st.id} repetida</h2><p>${esc(st.name)} · ${DIFFICULTY_LABEL[diff]}</p>${got}<p class="hint">Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.</p>`);
 }
@@ -460,7 +466,7 @@ function finishBattle(stageId: number, diff: Difficulty, winner: string, end?: {
   const first = !isCleared(save, diff, stageId);
   let html = '';
   if (winner === 'player') {
-    const got = grantRewards(stage);
+    const got = grantRewards(stage, diff) + grantPlayXp(stageId);
     const maxBefore = deckMax(save);
     if (first) markCleared(save, diff, stageId);
     else save.daily = useDaily(save.daily, diff, stageId);
@@ -480,8 +486,8 @@ function finishBattle(stageId: number, diff: Difficulty, winner: string, end?: {
     html = `<h2 class="win">🏆 Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : `Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.`}</p>
       ${starsLine}${got}${grew ? `<p class="hint">⬆ Nível de perfil <b>${profileLevel(save)}</b>: o baralho agora aceita até <b>${deckMax(save)}</b> cartas.</p>` : ''}${opened ? `<p class="hint">🔓 Dificuldade <b>${DIFFICULTY_LABEL[opened]}</b> liberada!</p>` : ''}${unlocked}`;
   } else {
-    save.items.pergaminho += 1;
-    html = `<h2 class="lose">${winner === 'empate' ? '⏱ Empate' : '💀 Derrota'}</h2><p>Treine seus personagens com itens de XP e tente de novo! (+1 📜)</p>`;
+    save.items.orbe1 += 1;
+    html = `<h2 class="lose">${winner === 'empate' ? '⏱ Empate' : '💀 Derrota'}</h2><p>Treine seus personagens com Orbes e tente de novo! (+1 Orbe Comum)</p>`;
   }
   persist();
   resultModal(html);
@@ -692,9 +698,9 @@ function train() {
         <div class="xpbar"><i style="width:${pct}%"></i><span>${atCap ? 'NÍVEL MÁXIMO DO DEGRAU' : `${card.xp} / ${cardXpToNext(card)} XP (${pct}%)`}</span></div>
         <div class="stat-row"><span>Ataque <b>${st.atk}</b>${!atCap && nextSt.atk > st.atk ? ` <em>→ ${nextSt.atk}</em>` : ''}</span><span>Vida <b>${st.hp}</b>${!atCap && nextSt.hp > st.hp ? ` <em>→ ${nextSt.hp}</em>` : ''}</span></div>
         ${abilityListHTML(def, card.stars, card.level)}
-        <div class="items">${XP_ITEMS.map((it) => `<button class="item-btn" data-item="${it.id}" ${save.items[it.id] > 0 && !atCap ? '' : 'disabled'}><span class="ic">${it.icon}</span><b>${it.name}</b><small>+${it.xp} XP · você tem ${save.items[it.id]}</small></button>`).join('')}</div>
+        <div class="items">${XP_ITEMS.map((it) => `<button class="item-btn" data-item="${it.id}" ${save.items[it.id] > 0 && !atCap ? '' : 'disabled'}><span class="ic">${orbHTML(it.id)}</span><b>${it.name}</b><small>+${it.xp} XP · você tem ${save.items[it.id]}</small></button>`).join('')}</div>
         ${ascendBtn}
-        ${atCap ? '' : `<p class="hint">Alimente itens de XP: ao chegar a 100% da barra, o nível sobe — e a próxima barra fica maior.</p>`}
+        ${atCap ? '' : `<p class="hint">Alimente Orbes 🔮: ao chegar a 100% da barra, o nível sobe — e a próxima barra fica maior.</p>`}
         ${ladderHTML(card)}
       </div>
     </div></div>`;

@@ -60,7 +60,7 @@ describe('progressão v0.8', () => {
       version: 1,
       cards: Object.fromEntries(['riku', 'nara', 'toru', 'aiko', 'kenji'].map((id) => [id, newOwned(id)])),
       deck: ['riku', 'nara', 'kenji'],
-      items: { pergaminho: 0, cristal: 0, orbe: 0 },
+      items: { pergaminho: 0, cristal: 0, orbe: 0 } as never,
       essencias: 0,
       cleared: [1, 2, 3],
       speed: 1,

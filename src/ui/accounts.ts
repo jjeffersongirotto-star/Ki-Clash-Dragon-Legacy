@@ -127,7 +127,7 @@ export function adminSave(): SaveData {
   const deck = autoDeck(Object.values(cards).map((c) => ({ charId: c.charId, level: c.level, stars: c.stars, plus: c.plus })), deckMaxFor(PROFILE_MAX_LEVEL), 10);
   d.deck = deck.map((c) => c.charId);
   d.copies = Object.fromEntries(deck.map((c) => [c.charId, c.copies ?? 3]));
-  d.items = { pergaminho: 999, cristal: 999, orbe: 999 };
+  d.items = { orbe1: 999, orbe2: 999, orbe3: 999, orbe4: 999, orbe5: 999, orbe6: 999 };
   d.essencias = 99999;
   d.leaders = Object.fromEntries(LEADERS.map((l) => [l.id, { level: l.hpByLevel.length }]));
   return d;

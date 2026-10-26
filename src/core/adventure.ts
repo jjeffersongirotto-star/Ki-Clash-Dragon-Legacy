@@ -11,6 +11,7 @@
  */
 import { ENEMY_LEVELS, ENEMY_SPELLS, STAGES, enemyDeckFor, type Stage } from './campaign';
 import type { CardInstance } from './types';
+import { bagXp, type OrbBag } from './progression';
 
 export type Difficulty = 'facil' | 'normal' | 'dificil';
 export const DIFFICULTIES: Difficulty[] = ['facil', 'normal', 'dificil'];
@@ -148,4 +149,26 @@ export function addStars(p: StarProgress, diff: Difficulty, stageId: number, mas
   const before = starsOf(p, diff, stageId);
   (p.stars ??= {})[starKey(diff, stageId)] = before | mask;
   return mask & ~before;
+}
+
+// ---------- v0.22.0: Orbes por dificuldade ----------
+
+/** Chances no Difícil, por vitória ou Repetir (independentes). */
+export const HARD_LEGENDARY_CHANCE = 0.1;
+export const HARD_MYTHIC_CHANCE = 0.02;
+
+/**
+ * Recompensa da fase na dificuldade. O XP total dos Orbes fica parecido nas três; a raridade sobe:
+ * Fácil = Comum e Incomum (campaign.ts) · Normal = Raro (60% do XP) e Épico (40%) · Difícil = Épicos,
+ * mais 10% de chance de 1 Lendário e 2% de 1 Mítico. `rng` decide as chances (Math.random no jogo).
+ */
+export function rewardsFor(stageId: number, diff: Difficulty, rng: () => number = Math.random): { essencias: number; orbs: OrbBag } {
+  const base = STAGES[stageId - 1].rewards;
+  if (diff === 'facil') return { essencias: base.essencias, orbs: { ...base.orbs } };
+  const xp = bagXp(base.orbs);
+  if (diff === 'normal') return { essencias: base.essencias, orbs: { orbe3: Math.max(1, Math.round((xp * 0.6) / 400)), orbe4: Math.max(1, Math.round((xp * 0.4) / 800)) } };
+  const orbs: OrbBag = { orbe4: Math.max(1, Math.round(xp / 800)) };
+  if (rng() < HARD_LEGENDARY_CHANCE) orbs.orbe5 = 1;
+  if (rng() < HARD_MYTHIC_CHANCE) orbs.orbe6 = 1;
+  return { essencias: base.essencias, orbs };
 }

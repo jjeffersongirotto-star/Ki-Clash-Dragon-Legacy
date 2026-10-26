@@ -4,13 +4,15 @@ import { maxLevel } from './progression';
 import { DECK_SLOTS } from './deck';
 import { LEADER_HP } from './leaders';
 import { getSpell } from './spells';
+import type { OrbBag } from './progression';
 
 export interface Stage {
   id: number;
   name: string;
   enemyHeroHp: number;
   enemyDeck: CardInstance[];
-  rewards: { pergaminho: number; cristal: number; orbe: number; essencias: number };
+  /** recompensa no Fácil (v0.22.0: Orbes Comum e Incomum); Normal e Difícil em adventure.ts (`rewardsFor`) */
+  rewards: { essencias: number; orbs: OrbBag };
   unlock?: string;
 }
 
@@ -107,7 +109,8 @@ export const STAGES: Stage[] = NAMES.map((name, i) => ({
   name,
   enemyHeroHp: enemyLeaderHp(i),
   enemyDeck: enemyDeckFor(i),
-  rewards: { pergaminho: 4 + i * 2, cristal: 1 + Math.floor(i / 2), orbe: i >= 5 ? 1 : 0, essencias: 6 + i * 3 },
+  // v0.22.0: mesmo XP de antes em Orbes — o antigo 📜 (4 + 2i) vira Orbes Comuns; 💎 (1 + i/2) e 🔮 (fase 6+) viram Orbes Incomuns
+  rewards: { essencias: 6 + i * 3, orbs: { orbe1: 4 + i * 2, orbe2: Math.round(((1 + Math.floor(i / 2)) * 400 + (i >= 5 ? 1500 : 0)) / 250) } },
   unlock: UNLOCKS[i + 1],
 }));
 
