@@ -33,12 +33,24 @@
 
 ### 4. Aventura: fases num mapa com caminho pontilhado
 - As fases deixam de ser uma lista de cartões e viram um **mapa**: cada fase é uma **bolinha**, ligada à seguinte por um **caminho pontilhado**.
-- Em cima da bolinha de cada fase aparece o **Comandante**.
+- Em cima da bolinha de cada fase aparece o **Comandante**, um pouco acima da bolinha (sem encostar nela), com uma **faixa de luz nos pés** (dourada nas fases vencidas, azul na próxima, apagada nas bloqueadas) e **se movimentando** (respirando) como na batalha.
+- A próxima fase fica em **azul** com a etiqueta **PRÓXIMA**; as vencidas ficam **douradas** com ✓ e o contador do dia (ex.: "3/5 hoje").
+- Ao tocar numa fase vencida, abre uma janela com as informações e os botões **⚔ Jogar** e **⟲ Repetir** (sem texto explicativo entre parênteses).
+- Protótipo aprovado em construção (imagem e GIF enviados na conversa de 26/10/2026).
 - Fases e caminhos começam **escuros** e vão **se iluminando** conforme o jogador vence as fases.
 - **A decidir (perguntar antes de fazer):**
   - O Comandante em cima de cada bolinha é o **inimigo daquela fase** (cada fase com o seu) ou o **seu Bárbaro**, marcando onde você está?
   - Ao tocar numa bolinha, abre uma janela com as informações da fase e os botões **Jogar / Repetir** (e o contador "3/5")?
   - O caminho sobe na tela (fase 1 embaixo, como nos jogos de mapa) ou desce (fase 1 em cima)?
+
+### 5. Tirar as explicações de dentro dos botões
+- Botões ficam só com o nome da ação, sem texto explicativo (em parênteses ou em letra pequena).
+- Encontrados no jogo hoje:
+  - Base → **🔥 Treinar & Despertar** "Suba nível e evolua de cor" — explicação: **sai**.
+  - Base → **⚔ Aventura** "Fase 4: Deserto Rubro" e **🃏 Coleção & Baralho** "11/13 personagens" — informação, não explicação: **a decidir**.
+  - Detalhes da carta → aba da cor com **"(atual)"** — **a decidir**.
+  - Treinar → **✨ Despertar para … (✴ 120)** — é o custo, não explicação: **a decidir**.
+  - Coleção → filtro **🌟 Todos (13)** — é a contagem: **a decidir**.
 
 ## 💡 Ideias para o futuro (ainda sem data)
 
