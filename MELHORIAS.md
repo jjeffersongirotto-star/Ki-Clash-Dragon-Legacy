@@ -22,6 +22,15 @@
 - **Por quê:** o jogador não fica ganhando recompensas sem fim.
 - Hoje repetir uma fase dá metade da recompensa; com esta mudança passa a dar a recompensa inteira.
 
+### 3. Aventura: dificuldades Fácil, Normal e Difícil
+- **Onde:** 3 opções no **topo da tela, no centro**: **Fácil · Normal · Difícil**.
+- **Como funciona:** a escolhida vale para a lista de fases. Cada dificuldade tem **as mesmas fases**, mas com os personagens inimigos **mais fortes (com mais nível)** e, às vezes, **1 ou 2 cartas diferentes** no baralho inimigo para dificultar.
+- **Nesta atualização:** criar só os 3 botões e a lógica (cada fase com uma versão Fácil, Normal e Difícil). O **ajuste da dificuldade** de cada uma fica para depois, quando você pedir.
+- **A decidir (perguntar antes de fazer):**
+  - Normal e Difícil começam liberadas, ou só depois de vencer a fase no modo anterior?
+  - O limite de 5 por dia (item 2) é separado para cada dificuldade?
+  - A recompensa muda conforme a dificuldade?
+
 ## 💡 Ideias para o futuro (ainda sem data)
 
 ### Energia
