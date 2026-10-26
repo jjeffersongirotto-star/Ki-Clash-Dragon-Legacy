@@ -61,6 +61,12 @@
 - **No app (APK):** dá para travar a tela deitada na batalha e voltar a ficar livre ao sair, sempre.
 - **No site (navegador):** o navegador só deixa travar a tela deitada em tela cheia. O jogo já tenta isso ao entrar na batalha; quando o navegador não deixar, o aviso continua aparecendo como plano B.
 
+### 8. Design responsivo em qualquer plataforma
+- Todas as telas (Base, Aventura com o mapa, Coleção, Treinar, batalha e janelas) devem se ajustar bem a **qualquer tamanho de tela**: celular pequeno e grande (em pé e deitado), tablet, computador e monitor grande.
+- Nada cortado, sobreposto ou pequeno demais para tocar; textos legíveis; aproveitar o espaço em telas grandes (sem ficar tudo esticado ou perdido no meio).
+- **Como conferir:** abrir cada tela numa lista de tamanhos de referência (ex.: 360×640, 412×915, 915×412, 768×1024, 1024×768, 1366×768, 1920×1080, 2560×1440), tirar fotos de todas e corrigir o que estiver ruim.
+- **A decidir:** há alguma tela ou aparelho específico em que você já viu problema?
+
 ## 💡 Ideias para o futuro (ainda sem data)
 
 ### Energia
