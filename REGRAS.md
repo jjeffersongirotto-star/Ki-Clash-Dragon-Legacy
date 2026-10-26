@@ -64,7 +64,7 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 ### Baralho (v0.17.0: até 3 cópias e limite pelo nível de perfil)
 - **v0.17.0 (decisão 6):** cada carta (personagem **ou feitiço**) entra no baralho com **1 a 3 cópias** (antes eram sempre 4). O baralho precisa ter **de 20 cartas até o máximo do seu nível de perfil** e **pelo menos 1 personagem**. Detalhes na seção 16.
 - **Máximo = 28 + 2 × nível de perfil, até 40:** nível 1 = 30 · nível 2 = 32 · … · nível 6 ou mais = 40. **Nível de perfil (por enquanto) = 1 + fases vencidas** (máx. 11; a fase 3 do plano traz o nível de perfil completo).
-- A IA joga com os 10 personagens da fase × **3 cópias = 30** (sem feitiços nesta versão).
+- A IA joga com os 10 personagens da fase × **3 cópias = 30** e, **desde a v0.18.0**, os feitiços da fase com 2 cópias cada (fases 3 e 5 em diante; ver seção 17).
 - *Histórico (v0.8–v0.16): equipe de exatamente 10 cartas diferentes × 4 cópias = 40.*
 - Com o baralho inválido, tocar em **Lutar** abre a janela do jogo **Baralho inválido**, com o motivo e **Ir para o baralho** (nunca um alerta do navegador).
 - **Equipe da IA:** cada fase tem **10 personagens diferentes** (ver seção 14).
@@ -398,7 +398,7 @@ Habilidades em detalhe:
 - 10 fases; vencer libera a próxima. Primeira vitória dá a recompensa completa; repetir dá 50%.
 - **Desbloqueios (primeira vitória):** fase 1 → **Aiko** (Incomum) · fase 2 → **Mei** (Incomum) · fase 3 → **Lyra** (Incomum) · fase 4 → **Gorath** (Incomum) · fase 5 → **Yume** (Raro) · fase 6 → **Zarek** (Raro) · fase 8 → **Nyx-07** (Épico). Kenji e Vorax: em breve.
 - **Baralho da IA:** toda fase tem **10 personagens diferentes**. Fases 1 e 2 usam só personagens Comuns (a fase 1 sem tanques); a partir da 3 entram os de Incomum, Raro e Épico; Kenji (fases 8 e 9) e Vorax (fase 10) só aparecem como inimigos.
-- **Nível dos inimigos:** fase 1 = nível 1, fase 2 = nível 2 e depois 1 + 1,5 × (fase − 1), arredondado (fase 10 = nível 15, com +Comum).
+- **Nível dos inimigos (v0.18.0):** fase 1 a 10 = **1, 4, 4, 5, 6, 6, 11, 14, 17, 12** (cada carta limitada ao nível máximo da cor dela; na fase 10 as cartas estão **uma cor acima**, por isso o nível é menor). Antes: 1, 2 e depois 1 + 1,5 × (fase − 1) → 1, 2, 4, 6, 7, 9, 10, 12, 13, 15. Ver seção 17.
 - **Vida do Comandante inimigo (v0.13):** 12 + 7 × (fase − 1) → 12, 19, 26, 33, 40, 47, 54, 61, 68, 75. Antes era 12 + 2 × (fase − 1); os +5 por fase a mais são **metade** do acréscimo de vida do seu Comandante no nível esperado daquela fase (ver seção 15).
 - Derrota dá 1 Pergaminho de Ki de consolo.
 - Progresso salvo no navegador (localStorage).
@@ -592,7 +592,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 | 👼 Anjo da Guarda | Suporte | 2 | 1 aliado | a próxima queda deixa o aliado com 1 de vida (dura até ser usado) |
 | ⚰️ Chamado da Necropolis | Suporte **ou** Mago | 2 | sem alvo | traz a última carta derrotada (mão pronta, ou Baralho) |
 
-- **IA:** depois de invocar, lança os feitiços prontos com uma escolha simples de alvo (o inimigo mais avançado/forte; para veneno, o de mais vida; a fileira com mais inimigos; Cura só se curar pelo menos 3; Anjo no aliado mais forte sem proteção). O modo **Auto** do jogador usa a mesma IA. **Os inimigos da Aventura ainda não usam feitiços** nesta versão.
+- **IA:** depois de invocar, lança os feitiços prontos com uma escolha simples de alvo (o inimigo mais avançado/forte; para veneno, o de mais vida; a fileira com mais inimigos; Cura só se curar pelo menos 3; Anjo no aliado mais forte sem proteção). O modo **Auto** do jogador usa a mesma IA. **Desde a v0.18.0 os inimigos da Aventura também usam feitiços** (seção 17).
 
 ### Baralho com cópias e nível de perfil (decisão 6)
 - Até **3 cópias** por carta; baralho de **20** até **min(40, 28 + 2 × nível de perfil)** cartas; pelo menos 1 personagem.
@@ -609,5 +609,47 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 - Feitiço lançado volta ao Baralho com a fila recomeçando.
 - Fila de compra proporcional ao número de cartas diferentes (igual à antiga com 10).
 - Baralho mínimo 20, máximo 28 + 2 × nível (até 40), nível = 1 + fases vencidas.
-- Inimigos com 3 cópias e sem feitiços.
+- Inimigos com 3 cópias (v0.18.0: e feitiços a partir da fase 3, seção 17).
 - Não adotado ainda (perguntas abertas da proposta): reformulação das habilidades em %, "Escudo" como reserva de pontos, bônus de nível, teto da Emboscada e a regra nova da Prole.
+
+## 17. Dificuldade crescente, feitiços da IA e partidas verificáveis (v0.18.0)
+### Feitiços da IA
+- Na tela da Aventura, cada fase mostra os ícones ✦ dos feitiços inimigos e o **maior nível** das cartas inimigas.
+- Os inimigos da Aventura agora também têm **feitiços no baralho** (2 cópias de cada, além dos 30 personagens) e os lançam com a mesma IA do Auto (seção 16). Todo feitiço da fase tem pelo menos um conjurador da categoria dele.
+
+| Fase | Feitiços da IA |
+|---|---|
+| 1, 2 e 4 | nenhum |
+| 3 e 5 | ⚡ Raio Paralisante |
+| 6 | 🧪 Flecha Envenenada, ☄️ Bola de Fogo |
+| 7 | 🌋 Tremor, 🧱 Muralha |
+| 8 | ☠ Veneno Mortal, 🗡️ Golpe nas Sombras |
+| 9 | ⚡ Raio Paralisante, 💖 Cura em Massa |
+| 10 | ☄️ Bola de Fogo, 🌪 Lâmina Giratória, 👼 Anjo da Guarda |
+
+### Dificuldade de fase em fase
+- **Meta:** a chance de vencer ao chegar numa fase **cai de fase em fase** (antes a fase 2 era mais fácil que a 1, e as fases 6 e 10 eram muito mais difíceis que as vizinhas).
+- **Ajuste:** o **nível das cartas da IA** por fase (seção 14) e os feitiços da tabela acima. A vida do Comandante inimigo não mudou: no simulador ela quase não mexe na vitória (quem perde, perde porque o próprio Comandante cai).
+- **Simulação** (`scripts/balance/v18.ts`, 300 jogadores simulados que seguem a campanha com a IA do Auto, como na v0.17.0):
+
+| Fase | v0.17.1 | v0.18.0 |
+|---|---|---|
+| 1 | 93% | 93% |
+| 2 | 99% | 89% |
+| 3 | 91% | 90% |
+| 4 | 77% | 81% |
+| 5 | 82% | 79% |
+| 6 | 53% | 76% |
+| 7 | 82% | 70% |
+| 8 | 89% | 68% |
+| 9 | 86% | 65% |
+| 10 | 53% | 62% |
+
+- As fases 2 e 3 ficaram praticamente iguais (diferença dentro do ruído da simulação). Tentativas médias por fase: 1,1 a 1,5.
+- O jogador simulado é a IA do Auto; quem joga à mão costuma ir melhor, então a dificuldade real tende a ser um pouco menor.
+
+### Partidas verificáveis (base para o modo online)
+- A batalha é **determinística**: com os mesmos baralhos, vidas, semente inicial e jogadas do jogador, o resultado é sempre o mesmo (a IA inimiga e o Auto usam o sorteio da própria batalha).
+- Toda partida agora **grava** a configuração (baralhos, vidas, semente inicial) e as **jogadas do jogador**: usar uma carta numa casa, Auto e LUTAR. Jogadas recusadas não são gravadas.
+- `verifyMatch` (em `src/core/match.ts`) **refaz a partida** a partir da gravação e confere vencedor, turno e vida dos dois Comandantes. Recusa gravação com jogada inválida, jogada depois do fim, baralho trocado ou resultado diferente.
+- Por enquanto não há servidor: o jogo continua dando as recompensas no aparelho. Quando o modo online vier, o servidor recebe a gravação, chama `verifyMatch`, confere se os baralhos da gravação batem com as cartas da conta e com a fase, e só então dá a recompensa.

@@ -153,6 +153,31 @@ export interface BattleState {
   maxTurns: number;
   fury: boolean;
   log: string[];
+  /** v0.18.0: gravação da partida (configuração inicial + jogadas do jogador) para refazer e verificar */
+  record?: MatchRecord;
+}
+
+/** v0.18.0: jogada do jogador gravada (ver match.ts). `auto` = a IA do Auto invocou/lançou pelo jogador. */
+export type PlayerAction =
+  | { t: 'use'; hand: number; row: number; col: number }
+  | { t: 'auto' }
+  | { t: 'end' };
+
+/** v0.18.0: tudo o que é preciso para refazer a partida: baralhos, vidas, semente inicial e jogadas. */
+export interface MatchRecord {
+  version: 1;
+  setup: {
+    playerDeck: CardInstance[];
+    enemyDeck: CardInstance[];
+    playerHeroHp: number;
+    enemyHeroHp: number;
+    seed: number;
+    rows?: number;
+    cols?: number;
+    maxTurns?: number;
+    fury?: boolean;
+  };
+  actions: PlayerAction[];
 }
 
 export interface Snapshot {

@@ -91,6 +91,8 @@ export function createBattle(setup: BattleSetup): BattleState {
     fury: setup.fury ?? true,
     log: [],
   };
+  // v0.18.0: grava a configuração com a semente INICIAL (o sorteio muda state.seed a cada uso)
+  state.record = { version: 1, setup: JSON.parse(JSON.stringify({ ...setup, seed: state.seed })), actions: [] };
   state.decks.player = createDeck(setup.playerDeck, state);
   state.decks.enemy = createDeck(setup.enemyDeck, state);
   for (const side of ['player', 'enemy'] as const)
