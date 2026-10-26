@@ -2,7 +2,7 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
-## [0.16.0] — 25/10/2026 · PR #NN — Fase 1 do plano: arena 2 × 12, contagem de rodadas e contas locais
+## [0.16.0] — 25/10/2026 · PR #33 — Fase 1 do plano: arena 2 × 12, contagem de rodadas e contas locais
 - **Arena 2 × 12** (antes 2 × 7): zonas de invocação nas 3 colunas de cada ponta (1–3 e 10–12), 6 colunas livres no meio, Comandantes nas pontas. Casas redimensionadas para deitado, em pé e computador, mantendo ~60 FPS (em pé, sem coordenadas e com placa menor).
 - **Contagem de rodadas no lugar da energia:** cada carta na mão espera **2 × custo − 1** rodadas (3, 5, 7, 9 ou 11), cai 1 por turno seu e só pode ser invocada em **0**; dá para invocar todas as prontas no mesmo turno. A mão inicial começa 2 rodadas adiantada. A **gota** da carta mostra as rodadas (na mão, as que faltam) e o orbe ⏳ mostra quantas estão prontas. A IA e o Auto invocam todas as prontas.
 - **Corpo a corpo só na casa da frente** (confirmado; 2 casas só por habilidade).
