@@ -965,7 +965,7 @@ Lógica em `src/core/profile.ts` (perfil, energia, Ouro) e `src/core/shop.ts` (L
 - A barra de nível fica na **Base**, ao lado da conta.
 
 ### 🪙 Ouro de Dragão
-- Moeda **Ryo** dourada (redonda, com borda), com o **dragão 🐉 pintado de dourado** no lugar do furo do meio (v0.26.1; na v0.26.0 era um desenho oval próprio).
+- Moeda **Ryo** dourada (redonda, com borda), com o **dragão 🐉 dourado-alaranjado em relevo** no lugar do furo do meio, **borda serrilhada**, anel de pontinhos, ouro metálico com sombreamento e brilho (v0.26.2; na v0.26.0 era um desenho oval próprio).
 - Cada **vitória ou Repetir** dá **(10 + 5 × fase) × custo de energia** (Fácil fase 1 = 15, fase 10 = 60; Normal ×3; Difícil ×6). **Primeira vitória: em dobro.** Derrota não dá.
 
 ### 🏪 Loja
