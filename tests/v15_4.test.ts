@@ -6,7 +6,7 @@ import { maxLevel } from '../src/core/progression';
 import type { BattleState, CardInstance, RecordedEvent } from '../src/core/types';
 
 const c = (charId: string, level = 1, stars = 1): CardInstance => ({ charId, level, stars });
-const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
+const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1, cols: 7 /* arena compacta de teste: mesmas regras */ });
 const moves = (ctx: Ctx) => ctx.events.filter((e): e is Extract<RecordedEvent, { type: 'move' }> => e.type === 'move');
 const dmgTo = (ctx: Ctx, uid: number) => ctx.events.filter((e) => e.type === 'damage' && (e as { uid: number }).uid === uid).reduce((a, e) => a + (e as { amount: number }).amount, 0);
 

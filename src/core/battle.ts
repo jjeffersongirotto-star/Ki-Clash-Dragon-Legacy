@@ -14,10 +14,18 @@ import type {
 } from './types';
 
 export const ROWS = 2;
-export const COLS = 7;
+export const COLS = 12;
 export const DEPLOY_DEPTH = 3;
 export const HAND_MAX = HAND_SIZE;
-export const MAX_ENERGY = 10;
+/**
+ * v0.16.0: contagem de rodadas no lugar da energia. Cada carta que entra na mão espera
+ * `2 × custo − 1` rodadas (custo 2 → 3, 3 → 5, 4 → 7, 5 → 9, 6 → 11; a gota mostra quantas faltam)
+ * e só pode ser invocada quando chega a 0. Escolhido pela simulação das 10 fases
+ * (espera = custo deixava as fases 4–6 e 10 muito difíceis: enxurrada de unidades caras).
+ */
+export const waitFor = (charId: string) => Math.max(1, 2 * getChar(charId).cost - 1);
+/** A mão inicial começa 2 rodadas adiantada: cartas de custo 2 ficam prontas já no turno 1. */
+export const OPENING_HEADSTART = 2;
 
 export interface BattleSetup {
   playerDeck: CardInstance[];
@@ -45,7 +53,6 @@ export function snapshot(state: BattleState): Snapshot {
   return {
     units: state.units.map((u) => ({ ...u, abilities: u.abilities.slice() })),
     heroes: { player: { ...state.heroes.player }, enemy: { ...state.heroes.enemy } },
-    energy: { ...state.energy },
     turn: state.turn,
     active: state.active,
   };
@@ -53,7 +60,6 @@ export function snapshot(state: BattleState): Snapshot {
 
 export const dir = (side: Side) => (side === 'player' ? 1 : -1);
 export const enemyOf = (side: Side): Side => (side === 'player' ? 'enemy' : 'player');
-export const energyFor = (turn: number) => Math.min(MAX_ENERGY, 2 + turn);
 
 /**
  * Cria a batalha. Cada baralho precisa de exatamente 10 cartas diferentes (regra v0.8);
@@ -73,7 +79,6 @@ export function createBattle(setup: BattleSetup): BattleState {
       player: { hp: setup.playerHeroHp, maxHp: setup.playerHeroHp },
       enemy: { hp: setup.enemyHeroHp, maxHp: setup.enemyHeroHp },
     },
-    energy: { player: 0, enemy: 0 },
     units: [],
     decks: { player: createDeck([], { seed: 0 }), enemy: createDeck([], { seed: 0 }) },
     winner: null,
@@ -85,8 +90,8 @@ export function createBattle(setup: BattleSetup): BattleState {
   };
   state.decks.player = createDeck(setup.playerDeck, state);
   state.decks.enemy = createDeck(setup.enemyDeck, state);
-  drawOpening(state.decks.player, state);
-  drawOpening(state.decks.enemy, state);
+  for (const side of ['player', 'enemy'] as const)
+    for (const h of drawOpening(state.decks[side], state)) h.wait = Math.max(0, waitFor(h.charId) - OPENING_HEADSTART);
   startTurn(state, new Ctx(), 'player');
   return state;
 }
@@ -99,12 +104,18 @@ export function refillCount(state: BattleState, side: Side): number {
   return Math.max(0, HAND_SIZE - state.decks[side].hand.length);
 }
 function drawCard(state: BattleState, side: Side) {
-  drawStep(state.decks[side], state, refillCount(state, side));
+  for (const h of drawStep(state.decks[side], state, refillCount(state, side))) h.wait = waitFor(h.charId);
+}
+/** Rodadas que faltam para a carta da mão poder ser invocada (0 = pronta). */
+export const waitOf = (card: { charId: string; wait?: number }) => card.wait ?? 0;
+/** Início do turno do lado: as cartas que já estavam na mão andam 1 rodada. */
+function tickHand(state: BattleState, side: Side) {
+  for (const h of state.decks[side].hand) h.wait = Math.max(0, waitOf(h) - 1);
 }
 
 export function startTurn(state: BattleState, ctx: Ctx, side: Side) {
   state.active = side;
-  state.energy[side] = energyFor(state.turn);
+  tickHand(state, side);
   drawCard(state, side);
   if (side === 'player' && state.fury && furyBonus(state.turn) > furyBonus(state.turn - 1))
     ctx.emit(state, { type: 'aura', uid: 0, text: `🔥 Fúria de batalha! Todas as unidades ganham +${furyBonus(state.turn)} de ataque.` });
@@ -112,7 +123,7 @@ export function startTurn(state: BattleState, ctx: Ctx, side: Side) {
     type: 'turn',
     side,
     turn: state.turn,
-    text: `— Turno ${state.turn}: ${side === 'player' ? 'sua vez' : 'vez do inimigo'} (energia ${state.energy[side]}) —`,
+    text: `— Turno ${state.turn}: ${side === 'player' ? 'sua vez' : 'vez do inimigo'} (${state.decks[side].hand.filter((h) => !waitOf(h)).length} carta(s) pronta(s)) —`,
   });
 }
 
@@ -248,7 +259,7 @@ export function distanceToEnemyHero(state: BattleState, u: Unit): number {
 /**
  * Mira. Regras (arena 2x7):
  * - Ninguém ataca unidades da OUTRA fileira, exceto as habilidades diagonais (Corte Diagonal / Golpe Reverso).
- * - Básico: inimigo na casa logo à frente (alcance 1). Longo alcance: o inimigo MAIS PRÓXIMO até 3 casas à frente.
+ * - Básico: inimigo na casa logo à frente (alcance 1). Longo alcance: o inimigo MAIS PRÓXIMO até 4 casas à frente (v0.16.0).
  * - Miras especiais (retaguarda = mais distante; menor vida) olham só a própria fileira até `reach` casas.
  * - Comandante: funciona como uma unidade numa coluna virtual logo após o fim da arena, alcançável pelas duas
  *   fileiras. Sem unidade inimiga válida, qualquer unidade ataca o Comandante com seu alcance.
@@ -339,7 +350,7 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   if (!opts.counter && u.abilities.includes('menorVida') && target.hp * 2 <= target.maxHp) atk += pw(u, 'menorVida');
   const dist = Math.max(Math.abs(target.col - u.col), Math.abs(target.row - u.row));
   if (!opts.counter && !opts.secondary && opts.fixed == null) {
-    // Olho de Águia (2–3 casas), Caça-Conjuradores (alvo de longo alcance), Ataque Surpresa (vida cheia)
+    // Olho de Águia (2+ casas), Caça-Conjuradores (alvo de longo alcance), Ataque Surpresa (vida cheia)
     if (dist >= 2) atk += pw(u, 'olhoAguia');
     if (hasRangeBonus(target)) atk += pw(u, 'cacaMagos');
     if (target.hp >= target.maxHp) atk += pw(u, 'surpresa');
@@ -613,11 +624,11 @@ export function deploy(state: BattleState, side: Side, handIndex: number, row: n
   const card = state.decks[side].hand[handIndex];
   if (!card) return { ok: false, reason: 'Carta inválida', events: [] };
   const def = getChar(card.charId);
-  if (state.energy[side] < def.cost) return { ok: false, reason: 'Energia insuficiente', events: [] };
+  const w = waitOf(card);
+  if (w > 0) return { ok: false, reason: `Carta ainda não está pronta (falta${w > 1 ? 'm' : ''} ${w} rodada${w > 1 ? 's' : ''})`, events: [] };
   if (!isDeployCell(state, side, row, col)) return { ok: false, reason: 'Fora da zona de invocação', events: [] };
   if (unitAt(state, row, col)) return { ok: false, reason: 'Casa ocupada', events: [] };
   playFromHand(state.decks[side], handIndex);
-  state.energy[side] -= def.cost;
   const u = placeUnit(state, { charId: card.charId, level: card.level, stars: card.stars, plus: !!card.plus }, side, row, col);
   u.slot = card.slot;
   ctx.emit(state, { type: 'deploy', uid: u.uid, text: `${side === 'player' ? 'Você invoca' : 'Inimigo invoca'} ${def.name} (${tierLabel(card.stars, !!card.plus)} Nv.${card.level}).` });

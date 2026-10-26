@@ -8,7 +8,7 @@ import { newOwned } from '../src/core/progression';
 import type { BattleState, CardInstance, Category } from '../src/core/types';
 
 const c = (charId: string, level = 1, stars = 1): CardInstance => ({ charId, level, stars });
-const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
+const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1, cols: 7 });
 const NEW = ['daichi', 'sora', 'tobi', 'kael', 'suri', 'hana', 'jin', 'ren', 'kuro'];
 
 describe('progressão v0.8', () => {

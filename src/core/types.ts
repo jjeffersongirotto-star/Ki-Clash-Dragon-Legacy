@@ -120,7 +120,6 @@ export interface BattleState {
   turn: number;
   active: Side;
   heroes: Record<Side, Hero>;
-  energy: Record<Side, number>;
   units: Unit[];
   decks: Record<Side, DeckState>;
   winner: Side | 'empate' | null;
@@ -134,7 +133,6 @@ export interface BattleState {
 export interface Snapshot {
   units: Unit[];
   heroes: Record<Side, Hero>;
-  energy: Record<Side, number>;
   turn: number;
   active: Side;
 }

@@ -6,7 +6,7 @@ import { maxLevel, statsFor } from '../src/core/progression';
 import type { BattleState, CardInstance } from '../src/core/types';
 
 const c = (charId: string, level = 1, stars = 1): CardInstance => ({ charId, level, stars });
-const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
+const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1, cols: 7 /* arena compacta de teste: mesmas regras */ });
 
 describe('sem passo da vitória (v0.15.0)', () => {
   it('quem derrota NÃO avança, mesmo com a casa livre', () => {
@@ -36,18 +36,18 @@ describe('sem passo da vitória (v0.15.0)', () => {
   });
 });
 
-describe('longo alcance = 3 casas, alvo mais próximo', () => {
-  it('ranged têm alcance 3 e corpo a corpo 1', () => {
+describe('longo alcance = 4 casas (v0.16.0), alvo mais próximo', () => {
+  it('ranged têm alcance 4 e corpo a corpo 1', () => {
     const s = empty();
     for (const d of PLAYABLE) {
       const u = makeUnit(s, c(d.id, 1, d.minStars), 'player', 0, 0);
       const ranged = d.category === 'mago' || d.category === 'arqueiro' || d.abilities.includes('longoAlcance');
-      expect(rangeOf(u)).toBe(ranged ? 3 : 1);
+      expect(rangeOf(u)).toBe(ranged ? 4 : 1);
     }
   });
-  it('atinge até 3 casas, não 4', () => {
+  it('atinge até 4 casas, não 5', () => {
     const s = empty();
-    const u = placeUnit(s, c('aiko', 1, 2), 'player', 1, 1);
+    const u = placeUnit(s, c('aiko', 1, 2), 'player', 1, 0);
     const e = placeUnit(s, c('riku'), 'enemy', 1, 4);
     expect(findTarget(s, u)).toBe(e);
     e.col = 5;
@@ -63,15 +63,15 @@ describe('longo alcance = 3 casas, alvo mais próximo', () => {
   it('não avança após atacar e para assim que tem alvo', () => {
     const s = empty();
     const u = placeUnit(s, c('aiko', 1, 2), 'player', 1, 0);
-    placeUnit(s, c('gorath'), 'enemy', 1, 4, { hp: 50 });
+    placeUnit(s, c('gorath'), 'enemy', 1, 5, { hp: 50 });
     act(s, new Ctx(), u);
     expect(u.col).toBe(1);
   });
-  it('herói (coluna virtual) é atingido a 3 casas: da coluna 5 de 7 (índice 4)', () => {
+  it('herói (coluna virtual) é atingido a 4 casas: da coluna 4 de 7 (índice 3)', () => {
     const s = empty();
-    const u = placeUnit(s, c('lyra', 1, 2), 'player', 0, 4);
+    const u = placeUnit(s, c('lyra', 1, 2), 'player', 0, 3);
     expect(findTarget(s, u)).toBe('hero');
-    u.col = 3;
+    u.col = 2;
     expect(findTarget(s, u)).toBeNull();
   });
   it('unidade inimiga no alcance tem prioridade sobre o herói', () => {
@@ -123,12 +123,12 @@ describe('só a própria fileira (exceto diagonais)', () => {
     const a = placeUnit(s, c('gorath'), 'enemy', 0, 2, { hp: 50 });
     const b = placeUnit(s, c('gorath'), 'enemy', 0, 4, { hp: 50 });
     const other = placeUnit(s, c('gorath'), 'enemy', 1, 2, { hp: 50 });
-    const far = placeUnit(s, c('gorath'), 'enemy', 0, 5, { hp: 50 });
+    const far = placeUnit(s, c('gorath'), 'enemy', 0, 6, { hp: 50 });
     act(s, new Ctx(), l);
     expect(a.hp).toBe(46);
     expect(b.hp).toBe(48); // 50% (2★)
     expect(other.hp).toBe(50);
-    expect(far.hp).toBe(50); // fora do alcance 3
+    expect(far.hp).toBe(50); // fora do alcance 4
   });
   it('Corte Diagonal 3★+ também corta a diagonal ao bater em frente', () => {
     const s = empty();

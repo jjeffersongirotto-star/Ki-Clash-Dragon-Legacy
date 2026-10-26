@@ -7,7 +7,8 @@
   --gold: #ffcf4a;
   --p: #2fb8ff;
   --e: #ff3d6e;
-  --cell: clamp(38px, min(calc((100vw - 120px) / 7), calc((100dvh - 340px) / 2)), 98px);
+  --ncols: 12;
+  --cell: clamp(24px, min(calc((100vw - 120px) / var(--ncols)), calc((100dvh - 340px) / 2)), 98px);
   font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
   color: var(--text);
   background: var(--bg);
@@ -188,7 +189,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .hero-name { font-size: 10px; color: var(--muted); font-weight: 700; }
 .hero.hit { animation: shake .35s; }
 
-/* Tabuleiro 2x7 com cenário de arena anime */
+/* Tabuleiro 2x12 (v0.16.0) com cenário de arena anime */
 .board-wrap { position: relative; border-radius: 12px; padding-top: 22px; background: linear-gradient(180deg, #1b3a6b 0%, #142850 30%, #0d1630 100%); box-shadow: 0 0 0 2px #34528a, 0 10px 30px rgba(0,0,0,.65); overflow: hidden; }
 .arena-scenery { position: absolute; inset: 0 0 auto 0; height: 26px; background:
   radial-gradient(circle at 15% 80%, #2a6f97 0 18px, transparent 19px),
@@ -196,7 +197,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   linear-gradient(180deg, #0b1938 0%, #1d3557 75%, #2a4d7c 100%);
   border-bottom: 1.5px solid rgba(143,227,255,.35); opacity: .9; pointer-events: none; }
 .board-wrap.quake { animation: shake .3s; }
-.board { position: relative; display: grid; grid-template-columns: repeat(var(--cols), var(--cell)); grid-template-rows: repeat(var(--rows), var(--cell)); overflow: visible; background: linear-gradient(90deg, rgba(47,184,255,.16), rgba(22,34,74,.75) 28%, rgba(22,34,74,.75) 72%, rgba(255,61,110,.16)); }
+.board { position: relative; display: grid; grid-template-columns: repeat(var(--cols), var(--cell)); grid-template-rows: repeat(var(--rows), var(--cell)); overflow: visible; background: linear-gradient(90deg, rgba(47,184,255,.16), rgba(22,34,74,.75) 25%, rgba(22,34,74,.75) 75%, rgba(255,61,110,.16)); }
 .cell { position: relative; border: 1px solid rgba(143,227,255,.16); background: rgba(14,22,50,.55); transition: background .15s, box-shadow .15s; box-shadow: inset 0 -4px 10px rgba(0,0,0,.35); }
 .cell-coord { position: absolute; right: 3px; bottom: 2px; font-size: 8px; opacity: .22; pointer-events: none; font-weight: 700; }
 .cell:nth-child(2n) { background: rgba(19,29,64,.55); }
@@ -342,7 +343,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* desktop: registro ao lado */
 @media (min-width: 1000px) {
-  :root { --cell: clamp(50px, min(calc((100vw - 520px) / 7), calc((100dvh - 340px) / 2)), 110px); }
+  :root { --cell: clamp(40px, min(calc((100vw - 520px) / var(--ncols)), calc((100dvh - 340px) / 2)), 110px); }
   .battle { grid-template-columns: 1fr 300px; }
   .bhud, .field, .tactical-tabs, .bottom { grid-column: 1; }
   .log-panel { grid-column: 2; grid-row: 1 / span 4; align-self: stretch; }
@@ -361,7 +362,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .bottom { grid-template-columns: auto 1fr; }
   .btn.fight { grid-column: 1 / -1; }
   .hand .card { flex-basis: 78px; width: 78px; }
-  :root { --cell: clamp(34px, calc((100vw - 86px) / 7), 64px); }
+  :root { --cell: clamp(22px, calc((100vw - 86px) / var(--ncols)), 64px); }
   .battle-screen { padding: 4px 3px 16px; }
   .field { gap: 2px; }
   .hero { width: 38px; flex-basis: 38px; padding: 3px 1px; }
@@ -371,7 +372,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 /* celular deitado */
 @media (max-height: 500px) and (orientation: landscape) {
-  :root { --cell: clamp(30px, min(calc((100vw - 380px) / 7), calc((100dvh - 120px) / 2)), 80px); }
+  :root { --cell: clamp(24px, min(calc((100vw - 380px) / var(--ncols)), calc((100dvh - 120px) / 2)), 80px); }
   .battle { grid-template-columns: 1fr 230px; }
   .bhud { grid-column: 1 / -1; }
   .field { grid-column: 1; grid-row: 2 / span 3; }
@@ -768,7 +769,7 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
     --hand-w: clamp(52px, min(calc((100dvh - var(--hud-h)) * .2), calc((100vw - 330px) / 6 - 6px)), 104px);
     --bottom-h: calc(var(--hand-w) * 1.42 + 12px);
     --hero-w: clamp(44px, 7vw, 92px);
-    --cell: clamp(30px, min(calc((100vw - 2 * var(--hero-w) - 40px) / 7), calc((100dvh - var(--hud-h) - var(--bottom-h) - 44px) / 2)), 170px);
+    --cell: clamp(24px, min(calc((100vw - 2 * var(--hero-w) - 40px) / var(--ncols)), calc((100dvh - var(--hud-h) - var(--bottom-h) - 44px) / 2)), 170px);
   }
   .battle { height: 100%; display: grid !important; grid-template-columns: minmax(0, 1fr) auto !important; grid-template-rows: var(--hud-h) minmax(0, 1fr) auto; grid-template-areas: "hud tools" "field field" "bottom bottom"; gap: 4px; }
   .battle > .bhud { grid-area: hud; padding: 2px 6px; border-radius: 10px; min-width: 0; }
@@ -858,7 +859,7 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 
 /* celular em pé (fallback): coluna do Comandante um pouco mais larga e figura pela altura da arena */
 @media (max-width: 640px) {
-  :root { --cell: clamp(34px, calc((100vw - 108px) / 7), 64px); }
+  :root { --cell: clamp(22px, calc((100vw - 108px) / var(--ncols)), 64px); }
   .hero { width: 49px; flex-basis: 49px; padding: 2px 1px 3px; }
   .hero-svg { height: max(44px, calc(var(--cell) * 2 - 30px)); width: calc(max(44px, calc(var(--cell) * 2 - 30px)) / 1.2); }
   .hero-name { font-size: 8px; line-height: 1.05; }
@@ -1068,3 +1069,19 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .unit.passing { z-index: 6; }
 .unit.ducking .u-portrait { animation: duck .42s ease-in-out; }
 @keyframes duck { 45% { translate: 0 calc(var(--cell) * .08); scale: .9; } }
+
+/* ---- v0.16.0: conta local no canto superior esquerdo da Base (estático, sem animação) ---- */
+.account-box { display: flex; justify-content: flex-start; align-items: center; gap: 6px; text-align: left; margin: -14px 0 6px; padding-left: env(safe-area-inset-left); }
+.account-box .acc-name { background: rgba(16,22,50,.9); border: 1px solid #3a4580; border-radius: 10px; padding: 4px 9px; font-size: 13px; white-space: nowrap; }
+.account-box .acc-name small { color: #ffcf4a; font-weight: 800; }
+.acc-form { display: grid; gap: 8px; text-align: left; margin-top: 6px; }
+.acc-form label { display: grid; gap: 3px; font-size: 13px; color: #c9d1f5; font-weight: 700; }
+.acc-form input { font: inherit; font-size: 16px; padding: 9px 10px; border-radius: 10px; border: 1px solid #3a4580; background: #0c1130; color: #fff; }
+.acc-form input:focus { outline: 2px solid #5fd8ff; outline-offset: 0; }
+.acc-err { min-height: 1.2em; margin: 0; color: #ff8aa3; font-size: 13px; font-weight: 700; }
+.acc-warn { margin: 10px 0 0; font-size: 12px; color: #aab3da; line-height: 1.4; }
+/* v0.16.0: arena de 12 colunas no celular em pé — casas pequenas, placa e coordenadas mais enxutas */
+@media (orientation: portrait) and (max-width: 640px) {
+  .battle .cell-coord { display: none; }
+  .battle .u-stat-plate { font-size: 8px; padding: 0 2px; gap: 1px; bottom: 1px; }
+}

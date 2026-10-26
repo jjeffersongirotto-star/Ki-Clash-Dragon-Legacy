@@ -1,5 +1,5 @@
 import { aiDeploy } from '../core/ai';
-import { createBattle, deploy, deployCells, endPlayerTurn, effectiveAtk, unitAt, DEPLOY_DEPTH, Ctx } from '../core/battle';
+import { createBattle, deploy, deployCells, endPlayerTurn, effectiveAtk, unitAt, waitFor, waitOf, DEPLOY_DEPTH, Ctx } from '../core/battle';
 import { RACE_INFO, getChar } from '../core/characters';
 import { pileCount } from '../core/deck';
 import type { BattleState, CardInstance, RecordedEvent, Side, Snapshot, Unit } from '../core/types';
@@ -56,7 +56,7 @@ export class BattleView {
 
   snap(): Snapshot {
     const s = this.state;
-    return { units: s.units.map((u) => ({ ...u })), heroes: { player: { ...s.heroes.player }, enemy: { ...s.heroes.enemy } }, energy: { ...s.energy }, turn: s.turn, active: s.active };
+    return { units: s.units.map((u) => ({ ...u })), heroes: { player: { ...s.heroes.player }, enemy: { ...s.heroes.enemy } }, turn: s.turn, active: s.active };
   }
 
   mount() {
@@ -219,9 +219,8 @@ export class BattleView {
     const hand = this.root.querySelector('#hand')!;
     hand.innerHTML = s.decks.player.hand
       .map((c, i) => {
-        const def = getChar(c.charId);
-        const afford = def.cost <= s.energy.player && s.active === 'player' && !s.winner;
-        return cardHTML(c, { extraClass: `hand-card ${afford ? '' : 'cant'} ${this.selected === i ? 'sel' : ''}`, attrs: `data-i="${i}"` });
+        const afford = waitOf(c) === 0 && s.active === 'player' && !s.winner;
+        return cardHTML(c, { wait: waitOf(c), extraClass: `hand-card ${afford ? '' : 'cant'} ${this.selected === i ? 'sel' : ''}`, attrs: `data-i="${i}"` });
       })
       .join('') || '<div class="empty-hand">Sem cartas na mão</div>';
     hand.querySelectorAll<HTMLElement>('.hand-card').forEach((el) => {
@@ -309,8 +308,10 @@ export class BattleView {
       });
     });
     const e = this.root.querySelector('#energy')!;
-    const max = s.active === 'player' ? Math.min(10, 2 + s.turn) : s.energy.player;
-    e.innerHTML = `<div class="energy-orb">⚡<b>${s.energy.player}</b></div><div class="energy-pips">${Array.from({ length: max }, (_, i) => `<i class="${i < s.energy.player ? 'on' : ''}"></i>`).join('')}</div>`;
+    // v0.16.0: no lugar da energia, quantas cartas da mão estão prontas (contagem 0)
+    const inHand = s.decks.player.hand;
+    const ready = inHand.filter((h) => waitOf(h) === 0).length;
+    e.innerHTML = `<div class="energy-orb" title="Cartas prontas para invocar">⏳<b>${ready}</b></div><div class="energy-pips">${inHand.map((h) => `<i class="${waitOf(h) === 0 ? 'on' : ''}"></i>`).join('')}</div>`;
     this.setPile('#pileDraw', pileCount(s.decks.player));
     this.setPile('#pileDead', s.decks.player.defeated.length);
     const depCount = s.units.filter((u) => u.side === 'player' && u.hp > 0).length;
@@ -376,7 +377,7 @@ export class BattleView {
     }
   }
 
-  /** v0.14.4: soltar a carta arrastada numa casa — mesmas regras do toque (energia, zona, casa livre) */
+  /** v0.14.4: soltar a carta arrastada numa casa — mesmas regras do toque (carta pronta, zona, casa livre) */
   async dropCard(i: number, r: number, c: number) {
     if (this.busy) return;
     const res = deploy(this.state, 'player', i, r, c);
@@ -406,7 +407,7 @@ export class BattleView {
     if (!c) return;
     const def = getChar(c.charId);
     this.setInfo(
-      `<div class="info-head"><span><b>${esc(def.name)}</b> ${tierHTML(c.stars, !!c.plus)} · ${raceHTML(def)} · custo ${def.cost} · ${dmgLabel(def)} · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-hand="${i}">🔍 Detalhes</button></div>${abilityListHTML(def, c.stars, c.level)}`,
+      `<div class="info-head"><span><b>${esc(def.name)}</b> ${tierHTML(c.stars, !!c.plus)} · ${raceHTML(def)} · espera ${waitFor(def.id)} rodada(s)${waitOf(c) ? ` (falta${waitOf(c) > 1 ? 'm' : ''} ${waitOf(c)})` : ' (pronta)'} · ${dmgLabel(def)} · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-hand="${i}">🔍 Detalhes</button></div>${abilityListHTML(def, c.stars, c.level)}`,
     );
     this.root.querySelector('[data-inspect-hand]')?.addEventListener('click', () => this.openCardModal(c, 'player'));
     this.infoUid = null;
@@ -473,6 +474,9 @@ export class BattleView {
     const cells = this.root.querySelectorAll<HTMLElement>('.cell');
     cells.forEach((c) => c.classList.remove('can'));
     if (this.selected == null || this.busy) return;
+    // v0.16.0: carta ainda na contagem não acende casas (só a carta pronta, com 0, pode ser invocada)
+    const card = this.state.decks.player.hand[this.selected];
+    if (!card || waitOf(card) > 0) return;
     for (const [r, c] of deployCells(this.state, 'player')) {
       this.root.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`)?.classList.add('can');
     }
@@ -550,7 +554,7 @@ export class BattleView {
 
   lastUnits = new Map<number, Unit>();
 
-  renderSnapshot(snap: Snapshot, ev?: RecordedEvent) {
+  renderSnapshot(snap: Snapshot, _ev?: RecordedEvent) {
     const layer = this.root.querySelector('.units') as HTMLElement;
     const seen = new Set<number>();
     for (const u of snap.units) {
@@ -616,10 +620,6 @@ export class BattleView {
     const depEl = this.root.querySelector('#deployedCount');
     if (depEl) depEl.textContent = String(snap.units.filter((u) => u.side === 'player' && u.hp > 0).length);
     this.root.querySelector('#turnNo')!.textContent = String(snap.turn);
-    if (ev?.type === 'turn' || ev?.type === 'deploy') {
-      const e = this.root.querySelector('#energy b');
-      if (e && ev.type === 'deploy') e.textContent = String(snap.energy.player);
-    }
   }
 
   center(r: number, c: number): [number, number] {

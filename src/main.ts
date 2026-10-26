@@ -1,3 +1,4 @@
+import { waitFor } from './core/battle';
 import './ui/style.css';
 import { CATEGORY_INFO, CHAR_BY_ID, PLAYABLE, RACE_INFO, STAR_COLORS, getChar, isComingSoon } from './core/characters';
 import { STAGES } from './core/campaign';
@@ -11,10 +12,19 @@ import { gameAlert, gameConfirm, showDialog } from './ui/dialog';
 import { installPerfGuards } from './ui/perf';
 import { enterBattleMode, leaveBattleMode } from './ui/orientation';
 import { bakeGridArt } from './ui/gridArt';
-import { DECK_MAX, DECK_REQUIRED, loadSave, resetSave, teamReady, writeSave, type SaveData } from './ui/save';
+import { DECK_MAX, DECK_REQUIRED, hasSave, loadSave, resetSave, setSaveKey, teamReady, writeSave, type SaveData } from './ui/save';
+import { adminSave, createAccount, loadAccounts, login, logout, saveKeyFor, NAME_MAX, PASS_MIN } from './ui/accounts';
 
 const app = document.getElementById('app')!;
-let save: SaveData = loadSave();
+// v0.16.0: contas locais — cada conta tem o seu progresso neste aparelho
+const accounts = loadAccounts();
+function openAccountSave(): SaveData {
+  const id = accounts.current;
+  setSaveKey(saveKeyFor(id));
+  if (id && accounts.accounts[id]?.admin && !hasSave()) writeSave(adminSave());
+  return loadSave();
+}
+let save: SaveData = openAccountSave();
 let trainSel: string = save.deck[0] ?? Object.keys(save.cards)[0];
 let raceFilter: string = 'all';
 
@@ -112,7 +122,11 @@ function go(screen: string) {
 function home() {
   leaveBattleMode();
   const next = STAGES.find((s) => !save.cleared.includes(s.id));
+  const acc = accounts.current ? accounts.accounts[accounts.current] : null;
   app.innerHTML = `<div class="screen home">
+    <div class="account-box">${acc
+      ? `<span class="acc-name" title="Conta local deste aparelho">👤 <b>${esc(acc.name)}</b>${acc.admin ? ' <small>teste</small>' : ''}</span><button class="btn small ghost" id="accOut">Sair</button>`
+      : `<button class="btn small" id="accIn">👤 Entrar / Criar conta</button>`}</div>
     <div class="logo">
       <div class="logo-ki">KI-CLASH</div>
       <div class="logo-sub">DRAGON LEGACY</div>
@@ -128,11 +142,58 @@ function home() {
     <button class="link-btn" id="reset">Apagar progresso</button>
   </div>`;
   bindNav();
+  app.querySelector('#accIn')?.addEventListener('click', accountDialog);
+  app.querySelector('#accOut')?.addEventListener('click', () => {
+    persist();
+    logout(accounts);
+    save = openAccountSave();
+    trainSel = save.deck[0] ?? Object.keys(save.cards)[0];
+    home();
+  });
   app.querySelector('#reset')!.addEventListener('click', async () => {
     if (await gameConfirm('Apagar progresso?', 'Todo o progresso salvo (personagens, níveis, itens e fases) será apagado. Isso não pode ser desfeito.', 'Apagar tudo', true)) {
-      save = resetSave();
+      resetSave();
+      save = openAccountSave();
       home();
     }
+  });
+}
+
+/** v0.16.0: janela do jogo para entrar ou criar uma conta local (nome + senha). */
+async function accountDialog() {
+  await showDialog({
+    title: 'Conta',
+    icon: '👤',
+    html: `<form class="acc-form" autocomplete="off" onsubmit="return false">
+        <label>Nome<input id="accUser" maxlength="${NAME_MAX}" autocapitalize="off" spellcheck="false"></label>
+        <label>Senha<input id="accPass" type="password" minlength="${PASS_MIN}"></label>
+        <p class="acc-err" id="accErr" role="alert"></p>
+        <div class="dialog-btns"><button type="button" class="btn primary" id="accLogin">Entrar</button><button type="button" class="btn" id="accCreate">Criar conta</button></div>
+      </form>
+      <p class="acc-warn">⚠ Conta <b>só deste aparelho</b>, sem servidor: <b>não é segurança de verdade</b>. Cada conta guarda o próprio progresso aqui. Não use uma senha que você usa em outro lugar.</p>`,
+    buttons: [{ label: 'Fechar', value: 'cancel', kind: 'ghost' }],
+    onMount: (root, close) => {
+      const user = root.querySelector('#accUser') as HTMLInputElement;
+      const pass = root.querySelector('#accPass') as HTMLInputElement;
+      const err = root.querySelector('#accErr') as HTMLElement;
+      const done = (r: ReturnType<typeof login>) => {
+        if (!r.ok) {
+          err.textContent = r.error;
+          return;
+        }
+        persist();
+        save = openAccountSave();
+        trainSel = save.deck[0] ?? Object.keys(save.cards)[0];
+        close('ok');
+        home();
+      };
+      root.querySelector('#accLogin')!.addEventListener('click', () => done(login(accounts, user.value, pass.value)));
+      root.querySelector('#accCreate')!.addEventListener('click', () => done(createAccount(accounts, user.value, pass.value)));
+      pass.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') done(login(accounts, user.value, pass.value));
+      });
+      setTimeout(() => user.focus(), 30);
+    },
   });
 }
 
@@ -316,7 +377,7 @@ function cardDetail(id: string, previewStars?: number) {
         <span class="sp-label">👁 Ver evolução por cor (roupa/poder):</span>
         <div class="sp-tabs">${starTabs.join('')}</div>
       </div>
-      <div class="stat-row"><span class="pow-stat" title="Poder = 10 × peso da habilidade × √(ataque × vida)">Poder <b>⚡ ${fmt(pow)}</b></span><span>Custo <b>${def.cost}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${reachLabel(def)}</b></span><span>Movimento <b>${def.move}</b></span></div>
+      <div class="stat-row"><span class="pow-stat" title="Poder = 10 × peso da habilidade × √(ataque × vida)">Poder <b>⚡ ${fmt(pow)}</b></span><span title="Rodadas que a carta espera na mão até poder ser invocada">Espera <b>⏳ ${waitFor(def.id)}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${reachLabel(def)}</b></span><span>Movimento <b>${def.move}</b></span></div>
       ${abilityListHTML(def, stars, lvl)}
       <p class="lore">${esc(def.lore)}</p>
     </div></div>
@@ -534,10 +595,10 @@ function help() {
   leaveBattleMode();
   app.innerHTML = `<div class="screen">${topbar('Como jogar')}
   <div class="help">
-    <h3>Objetivo</h3><p>A arena tem <b>2 fileiras × 7 colunas</b>. Cada Comandante fica posicionado nas extremidades da arena. Zere a vida do <b>Comandante inimigo</b> (à direita) antes que ele zere a sua.</p>
+    <h3>Objetivo</h3><p>A arena tem <b>2 fileiras × 12 colunas</b>. Cada Comandante fica posicionado nas extremidades da arena. Zere a vida do <b>Comandante inimigo</b> (à direita) antes que ele zere a sua.</p>
     <h3>Raças e Origens Anime</h3><ul>${Object.values(RACE_INFO).map((r) => `<li><b>${r.icon} ${r.label}</b> — ${r.desc}</li>`).join('')}</ul>
     <h3>Seu turno</h3><ol>
-      <li>Você recebe <b>energia ⚡</b> (3 no 1º turno, +1 por turno, máx. 10) e compra <b>as cartas que faltarem para a mão voltar a ter 6</b>.</li>
+      <li>Não há energia: cada carta da mão tem uma <b>contagem de rodadas ⏳</b> (o número na gota). Ela começa em <b>2 × custo − 1</b> (3, 5, 7, 9 ou 11), cai 1 no início de cada turno seu e a carta só pode ser invocada quando chega a <b>0</b> — dá para invocar <b>todas</b> as prontas no mesmo turno. A mão inicial começa 2 rodadas adiantada. Depois, você compra <b>as cartas que faltarem para a mão voltar a ter 6</b>.</li>
       <li>Toque numa carta e numa casa brilhante das <b>3 colunas da esquerda</b> para invocá-la como um lutador de corpo inteiro na arena.</li>
       <li>Toque em <b>LUTAR</b> (ou ligue o modo <b>Auto</b>): seus personagens caminham (<b>MOVE</b>), saltam, disparam feixes de Ki ou golpes corpo a corpo (<b>HIT</b>), sofrem dano e vão para a <b>Necropolis</b> quando derrotados.</li></ol>
     <h3>Cartas e baralho</h3><ul>
@@ -551,10 +612,11 @@ function help() {
     <h3>Como as unidades agem na Arena</h3><ul>
       <li>Se houver alvo no alcance, atacam. Senão, <b>caminham até 2 casas (MOVE)</b> e tentam atacar.</li>
       <li><b>Só a própria fileira:</b> ninguém ataca a outra fileira, exceto Corte Diagonal (Nara), Golpe Reverso (Toru) e a Explosão de Brasas (Kael). A cura de Mei e o Tambor de Guerra (Tobi) também alcançam vizinhos da outra fileira.</li>
-      <li><b>Corpo a corpo:</b> só atinge o inimigo na casa <b>logo à frente</b> com animação de investida e corte de energia (<b>HIT!</b>).</li>
-      <li><b>Longo alcance (Magos 🪄, Arqueiros 🏹 e Suportes à distância):</b> atinge o inimigo <b>mais próximo até 3 casas à frente</b> disparando feixes de Ki ou flechas energéticas e não avança se puder atacar.</li>
+      <li><b>Corpo a corpo:</b> só atinge o inimigo na casa <b>logo à frente</b> (atacar a 2 casas fica para habilidades) com animação de investida e corte de energia (<b>HIT!</b>).</li>
+      <li><b>Longo alcance (Magos 🪄, Arqueiros 🏹 e Suportes à distância):</b> atinge o inimigo <b>mais próximo até 4 casas à frente</b> disparando feixes de Ki ou flechas energéticas e não avança se puder atacar.</li>
       <li><b>Passam pelos aliados</b> ao caminhar, mas só param em casa livre (ninguém termina em casa ocupada). <b>Inimigos bloqueiam.</b> O <b>Riku</b> (Salto Vendaval) se move <b>sempre saltando para a 3ª casa</b> (2ª ou 1ª se estiver ocupada), por cima de quem estiver no caminho, e ataca com bônus ao cair.</li>
       <li><b>Ao derrotar um inimigo</b>, a unidade <b>fica onde está</b>.</li>
+      <li><b>Ordem de ação:</b> quem está mais à frente age primeiro; na <b>mesma coluna, a fileira de cima age antes</b>.</li>
       <li><b>O Comandante inimigo</b> conta como uma unidade parada logo depois da última coluna, alcançável pelas duas fileiras.</li></ul>
     <h3>Fúria de batalha 🔥</h3><p>A partir do <b>turno 8</b>, todas as unidades dos dois lados ganham <b>+1 de ataque a cada 3 turnos</b>, para a luta não travar. Se chegar ao turno 40, vence quem tiver mais vida (em %) no Comandante.</p>
     <h3>Dano</h3><p><b>Físico 👊</b> é reduzido pela resistência física; <b>Mágico ✨</b> pela resistência mágica. Ex.: 3 de dano físico contra resistência 1 = 2 de dano.</p>

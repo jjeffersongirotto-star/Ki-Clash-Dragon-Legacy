@@ -2,6 +2,15 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.16.0] — 25/10/2026 · PR #NN — Fase 1 do plano: arena 2 × 12, contagem de rodadas e contas locais
+- **Arena 2 × 12** (antes 2 × 7): zonas de invocação nas 3 colunas de cada ponta (1–3 e 10–12), 6 colunas livres no meio, Comandantes nas pontas. Casas redimensionadas para deitado, em pé e computador, mantendo ~60 FPS (em pé, sem coordenadas e com placa menor).
+- **Contagem de rodadas no lugar da energia:** cada carta na mão espera **2 × custo − 1** rodadas (3, 5, 7, 9 ou 11), cai 1 por turno seu e só pode ser invocada em **0**; dá para invocar todas as prontas no mesmo turno. A mão inicial começa 2 rodadas adiantada. A **gota** da carta mostra as rodadas (na mão, as que faltam) e o orbe ⏳ mostra quantas estão prontas. A IA e o Auto invocam todas as prontas.
+- **Corpo a corpo só na casa da frente** (confirmado; 2 casas só por habilidade).
+- **Longo alcance 4** (antes 3): magos, arqueiros e suportes à distância.
+- **Desempate:** na mesma coluna, a **fileira de cima age primeiro** (já era assim; agora documentado e testado).
+- **Contas locais:** botão **👤 Entrar / Criar conta** no canto superior esquerdo da Base (nome + senha, janela do jogo); cada conta guarda o próprio progresso no aparelho. Conta de teste **ADM / 12345** com perfil no máximo. ⚠ Não é segurança de verdade (sem servidor; senha da ADM no código).
+- Simulação das 10 fases (300 jogadores): 92/98/76/76/80/47/81/86/87/66% de vitória ao chegar (antes 98/95/92/61/82/45/80/49/76/38%). Detalhes no REGRAS.md, seção 15.
+
 ## [0.15.4] — 25/10/2026 · PR #32 — Riku sempre se move saltando
 - **Salto Vendaval:** o movimento do Riku agora é **sempre um salto** para a **3ª casa à frente**, por cima de aliados ou inimigos nas casas 1–2. 3ª ocupada ou fora do campo → cai na 2ª; 2ª também → na 1ª; as três ocupadas → fica. Nunca vai além da 3ª e não anda depois de cair.
 - Inimigo logo à frente: salta por cima dele se houver casa de pouso livre (3ª, senão 2ª); sem pouso, ataca normalmente.

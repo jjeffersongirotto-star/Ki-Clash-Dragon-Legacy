@@ -43,7 +43,8 @@ export interface DeckSlot {
   lastStep: number;
 }
 
-export type HandCard = CardInstance & { slot: number };
+/** `wait`: rodadas que faltam para poder invocar (v0.16.0) */
+export type HandCard = CardInstance & { slot: number; wait?: number };
 
 export interface DeckState {
   slots: DeckSlot[];
