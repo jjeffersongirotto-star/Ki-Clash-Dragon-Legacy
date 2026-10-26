@@ -38,23 +38,26 @@ function drawsOf(history: number[][], slot: number) {
 }
 
 describe('baralho: estrutura', () => {
-  it('10 grupos × 4 cópias = 40; mão de 6', () => {
+  it('v0.17: 10 grupos × 3 cópias = 30; mão de 6', () => {
     const rng = { seed: 1 };
     const d = createDeck(team(), rng);
     expect(d.slots).toHaveLength(10);
-    expect(totalCards(d)).toBe(40);
+    expect(totalCards(d)).toBe(30);
     drawOpening(d, rng);
     expect(d.hand).toHaveLength(HAND_SIZE);
     expect(new Set(d.hand.map((h) => h.slot)).size).toBe(6);
-    expect(pileCount(d)).toBe(34);
+    expect(pileCount(d)).toBe(24);
   });
-  it('v0.8: sem preenchimento — a equipe precisa ter exatamente 10 cartas diferentes', () => {
+  it('v0.17: sem preenchimento — baralho de 20 ao máximo, entradas distintas, cópias 1–3', () => {
     const nine = team().slice(0, 9);
     expect(buildSlots(nine)).toHaveLength(9); // não repete mais a 1ª carta
-    expect(deckProblem(nine)).toMatch(/9 de 10/);
+    expect(deckProblem(nine)).toBeNull(); // 27 cartas
+    expect(deckProblem(team().slice(0, 6))).toMatch(/18 de no mínimo 20/);
     expect(deckProblem(team())).toBeNull();
-    expect(deckProblem(team().slice(0, 9).concat([{ charId: 'riku', level: 1, stars: 1 }]))).toMatch(/repetidos/);
-    expect(deckProblem([])).toMatch(/0 de 10/);
+    expect(deckProblem(team(), 24)).toMatch(/máximo de 24/);
+    expect(deckProblem(team().slice(0, 9).concat([{ charId: 'riku', level: 1, stars: 1 }]))).toMatch(/repetidas/);
+    expect(deckProblem(team().map((c) => ({ ...c, copies: 4 })))).toMatch(/1 a 3/);
+    expect(deckProblem([])).toMatch(/personagem/);
     expect(buildSlots([])).toEqual([]);
   });
 });
@@ -210,7 +213,7 @@ describe('baralho: fila de compra semi-aleatória', () => {
 });
 
 describe('baralho: derrotadas', () => {
-  it('cópia derrotada sai para sempre; grupo com as 4 derrotadas sai do rodízio', () => {
+  it('cópia derrotada sai para sempre; grupo com todas as cópias derrotadas sai do rodízio', () => {
     const rng = { seed: 7 };
     const d: DeckState = createDeck(team(), rng);
     drawOpening(d, rng);
@@ -224,7 +227,7 @@ describe('baralho: derrotadas', () => {
       defeatCopy(d, slot);
       expect(s.copies - s.defeated).toBe(COPIES - 1 - k);
     }
-    expect(d.defeated).toHaveLength(4);
+    expect(d.defeated).toHaveLength(COPIES);
     expect(inRotation(d).some((s) => s.slot === slot)).toBe(false);
     // continua comprando normalmente sem esse grupo, mesmo com ele "garantido"
     d.slots[slot].dueAt = 0;

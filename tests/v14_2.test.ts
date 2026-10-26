@@ -60,11 +60,8 @@ describe('v0.14.2 — acabamento da carta (prévia v14.2f)', () => {
     const list = abilityListHTML(toru, 1, 1);
     expect(list).toContain('<img class="ab-svg"');
     expect(list).not.toContain('🛡 Postura');
-    // a linha de Resistência física (atributo) também usa o peitoral
-    const withRes = PLAYABLE.find((d) => d.physRes)!;
-    const l2 = abilityListHTML(withRes, withRes.minStars, 1);
-    expect(l2).toContain('<img class="ab-svg"');
-    expect(l2).not.toContain('🛡 Resistência');
+    // v0.17: ninguém tem mais resistência de atributo (só por habilidade); a lista não mostra linha extra
+    expect(PLAYABLE.every((d) => !d.physRes && !d.magRes)).toBe(true);
   });
   it('nomes com palavra comprida encolhem para caber (Tobi Tambor-de-Guerra, Gorath Muralha-de-Ferro)', () => {
     expect(cardHTML({ charId: 'tobi', level: 1, stars: getChar('tobi').minStars })).toMatch(/class="ck-name" style="--nfit:0\.\d+"/);

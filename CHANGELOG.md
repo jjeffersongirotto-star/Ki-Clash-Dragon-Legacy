@@ -2,6 +2,16 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.17.0] — 26/10/2026 · PR #34 — Fase 2 do plano: habilidades, efeitos, feitiços e baralho com cópias
+- **Efeitos com duração:** 🧪 veneno (ignora resistência), 🔥 queimadura (reduzida pela resistência mágica), 💫 atordoado (perde a ação) e 🛡 escudo temporário (absorve antes da vida). Selos parados no lutador e lista na janela da unidade.
+- **Ícone de aura no beneficiado:** 🥁 em quem recebe o Tambor de Guerra e 🌀 em quem é drenado pelo Sifão.
+- **Novas habilidades:** 👁 Vigia (Jin, age primeiro), ♻ Renascer (Zarek, volta 1 vez com 30/40/50%), 👼 Anjo da Guarda (Mei, salva 1 vizinho com 1 de vida, 1 vez), 🪞 Reflexo de Magia (Nyx, 30/40/50% do dano mágico e de feitiço volta), 💢 Ombrada (Gorath, empurra ao acertar de frente), ⚰️ Necromancia (Vorax, traz a última carta derrotada para a mão pronta) e 🔰 Barreira Arcana (Lyra, resistência mágica).
+- **Resistência só por habilidade:** ninguém tem mais resistência de atributo; Toru, Gorath, Daichi e Lyra têm por habilidade. Kenji perdeu a física 1 e os magos a mágica 1. Ataque e vida não mudaram.
+- **Feitiços:** 13 cartas de feitiço (2 ou mais por categoria, 5 cruzados) que ocupam vagas do baralho, esperam custo − 1 rodadas e precisam de um aliado da categoria em campo para lançar (força pelo ataque do conjurador). Toque/arraste até uma casa roxa. Depois de lançado volta ao Baralho. Seção ✦ Feitiços na Coleção; a IA do Auto também lança.
+- **Baralho com cópias:** cada carta com 1 a 3 cópias (botões − / +), baralho de 20 até 28 + 2 × nível de perfil (30 no nível 1, 40 no nível 6+); nível de perfil provisório = 1 + fases vencidas. Saves antigos viram 10 × 3 = 30. Inimigos com 3 cópias, sem feitiços.
+- **Conta ADM:** baralho de 40 (10 mais fortes × 3 + 10 feitiços).
+- Simulação das 10 fases (300 jogadores, com até 4 cartas de feitiço quando o nível permite): 93/99/91/77/82/53/82/89/86/53% de vitória ao chegar (v0.16.0: 92/98/76/76/80/47/81/86/87/66%). Detalhes no REGRAS.md, seções 15 e 16.
+
 ## [0.16.0] — 25/10/2026 · PR #33 — Fase 1 do plano: arena 2 × 12, contagem de rodadas e contas locais
 - **Arena 2 × 12** (antes 2 × 7): zonas de invocação nas 3 colunas de cada ponta (1–3 e 10–12), 6 colunas livres no meio, Comandantes nas pontas. Casas redimensionadas para deitado, em pé e computador, mantendo ~60 FPS (em pé, sem coordenadas e com placa menor).
 - **Contagem de rodadas no lugar da energia:** cada carta na mão espera **2 × custo − 1** rodadas (3, 5, 7, 9 ou 11), cai 1 por turno seu e só pode ser invocada em **0**; dá para invocar todas as prontas no mesmo turno. A mão inicial começa 2 rodadas adiantada. A **gota** da carta mostra as rodadas (na mão, as que faltam) e o orbe ⏳ mostra quantas estão prontas. A IA e o Auto invocam todas as prontas.

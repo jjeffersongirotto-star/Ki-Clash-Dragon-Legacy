@@ -33,7 +33,25 @@ export type AbilityId =
   | 'precisao'
   | 'olhoAguia'
   | 'cacaMagos'
-  | 'surpresa';
+  | 'surpresa'
+  // v0.17.0 (fase 2)
+  | 'vigia'
+  | 'renascer'
+  | 'anjo'
+  | 'reflexo'
+  | 'ombrada'
+  | 'necromancia'
+  | 'barreira';
+
+/** v0.17.0: efeitos com duração (contador de rodadas) */
+export type EffectKind = 'veneno' | 'queimadura' | 'atordoado' | 'escudo' | 'anjo';
+export interface Effect {
+  kind: EffectKind;
+  /** dano por rodada (veneno/queimadura) ou pontos de escudo que restam */
+  amount: number;
+  /** rodadas que faltam (o anjo do feitiço dura até ser usado: 99) */
+  turns: number;
+}
 
 export interface Palette {
   primary: string;
@@ -79,6 +97,8 @@ export interface CardInstance {
   stars: number;
   /** v0.10: degrau "+" da cor */
   plus?: boolean;
+  /** v0.17.0: cópias no baralho (1–3; padrão 3). Feitiços usam o id do feitiço em `charId`. */
+  copies?: number;
 }
 
 export interface Unit {
@@ -104,6 +124,11 @@ export interface Unit {
   card?: CardInstance;
   /** grupo do baralho de onde a cópia saiu (vai para as derrotadas quando a unidade cai) */
   slot?: number;
+  /** v0.17.0: efeitos com duração */
+  effects?: Effect[];
+  /** v0.17.0: Renascer já usado / Anjo da Guarda (habilidade) já usado */
+  revived?: boolean;
+  angelUsed?: boolean;
 }
 
 export interface Hero {
@@ -150,6 +175,8 @@ export type BattleEvent =
   | { type: 'push'; uid: number; from: [number, number]; to: [number, number]; text: string }
   | { type: 'aura'; uid: number; text: string }
   | { type: 'heal'; uid: number; amount: number; text: string }
-  | { type: 'end'; winner: Side | 'empate'; text: string };
+  | { type: 'end'; winner: Side | 'empate'; text: string }
+  | { type: 'effect'; uid: number; kind: EffectKind | 'renascer' | 'reflexo' | 'necropolis'; text: string }
+  | { type: 'cast'; side: Side; spellId: string; caster: number; target?: [number, number]; text: string };
 
 export type RecordedEvent = BattleEvent & { snap: Snapshot };

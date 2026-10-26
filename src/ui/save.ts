@@ -1,5 +1,8 @@
 import { CHAR_BY_ID, STARTER_IDS } from '../core/characters';
-import { DECK_SLOTS } from '../core/deck';
+import { DECK_MIN, DECK_SLOTS, MAX_COPIES, deckProblem, deckSize } from '../core/deck';
+import { deckMaxFor, profileLevelFor } from '../core/deckbuild';
+import { isSpell } from '../core/spells';
+import type { CardInstance } from '../core/types';
 import { DEFAULT_LEADER, LEADERS } from '../core/leaders';
 import { newOwned, type OwnedCard, type XpItemId } from '../core/progression';
 
@@ -23,6 +26,10 @@ export interface SaveData {
   activeLeader?: string;
   /** migração v0.13: saves antigos começam com o Comandante no nível 1 */
   v13?: boolean;
+  /** v0.17.0: cópias de cada carta do baralho (1 a 3; sem valor = 3). O baralho (`deck`) aceita personagens e feitiços. */
+  copies?: Record<string, number>;
+  /** migração v0.17 */
+  v17?: boolean;
 }
 
 let KEY = 'kicdl-save-v1';
@@ -31,6 +38,14 @@ export function setSaveKey(key: string) {
   KEY = key;
 }
 export const currentSaveKey = () => KEY;
+/** o texto salvo na chave atual contém `needle`? (para migrações pontuais) */
+export function rawSaveHas(needle: string): boolean {
+  try {
+    return (localStorage.getItem(KEY) ?? '').includes(needle);
+  } catch {
+    return false;
+  }
+}
 /** Já existe progresso salvo na chave atual? */
 export function hasSave(): boolean {
   try {
@@ -39,9 +54,10 @@ export function hasSave(): boolean {
     return false;
   }
 }
-/** a equipe é o baralho: exatamente 10 cartas distintas × 4 cópias = 40 (sem isso não há batalha) */
+/** v0.8–v0.16: a equipe tinha exatamente 10 cartas; continua sendo o tamanho da equipe inicial */
 export const DECK_MAX = DECK_SLOTS;
 export const DECK_REQUIRED = DECK_SLOTS;
+export { DECK_MIN, MAX_COPIES };
 /** v0.8: o jogador novo começa só com os personagens de Comum */
 export const STARTERS = STARTER_IDS;
 
@@ -62,7 +78,75 @@ export function defaultSave(): SaveData {
     leaders: defaultLeaders(),
     activeLeader: DEFAULT_LEADER,
     v13: true,
+    copies: {},
+    v17: true,
   };
+}
+
+// ---------- v0.17.0: baralho com cópias e feitiços ----------
+
+/** nível de perfil (por enquanto: 1 + fases vencidas, máx. 11) */
+export const profileLevel = (d: SaveData) => profileLevelFor(d.cleared.length);
+/** tamanho máximo do baralho para o nível de perfil */
+export const deckMax = (d: SaveData) => deckMaxFor(profileLevel(d));
+/** a carta (personagem possuído ou feitiço) pode estar no baralho? */
+export const usable = (d: SaveData, id: string) => isSpell(id) || (!!CHAR_BY_ID[id] && !!d.cards[id]);
+export const copiesIn = (d: SaveData, id: string) => Math.max(1, Math.min(MAX_COPIES, Math.floor(d.copies?.[id] ?? MAX_COPIES)));
+/** as entradas do baralho prontas para a batalha */
+export function deckCards(d: SaveData): CardInstance[] {
+  return d.deck
+    .filter((id, i, a) => usable(d, id) && a.indexOf(id) === i)
+    .map((id) =>
+      isSpell(id)
+        ? { charId: id, level: 1, stars: 1, copies: copiesIn(d, id) }
+        : { charId: id, level: d.cards[id].level, stars: d.cards[id].stars, plus: !!d.cards[id].plus, copies: copiesIn(d, id) },
+    );
+}
+export const deckCount = (d: SaveData) => deckSize(deckCards(d));
+/** motivo de o baralho não valer (null = pode lutar) */
+export const deckIssue = (d: SaveData) => deckProblem(deckCards(d), deckMax(d));
+
+/** Coloca a carta no baralho com o máximo de cópias que couber (até 3). Retorna quantas entraram (0 = não coube). */
+export function addToDeck(d: SaveData, id: string): number {
+  if (!usable(d, id) || d.deck.includes(id)) return 0;
+  const room = deckMax(d) - deckCount(d);
+  const n = Math.min(MAX_COPIES, room);
+  if (n < 1) return 0;
+  d.deck.push(id);
+  (d.copies ??= {})[id] = n;
+  return n;
+}
+export function removeFromDeck(d: SaveData, id: string) {
+  d.deck = d.deck.filter((x) => x !== id);
+  if (d.copies) delete d.copies[id];
+}
+/** muda as cópias (1–3) respeitando o máximo do baralho; retorna o valor final */
+export function setCopies(d: SaveData, id: string, n: number): number {
+  const cur = copiesIn(d, id);
+  const room = deckMax(d) - deckCount(d) + cur;
+  const v = Math.max(1, Math.min(MAX_COPIES, Math.floor(n), room));
+  (d.copies ??= {})[id] = v;
+  return v;
+}
+
+/**
+ * Migração v0.17 (sempre normaliza): tira entradas inválidas/repetidas, garante cópias 1–3 e,
+ * se o baralho passar do máximo do nível de perfil, tira cópias das últimas entradas (sem apagar a carta;
+ * se chegar a 1 cópia e ainda passar, a entrada sai).
+ */
+export function migrateV17(d: SaveData): SaveData {
+  d.copies = d.copies && typeof d.copies === 'object' ? d.copies : {};
+  d.deck = d.deck.filter((id, i, a) => usable(d, id) && a.indexOf(id) === i);
+  for (const k of Object.keys(d.copies)) if (!d.deck.includes(k)) delete d.copies[k];
+  for (const id of d.deck) d.copies[id] = copiesIn(d, id);
+  const max = deckMax(d);
+  for (let i = d.deck.length - 1; i >= 0 && deckCount(d) > max; i--) {
+    const id = d.deck[i];
+    while (deckCount(d) > max && d.copies[id] > 1) d.copies[id]--;
+    if (deckCount(d) > max) removeFromDeck(d, id);
+  }
+  d.v17 = true;
+  return d;
 }
 
 export function defaultLeaders(): Record<string, { level: number }> {
@@ -128,6 +212,7 @@ export function loadSave(): SaveData {
     if (!d.v10) migrateV10(merged);
     // sempre normaliza os Comandantes (save antigo sem o campo, ou campo corrompido)
     migrateV13(merged);
+    migrateV17(merged);
     return merged;
   } catch {
     return defaultSave();
@@ -147,16 +232,15 @@ export function resetSave(): SaveData {
   return defaultSave();
 }
 
-/** Completa a equipe até 10 com personagens possuídos que estão fora dela (mais fortes primeiro). */
+/** Completa a equipe até 10 personagens com os possuídos que estão fora dela (mais fortes primeiro). */
 export function fillTeam(d: SaveData) {
   const rest = Object.values(d.cards)
     .filter((c) => !d.deck.includes(c.charId))
     .sort((a, b) => b.stars - a.stars || Number(!!b.plus) - Number(!!a.plus) || b.level - a.level);
-  for (const c of rest) if (d.deck.length < DECK_MAX) d.deck.push(c.charId);
+  for (const c of rest) if (d.deck.filter((x) => !isSpell(x)).length < DECK_MAX) d.deck.push(c.charId);
 }
 
-/** Equipe pronta para lutar? (exatamente 10 personagens diferentes que você possui) */
+/** Baralho pronto para lutar? (v0.17: de 20 ao máximo do nível, cópias 1–3, ao menos 1 personagem) */
 export function teamReady(d: SaveData): boolean {
-  const ok = d.deck.filter((id, i, a) => d.cards[id] && a.indexOf(id) === i);
-  return ok.length === DECK_REQUIRED;
+  return deckIssue(d) === null;
 }

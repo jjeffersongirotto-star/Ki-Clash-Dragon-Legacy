@@ -5,11 +5,10 @@
  * pessoas que dividem o mesmo aparelho e para testes.
  */
 import { CHAR_BY_ID, PLAYABLE } from '../core/characters';
-import { DECK_SLOTS } from '../core/deck';
+import { autoDeck, deckMaxFor, PROFILE_MAX_LEVEL } from '../core/deckbuild';
 import { LEADERS } from '../core/leaders';
 import { STAGES } from '../core/campaign';
 import { maxLevel, type OwnedCard } from '../core/progression';
-import { cardPower } from '../core/power';
 import { defaultSave, type SaveData } from './save';
 
 export const ACCOUNTS_KEY = 'kicdl-accounts-v1';
@@ -120,8 +119,11 @@ export function adminSave(): SaveData {
     cards[def.id] = { charId: def.id, level: maxLevel(def.maxStars, true), xp: 0, stars: def.maxStars, plus: true };
   }
   d.cards = cards;
-  d.deck = Object.values(cards).sort((a, b) => cardPower(b) - cardPower(a)).slice(0, DECK_SLOTS).map((c) => c.charId);
   d.cleared = STAGES.map((s) => s.id);
+  // v0.17: baralho de 40 (máximo) com os 10 mais fortes × 3 e 10 cartas de feitiço
+  const deck = autoDeck(Object.values(cards).map((c) => ({ charId: c.charId, level: c.level, stars: c.stars, plus: c.plus })), deckMaxFor(PROFILE_MAX_LEVEL), 10);
+  d.deck = deck.map((c) => c.charId);
+  d.copies = Object.fromEntries(deck.map((c) => [c.charId, c.copies ?? 3]));
   d.items = { pergaminho: 999, cristal: 999, orbe: 999 };
   d.essencias = 99999;
   d.leaders = Object.fromEntries(LEADERS.map((l) => [l.id, { level: l.hpByLevel.length }]));

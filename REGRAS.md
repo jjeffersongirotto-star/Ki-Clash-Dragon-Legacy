@@ -61,9 +61,12 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 - **Desempenho:** o layout deitado não adiciona animações contínuas; a batalha continua a 60 FPS.
 
 ## 4. Mão e baralho
-### Baralho de 40 cartas
-- A **equipe é o baralho**: **10 cartas diferentes × 4 cópias = 40 cartas**. A IA também joga com 10 cartas × 4.
-- **Mínimo obrigatório:** só dá para entrar na batalha com **exatamente 10 personagens diferentes** na equipe. Não há mais preenchimento com cartas repetidas. Com menos de 10, tocar em **Lutar** abre a janela do jogo **Equipe incompleta**, que mostra quantos faltam e oferece **Ir para a equipe** (nunca um alerta do navegador).
+### Baralho (v0.17.0: até 3 cópias e limite pelo nível de perfil)
+- **v0.17.0 (decisão 6):** cada carta (personagem **ou feitiço**) entra no baralho com **1 a 3 cópias** (antes eram sempre 4). O baralho precisa ter **de 20 cartas até o máximo do seu nível de perfil** e **pelo menos 1 personagem**. Detalhes na seção 16.
+- **Máximo = 28 + 2 × nível de perfil, até 40:** nível 1 = 30 · nível 2 = 32 · … · nível 6 ou mais = 40. **Nível de perfil (por enquanto) = 1 + fases vencidas** (máx. 11; a fase 3 do plano traz o nível de perfil completo).
+- A IA joga com os 10 personagens da fase × **3 cópias = 30** (sem feitiços nesta versão).
+- *Histórico (v0.8–v0.16): equipe de exatamente 10 cartas diferentes × 4 cópias = 40.*
+- Com o baralho inválido, tocar em **Lutar** abre a janela do jogo **Baralho inválido**, com o motivo e **Ir para o baralho** (nunca um alerta do navegador).
 - **Equipe da IA:** cada fase tem **10 personagens diferentes** (ver seção 14).
 - Na batalha, o **Baralho** fica à esquerda da mão (com quantas cartas ainda podem ser compradas) e a **Necropolis (Derrotadas)** à direita (com quantas cópias já caíram).
 
@@ -77,10 +80,11 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 ### Cópias em campo e derrotadas (Necropolis)
 - A carta jogada sai da mão e vira **unidade em campo**. Enquanto a unidade está viva, aquela cópia não está no Baralho.
 - Quando a unidade **morre**, aquela cópia vai para a **Necropolis (Derrotadas) e nunca volta**. A carta fica com 3 cópias no ciclo, depois 2, e assim por diante.
-- Uma carta com as **4 cópias derrotadas sai do rodízio**. Crias Sombrias não vêm de cartas e não vão para as Derrotadas.
+- Uma carta com **todas as cópias derrotadas sai do rodízio** (v0.17.0: até 3 cópias). Exceções da v0.17.0: **Renascer**, **Anjo da Guarda**, **Necromancia** e o feitiço **Chamado da Necropolis** (seção 16). Crias Sombrias não vêm de cartas e não vão para as Derrotadas.
 
 ### Compra semi-aleatória (fila de cada carta)
 - **Toda compra conta**, inclusive a mão inicial (que é a compra 0). A contagem começa **na compra**, não quando a carta é jogada: ficar parada na mão **não pausa** a fila.
+- **v0.17.0:** os números abaixo são para um baralho com **10 cartas diferentes**. Com N cartas diferentes: liberada a partir da compra **N − 3**, garantida na **N** (mão inicial: liberada na **N − 5**, garantida na **N − 2**). Com 10 fica exatamente como antes.
 - Depois de comprada, a carta fica **bloqueada nas 6 compras seguintes**.
 - Na **7ª, 8ª e 9ª** compra depois dela, ela **pode vir no sorteio** (entre todas as cartas liberadas).
 - Se não veio até a 9ª, vem **garantida na 10ª**.
@@ -103,7 +107,7 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
    - **Na última coluna:** ataca o Comandante normalmente.
    - A investida vale em todo ataque feito logo depois de um salto.
 7. **Sem passo da vitória (v0.15.0):** quem **derrota um inimigo fica onde está** (antes avançava 1 casa).
-8. **Ordem de ação:** as unidades agem da **mais avançada para a mais recuada**. **Desempate (v0.16.0, confirmado):** na **mesma coluna, a fileira de cima age primeiro** — vale para os dois lados.
+8. **Ordem de ação:** as unidades agem da **mais avançada para a mais recuada**. **v0.17.0 — Vigia 👁 (Jin):** quem tem Vigia age **antes de todos** do seu lado (vários Vigias: do mais recuado para o mais avançado). **Atordoado 💫** perde a ação. **Desempate (v0.16.0, confirmado):** na **mesma coluna, a fileira de cima age primeiro** — vale para os dois lados.
 
 ## 6. Alcance e alvos
 - **Só a própria fileira:** ninguém ataca unidades da outra fileira, exceto as habilidades **diagonais** (Corte Diagonal e Golpe Reverso) e a **lateral** Explosão de Brasas (Kael), que atinge a casa da mesma coluna na outra fileira.
@@ -127,6 +131,8 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 - **Físico 👊** é reduzido pela **resistência física**; **Mágico ✨** pela **resistência mágica**. Exemplo: 3 de dano físico contra resistência física 1 = 2.
 - **Dano mínimo: 1** por golpe.
 - O Comandante não tem resistência.
+- **v0.17.0 — resistência só por habilidade (decisão 14):** nenhum personagem tem mais resistência de atributo. Quem tem: **Toru** (Postura de Guarda, física 1/1/2/3), **Gorath** (Inabalável, física 2/3 e mágica 1 no Épico), **Daichi** (Couraça de Espinhos, física 1), **Lyra** (Barreira Arcana, mágica 1/2). Teto de resistência: 3. Kenji perdeu a física 1 e os magos a mágica 1.
+- **Ordem do dano (v0.17.0):** 1) Reflexo de Magia (só dano mágico ou de feitiço); 2) escudo temporário 🛡 absorve; 3) o resto sai da vida; 4) se chegou a 0: Anjo da Guarda (feitiço, depois a habilidade de um vizinho), Renascer, senão a unidade cai.
 
 ## 8. Fúria de batalha 🔥
 A partir do **turno 8**, todas as unidades dos dois lados ganham **+1 de ataque**, e mais +1 a cada **3 turnos** (turno 8: +1, 11: +2, 14: +3…). Isso evita lutas travadas. No **turno 40**, vence quem tiver mais vida (em %) no Comandante; se for igual, empate.
@@ -313,27 +319,27 @@ Cada um dos 9 novos tem um detalhe que o identifica desde Comum, além da evolu�
 ## 12. Personagens
 Ataque/vida mostrados em Comum nível 1 (base) e, entre parênteses, na cor inicial do personagem. A coluna **"+" melhora** diz qual status o degrau "+" aumenta. A antiga coluna de raridade saiu: a raridade agora é a cor.
 
-| Personagem | Raça | Categoria | Cores | "+" melhora | Custo (espera = 2 × custo − 1) | Ataque / Vida | Dano | Alcance (à distância: 4 desde a v0.16.0) | Resist. fís./mág. | Habilidade e evolução |
+| Personagem | Raça | Categoria | Cores | "+" melhora | Custo (espera = 2 × custo − 1) | Ataque / Vida | Dano | Alcance (à distância: 4 desde a v0.16.0) | Resist. fís./mág. de atributo (0 desde a v0.17.0: agora só por habilidade) | Habilidade e evolução |
 |---|---|---|---|---|---|---|---|---|---|---|
 | Riku Vendaval | 🌍 Humano | ⚔️ DPS | Comum → Épico+ | ataque | 2 | 3 / 6 (3 / 6 em Comum) | Físico | 1 | 0/0 | Salto Vendaval — Move-se sempre saltando até a 3ª casa (fixo, não aumenta com cor nem nível) · Bônus de investida (ao atacar logo depois do salto): +1 em Raro, +2 em Épico, +1 extra no nível 30 (máx. +3). |
 | Nara Lâmina-Lunar | 🪐 Extraterrestre | ⚔️ DPS | Comum → Épico+ | ataque | 2 | 3 / 6 (3 / 6 em Comum) | Físico | 1 | 0/0 | Corte Diagonal — Raro em diante: ao bater em frente, também corta a diagonal com 50% do dano (máx.). |
-| Toru Sombra-Reversa | 🤖 Androide | 🛡️ Tanque | Comum → Épico+ | vida | 3 | 2 / 11 (2 / 11 em Comum) | Físico | 1 | 1/0 | Golpe Reverso<br>Postura de Guarda — Raro: +1 de resistência física · Épico: +2 (máx.). |
+| Toru Sombra-Reversa | 🤖 Androide | 🛡️ Tanque | Comum → Épico+ | vida | 3 | 2 / 11 (2 / 11 em Comum) | Físico | 1 | 0/0 | Golpe Reverso<br>Postura de Guarda — Raro: +1 de resistência física · Épico: +2 (máx.). · Postura de Guarda agora dá a resistência física toda: 1 / 1 / 2 / 3 (Comum → Épico). |
 | Aiko Flecha-Celeste | 🪐 Extraterrestre | 🏹 Arqueiro | Incomum → Épico+ | ataque | 3 | 3 / 5 (3 / 6 em Incomum) | Físico | 3 | 0/0 | Flecha Dupla — Incomum: 2ª flecha de 1 · Raro: 2 · Épico: 3 (máx. 3); +1 no nível 25. |
-| Lyra Olho-de-Falcão | 🔮 Mago Arcano | 🪄 Mago | Incomum → Épico+ | ataque | 3 | 3 / 4 (3 / 5 em Incomum) | Mágico | 3 | 0/1 | Feixe Perfurante — Dano nos de trás: 50% (Incomum) · 75% (Raro em diante, máx.). |
-| Gorath Muralha-de-Ferro | 👹 Monstro | 🛡️ Tanque | Incomum → Épico+ | vida | 4 | 2 / 12 (2 / 14 em Incomum) | Físico | 1 | 2/0 | Inabalável — Raro: +1 de resistência física · Épico: também +1 de resistência mágica. |
-| Mei Lótus-Celeste | 🔮 Mago Arcano | ➕ Suporte | Incomum → Épico+ | vida | 3 | 2 / 5 (2 / 6 em Incomum) | Mágico | 3 | 0/1 | Bênção do Lótus — Cura 2 (Incomum–Raro) · 3 (Épico); +1 no nível 20 (máx. 4). |
+| Lyra Olho-de-Falcão | 🔮 Mago Arcano | 🪄 Mago | Incomum → Épico+ | ataque | 3 | 3 / 4 (3 / 5 em Incomum) | Mágico | 3 | 0/0 | Feixe Perfurante — Dano nos de trás: 50% (Incomum) · 75% (Raro em diante, máx.). · 🔰 **Barreira Arcana** (v0.17.0): resistência mágica 1 (Incomum–Raro) / 2 (Épico). |
+| Gorath Muralha-de-Ferro | 👹 Monstro | 🛡️ Tanque | Incomum → Épico+ | vida | 4 | 2 / 12 (2 / 14 em Incomum) | Físico | 1 | 0/0 | Inabalável — Raro: +1 de resistência física · Épico: também +1 de resistência mágica. · 💢 **Ombrada** (v0.17.0): ao acertar de frente corpo a corpo, empurra o alvo 1 casa. |
+| Mei Lótus-Celeste | 🔮 Mago Arcano | ➕ Suporte | Incomum → Épico+ | vida | 3 | 2 / 5 (2 / 6 em Incomum) | Mágico | 3 | 0/0 | Bênção do Lótus — Cura 2 (Incomum–Raro) · 3 (Épico); +1 no nível 20 (máx. 4). · 👼 **Anjo da Guarda** (v0.17.0): 1 vez por batalha salva um aliado vizinho (ou ela mesma) com 1 de vida. |
 | Yume Caçadora | ☠️ Necromante | 💀 Assassino | Raro → Lendário+ | ataque | 3 | 4 / 4 (5 / 5 em Raro) | Físico | 1 | 0/0 | Instinto Predador — Execução: +1 em Raro, +2 em Épico, +3 em Lendário; +1 no nível 25 (máx. +3). |
-| Zarek do Eclipse | 🪐 Extraterrestre | 💀 Assassino | Raro → Lendário+ | ataque | 4 | 4 / 5 (5 / 7 em Raro) | Físico | 1 | 0/0 | Emboscada — Perfura 1 de resistência em Raro, 2 em Épico, 3 em Lendário; +1 no nível 25 (máx. 3). |
-| Kenji Punho-Espelhado ✦ | 🌍 Humano | ⚔️ DPS | Lendário → Mítico+ | ataque | 5 | 3 / 7 (5 / 11 em Lendário) | Físico | 1 | 1/0 | Punho Espelhado — Multiplicador: ×2 (Lendário) · ×2,25 (Mítico, máx.). |
-| Nyx-07 | 🤖 Androide | ➕ Suporte | Épico → Mítico+ | vida | 5 | 2 / 6 (3 / 9 em Épico) | Mágico | 3 | 0/1 | Sifão de Energia — −1 de ataque (Épico–Lendário) · −2 (Mítico). |
-| Vorax ✦ | ☠️ Necromante | 🪄 Mago | Lendário → Mítico+ | ataque | 6 | 3 / 6 (5 / 10 em Lendário) | Mágico | 3 | 0/1 | Prole Sombria — Cria: ataque 2 e vida 1 (Lendário) · ataque 3 e vida 2 (Mítico). |
-| Daichi Punho-de-Rocha | 👹 Monstro | 🛡️ Tanque | Comum → Épico+ | vida | 3 | 2 / 9 | Físico | 1 | 1/0 | Couraça de Espinhos — devolve 1 (Comum–Incomum) · 2 (Raro) · 3 (Épico). |
-| Sora Brisa-Serena | 🔮 Mago Arcano | ➕ Suporte | Comum → Épico+ | vida | 2 | 1 / 5 | Mágico | 3 | 0/1 | Sopro Restaurador — cura 1 (Comum–Incomum) · 2 (Raro) · 3 (Épico). |
+| Zarek do Eclipse | 🪐 Extraterrestre | 💀 Assassino | Raro → Lendário+ | ataque | 4 | 4 / 5 (5 / 7 em Raro) | Físico | 1 | 0/0 | Emboscada — Perfura 1 de resistência em Raro, 2 em Épico, 3 em Lendário; +1 no nível 25 (máx. 3). · ♻ **Renascer** (v0.17.0): volta 1 vez com 30% (Raro) / 40% (Épico) / 50% (Lendário) da vida. |
+| Kenji Punho-Espelhado ✦ | 🌍 Humano | ⚔️ DPS | Lendário → Mítico+ | ataque | 5 | 3 / 7 (5 / 11 em Lendário) | Físico | 1 | 0/0 | Punho Espelhado — Multiplicador: ×2 (Lendário) · ×2,25 (Mítico, máx.). · (v0.17.0: perdeu a resistência física 1 de atributo.) |
+| Nyx-07 | 🤖 Androide | ➕ Suporte | Épico → Mítico+ | vida | 5 | 2 / 6 (3 / 9 em Épico) | Mágico | 3 | 0/0 | Sifão de Energia — −1 de ataque (Épico–Lendário) · −2 (Mítico). · 🪞 **Reflexo de Magia** (v0.17.0): reduz o dano mágico/feitiço recebido em 30% (Épico) / 40% (Lendário) / 50% (Mítico) e devolve essa parte. |
+| Vorax ✦ | ☠️ Necromante | 🪄 Mago | Lendário → Mítico+ | ataque | 6 | 3 / 6 (5 / 10 em Lendário) | Mágico | 3 | 0/0 | Prole Sombria — Cria: ataque 2 e vida 1 (Lendário) · ataque 3 e vida 2 (Mítico). · ⚰️ **Necromancia** (v0.17.0): ao entrar em campo, traz da Necropolis a última carta aliada derrotada. |
+| Daichi Punho-de-Rocha | 👹 Monstro | 🛡️ Tanque | Comum → Épico+ | vida | 3 | 2 / 9 | Físico | 1 | 0/0 | Couraça de Espinhos — devolve 1 (Comum–Incomum) · 2 (Raro) · 3 (Épico). |
+| Sora Brisa-Serena | 🔮 Mago Arcano | ➕ Suporte | Comum → Épico+ | vida | 2 | 1 / 5 | Mágico | 3 | 0/0 | Sopro Restaurador — cura 1 (Comum–Incomum) · 2 (Raro) · 3 (Épico). |
 | Tobi Tambor-de-Guerra | 👹 Monstro | ➕ Suporte | Comum → Épico+ | vida | 3 | 2 / 7 | Físico | 1 | 0/0 | Tambor de Guerra — vizinhos +1 de ataque (Comum–Raro) · +2 (Épico). |
-| Kael Chama-Rubra | 🔮 Mago Arcano | 🪄 Mago | Comum → Épico+ | ataque | 3 | 3 / 4 | Mágico | 3 | 0/1 | Explosão de Brasas — explosão de 1 (Comum–Incomum) · 2 (Raro–Épico). |
-| Suri Maré-Gélida | 🪐 Extraterrestre | 🪄 Mago | Comum → Épico+ | vida | 2 | 2 / 5 | Mágico | 3 | 0/1 | Maré Implacável — +1 no Comandante (Comum–Incomum) · +2 (Raro) · +3 (Épico). |
+| Kael Chama-Rubra | 🔮 Mago Arcano | 🪄 Mago | Comum → Épico+ | ataque | 3 | 3 / 4 | Mágico | 3 | 0/0 | Explosão de Brasas — explosão de 1 (Comum–Incomum) · 2 (Raro–Épico). |
+| Suri Maré-Gélida | 🪐 Extraterrestre | 🪄 Mago | Comum → Épico+ | vida | 2 | 2 / 5 | Mágico | 3 | 0/0 | Maré Implacável — +1 no Comandante (Comum–Incomum) · +2 (Raro) · +3 (Épico). |
 | Hana Pena-Veloz | 🌍 Humano | 🏹 Arqueiro | Comum → Épico+ | ataque | 2 | 2 / 5 | Físico | 3 | 0/0 | Tiro Certeiro — ignora 1 de resistência física (Comum–Incomum) · 2 (Raro–Épico). |
-| Jin Arco-Trovão | 🤖 Androide | 🏹 Arqueiro | Comum → Épico+ | ataque | 3 | 3 / 5 | Físico | 3 | 0/0 | Olho de Águia — +1 de dano a 2–4 casas (Comum–Incomum) · +2 (Raro–Épico). |
+| Jin Arco-Trovão | 🤖 Androide | 🏹 Arqueiro | Comum → Épico+ | ataque | 3 | 3 / 5 | Físico | 3 | 0/0 | Olho de Águia — +1 de dano a 2–4 casas (Comum–Incomum) · +2 (Raro–Épico). · 👁 **Vigia** (v0.17.0): age antes das outras unidades. |
 | Ren Presa-Oculta | 🌍 Humano | 💀 Assassino | Comum → Épico+ | ataque | 2 | 3 / 5 | Físico | 1 (mira 2) | 0/0 | Caça-Conjuradores — +1 de dano em quem ataca de longe (Comum–Incomum) · +2 (Raro–Épico). |
 | Kuro Garra-Noturna | 👹 Monstro | 💀 Assassino | Comum → Épico+ | ataque | 3 | 3 / 5 | Físico | 1 (mira 2) | 0/0 | Ataque Surpresa — +1 em alvo com vida cheia (Comum–Incomum) · +2 (Raro–Épico). |
 | *Cria Sombria* (invocada) | ☠️ Necromante | 🪄 Mago | — | — | — | 2 ou 3 / 1 ou 2 | Mágico | 2 | 0/0 | Disparo Sombrio (alcance 2) e Prole Sombria. |
@@ -366,7 +372,8 @@ Habilidades em detalhe:
 - **Disparo Sombrio (Cria):** ataque **mágico** no inimigo **mais próximo até 2 casas à frente** na própria fileira (como as unidades de longo alcance, mas com alcance 2), inclusive o Comandante a partir da penúltima coluna. Não avança quando pode atacar.
 
 ## 13. Equipe e janelas do jogo
-- A equipe é o seu baralho e precisa ter **exatamente 10 personagens diferentes** para lutar (cada um vale 4 cópias). Dá para tirar alguém e ficar com menos de 10 enquanto monta a equipe, mas aí a batalha fica bloqueada: o jogo avisa ao tirar, a tela de Coleção mostra "faltam N" em vermelho, a Aventura mostra um aviso com **Completar equipe**, e **Lutar** abre a janela **Equipe incompleta** com **Ir para a equipe**.
+- **v0.17.0:** a tela **Coleção & Baralho** mostra o baralho com **N/máximo**, cada carta com os botões **− ×N +** de cópias, e uma seção **✦ Feitiços**. **Colocar no baralho** põe a carta com o máximo de cópias que couber (até 3); com o baralho cheio aparece a janela **Baralho cheio** (não há mais janela de troca). Tirar uma carta que deixa o baralho inválido mostra um aviso. As regras abaixo sobre "10 personagens" e "troca" valem até a v0.16.
+- *(até a v0.16)* A equipe é o seu baralho e precisa ter **exatamente 10 personagens diferentes** para lutar (cada um vale 4 cópias). Dá para tirar alguém e ficar com menos de 10 enquanto monta a equipe, mas aí a batalha fica bloqueada: o jogo avisa ao tirar, a tela de Coleção mostra "faltam N" em vermelho, a Aventura mostra um aviso com **Completar equipe**, e **Lutar** abre a janela **Equipe incompleta** com **Ir para a equipe**.
 - **Novo jogo:** você começa **só com personagens Comuns** — os **12 iniciais** (2 de cada categoria). A equipe começa com 10 deles; os outros 2 ficam na coleção para trocar. Ao desbloquear um personagem, ele **entra direto na equipe** se houver vaga.
 - **Saves antigos (migração da v0.8, uma única vez):** você **mantém todos os personagens, níveis, cores, itens e fases** que já tinha — inclusive **Kenji e Vorax**, se já tinham sido obtidos (ninguém perde progresso). Todo save também ganha os **9 novos personagens Comuns**. Se a equipe tiver menos de 10, ela é completada com os seus personagens mais fortes que estavam fora dela.
 - **Saves antigos (migração da v0.10, uma única vez):** as estrelas viram a cor de mesmo número (1★ Comum, 2★ Incomum, 3★ Raro, 4★ Épico, 5★ Lendário, 6★ Mítico), sempre na **cor base** (sem "+"). Cada personagem mantém a cor que já tinha, o nível e o XP (o nível máximo da cor base é o mesmo do antigo nível máximo).
@@ -379,7 +386,7 @@ Habilidades em detalhe:
 - **Nome:** até 16 caracteres (letras, números, espaço, ponto, hífen ou _), sem diferenciar maiúsculas. **Senha:** pelo menos 3 caracteres.
 - Conectado, o canto mostra **👤 Nome** e o botão **Sair**. A conta continua conectada ao recarregar a página.
 - **Cada conta guarda o próprio progresso neste aparelho** (cartas, níveis, itens, fases, Comandante). Sem conta, o jogo usa o progresso de antes (quem já jogava não perde nada). **Apagar progresso** apaga só o da conta atual.
-- **Conta de teste ADM** (senha **12345**), já criada: perfil no **máximo** — todos os personagens (inclusive Kenji e Vorax) na **cor máxima com "+"** e **nível máximo**, equipe com os 10 de maior Poder, **as 10 fases concluídas**, Comandante no **nível máximo** e itens de sobra. Se o progresso da ADM for apagado, ele volta ao máximo na próxima vez que a conta for aberta.
+- **Conta de teste ADM** (senha **12345**), já criada: perfil no **máximo** — todos os personagens (inclusive Kenji e Vorax) na **cor máxima com "+"** e **nível máximo**, equipe com os 10 de maior Poder (v0.17.0: **baralho de 40** = os 10 de maior Poder × 3 + **10 cartas de feitiço**; nível de perfil 11), **as 10 fases concluídas**, Comandante no **nível máximo** e itens de sobra. Se o progresso da ADM for apagado, ele volta ao máximo na próxima vez que a conta for aberta.
 - ⚠ **Não é segurança de verdade:** não há servidor; tudo fica no armazenamento do navegador deste aparelho, a senha da ADM está no código e a senha das contas é guardada só com um embaralhamento simples. Serve para separar o progresso de quem divide o aparelho e para testes. A janela avisa isso.
 
 ## 13.1 Progressão de personagens
@@ -515,3 +522,92 @@ Vitória ao chegar, v0.15.4 → v0.16.0 (mesma simulação, 300 jogadores cada):
 
 - Esperas testadas (40 jogadores cada): **espera = custo** → fases 4–6 e 10 com 13–25% (muito difíceis); **2 × custo − 2** → 86/97/68/67/74/39/79/85/88/65; **2 × custo − 1 com a mão inicial 2 rodadas adiantada (escolhida)** → 90/98/75/76/80/46/80/88/87/65. Zona de invocação com 4 colunas e Fúria mais tarde não ajudaram.
 - Resultado: o começo fica parecido (fase 3 um pouco mais difícil), os turnos inimigos muito fortes ficaram **mais raros**, e as fases 8–10 ficaram **mais fáceis** (+11 a +37 pontos). Nenhum Comandante, baralho inimigo, ataque ou vida foi mexido; se quiser as fases finais tão difíceis quanto antes, o próximo ajuste é a vida ou o nível dos inimigos dessas fases.
+
+### v0.17.0 — fase 2: habilidades, efeitos, feitiços e baralho com cópias (300 jogadores simulados, `scripts/balance/move15.ts`)
+Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais fortes × 3 e, quando o nível de perfil abre espaço, **até 4 cartas de feitiço** que combinam com a equipe (`SIM_SPELLS=0` desliga):
+
+| Fase | v0.16.0 | v0.17.0 com feitiços | v0.17.0 sem feitiços |
+|---|---|---|---|
+| 1 | 92% | 93% | 93% |
+| 2 | 98% | 99% | 98% |
+| 3 | 76% | 91% | 78% |
+| 4 | 76% | 77% | 68% |
+| 5 | 80% | 82% | 77% |
+| 6 | 47% | 53% | 45% |
+| 7 | 81% | 82% | 79% |
+| 8 | 86% | 89% | 87% |
+| 9 | 87% | 86% | 85% |
+| 10 | 66% | 53% | 59% |
+
+- Os inimigos também ganharam as habilidades novas (fase 10: Renascer, Reflexo, Anjo da Guarda, Necromancia, Ombrada e Vigia), por isso a fase 10 ficou mais difícil. Nenhum ataque, vida, Comandante ou baralho inimigo foi mexido; se quiser a fase 10 como antes, o próximo ajuste é a vida do Comandante inimigo dessa fase.
+- **Feitiços no simulador:** com os valores iniciais (30–100% do ataque) qualquer feitiço piorava o baralho (−10 a −40 pontos). Com os valores atuais (100–250%), espera custo − 1 e a fila recomeçando no lançamento, os de área (Lâmina Giratória, Chuva de Flechas) ajudam e os outros ficam perto de neutros para a IA. Encher o baralho além de 30 dilui as melhores cartas: até uma 11ª carta de personagem piora a vitória em 3–7 pontos — baralho maior é escolha, não força.
+
+## 16. Fase 2 do plano — habilidades, efeitos e feitiços (v0.17.0)
+### Efeitos com duração (decisão 16)
+- Aparecem como **selos pequenos e parados** no canto do lutador (sem animação contínua) e na janela de informações da unidade.
+- **🧪 Veneno:** no **início do turno do dono do efeito**, a unidade perde a quantidade indicada, **ignorando resistência**; dura X rodadas (rodada = um turno do lado dela).
+- **🔥 Queimadura:** igual ao veneno, mas o dano é **reduzido pela resistência mágica** (mínimo 1).
+- **Não acumulam:** aplicar de novo mantém o **valor mais forte** e a **maior duração**.
+- **💫 Atordoado:** a unidade **perde a próxima ação** (não cura, não anda, não ataca). O efeito acaba no fim do turno do lado dela.
+- **🛡 Escudo temporário:** absorve dano **antes da vida** (escudos se somam, até 99) e some no fim da duração (contada no fim do turno do lado dela) ou quando é gasto.
+- **👼 Anjo da Guarda (efeito do feitiço):** dura até ser usado.
+- Veneno e queimadura **não** ativam Reflexo, Espinhos nem contra-golpe. A queda por veneno/queimadura não dá Prole ao inimigo.
+
+### Ícone de aura no beneficiado (decisão 17)
+- **🥁** no aliado que está recebendo o **Tambor de Guerra** (bônus de ataque) e **🌀** no inimigo que está sendo drenado pelo **Sifão de Energia**. Os números de ataque continuam verde (bônus) e vermelho (redução).
+
+### Salvar e trazer de volta (decisões 18 e 21)
+- **♻ Renascer (Zarek):** na **primeira** vez que cairia, volta na mesma casa com **30% (Raro) / 40% (Épico) / 50% (Lendário)** da vida máxima, sem efeitos. Uma vez por partida; não vai para a Necropolis nessa vez.
+- **👼 Anjo da Guarda (Mei):** **uma vez por batalha**, quando um aliado **vizinho** (8 casas em volta, inclusive a outra fileira) ou ela mesma cairia, fica com **1 de vida**.
+- **Ordem quando uma unidade chega a 0:** 1) efeito Anjo da Guarda do feitiço; 2) habilidade Anjo da Guarda de um vizinho; 3) Renascer; 4) cai (vai para a Necropolis).
+- **⚰️ Necromancia (Vorax):** ao **entrar em campo**, traz da Necropolis a **última carta aliada derrotada**: volta para a mão **já pronta** (contagem 0); com a mão cheia, volta para o Baralho. A cópia deixa de contar como derrotada.
+
+### Mais habilidades (decisões 12, 19, 20 e 14)
+- **👁 Vigia (Jin):** age **antes** de todas as outras unidades do lado (seção 5, item 8).
+- **💢 Ombrada (Gorath):** ao acertar **corpo a corpo de frente**, **empurra o alvo 1 casa** para trás (se a casa estiver livre; Inabalável não é empurrado). O empurrão também está no contra-golpe do Kenji e nos feitiços Investida de Ki e Tremor.
+- **🪞 Reflexo de Magia (Nyx-07):** reduz o **dano mágico** (ataques mágicos) e o **dano de feitiço** recebido em **30% (Épico) / 40% (Lendário) / 50% (Mítico)** e devolve essa parte: no atacante (ataques) ou no **Comandante de quem lançou** (feitiços).
+- **🔰 Barreira Arcana (Lyra):** resistência mágica **1 (Incomum–Raro) / 2 (Épico)**.
+- **Resistência só por habilidade:** ver seção 7.
+
+### Feitiços (decisões 4, 20 e 22)
+- São **cartas** que ocupam vagas do baralho (1 a 3 cópias), aparecem na mão e esperam **custo − 1 rodadas** (mínimo 1) — mais rápido que personagens.
+- Para lançar é preciso ter **em campo um aliado de uma das categorias do feitiço**: ele é o **conjurador** (o de **maior ataque**, se houver vários). A força vem do **ataque atual do conjurador** (ou da vida, nas curas/escudo), então acompanha a evolução das cartas. Sem conjurador, a carta fica apagada na mão.
+- **Como lançar:** toque no feitiço e depois numa casa **roxa** (ou arraste até ela). Alvo: 🎯 um inimigo (qualquer distância), 🤝 um aliado, ↔ uma fileira (toque em qualquer casa dela) ou ✦ sem alvo (toque na sua zona).
+- Depois de lançado, o feitiço **volta para o Baralho**, com a fila recomeçando no lançamento (fica bloqueado como se tivesse acabado de ser comprado). Feitiço nunca vai para a Necropolis.
+- Todos os 13 feitiços estão liberados para todos desde já (pacotes ficam para a fase 3); a conta ADM começa com 10 cartas de feitiço no baralho.
+
+| Feitiço | Categorias | Espera | Alvo | Efeito |
+|---|---|---|---|---|
+| 💨 Investida de Ki | DPS | 2 | 1 inimigo | 250% do ataque (físico) e empurra 1 casa |
+| 🌪 Lâmina Giratória | DPS **ou** Assassino | 2 | fileira | 120% (físico) em todos os inimigos da fileira |
+| 🧱 Muralha | Tanque | 1 | 1 aliado | escudo de 80% da vida máxima do conjurador por 2 rodadas |
+| 🌋 Tremor | Tanque **ou** DPS | 2 | 1 inimigo | 100% (físico), atordoa e empurra 1 casa |
+| 🏹 Chuva de Flechas | Arqueiro | 2 | fileira | 100% (físico) em todos os inimigos da fileira |
+| 🧪 Flecha Envenenada | Arqueiro **ou** Assassino | 1 | 1 inimigo | 80% (físico) + veneno de 60% por 3 rodadas |
+| ☄️ Bola de Fogo | Mago | 2 | 1 inimigo | 200% (mágico) + queimadura de 50% por 2 rodadas |
+| ⚡ Raio Paralisante | Mago **ou** Suporte | 2 | 1 inimigo | 130% (mágico) e atordoa |
+| ☠ Veneno Mortal | Assassino | 1 | 1 inimigo | veneno de 100% por 3 rodadas (ignora resistência) |
+| 🗡️ Golpe nas Sombras | Assassino | 2 | 1 inimigo | 250% ignorando toda a resistência |
+| 💖 Cura em Massa | Suporte | 1 | fileira | cura 50% da vida máxima de cada aliado da fileira |
+| 👼 Anjo da Guarda | Suporte | 2 | 1 aliado | a próxima queda deixa o aliado com 1 de vida |
+| ⚰️ Chamado da Necropolis | Suporte **ou** Mago | 2 | sem alvo | traz a última carta derrotada (mão pronta, ou Baralho) |
+
+- **IA:** depois de invocar, lança os feitiços prontos com uma escolha simples de alvo (o inimigo mais avançado/forte; para veneno, o de mais vida; a fileira com mais inimigos; Cura só se curar pelo menos 3; Anjo no aliado mais forte sem proteção). O modo **Auto** do jogador usa a mesma IA. **Os inimigos da Aventura ainda não usam feitiços** nesta versão.
+
+### Baralho com cópias e nível de perfil (decisão 6)
+- Até **3 cópias** por carta; baralho de **20** até **min(40, 28 + 2 × nível de perfil)** cartas; pelo menos 1 personagem.
+- **Nível de perfil (provisório):** 1 + fases vencidas (máx. 11). Ao vencer uma fase pela primeira vez e o máximo subir, a janela de vitória avisa.
+- **Poder do baralho:** soma o Poder de **cada personagem uma vez** (cópias e feitiços não contam), como antes.
+- **Migração de saves (v0.17.0):** cada carta da equipe antiga vira **3 cópias** (10 × 3 = 30, que cabe no nível 1). Se algum baralho passar do máximo, as últimas cartas perdem cópias (e, no limite, saem). A ADM já existente ganha uma vez o baralho de 40 com feitiços.
+
+### Escolhas padrão desta versão (detalhes que o plano não definia)
+- Duração contada em turnos do lado da unidade; DoT no começo, atordoar/escudo no fim.
+- Veneno ignora resistência; queimadura usa a resistência mágica; não acumulam (mais forte + maior duração).
+- Anjo da Guarda da Mei: vizinhos nas 8 casas, 1 vez por batalha; Renascer 30/40/50%.
+- Reflexo também vale contra feitiços; o reflexo de feitiço vai no Comandante de quem lançou.
+- Conjurador obrigatório da categoria; força pelo ataque do conjurador; espera dos feitiços = custo − 1.
+- Feitiço lançado volta ao Baralho com a fila recomeçando.
+- Fila de compra proporcional ao número de cartas diferentes (igual à antiga com 10).
+- Baralho mínimo 20, máximo 28 + 2 × nível (até 40), nível = 1 + fases vencidas.
+- Inimigos com 3 cópias e sem feitiços.
+- Não adotado ainda (perguntas abertas da proposta): reformulação das habilidades em %, "Escudo" como reserva de pontos, bônus de nível, teto da Emboscada e a regra nova da Prole.

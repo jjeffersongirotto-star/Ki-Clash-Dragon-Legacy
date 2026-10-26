@@ -1,18 +1,19 @@
 import { waitFor } from './core/battle';
 import './ui/style.css';
-import { CATEGORY_INFO, CHAR_BY_ID, PLAYABLE, RACE_INFO, STAR_COLORS, getChar, isComingSoon } from './core/characters';
+import { CATEGORY_INFO, PLAYABLE, RACE_INFO, STAR_COLORS, getChar, isComingSoon } from './core/characters';
 import { STAGES } from './core/campaign';
 import { TIER_NAMES, XP_ITEMS, ascend, ascendCost, ascendCostFor, canAscend, cardMaxLevel, cardXpToNext, feedXp, maxLevel, newOwned, nextTier, statsFor, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
 import { playerLeaderImg, portraitImg, portraitSVG, unitSpriteSVG, warmLeader, warmPortraits } from './ui/art';
 import { cardPower, deckPower } from './core/power';
 import { canEvolve, evolveLeader, getLeader, leaderHp, leaderMaxLevel, nextRequirement } from './core/leaders';
 import { BattleView } from './ui/battleView';
-import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, starStyle, tierHTML } from './ui/components';
+import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from './ui/components';
+import { SPELLS, getSpell, isSpell } from './core/spells';
 import { gameAlert, gameConfirm, showDialog } from './ui/dialog';
 import { installPerfGuards } from './ui/perf';
 import { enterBattleMode, leaveBattleMode } from './ui/orientation';
 import { bakeGridArt } from './ui/gridArt';
-import { DECK_MAX, DECK_REQUIRED, hasSave, loadSave, resetSave, setSaveKey, teamReady, writeSave, type SaveData } from './ui/save';
+import { DECK_MIN, MAX_COPIES, addToDeck, rawSaveHas, copiesIn, deckCards, deckCount, deckIssue, deckMax, hasSave, loadSave, migrateV17, profileLevel, removeFromDeck, resetSave, setCopies, setSaveKey, teamReady, writeSave, type SaveData } from './ui/save';
 import { adminSave, createAccount, loadAccounts, login, logout, saveKeyFor, NAME_MAX, PASS_MIN } from './ui/accounts';
 
 const app = document.getElementById('app')!;
@@ -22,17 +23,29 @@ function openAccountSave(): SaveData {
   const id = accounts.current;
   setSaveKey(saveKeyFor(id));
   if (id && accounts.accounts[id]?.admin && !hasSave()) writeSave(adminSave());
+  // v0.17.0: a ADM que já existia ganha uma vez o baralho de 40 com feitiços
+  if (id && accounts.accounts[id]?.admin && !rawSaveHas('"v17":true')) {
+    const d = loadSave();
+    const a = adminSave();
+    d.deck = a.deck;
+    d.copies = a.copies;
+    writeSave(d);
+    return d;
+  }
   return loadSave();
 }
 let save: SaveData = openAccountSave();
-let trainSel: string = save.deck[0] ?? Object.keys(save.cards)[0];
+const firstChar = () => save.deck.find((id) => !isSpell(id) && save.cards[id]) ?? Object.keys(save.cards)[0];
+let trainSel: string = firstChar();
 let raceFilter: string = 'all';
 
 const persist = () => writeSave(save);
 const unlockStage = (charId: string) => STAGES.find((s) => s.unlock === charId)?.id;
 
 // ---------------- v0.13: PODER e COMANDANTE ----------------
-const teamCards = () => save.deck.filter((id) => save.cards[id]).map((id) => save.cards[id]);
+/** v0.17: o Poder do baralho soma cada personagem uma vez (cópias e feitiços não contam) */
+const teamCards = () => save.deck.filter((id) => !isSpell(id) && save.cards[id]).map((id) => save.cards[id]);
+const entryName = (id: string) => (isSpell(id) ? `${getSpell(id).icon} ${getSpell(id).name}` : getChar(id).name);
 /** Poder do baralho = soma do Poder das cartas da equipe */
 const teamPower = () => deckPower(teamCards());
 const activeLeader = () => getLeader(save.activeLeader);
@@ -135,7 +148,7 @@ function home() {
     <div class="res big"><span>✴ ${save.essencias} Essências</span>${XP_ITEMS.map((i) => `<span>${i.icon} ${save.items[i.id]}</span>`).join('')}</div>
     <nav class="menu">
       <button class="btn primary" data-nav="adventure">⚔ Aventura <small>${next ? `Fase ${next.id}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
-      <button class="btn" data-nav="collection">🃏 Coleção & Equipe <small>${Object.keys(save.cards).length}/${PLAYABLE.length} personagens</small></button>
+      <button class="btn" data-nav="collection">🃏 Coleção & Baralho <small>${Object.keys(save.cards).length}/${PLAYABLE.length} personagens</small></button>
       <button class="btn" data-nav="train">🔥 Treinar & Despertar <small>Suba nível e evolua de cor</small></button>
       <button class="btn ghost" data-nav="help">❓ Como jogar</button>
     </nav>
@@ -147,7 +160,7 @@ function home() {
     persist();
     logout(accounts);
     save = openAccountSave();
-    trainSel = save.deck[0] ?? Object.keys(save.cards)[0];
+    trainSel = firstChar();
     home();
   });
   app.querySelector('#reset')!.addEventListener('click', async () => {
@@ -183,7 +196,7 @@ async function accountDialog() {
         }
         persist();
         save = openAccountSave();
-        trainSel = save.deck[0] ?? Object.keys(save.cards)[0];
+        trainSel = firstChar();
         close('ok');
         home();
       };
@@ -202,8 +215,8 @@ function adventure() {
   leaveBattleMode();
   app.innerHTML = `<div class="screen">${topbar('Aventura')}
     <p class="hint">Seu Comandante: <b>${esc(activeLeader().name)} Nv.${leaderLevel()}</b> ❤${leaderHp(activeLeader(), leaderLevel())} · Poder do baralho <b>⚡ ${fmt(teamPower())}</b></p>
-    <p class="hint">Sua equipe (${save.deck.length}/${DECK_REQUIRED}): ${save.deck.map((id) => esc(getChar(id).name)).join(', ')}</p>
-    ${teamReady(save) ? '' : `<p class="warn-bar">⚠ A equipe precisa de ${DECK_REQUIRED} personagens para lutar. <button class="btn small" data-nav="collection">Completar equipe</button></p>`}
+    <p class="hint">Nível de perfil <b>${profileLevel(save)}</b> · Seu baralho (<b>${deckCount(save)}/${deckMax(save)}</b>): ${save.deck.map((id) => `${esc(entryName(id))} ×${copiesIn(save, id)}`).join(', ')}</p>
+    ${teamReady(save) ? '' : `<p class="warn-bar">⚠ Baralho inválido: ${esc(deckIssue(save) ?? '')}. <button class="btn small" data-nav="collection">Arrumar baralho</button></p>`}
     <div class="stages">${STAGES.map((s, i) => {
       const unlocked = i === 0 || save.cleared.includes(STAGES[i - 1].id);
       const done = save.cleared.includes(s.id);
@@ -221,18 +234,16 @@ function adventure() {
   app.querySelectorAll<HTMLElement>('[data-stage]').forEach((el) => el.addEventListener('click', () => startBattle(+el.dataset.stage!)));
 }
 
-/** Regra v0.8: sem 10 personagens na equipe não há batalha (janela do jogo, nunca alerta do navegador). */
+/** Regra v0.17: o baralho precisa ter de 20 ao máximo do nível de perfil (janela do jogo, nunca alerta do navegador). */
 async function teamWarning(): Promise<void> {
-  const have = save.deck.filter((id) => save.cards[id]).length;
   const v = await showDialog({
-    title: 'Equipe incompleta',
+    title: 'Baralho inválido',
     icon: '🃏',
-    html: `<p class="dialog-msg">Para lutar, a sua equipe precisa de <b>${DECK_REQUIRED} personagens diferentes</b> (${DECK_REQUIRED} cartas × 4 cópias = 40 no baralho).</p>
-      <p class="dialog-msg">Agora ela tem <b>${have}/${DECK_REQUIRED}</b>: ${have < DECK_REQUIRED ? `faltam <b>${DECK_REQUIRED - have}</b>` : 'confira a equipe'}.</p>
-      <div class="team-need">${Array.from({ length: DECK_REQUIRED }, (_, i) => `<span class="${i < have ? 'on' : ''}"></span>`).join('')}</div>`,
+    html: `<p class="dialog-msg">Para lutar, o baralho precisa ter de <b>${DECK_MIN}</b> a <b>${deckMax(save)}</b> cartas (até ${MAX_COPIES} cópias de cada carta) e pelo menos 1 personagem.</p>
+      <p class="dialog-msg">Agora: <b>${deckCount(save)}</b> cartas — ${esc(deckIssue(save) ?? '')}.</p>`,
     buttons: [
       { label: 'Agora não', value: 'cancel', kind: 'ghost' },
-      { label: 'Ir para a equipe', value: 'team', kind: 'primary' },
+      { label: 'Ir para o baralho', value: 'team', kind: 'primary' },
     ],
   });
   if (v === 'team') collection();
@@ -244,7 +255,7 @@ function startBattle(stageId: number) {
     return;
   }
   const stage = STAGES.find((s) => s.id === stageId)!;
-  const deck = save.deck.filter((id) => save.cards[id]).map((id) => ({ charId: id, level: save.cards[id].level, stars: save.cards[id].stars, plus: !!save.cards[id].plus }));
+  const deck = deckCards(save);
   window.scrollTo(0, 0);
   enterBattleMode();
   app.innerHTML = '<div class="screen battle-screen" id="bs"></div>';
@@ -272,17 +283,18 @@ function finishBattle(stageId: number, winner: string) {
     save.items.cristal += got.cristal;
     save.items.orbe += got.orbe;
     save.essencias += got.essencias;
+    const maxBefore = deckMax(save);
     if (first) save.cleared.push(stageId);
+    const grew = deckMax(save) > maxBefore;
     let unlocked = '';
     if (stage.unlock && !save.cards[stage.unlock]) {
       save.cards[stage.unlock] = newOwned(stage.unlock);
       const def = getChar(stage.unlock);
-      const joined = save.deck.length < DECK_MAX && !save.deck.includes(def.id);
-      if (joined) save.deck.push(def.id);
+      const joined = addToDeck(save, def.id) > 0;
       unlocked = `<div class="unlock" style="${starStyle(def.minStars)}">${cardHTML(save.cards[def.id], { compact: true })}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${raceHTML(def)} ${categoryHTML(def, true)} · ${tierHTML(def.minStars)}${joined ? '<br><small>Entrou direto na sua equipe.</small>' : ''}</div></div>`;
     }
     html = `<h2 class="win">🏆 Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : 'Recompensa de repetição (50%).'}</p>
-      <div class="res big"><span>✴ +${got.essencias}</span><span>📜 +${got.pergaminho}</span>${got.cristal ? `<span>💎 +${got.cristal}</span>` : ''}${got.orbe ? `<span>🔮 +${got.orbe}</span>` : ''}</div>${unlocked}`;
+      <div class="res big"><span>✴ +${got.essencias}</span><span>📜 +${got.pergaminho}</span>${got.cristal ? `<span>💎 +${got.cristal}</span>` : ''}${got.orbe ? `<span>🔮 +${got.orbe}</span>` : ''}</div>${grew ? `<p class="hint">⬆ Nível de perfil <b>${profileLevel(save)}</b>: o baralho agora aceita até <b>${deckMax(save)}</b> cartas.</p>` : ''}${unlocked}`;
   } else {
     save.items.pergaminho += 1;
     html = `<h2 class="lose">${winner === 'empate' ? '⏱ Empate' : '💀 Derrota'}</h2><p>Treine seus personagens com itens de XP e tente de novo! (+1 📜)</p>`;
@@ -313,15 +325,21 @@ function collection() {
   const lockOrder = (id: string) => (isComingSoon(getChar(id)) ? 999 : unlockStage(id) ?? 99);
   const locked = PLAYABLE.filter((d) => !save.cards[d.id] && matchRace(d.id)).sort((a, b) => lockOrder(a.id) - lockOrder(b.id));
   const lockBadge = (id: string) => (isComingSoon(getChar(id)) ? '🔒 Em breve' : `🔒 Fase ${unlockStage(id) ?? '?'}`);
-  const missing = DECK_REQUIRED - save.deck.length;
-  app.innerHTML = `<div class="screen">${topbar('Coleção & Equipe')}
+  const count = deckCount(save);
+  const max = deckMax(save);
+  const issue = deckIssue(save);
+  const entryHTML = (id: string) => {
+    const n = copiesIn(save, id);
+    const card = isSpell(id)
+      ? spellCardHTML(id, { compact: true, attrs: `data-card="${id}"` })
+      : cardHTML(save.cards[id], { compact: true, grid: true, attrs: `data-card="${id}"`, power: cardPower(save.cards[id]) });
+    return `<div class="deck-entry">${card}<div class="copies" data-copies="${id}"><button class="cp-btn" data-cp="-1" aria-label="Menos uma cópia" ${n <= 1 ? 'disabled' : ''}>−</button><b>×${n}</b><button class="cp-btn" data-cp="1" aria-label="Mais uma cópia" ${n >= MAX_COPIES || count >= max ? 'disabled' : ''}>+</button></div></div>`;
+  };
+  app.innerHTML = `<div class="screen">${topbar('Coleção & Baralho')}
     ${leaderPanelHTML()}
     <section class="deck-bar">
-      <div class="deck-title"><span class="deck-power" title="Poder do baralho = soma do Poder das ${DECK_MAX} cartas da equipe">⚡ ${fmt(teamPower())}</span> Equipe = baralho <b>${save.deck.length}/${DECK_MAX}</b> <small>(cada carta vale 4 cópias · ${missing > 0 ? `<span class="warn">faltam ${missing}: sem ${DECK_REQUIRED} não dá para lutar</span>` : '40 cartas'})</small></div>
-      <div class="deck-slots">${Array.from({ length: DECK_MAX }, (_, i) => {
-        const id = save.deck[i];
-        return id ? cardHTML(save.cards[id], { compact: true, grid: true, attrs: `data-card="${id}"`, power: cardPower(save.cards[id]) }) : '<div class="slot">+</div>';
-      }).join('')}</div>
+      <div class="deck-title"><span class="deck-power" title="Poder do baralho = soma do Poder de cada personagem do baralho (uma vez cada; feitiços não contam)">⚡ ${fmt(teamPower())}</span> Baralho <b>${count}/${max}</b> <small>(nível de perfil ${profileLevel(save)} · mínimo ${DECK_MIN} · até ${MAX_COPIES} cópias por carta${issue ? ` · <span class="warn">${esc(issue)}</span>` : ''})</small></div>
+      <div class="deck-slots deck-copies">${save.deck.map(entryHTML).join('')}${count < max ? '<div class="slot">+</div>' : ''}</div>
     </section>
     <div class="race-filters">
       <button class="rf-btn ${raceFilter === 'all' ? 'active' : ''}" data-rf="all">🌟 Todos (${PLAYABLE.length})</button>
@@ -329,7 +347,9 @@ function collection() {
     </div>
     <p class="hint">Toque numa carta para inspecionar a evolução visual de cor em cor (Comum → Mítico), ver o sprite de arena e editar a equipe.</p>
     <h3 class="sec-title">Seus personagens <small>(${owned.length})</small></h3>
-    <div class="card-grid">${owned.map((id) => cardHTML(save.cards[id], { grid: true, power: cardPower(save.cards[id]), attrs: `data-card="${id}"`, badge: save.deck.includes(id) ? '✔ Equipe' : undefined, extraClass: save.deck.includes(id) ? 'in-deck' : '' })).join('')}</div>
+    <div class="card-grid">${owned.map((id) => cardHTML(save.cards[id], { grid: true, power: cardPower(save.cards[id]), attrs: `data-card="${id}"`, badge: save.deck.includes(id) ? `✔ ×${copiesIn(save, id)}` : undefined, extraClass: save.deck.includes(id) ? 'in-deck' : '' })).join('')}</div>
+    <h3 class="sec-title">✦ Feitiços <small>(${SPELLS.length} · ocupam vagas do baralho; precisam de um aliado da categoria em campo)</small></h3>
+    <div class="card-grid spell-grid">${SPELLS.map((sp) => spellCardHTML(sp.id, { attrs: `data-card="${sp.id}"`, badge: save.deck.includes(sp.id) ? `✔ ×${copiesIn(save, sp.id)}` : undefined, extraClass: save.deck.includes(sp.id) ? 'in-deck' : '' })).join('')}</div>
     ${locked.length ? `<div class="divider"><span>🔒 Ainda não obtidos (${locked.length})</span></div>
     <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, level: 1, stars: def.minStars }, { locked: true, grid: true, extraClass: isComingSoon(def) ? 'soon' : '', attrs: `data-card="${def.id}"`, badge: lockBadge(def.id) })).join('')}</div>
     ${locked.some(isComingSoon) ? `<p class="hint soon-note">🔒 <b>Em breve:</b> ${locked.filter(isComingSoon).map((d) => esc(d.name)).join(' e ')} ${locked.filter(isComingSoon).length > 1 ? 'começam' : 'começa'} em Lendário e ainda não ${locked.filter(isComingSoon).length > 1 ? 'podem' : 'pode'} ser obtidos. A forma de conseguir será revelada numa atualização futura.</p>` : ''}` : ''}
@@ -341,7 +361,18 @@ function collection() {
       collection();
     }),
   );
-  app.querySelectorAll<HTMLElement>('[data-card]').forEach((el) => el.addEventListener('click', () => cardDetail(el.dataset.card!)));
+  app.querySelectorAll<HTMLElement>('[data-card]').forEach((el) => el.addEventListener('click', () => (isSpell(el.dataset.card!) ? spellDetail(el.dataset.card!) : cardDetail(el.dataset.card!))));
+  app.querySelectorAll<HTMLElement>('[data-copies]').forEach((box) =>
+    box.querySelectorAll<HTMLButtonElement>('[data-cp]').forEach((b) =>
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = box.dataset.copies!;
+        setCopies(save, id, copiesIn(save, id) + +b.dataset.cp!);
+        persist();
+        collection();
+      }),
+    ),
+  );
   app.querySelector('#lpEvolve')?.addEventListener('click', () => void evolveDialog());
 }
 
@@ -381,7 +412,7 @@ function cardDetail(id: string, previewStars?: number) {
       ${abilityListHTML(def, stars, lvl)}
       <p class="lore">${esc(def.lore)}</p>
     </div></div>
-    <div class="row">${owned ? `<button class="btn primary" data-m="deck">${inDeck ? 'Tirar da equipe' : 'Colocar na equipe'}</button><button class="btn" data-m="train">Treinar</button>` : isComingSoon(def) ? `<p class="hint">🔒 <b>Em breve.</b> Personagem ${tierLabel(def.minStars)}: ainda não pode ser obtido. A forma de conseguir será revelada numa atualização futura.</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id) ?? '?'} pela primeira vez para desbloquear.</p>`}<button class="btn ghost" data-m="close">Fechar</button></div>`,
+    <div class="row">${owned ? `<button class="btn primary" data-m="deck">${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</button><button class="btn" data-m="train">Treinar</button>` : isComingSoon(def) ? `<p class="hint">🔒 <b>Em breve.</b> Personagem ${tierLabel(def.minStars)}: ainda não pode ser obtido. A forma de conseguir será revelada numa atualização futura.</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id) ?? '?'} pela primeira vez para desbloquear.</p>`}<button class="btn ghost" data-m="close">Fechar</button></div>`,
     (m) => {
       m.querySelector('[data-m=close]')!.addEventListener('click', closeModal);
       m.querySelectorAll<HTMLElement>('[data-pstar]').forEach((btn) =>
@@ -392,74 +423,42 @@ function cardDetail(id: string, previewStars?: number) {
         closeModal();
         train();
       });
-      m.querySelector('[data-m=deck]')?.addEventListener('click', async () => {
-        if (inDeck) {
-          save.deck = save.deck.filter((x) => x !== id);
-          if (save.deck.length < DECK_REQUIRED) void gameAlert('Equipe com menos de 10', `Sem ${DECK_REQUIRED} personagens na equipe você não pode lutar. Coloque outro personagem no lugar de ${getChar(id).name}.`, '🃏');
-        } else if (save.deck.length >= DECK_MAX) {
-          const removed = await swapDialog(id);
-          if (!removed) return;
-          save.deck = save.deck.filter((x) => !removed.includes(x));
-          save.deck.push(id);
-        } else {
-          save.deck.push(id);
-        }
-        persist();
-        closeModal();
-        collection();
-      });
+      m.querySelector('[data-m=deck]')?.addEventListener('click', () => void toggleDeck(id, inDeck));
     });
 }
 
-/**
- * Troca de equipe: mostra a equipe atual toda selecionada; o jogador toca nas
- * cartas que quer TIRAR (ficam desmarcadas) e confirma em "Trocar".
- * Retorna os ids removidos, ou null se cancelar.
- */
-export async function swapDialog(newId: string): Promise<string[] | null> {
-  const need = save.deck.length + 1 - DECK_MAX;
-  const out = new Set<string>();
-  const def = getChar(newId);
-  const v = await showDialog({
-    title: 'Equipe cheia',
-    icon: '🔄',
-    html: `<p class="dialog-msg">Para colocar <b>${esc(def.name)}</b>, toque em ${need === 1 ? '<b>1 personagem</b>' : `<b>${need} personagens</b>`} para tirar da equipe.</p>
-      <div class="swap-in">${cardHTML(save.cards[newId], { extraClass: 'swap-new' })}<span class="swap-arrow">⇄</span><div class="swap-hint" id="swapHint"></div></div>
-      <div class="swap-grid">${save.deck.map((id) => cardHTML(save.cards[id], { grid: true, extraClass: 'swap-card sel-on', attrs: `data-swap="${id}"`, badge: '✔' })).join('')}</div>`,
-    buttons: [
-      { label: 'Cancelar', value: 'cancel', kind: 'ghost' },
-      { label: 'Trocar', value: 'ok', kind: 'primary' },
-    ],
-    onMount: (root) => {
-      const ok = root.querySelector<HTMLButtonElement>('[data-v=ok]')!;
-      const hint = root.querySelector('#swapHint')!;
-      const refresh = () => {
-        ok.disabled = out.size !== need;
-        hint.textContent = out.size === need ? `Sai: ${[...out].map((x) => getChar(x).name).join(', ')}` : `Desmarque ${need - out.size > 0 ? need - out.size : 0} carta(s)`;
-        root.querySelectorAll<HTMLElement>('[data-swap]').forEach((el) => {
-          const off = out.has(el.dataset.swap!);
-          el.classList.toggle('sel-on', !off);
-          el.classList.toggle('sel-off', off);
-          const b = el.querySelector('.card-badge');
-          if (b) b.textContent = off ? '✖ Sai' : '✔';
-        });
-      };
-      root.querySelectorAll<HTMLElement>('[data-swap]').forEach((el) =>
-        el.addEventListener('click', () => {
-          const id = el.dataset.swap!;
-          if (out.has(id)) out.delete(id);
-          else if (out.size < need) out.add(id);
-          else if (need === 1) {
-            out.clear();
-            out.add(id);
-          }
-          refresh();
-        }),
-      );
-      refresh();
-    },
-  });
-  return v === 'ok' && out.size === need ? [...out] : null;
+/** v0.17.0: põe/tira a carta (personagem ou feitiço) do baralho, avisando em janela do jogo quando não cabe */
+async function toggleDeck(id: string, inDeck: boolean) {
+  if (inDeck) {
+    removeFromDeck(save, id);
+    const issue = deckIssue(save);
+    if (issue) void gameAlert('Baralho incompleto', `Sem ${entryName(id)} o baralho não vale para lutar: ${issue}.`, '🃏');
+  } else if (!addToDeck(save, id)) {
+    await gameAlert('Baralho cheio', `O baralho já tem ${deckCount(save)}/${deckMax(save)} cartas. Tire cópias (−) ou uma carta para abrir espaço. O limite cresce com o nível de perfil (vença fases).`, '🃏');
+    return;
+  }
+  persist();
+  closeModal();
+  collection();
+}
+
+/** v0.17.0: detalhes do feitiço na Coleção */
+function spellDetail(id: string) {
+  const sp = getSpell(id);
+  const inDeck = save.deck.includes(id);
+  modal(`<div class="detail" style="--rc:#7c5cff;--rg:#b9a8ff">
+    <div class="detail-left">${spellCardHTML(id, { extraClass: 'detail-card' })}</div>
+    <div class="detail-info">
+      <div class="detail-badges"><span class="tier-tag" style="--rc:#7c5cff;--rg:#b9a8ff">✦ Feitiço</span></div>
+      <h2>${sp.icon} ${esc(sp.name)}</h2><div class="subtitle">Conjurador: ${esc(spellCastersLabel(sp))}</div>
+      ${spellInfoHTML(id)}
+      ${inDeck ? `<p class="hint">No baralho: <b>×${copiesIn(save, id)}</b> (ajuste as cópias com − / + na barra do baralho).</p>` : ''}
+    </div></div>
+    <div class="row"><button class="btn primary" data-m="deck">${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</button><button class="btn ghost" data-m="close">Fechar</button></div>`,
+    (m) => {
+      m.querySelector('[data-m=close]')!.addEventListener('click', closeModal);
+      m.querySelector('[data-m=deck]')!.addEventListener('click', () => void toggleDeck(id, inDeck));
+    });
 }
 
 // ---------------- TREINO ----------------
@@ -602,10 +601,11 @@ function help() {
       <li>Toque numa carta e numa casa brilhante das <b>3 colunas da esquerda</b> para invocá-la como um lutador de corpo inteiro na arena.</li>
       <li>Toque em <b>LUTAR</b> (ou ligue o modo <b>Auto</b>): seus personagens caminham (<b>MOVE</b>), saltam, disparam feixes de Ki ou golpes corpo a corpo (<b>HIT</b>), sofrem dano e vão para a <b>Necropolis</b> quando derrotados.</li></ol>
     <h3>Cartas e baralho</h3><ul>
-      <li>Sua <b>equipe é o baralho</b>: <b>10 cartas diferentes × 4 cópias = 40 cartas</b>. Só dá para lutar com <b>exatamente 10 personagens</b> na equipe.</li>
+      <li>Cada carta (personagem ou <b>feitiço ✦</b>) entra no baralho com <b>1 a 3 cópias</b> (botões − / + em Coleção & Baralho). O baralho precisa ter de <b>20</b> até <b>28 + 2 × nível de perfil</b> cartas (30 no nível 1, 40 no nível 6+) e pelo menos 1 personagem. Nível de perfil = 1 + fases vencidas.</li>
+      <li><b>Feitiços ✦:</b> esperam <b>custo − 1</b> rodadas e precisam de um <b>aliado da categoria em campo</b> (o de maior ataque conjura; a força vem do ataque dele). Toque no feitiço e numa casa <b>roxa</b>. Depois de lançado, volta para o Baralho.</li>
       <li>A <b>mão tem 6 cartas</b>. Você começa com 6 diferentes e, a cada rodada, <b>compra o que faltar para voltar a 6</b> (jogou 3, compra 3; com a mão cheia, não compra). Cartas não usadas ficam na mão.</li>
       <li>À esquerda da mão fica o <b>Baralho</b> (quantas cartas ainda podem vir); à direita, a <b>Necropolis (Derrotadas)</b>.</li>
-      <li>A carta jogada vira unidade em campo. Quando a unidade <b>morre</b>, aquela cópia vai para a <b>Necropolis e não volta mais</b> (sobram 3 daquela carta, e assim por diante).</li>
+      <li>A carta jogada vira unidade em campo. Quando a unidade <b>morre</b>, aquela cópia vai para a <b>Necropolis</b> e só volta com Necromancia (Vorax) ou o feitiço Chamado da Necropolis.</li>
       <li><b>Compra semi-aleatória:</b> depois de comprada, a carta fica <b>bloqueada nas 6 compras seguintes</b>; na <b>7ª, 8ª e 9ª</b> pode vir no sorteio e na <b>10ª vem garantida</b>. Conta a partir da compra, não de quando você joga.</li>
       <li><b>Começo da luta:</b> as 6 cartas da mão inicial voltam ao sorteio já na <b>5ª compra</b> (só restam 4 outras) e ficam garantidas na 8ª.</li>
       <li>Todas as cartas compradas na mesma rodada contam como <b>uma compra só</b>. Se várias cartas ficarem garantidas ao mesmo tempo, saem <b>em fila</b>; uma compra de 3 cartas atende até 3 garantias.</li></ul>
@@ -616,13 +616,14 @@ function help() {
       <li><b>Longo alcance (Magos 🪄, Arqueiros 🏹 e Suportes à distância):</b> atinge o inimigo <b>mais próximo até 4 casas à frente</b> disparando feixes de Ki ou flechas energéticas e não avança se puder atacar.</li>
       <li><b>Passam pelos aliados</b> ao caminhar, mas só param em casa livre (ninguém termina em casa ocupada). <b>Inimigos bloqueiam.</b> O <b>Riku</b> (Salto Vendaval) se move <b>sempre saltando para a 3ª casa</b> (2ª ou 1ª se estiver ocupada), por cima de quem estiver no caminho, e ataca com bônus ao cair.</li>
       <li><b>Ao derrotar um inimigo</b>, a unidade <b>fica onde está</b>.</li>
-      <li><b>Ordem de ação:</b> quem está mais à frente age primeiro; na <b>mesma coluna, a fileira de cima age antes</b>.</li>
+      <li><b>Ordem de ação:</b> quem tem <b>Vigia 👁</b> age antes; depois quem está mais à frente; na <b>mesma coluna, a fileira de cima age antes</b>. <b>Atordoado 💫</b> perde a ação.</li>
       <li><b>O Comandante inimigo</b> conta como uma unidade parada logo depois da última coluna, alcançável pelas duas fileiras.</li></ul>
     <h3>Fúria de batalha 🔥</h3><p>A partir do <b>turno 8</b>, todas as unidades dos dois lados ganham <b>+1 de ataque a cada 3 turnos</b>, para a luta não travar. Se chegar ao turno 40, vence quem tiver mais vida (em %) no Comandante.</p>
-    <h3>Dano</h3><p><b>Físico 👊</b> é reduzido pela resistência física; <b>Mágico ✨</b> pela resistência mágica. Ex.: 3 de dano físico contra resistência 1 = 2 de dano.</p>
+    <h3>Dano e efeitos</h3><p><b>Físico 👊</b> é reduzido pela resistência física; <b>Mágico ✨</b> pela resistência mágica (resistência só vem de habilidades). Ex.: 3 de dano físico contra resistência 1 = 2 de dano.</p>
+    <p>Selos no lutador: <b>🧪 veneno</b> (dano por rodada, ignora resistência), <b>🔥 queimadura</b>, <b>💫 atordoado</b>, <b>🛡 escudo</b> (absorve antes da vida), <b>👼 Anjo da Guarda</b>, <b>🥁</b> recebendo o Tambor e <b>🌀</b> drenado pelo Sifão.</p>
     <h3>Cores das cartas e Despertar</h3><p>${[1, 2, 3, 4, 5, 6].map((n) => `<span class="rar-chip" style="--rc:${STAR_COLORS[n].color}">${TIER_NAMES[n]} (${STAR_COLORS[n].label})</span>`).join(' ')}</p>
     <p>A <b>cor da carta é o tier</b> do personagem — não há mais estrelas. Cada cor tem dois degraus: <b>base</b> e <b>"+"</b> (ex.: Raro → <b>Raro+</b> → Épico). No nível máximo, o <b>Despertar</b> leva da cor ao "+" e, no seguinte, do "+" à próxima cor. O "+" dá só um pequeno bônus de vida ou ataque; <b>habilidades, roupa, armadura, armas e aura de Ki</b> evoluem só quando a <b>cor muda</b>. Do "+" para a próxima cor custa <b>50% a mais</b> de XP e Essências.</p>
-    <h3>Poder ⚡ e Comandante 👑</h3><p>Cada carta tem um <b>Poder</b> que sobe com o nível, a cor e o "+", com um bônus pela habilidade do personagem. O <b>Poder do baralho</b> é a soma das 10 cartas da equipe. Em <b>Coleção & Equipe</b>, quando o Poder do baralho alcança o requisito, toque em <b>Evoluir</b> no painel do Comandante: cada nível dá <b>+10 de vida máxima</b> (20 → 110). O Poder só é conferido na hora de evoluir — trocar cartas depois <b>nunca</b> tira o nível do Comandante. Os Comandantes inimigos também ficam mais resistentes a cada fase.</p>
+    <h3>Poder ⚡ e Comandante 👑</h3><p>Cada carta tem um <b>Poder</b> que sobe com o nível, a cor e o "+", com um bônus pela habilidade do personagem. O <b>Poder do baralho</b> é a soma dos personagens do baralho (cada um uma vez). Em <b>Coleção & Baralho</b>, quando o Poder do baralho alcança o requisito, toque em <b>Evoluir</b> no painel do Comandante: cada nível dá <b>+10 de vida máxima</b> (20 → 110). O Poder só é conferido na hora de evoluir — trocar cartas depois <b>nunca</b> tira o nível do Comandante. Os Comandantes inimigos também ficam mais resistentes a cada fase.</p>
     <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.values(CATEGORY_INFO).map((c) => `<li><b>${c.icon} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
   </div></div>`;
   bindNav();
@@ -642,7 +643,7 @@ function closeModal() {
 }
 
 // garante que o save tem todos os campos e personagens válidos
-save.deck = save.deck.filter((id) => CHAR_BY_ID[id] && save.cards[id]);
+migrateV17(save);
 installPerfGuards(app);
 /** v0.10.2: bitmaps das cartas de grade (Coleção, Equipe, Treinar, troca) para a cor atual de cada personagem */
 function bakeAllGrid() {

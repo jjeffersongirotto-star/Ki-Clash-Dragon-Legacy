@@ -208,7 +208,7 @@ describe('habilidades por estrela/nível (com teto)', () => {
     act(s, new Ctx(), a);
     expect(a.hp).toBe(20 - 6);
     expect(a.col).toBe(3);
-    expect(k.hp).toBe(50 - 1);
+    expect(k.hp).toBe(50 - 2); // v0.17: Kenji não tem mais resistência física de atributo
   });
   it('Prole Sombria: cria maga com vida pelas estrelas; máximo 3 por lado', () => {
     const s = empty();
@@ -287,7 +287,8 @@ describe('categorias e cores', () => {
     expect(avg('arqueiro', hp)).toBeLessThan(avg('dps', hp));
     expect(avg('tanque', hp)).toBeGreaterThan(avg('dps', hp));
     expect(avg('tanque', (d) => d.atk)).toBeLessThan(avg('dps', (d) => d.atk));
-    expect(avg('tanque', (d) => d.physRes)).toBeGreaterThan(0);
+    // v0.17 (decisão 14): resistência só por habilidade — todo tanque tem uma
+    expect(PLAYABLE.filter((d) => d.category === 'tanque').every((d) => d.abilities.some((a) => ABILITIES[a].resBonus))).toBe(true);
     expect(avg('assassino', hp)).toBeLessThan(avg('dps', hp));
   });
   it('cores por estrela: 1 cinza … 6 vermelho', () => {

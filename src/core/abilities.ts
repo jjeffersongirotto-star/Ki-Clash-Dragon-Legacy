@@ -54,8 +54,20 @@ export interface AbilityDef {
   rangedBonus?: boolean;
   /** `power` de dano extra em alvos com a vida cheia */
   fullHpBonus?: boolean;
-  /** bônus de resistência por estrela */
+  /** v0.17.0: resistência é habilidade (decisão 14) — valor por cor */
   resBonus?: (stars: number) => { phys: number; mag: number };
+  /** v0.17.0: Vigia — age antes dos outros, de trás para frente */
+  alert?: boolean;
+  /** v0.17.0: Renascer — ao morrer pela 1ª vez, volta com `power`% da vida */
+  revive?: boolean;
+  /** v0.17.0: Anjo da Guarda — 1 vez por partida salva da morte um aliado vizinho (ou ele mesmo) */
+  guardian?: boolean;
+  /** v0.17.0: Reflexo de Magia — devolve `power`% do dano mágico (ataques e feitiços) */
+  spellReflect?: boolean;
+  /** v0.17.0: empurra o alvo 1 casa ao acertar corpo a corpo de frente */
+  pushOnHit?: boolean;
+  /** v0.17.0: ao entrar em campo, traz da Necropolis a última carta aliada derrotada */
+  necro?: boolean;
 }
 
 const clamp = (v: number, max: number) => Math.max(0, Math.min(max, v));
@@ -88,12 +100,12 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   guarda: {
     id: 'guarda',
     name: 'Postura de Guarda',
-    description: 'Resistência física extra.',
+    description: 'Resistência física: reduz o dano de cada golpe físico (v0.17.0: a resistência é habilidade, não status de toda carta).',
     icon: '🛡',
-    scaling: 'Raro: +1 de resistência física · Épico: +2 (máx.).',
-    resBonus: (s) => ({ phys: s >= 4 ? 2 : s >= 3 ? 1 : 0, mag: 0 }),
-    power: (s) => (s >= 4 ? 2 : s >= 3 ? 1 : 0),
-    powerLabel: (p) => `+${p} resist. física`,
+    scaling: 'Resistência física 1 (Comum–Incomum) · 2 (Raro) · 3 (Épico, máx.).',
+    resBonus: (s) => ({ phys: s >= 4 ? 3 : s >= 3 ? 2 : 1, mag: 0 }),
+    power: (s) => (s >= 4 ? 3 : s >= 3 ? 2 : 1),
+    powerLabel: (p) => `resist. física ${p}`,
   },
   salto: {
     id: 'salto',
@@ -134,7 +146,7 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     id: 'retaguarda',
     name: 'Emboscada',
     description: 'Ataca o inimigo mais distante da sua fileira até 2 casas à frente, ignorando parte da resistência.',
-    icon: '🗡',
+    icon: '🗡️',
     targeting: 'retaguarda',
     reach: 2,
     scaling: 'Perfura 1 de resistência em Raro, 2 em Épico, 3 em Lendário; +1 no nível 25 (máx. 3).',
@@ -196,10 +208,12 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   inabalavel: {
     id: 'inabalavel',
     name: 'Inabalável',
-    description: 'Não pode ser empurrado.',
+    description: 'Não pode ser empurrado. Resistência física (e mágica no Épico).',
     icon: '⛰',
-    scaling: 'Raro: +1 de resistência física · Épico: também +1 de resistência mágica.',
-    resBonus: (s) => ({ phys: s >= 3 ? 1 : 0, mag: s >= 4 ? 1 : 0 }),
+    scaling: 'Resistência física 2 (Incomum) · 3 (Raro–Épico) · resistência mágica 1 no Épico.',
+    resBonus: (s) => ({ phys: s >= 3 ? 3 : 2, mag: s >= 4 ? 1 : 0 }),
+    power: (s) => (s >= 3 ? 3 : 2),
+    powerLabel: (p) => `resist. física ${p}`,
     unpushable: true,
   },
   disparoSombrio: {
@@ -213,9 +227,10 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   espinhos: {
     id: 'espinhos',
     name: 'Couraça de Espinhos',
-    description: 'Quem o ataca corpo a corpo de frente sofre dano fixo de volta (se ele sobreviver ao golpe).',
+    description: 'Quem o ataca corpo a corpo de frente sofre dano fixo de volta (se ele sobreviver ao golpe). Couraça: resistência física 1.',
     icon: '🌵',
     thorns: true,
+    resBonus: () => ({ phys: 1, mag: 0 }),
     scaling: 'Devolve 1 (Comum–Incomum) · 2 (Raro) · 3 (Épico, máx.).',
     power: (s) => (s >= 4 ? 3 : s >= 3 ? 2 : 1),
     powerLabel: (p) => `devolve ${p}`,
@@ -303,6 +318,65 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     scaling: 'Dano extra: +1 (Comum–Incomum) · +2 (Raro–Épico, máx.).',
     power: (s) => (s >= 3 ? 2 : 1),
     powerLabel: (p) => `surpresa +${p}`,
+  },
+  // ---------- v0.17.0 (fase 2) ----------
+  vigia: {
+    id: 'vigia',
+    name: 'Vigia',
+    description: 'Em alerta: age antes de todas as outras unidades do lado, de trás para frente (o Vigia mais recuado primeiro).',
+    icon: '👁',
+    alert: true,
+  },
+  renascer: {
+    id: 'renascer',
+    name: 'Renascer',
+    description: 'Na primeira vez que cai, renasce na mesma casa com parte da vida (uma vez por partida). Não vai para a Necropolis.',
+    icon: '♻',
+    revive: true,
+    scaling: 'Volta com 30% da vida (Raro) · 40% (Épico) · 50% (Lendário, máx.).',
+    power: (s) => (s >= 5 ? 50 : s >= 4 ? 40 : 30),
+    powerLabel: (p) => `renasce com ${p}%`,
+  },
+  anjo: {
+    id: 'anjo',
+    name: 'Anjo da Guarda',
+    description: 'Uma vez por partida, quando ela ou um aliado vizinho (inclusive diagonais) cairia, o golpe deixa o aliado com 1 de vida.',
+    icon: '👼',
+    guardian: true,
+  },
+  reflexo: {
+    id: 'reflexo',
+    name: 'Reflexo de Magia',
+    description: 'Dano mágico recebido (ataques e feitiços) é reduzido e a parte refletida volta para quem atacou (feitiço: para o Comandante de quem lançou).',
+    icon: '🪞',
+    spellReflect: true,
+    scaling: 'Reflete 30% (Épico) · 40% (Lendário) · 50% (Mítico, máx.).',
+    power: (s) => (s >= 6 ? 50 : s >= 5 ? 40 : 30),
+    powerLabel: (p) => `reflete ${p}%`,
+  },
+  ombrada: {
+    id: 'ombrada',
+    name: 'Ombrada',
+    description: 'Ao acertar um inimigo corpo a corpo de frente, empurra o alvo 1 casa para trás (se a casa estiver livre).',
+    icon: '💢',
+    pushOnHit: true,
+  },
+  necromancia: {
+    id: 'necromancia',
+    name: 'Chamado da Necropolis',
+    description: 'Ao entrar em campo, traz de volta da Necropolis a última carta aliada derrotada: ela volta para a mão já pronta (ou para o baralho, com a mão cheia).',
+    icon: '⚰️',
+    necro: true,
+  },
+  barreira: {
+    id: 'barreira',
+    name: 'Barreira Arcana',
+    description: 'Resistência mágica: reduz o dano de cada golpe mágico.',
+    icon: '🔰',
+    scaling: 'Resistência mágica 1 (Incomum–Raro) · 2 (Épico, máx.).',
+    resBonus: (s) => ({ phys: 0, mag: s >= 4 ? 2 : 1 }),
+    power: (s) => (s >= 4 ? 2 : 1),
+    powerLabel: (p) => `resist. mágica ${p}`,
   },
 };
 
