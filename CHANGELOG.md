@@ -2,6 +2,10 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.28.5] — 27/10/2026 · PR #57 — Tela inicial cabe no celular e moeda corrigida
+- **Tela inicial sem rolagem** no celular em pé: logo, cartas, recursos e botões se ajustam à altura da tela.
+- **🪙 Moeda corrigida na barra de recursos:** o estilo de "pílula" da barra era aplicado também às partes de dentro da moeda, e o dragão aparecia solto fora dela (e os Orbes com pílula dupla). Agora só os itens da barra ganham a pílula.
+
 ## [0.28.4] — 27/10/2026 · PR #56 — Ideias do tipo do personagem anotadas
 - Sem mudança no jogo. O [MELHORIAS.md](MELHORIAS.md) ganhou duas ideias para o tipo do personagem: bônus de equipe (3 ou mais do mesmo tipo) e objetivos/missões por tipo.
 
