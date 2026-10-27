@@ -15,7 +15,7 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from build_cards import ROOT, clean_art, id_for  # noqa: E402
+from build_cards import ROOT, TOKENS, clean_art, id_for  # noqa: E402
 
 OUT = os.path.join(ROOT, 'src', 'assets', 'cutouts')
 H_OUT = 560
@@ -62,7 +62,7 @@ def main():
         os.makedirs(debug, exist_ok=True)
     src, want = args[0], set(args[1:])
     cards = json.load(open(os.path.join(ROOT, 'docs', 'cartas.json')))['cartas']
-    ids = {c['id'] for c in cards}
+    ids = {c['id'] for c in cards} | TOKENS
     if not want:
         want = {c['id'] for c in cards if c.get('existente')}
     from rembg import new_session  # noqa: PLC0415

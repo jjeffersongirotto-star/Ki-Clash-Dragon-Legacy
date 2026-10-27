@@ -10,7 +10,8 @@ Só a ILUSTRAÇÃO do personagem interessa. O script:
   4. recorta no formato da arte da carta do jogo (largura/altura = 0,82), centralizado, e salva em WebP.
 
 Uso (as imagens de origem NÃO vão para o repositório):
-  python3 scripts/art/build_cards.py <pasta-com-as-imagens-ou-subpastas> [--debug pasta]
+  python3 scripts/art/build_cards.py <pasta-com-as-imagens-ou-subpastas> [ids,separados,por,vírgula] [--debug pasta]
+v0.30.2: ilustrações já limpas (tabela PLAIN, ex.: cria-sombria.jpg → cria) só são recortadas no formato da carta.
 Saída: src/assets/chars/<id>.webp
 """
 import json, os, re, sys, unicodedata
@@ -37,6 +38,9 @@ ALIAS = {'mimesis': 'mimic', 'aegis': 'aegis', 'medi': 'medi3', 'kraz': 'kraz9',
 MANUAL = {'sabbath': (176, 856, 1080, 1688), 'nyx': (76, 60, 836, 766), 'yume': (72, 66, 822, 846)}  # print de tela do chat (1220×2712)
 # Áreas extras a apagar (x0, y0, x1, y1), por id
 EXTRA_MASK = {}
+# v0.30.2: ilustrações limpas (sem carta antiga em volta): nome do arquivo → (id, onde fica o topo do recorte, 0 a 1)
+PLAIN = {'cria-sombria': ('cria', 0.05)}
+TOKENS = {cid for cid, _ in PLAIN.values()}  # invocações: não estão no cartas.json
 
 
 def norm(s):
@@ -45,6 +49,8 @@ def norm(s):
 
 def id_for(path, ids):
     base = os.path.basename(path)
+    if os.path.splitext(base)[0] in PLAIN:
+        return PLAIN[os.path.splitext(base)[0]][0]
     pre = base.split('-')[0]
     if pre in LOOSE:
         return LOOSE[pre]
@@ -130,6 +136,13 @@ def fill(img, mask, valid):
 def clean_art(path, cid):
     """Janela da arte em resolução original, já sem a gota, a pílula e a estrela. Retorna (imagem, caixa, máscara, original)."""
     img = Image.open(path).convert('RGB')
+    plain = PLAIN.get(os.path.splitext(os.path.basename(path))[0])
+    if plain:
+        # sem gota/pílula/estrela: só recorta no formato da carta (largura inteira), com o topo na posição pedida
+        w, h = img.width, min(img.height, int(round(img.width * H_OUT / W_OUT)))
+        y0 = int(round((img.height - h) * plain[1]))
+        box = (0, y0, w, y0 + h)
+        return img.crop(box), box, Image.new('L', img.size, 0), img
     a = np.asarray(img).astype(int)
     if cid in MANUAL:
         x0, y0, x1, bottom = MANUAL[cid]
@@ -179,6 +192,8 @@ def main():
     if debug:
         os.makedirs(debug, exist_ok=True)
     ids = {c['id'] for c in json.load(open(os.path.join(ROOT, 'docs', 'cartas.json')))['cartas']}
+    if len(sys.argv) > 2 and not sys.argv[2].startswith('--'):
+        ids = set(sys.argv[2].split(','))  # só estes ids (ex.: cria)
     files = [os.path.join(dp, f) for dp, _, fs in os.walk(src) for f in fs if f.lower().endswith(('.jpg', '.jpeg', '.png', '.webp'))]
     done = {}
     for p in sorted(files):
@@ -195,7 +210,7 @@ def main():
             print('ERRO', cid, p, e)
             continue
         done[cid] = p
-    missing = sorted(ids - set(done))
+    missing = sorted(ids - set(done) - TOKENS)
     print(f'{len(done)} artes geradas; faltam: {missing}')
 
 

@@ -2,6 +2,10 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.30.2] — 27/10/2026 · PR #65 — Arte nova da Cria Sombria
+- **🟢 Cria Sombria** (a invocação do Vorax) ganha a arte ilustrada enviada pelo jogador: na carta, nas unidades da batalha e no recorte (sem fundo). Agora nenhum personagem usa mais o desenho SVG antigo.
+- `scripts/art/build_cards.py` aceita ilustrações já limpas (tabela `PLAIN`: só recorta no formato da carta); `build_cutouts.py` também gera o recorte da Cria.
+
 ## [0.30.1] — 27/10/2026 · PR #64 — Comandante adversário recortado e respirando
 - **Comandante adversário na batalha** agora aparece como o nosso: **só o personagem recortado** (sem carta e sem fundo), de pé no mesmo piso, dentro da coluna, com **respiração** (animação leve em CSS) e virado para a arena.
 - **Altura proporcional ao nosso bárbaro** (tabela por personagem em REGRAS seção 32): quem está agachado, sentado ou aparece só até a cintura fica mais baixo; mulheres um pouco menores; monstros grandes maiores. A fase 10 continua com o minotauro animado.

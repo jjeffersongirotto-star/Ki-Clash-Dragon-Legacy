@@ -4,9 +4,10 @@ import { cardArtImg, charArtUrl, hasCharArt, unitSpriteHTML } from '../../src/ui
 import { cardHTML } from '../../src/ui/components';
 
 describe('v0.29.0 — artes ilustradas dos personagens', () => {
-  it('todos os personagens jogáveis têm arte; a Cria Sombria continua com o desenho SVG', () => {
+  it('todos os personagens jogáveis têm arte; v0.30.2: a Cria Sombria também', () => {
     for (const d of PLAYABLE) expect(hasCharArt(d.id), d.id).toBe(true);
-    expect(hasCharArt('cria')).toBe(false);
+    expect(hasCharArt('cria')).toBe(true);
+    for (const d of CHARACTERS) expect(hasCharArt(d.id), d.id).toBe(true);
     expect(CHARACTERS.length).toBeGreaterThan(0);
   });
 
@@ -24,6 +25,10 @@ describe('v0.29.0 — artes ilustradas dos personagens', () => {
     expect(spr).toContain('art-sprite');
     expect(spr).toContain('art-img flip');
     expect(spr).not.toContain('<svg');
-    expect(unitSpriteHTML(getChar('cria'), { stars: 1 })).toContain('<svg');
+    // v0.30.2: a Cria Sombria (invocação do Vorax) também vira retrato com a arte nova
+    const cria = unitSpriteHTML(getChar('cria'), { stars: 1 });
+    expect(cria).toContain('art-sprite');
+    expect(cria).toContain(charArtUrl('cria')!);
+    expect(cria).not.toContain('<svg');
   });
 });

@@ -1100,4 +1100,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 | Kael | 0,50 | recorte até a cintura |
 
 - A tabela fica em `COMMANDER_LOOK` (`src/ui/art.ts`), junto com quem precisa ser espelhado para olhar para a arena. Os recortes vêm de `scripts/art/build_cutouts.py`.
-
+- **Cria Sombria (v0.30.2):** a invocação do Vorax usa a arte ilustrada própria (carta, batalha e recorte), como os outros 120 personagens.
