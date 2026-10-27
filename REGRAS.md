@@ -1054,3 +1054,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - O [MELHORIAS.md](MELHORIAS.md) guarda **só o que ainda não foi feito**. Quando algo entra no jogo, sai de lá e vai para o CHANGELOG e este arquivo. Itens novos só entram quando o jogador pedir.
 - **Tipo do personagem (v0.28.4):** hoje o tipo (Humano, Extraterrestre, Monstro, Mago Arcano, Androide, Necromante) é só visual (desenho, cor, ícone) e filtro da Coleção; não muda a batalha. Ideias para dar função a ele estão no MELHORIAS.md.
 - **Tela inicial no celular (v0.28.5):** em pé, a tela inicial cabe na altura da tela sem rolar (tamanhos calculados pela altura). A moeda da barra de recursos mostra o dragão dentro dela.
+- **Botão ⟳ (v0.28.6):** ao procurar atualização, só o ícone gira no centro do botão.
