@@ -1450,3 +1450,19 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .pull-again .btn { flex: 1 1 0; min-width: 0; padding: 10px 6px; font-size: 15px; white-space: nowrap; }
 .pull-exit { margin-top: 8px; }
 .modal:has(.pull-reveal) .pull-reveal { max-height: calc(92dvh - 290px); }
+
+/* v0.32.0: 🎒 Inventário (Itens / Personagens repetidos) e Desmanchar */
+.menu-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.menu-pair .btn { min-width: 0; }
+.inv-tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
+.inv-section { background: rgba(0,0,0,.25); border: 1px solid #2f3870; border-radius: 12px; padding: 10px; margin: 10px 0; text-align: left; }
+.inv-section h3 { margin: 0 0 8px; }
+.inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.inv-item { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.04); border-radius: 10px; padding: 6px 8px; flex-wrap: wrap; }
+.inv-item small { flex-basis: 100%; color: var(--muted); font-size: 11px; }
+.dupe-row { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: start; text-align: left; background: rgba(0,0,0,.25); border: 1px solid color-mix(in srgb, var(--rc) 60%, #2f3870); border-radius: 12px; padding: 8px; margin: 8px 0; }
+.dupe-card .card { width: 96px; }
+.dupe-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.dupe-info small { color: var(--muted); }
+.dupe-line { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.dupe-xp { font-size: 12px; color: #cfe2ff; }

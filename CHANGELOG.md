@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.32.0] — 27/10/2026 · PR #67 — Cópias, Inventário e Desmanchar
+- **Cópias:** ganhar um personagem dá 1 cópia; o baralho só usa as cópias que você tem (até 3). Repetido vira +1 cópia guardada (não vira mais XP sozinho).
+- **🎒 Inventário** novo na Base: abas **Itens** e **Personagens repetidos**.
+- **Desmanchar:** 🎯 direcionado (a cópia vira XP do próprio personagem, com a sorte ×2/×5/×10) ou ♻ geral (25% desse XP guardado como Orbes). Nunca a última cópia nem as do baralho.
+- **Saves antigos:** cada personagem ganha 3 cópias (o baralho não muda). ADM com 9 cópias guardadas de cada.
+
 ## [0.31.0] — 27/10/2026 · PR #66 — Carta sem raios, detalhes sem rolar e banner com garantias
 - **Carta:** saem os raios de luz girando por cima da arte (Épico+); ficam o reflexo e a borda.
 - **Detalhes da carta:** ✕ no canto para fechar; "Colocar no baralho" e "Treinar" viram cards ao lado da carta; no celular em pé tudo cabe sem barra de rolagem (conferido em 412×915 e 360×740).

@@ -13,6 +13,7 @@ import { collection } from './collection';
 import { train } from './train';
 import { shop } from './shop';
 import { help } from './help';
+import { inventory } from './inventory';
 
 export function topbar(title: string, back = true) {
   return `<header class="topbar">
@@ -34,6 +35,7 @@ export function go(screen: string) {
   else if (screen === 'train') train();
   else if (screen === 'help') help();
   else if (screen === 'shop') shop();
+  else if (screen === 'inventory') inventory();
 }
 
 export function resultModalWith(html: string, buttons: { label: string; primary?: boolean; run: () => void }[]) {

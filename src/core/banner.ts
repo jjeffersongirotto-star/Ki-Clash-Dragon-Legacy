@@ -9,9 +9,9 @@
  * - Cada carta sorteia primeiro a RARIDADE (chances do banner) e depois um personagem que pode estar nessa
  *   raridade (raridade inicial ≤ sorteada ≤ raridade máxima). Ele vem NESSA raridade, no degrau base.
  *   No Lendário, metade das vezes sai um personagem em destaque (Kenji ou Vorax, que só saem no banner).
- * - Cópia repetida (banner ou pacote de fase): vira XP do personagem que você já tem. XP = Orbe da raridade da
- *   carta convertida (Comum 100 … Mítico 3.000) + 20% por "+" dela, multiplicado pela sorte:
- *   12% ×2 · 5% ×5 · 1% ×10 (senão ×1). A carta repetida não sobe a raridade da sua, mesmo se vier mais rara.
+ * - Cópia repetida (v0.32.0): fica guardada no inventário (mais 1 cópia do personagem). Em Desmanchar, ela vira
+ *   XP do próprio personagem (Orbe da raridade da cópia, Comum 100 … Mítico 3.000, + 20% por "+", × sorte
+ *   12% ×2 · 5% ×5 · 1% ×10) ou, no modo geral, 25% desse XP guardado como Orbes. A cópia não sobe a raridade.
  */
 import { PLAYABLE } from './characters';
 import { XP_ITEMS, feedXp, newOwned, orbXp, type OrbBag, type OwnedCard, type XpItemId } from './progression';
@@ -156,30 +156,83 @@ export function xpToOrbs(xp: number): OrbBag {
 /** v0.28.3: Orbes devolvidos por uma cópia cujo XP passou da barra cheia (25% do XP que passou). */
 export const overflowRefund = (wasted: number): OrbBag => xpToOrbs(wasted * DUP_OVERFLOW_REFUND);
 
-export type GrantResult =
-  | { charId: string; stars: number; isNew: true }
-  | { charId: string; stars: number; isNew: false; xp: number; mult: number; wasted: number; filled: boolean; refund: OrbBag };
+// ---------- v0.32.0: cópias guardadas e Desmanchar ----------
 
 /**
- * Entrega uma carta (banner ou pacote): personagem novo entra na coleção na raridade da carta;
- * repetido vira XP no que você já tem. v0.28.3: 25% do XP que passar da barra cheia volta como Orbes
- * (somados em `items`, quando informado).
+ * Cópias repetidas guardadas no inventário: personagem → raridade da carta → quantidade.
+ * O personagem que você tem conta como 1 cópia; cada repetida guardada soma mais 1.
  */
-export function grantCard(
-  cards: Record<string, OwnedCard>,
-  card: { charId: string; stars: number; plus?: number },
-  rng: () => number = Math.random,
-  items?: Partial<Record<XpItemId, number>>,
-): GrantResult {
-  const owned = cards[card.charId];
-  if (!owned) {
-    cards[card.charId] = { ...newOwned(card.charId), stars: card.stars, plus: 0 };
-    return { charId: card.charId, stars: card.stars, isNew: true };
-  }
+export type Dupes = Record<string, Record<number, number>>;
+
+export const dupeCount = (d: Dupes | undefined, id: string) => Object.values(d?.[id] ?? {}).reduce((a, k) => a + (k ?? 0), 0);
+/** Cópias que você tem do personagem (0 se não tem; 1 + as repetidas guardadas). */
+export const totalCopies = (cards: Record<string, OwnedCard>, d: Dupes | undefined, id: string) => (cards[id] ? 1 + dupeCount(d, id) : 0);
+export function addDupe(d: Dupes, id: string, stars: number, n = 1) {
+  const row = (d[id] ??= {});
+  row[stars] = (row[stars] ?? 0) + n;
+}
+/** Tira 1 cópia guardada da raridade `stars`. Retorna false se não houver. */
+export function takeDupe(d: Dupes, id: string, stars: number): boolean {
+  const row = d[id];
+  if (!row || !(row[stars] > 0)) return false;
+  if (--row[stars] <= 0) delete row[stars];
+  if (!Object.keys(row).length) delete d[id];
+  return true;
+}
+/**
+ * Cópias que podem ser desmanchadas: as guardadas, menos as que o baralho usa
+ * (o personagem nunca fica sem a última cópia, e o baralho nunca perde cópias).
+ */
+export const spareCopies = (d: Dupes | undefined, id: string, deckCopies: number) => Math.max(0, dupeCount(d, id) - Math.max(0, deckCopies - 1));
+
+export interface CopyXp {
+  xp: number;
+  mult: number;
+  wasted: number;
+  filled: boolean;
+  refund: OrbBag;
+}
+/**
+ * Desmanchar DIRECIONADO: a cópia vira XP do próprio personagem (Orbe da raridade da cópia + 20% por "+",
+ * × sorte 12% ×2 · 5% ×5 · 1% ×10). 25% do XP que passar da barra cheia volta como Orbes (somados em `items`).
+ */
+export function feedCopy(owned: OwnedCard, stars: number, plus: number, rng: () => number = Math.random, items?: Partial<Record<XpItemId, number>>): CopyXp {
   const mult = dupMultiplier(rng);
-  const xp = dupBaseXp(card.stars, card.plus ?? 0) * mult;
+  const xp = dupBaseXp(stars, plus) * mult;
   const r = feedXp(owned, xp);
   const refund = overflowRefund(r.wasted);
   if (items) for (const [id, k] of Object.entries(refund) as [XpItemId, number][]) items[id] = (items[id] ?? 0) + k;
-  return { charId: card.charId, stars: card.stars, isNew: false, xp, mult, wasted: r.wasted, filled: r.filled, refund };
+  return { xp, mult, wasted: r.wasted, filled: r.filled, refund };
+}
+
+/** Desmanchar GERAL: a cópia vira 25% do XP que daria ao próprio personagem, guardado como Orbes. */
+export const GENERAL_SHARE = 0.25;
+export const generalXp = (stars: number) => Math.round(dupBaseXp(stars) * GENERAL_SHARE);
+/**
+ * Soma XP geral ao "cofre" (`bank.xp`) e transforma em Orbes o que já fecha Orbes inteiros (do maior para o menor);
+ * a sobra (menos de 100 XP) fica guardada para a próxima. Retorna os Orbes ganhos.
+ */
+export function bankXp(bank: { xp: number }, xp: number, items: Partial<Record<XpItemId, number>>): OrbBag {
+  bank.xp = Math.max(0, Math.floor(bank.xp + xp));
+  const orbs = xpToOrbs(bank.xp);
+  for (const [id, k] of Object.entries(orbs) as [XpItemId, number][]) {
+    items[id] = (items[id] ?? 0) + k;
+    bank.xp -= k * orbXp(id);
+  }
+  return orbs;
+}
+
+export type GrantResult = { charId: string; stars: number; isNew: true } | { charId: string; stars: number; isNew: false; copies: number };
+
+/**
+ * Entrega uma carta (banner ou pacote): personagem novo entra na coleção na raridade da carta (1 cópia);
+ * v0.32.0: o repetido NÃO vira XP sozinho — vira mais 1 cópia guardada no inventário (Desmanchar decide).
+ */
+export function grantCard(cards: Record<string, OwnedCard>, card: { charId: string; stars: number }, dupes: Dupes): GrantResult {
+  if (!cards[card.charId]) {
+    cards[card.charId] = { ...newOwned(card.charId), stars: card.stars, plus: 0 };
+    return { charId: card.charId, stars: card.stars, isNew: true };
+  }
+  addDupe(dupes, card.charId, card.stars);
+  return { charId: card.charId, stars: card.stars, isNew: false, copies: totalCopies(cards, dupes, card.charId) };
 }

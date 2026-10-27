@@ -9,7 +9,8 @@ import { BattleView } from '../ui/battleView';
 import { gearHTML, orbBagHTML, cardHTML, esc } from '../ui/components';
 import { gameConfirm } from '../ui/dialog';
 import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
-import { MAX_COPIES, addToDeck } from '../ui/save';
+import { MAX_COPIES, addToDeck, setCopies } from '../ui/save';
+import { addDupe, dupeCount } from '../core/banner';
 import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_PACK, TUTORIAL_REWARD, TUTORIAL_STARTER, TUTORIAL_TIPS, TUT_BATTLE1, TUT_BATTLE2, TUT_DONE, TUT_PACK, tutorialGear } from '../core/tutorial';
 import { app, accounts, save, persist, activeLeader, leaderLevel } from './state';
 import { resultModalWith, closeModal } from './ui';
@@ -108,7 +109,13 @@ export function finishTutorial() {
   save.essencias += TUTORIAL_REWARD.essencias;
   const gear = tutorialGear();
   for (const [k, n] of Object.entries(gear)) (save.gear ??= {})[k] = (save.gear[k] ?? 0) + n;
-  for (const id of TUTORIAL_CHARS) if (save.cards[id]) addToDeck(save, id);
+  // v0.32.0: os 3 personagens do começo vêm com 3 cópias cada (para o baralho inicial ter 9 cartas)
+  for (const id of TUTORIAL_CHARS) if (save.cards[id]) {
+    const have = dupeCount(save.dupes, id);
+    if (have < MAX_COPIES - 1) addDupe((save.dupes ??= {}), id, getChar(id).minStars, MAX_COPIES - 1 - have);
+    if (save.deck.includes(id)) setCopies(save, id, MAX_COPIES);
+    else addToDeck(save, id);
+  }
   save.tutorial = TUT_DONE;
   persist();
   const items = Object.keys(gear).map((k) => { const [id, r] = k.split(':'); return gearHTML(id, Number(r), `+${gear[k]}`); }).join('');

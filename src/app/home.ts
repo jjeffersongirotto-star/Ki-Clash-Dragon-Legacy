@@ -18,6 +18,9 @@ import { bindNav } from './ui';
 import { tutorial } from './tutorial';
 
 // ---------------- BASE ----------------
+/** v0.32.0: cópias repetidas guardadas (todas as raridades) */
+const dupesTotal = () => Object.values(save.dupes ?? {}).reduce((n, row) => n + Object.values(row).reduce((a, k) => a + k, 0), 0);
+
 export function home(): void {
   if (!tutorialDone(save)) return tutorial(); // v0.25.0: o jogador novo começa pelo tutorial
   leaveBattleMode();
@@ -40,7 +43,7 @@ export function home(): void {
       <button class="btn primary" data-nav="adventure">⚔ Aventura <small>${next ? `Fase ${next.id}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
       <button class="btn" data-nav="collection">🃏 Coleção & Baralho <small>${Object.keys(save.cards).length}/${PLAYABLE.length} personagens</small></button>
       <button class="btn" data-nav="train">🔥 Treinar & Despertar</button>
-      <button class="btn" data-nav="shop">🏪 Loja <small>${goldHTML(fmt(prof().gold))}</small></button>
+      <div class="menu-pair"><button class="btn" data-nav="shop">🏪 Loja <small>${goldHTML(fmt(prof().gold))}</small></button><button class="btn" data-nav="inventory">🎒 Inventário <small>${dupesTotal()} repetidos</small></button></div>
       <button class="btn ghost" data-nav="help">❓ Como jogar</button>
     </nav>
     <button class="link-btn" id="reset">Apagar progresso</button>

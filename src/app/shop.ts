@@ -80,7 +80,7 @@ export function buyCards(banner: Banner, n: 1 | 10) {
   const price = bannerPrice(banner, n);
   if (prof().gold < price) return;
   prof().gold -= price;
-  const got = pull(banner, n, Math.random, (save.bannerPity ??= {})).map((c) => grantCard(save.cards, c, Math.random, save.items));
+  const got = pull(banner, n, Math.random, (save.bannerPity ??= {})).map((c) => grantCard(save.cards, c, (save.dupes ??= {})));
   persist();
   const best = Math.max(...got.map((g) => g.stars));
   const gold = prof().gold;
@@ -120,7 +120,7 @@ export function bannerHTML(b: Banner, gold: number): string {
     </div>
     <div class="banner-odds">${odds}</div>
     <div class="pity-mark" title="A cada ${PITY_EVERY} cartas compradas, 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor garantida (volta a 0 quando sai uma)">🎯 Lendária garantida <b>${pityCount(b, save.bannerPity)}/${PITY_EVERY}</b></div>
-    <p class="hint">Cada carta é um personagem na raridade sorteada. ${feat.map((d) => esc(d.name)).join(' e ')} saem só aqui, no ${TIER_NAMES[b.featuredRarity]}. No pacote de 10: pelo menos 1 ${TIER_NAMES[b.guarantee10]} ou melhor. A cada ${PITY_EVERY} cartas: 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor. Personagem repetido vira XP dele (às vezes ×2, ×5 ou ×10).</p>
+    <p class="hint">Cada carta é um personagem na raridade sorteada. ${feat.map((d) => esc(d.name)).join(' e ')} saem só aqui, no ${TIER_NAMES[b.featuredRarity]}. No pacote de 10: pelo menos 1 ${TIER_NAMES[b.guarantee10]} ou melhor. A cada ${PITY_EVERY} cartas: 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor. Personagem repetido vira mais 1 cópia (no 🎒 Inventário: use no baralho ou desmanche em XP).</p>
     <div class="row">${btn(1)}${btn(10)}</div>
   </div>`;
 }
