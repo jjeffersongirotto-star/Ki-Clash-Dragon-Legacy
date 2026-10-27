@@ -1,5 +1,5 @@
 /** v0.13.0 — compara as curvas de vida do Líder. npx vite-node scripts/balance/schedules.ts [jogadores] */
-import { runCampaign, report, median, type Schedule } from './progression';
+import { runCampaign, report, median } from './progression';
 
 const N = Number(process.argv[2] ?? 30);
 const enemyNow = (i: number) => 12 + i * 2;

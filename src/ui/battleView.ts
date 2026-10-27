@@ -1,5 +1,5 @@
 import { playerAuto, playerEndTurn, playerUse } from '../core/match';
-import { allyBuff, auraPenalty, createBattle, deployCells, effectiveAtk, spellCasters, spellTargets, unitAt, waitFor, waitOf, DEPLOY_DEPTH, Ctx } from '../core/battle';
+import { createBattle, deployCells, effectiveAtk, spellCasters, spellTargets, unitAt, waitFor, waitOf, DEPLOY_DEPTH, Ctx } from '../core/battle';
 import { getSpell, isSpell } from '../core/spells';
 import { RACE_INFO, getChar } from '../core/characters';
 import { pileCount } from '../core/deck';
@@ -7,6 +7,7 @@ import type { BattleState, CardInstance, RecordedEvent, Side, Snapshot, Unit } f
 import type { Stage } from '../core/campaign';
 import { PLAYER_HERO_HP } from '../core/campaign';
 import { stepOf } from '../core/progression';
+import { attackFX, floatText, moveTrail, spark, statusList } from './battleFx';
 import { enemyCommanderArt, enemyLeaderImg, playerLeaderImg, unitSpriteSVG } from './art';
 import { stageCommander } from '../core/campaign';
 import { gameConfirm } from './dialog';
@@ -445,7 +446,7 @@ export class BattleView {
 
   showUnitInfo(u: Unit) {
     const def = getChar(u.charId);
-    const fx = this.statusList(this.state, u);
+    const fx = statusList(this.state, u);
     this.setInfo(
       `<div class="info-head"><span><b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${tierHTML(u.stars, u.plus)} · ${raceHTML(def)} · ❤ ${u.hp}/${u.maxHp} · ATQ ${effectiveAtk(this.state, u)} (${dmgLabel(def)}) · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-unit="${u.uid}">🔍 Ver Carta</button></div>${fx.length ? `<div class="u-status-list">${fx.map((f) => `<span>${f.icon} ${esc(f.label)}</span>`).join('')}</div>` : ''}${abilityListHTML(def, u.stars, u.plus)}`,
     );
@@ -527,22 +528,6 @@ export class BattleView {
   }
 
   /** v0.17.0 (decisões 16 e 17): efeitos com duração e auras recebidas pela unidade */
-  statusList(state: BattleState, u: Unit): { icon: string; label: string; key: string }[] {
-    const out: { icon: string; label: string; key: string }[] = [];
-    const buff = allyBuff(state, u);
-    const pen = auraPenalty(state, u);
-    if (buff > 0) out.push({ icon: '🥁', label: `aura +${buff} ATQ`, key: `b${buff}` });
-    if (pen > 0) out.push({ icon: '🌀', label: `drenado −${pen} ATQ`, key: `p${pen}` });
-    const ICON = { veneno: '🧪', queimadura: '🔥', atordoado: '💫', escudo: '🛡', anjo: '👼' } as const;
-    for (const e of u.effects ?? []) {
-      if (e.turns <= 0) continue;
-      const label =
-        e.kind === 'veneno' ? `veneno ${e.amount}/rodada (${e.turns})` : e.kind === 'queimadura' ? `queimadura ${e.amount}/rodada (${e.turns})` : e.kind === 'atordoado' ? 'atordoado' : e.kind === 'escudo' ? `escudo ${e.amount} (${e.turns})` : 'Anjo da Guarda';
-      out.push({ icon: ICON[e.kind], label, key: `${e.kind}${e.amount}` });
-    }
-    return out;
-  }
-
   setInfo(html: string) {
     this.root.querySelector('#info')!.innerHTML = html;
     // no layout deitado o painel vira uma janela por cima da arena: só aparece com conteúdo
@@ -676,7 +661,7 @@ export class BattleView {
       atkEl.classList.toggle('buff', atk > u.atk);
       (el.querySelector('.u-hpn') as HTMLElement).textContent = String(Math.max(0, u.hp));
       // v0.17.0: selos estáticos de efeito/aura (só troca o HTML quando muda)
-      const st = this.statusList(fake, u);
+      const st = statusList(fake, u);
       const key = st.map((x) => x.key).join(',');
       const fxEl = el.querySelector('.u-fx') as HTMLElement;
       if (fxEl.dataset.k !== key) {
@@ -724,67 +709,17 @@ export class BattleView {
   }
 
   floatText(x: number, y: number, text: string, cls: string) {
-    const fx = this.root.querySelector('.fx')!;
-    const d = document.createElement('div');
-    d.className = `float ${cls}`;
-    d.textContent = text;
-    d.style.left = `${x}px`;
-    d.style.top = `${y}px`;
-    fx.appendChild(d);
-    setTimeout(() => d.remove(), 1100);
+    floatText(this.root.querySelector('.fx')!, x, y, text, cls);
   }
 
   /** Seta tática MOVE e poeira quando o personagem caminha na arena */
   showMoveTrail(from: [number, number], to: [number, number], jumped: boolean, label = jumped ? 'JUMP' : 'MOVE') {
-    const fx = this.root.querySelector('.fx')!;
-    const [x1, y1] = this.center(from[0], from[1]);
-    const [x2] = this.center(to[0], to[1]);
-    const trail = document.createElement('div');
-    trail.className = `move-arrow ${to[1] > from[1] ? 'dir-r' : 'dir-l'}`;
-    trail.style.left = `${Math.min(x1, x2)}px`;
-    trail.style.top = `${y1 - 26}px`;
-    trail.style.width = `${Math.max(36, Math.abs(x2 - x1))}px`;
-    trail.innerHTML = `<span>${label}</span><i></i>`;
-    fx.appendChild(trail);
-    for (let i = 0; i < 3; i++) {
-      const dust = document.createElement('div');
-      dust.className = 'dust-puff';
-      dust.style.left = `${x1 + ((x2 - x1) * i) / 3}px`;
-      dust.style.top = `${y1 + 18}px`;
-      fx.appendChild(dust);
-      setTimeout(() => dust.remove(), 480);
-    }
-    setTimeout(() => trail.remove(), this.dur(440));
+    moveTrail(this.root.querySelector('.fx')!, this.center(from[0], from[1]), this.center(to[0], to[1]), to[1] > from[1], label, this.dur(440));
   }
 
   /** Feixe de Ki ou corte de energia estilo anime durante o ataque */
   showAttackFX(ax: number, ay: number, tx: number, ty: number, ranged: boolean, damageType: string, side: Side) {
-    const fx = this.root.querySelector('.fx')!;
-    const dx = tx - ax;
-    const dy = ty - ay;
-    const dist = Math.hypot(dx, dy);
-    const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-    if (ranged && damageType === 'magico') {
-      // Feixe de Ki contínuo estilo anime (Kamehameha / raio arcano)
-      const beam = document.createElement('div');
-      beam.className = `ki-beam side-${side}`;
-      beam.style.left = `${ax}px`;
-      beam.style.top = `${ay - 6}px`;
-      beam.style.width = `${dist}px`;
-      beam.style.transform = ` translateY(-50%) rotate(${angle}deg)`;
-      fx.appendChild(beam);
-      setTimeout(() => beam.remove(), this.dur(360));
-    } else if (!ranged) {
-      // Onda de corte corpo a corpo + selo HIT!
-      const slash = document.createElement('div');
-      slash.className = `melee-wave ${damageType} side-${side}`;
-      slash.style.left = `${(ax + tx) / 2}px`;
-      slash.style.top = `${(ay + ty) / 2 - 4}px`;
-      slash.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
-      fx.appendChild(slash);
-      this.floatText(tx, ty - 26, 'HIT!', 'hit-tag');
-      setTimeout(() => slash.remove(), this.dur(350));
-    }
+    attackFX(this.root.querySelector('.fx')!, ax, ay, tx, ty, ranged, damageType, side, (ms) => this.dur(ms));
   }
 
   async effect(ev: RecordedEvent) {
@@ -950,21 +885,16 @@ export class BattleView {
   }
 
   spark(x: number, y: number, type: string) {
-    const fx = this.root.querySelector('.fx')!;
-    const s = document.createElement('div');
-    s.className = `spark ${type}`;
-    s.style.left = `${x}px`;
-    s.style.top = `${y}px`;
-    fx.appendChild(s);
-    setTimeout(() => s.remove(), 500);
+    spark(this.root.querySelector('.fx')!, x, y, type);
   }
 
   banner(text: string, side: Side, big = false) {
     const b = this.root.querySelector('#banner') as HTMLElement;
     b.textContent = text;
     b.className = `banner show side-${side} ${big ? 'big' : ''}`;
-    clearTimeout((b as any)._t);
-    (b as any)._t = setTimeout(() => (b.className = 'banner'), big ? 2000 : this.dur(800));
+    const t = b as HTMLElement & { _t?: ReturnType<typeof setTimeout> };
+    clearTimeout(t._t);
+    t._t = setTimeout(() => (b.className = 'banner'), big ? 2000 : this.dur(800));
   }
 
   toast(msg: string) {

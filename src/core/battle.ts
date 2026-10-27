@@ -1,10 +1,9 @@
-import { ABILITIES, AURA_CAP, BUFF_CAP, MINION_CAP, RES_CAP, abilityPower, has } from './abilities';
+import { ABILITIES, MINION_CAP, RES_CAP, has } from './abilities';
 import { getChar } from './characters';
 import { statsFor, tierLabel, stepOf } from './progression';
-import { castFromHand, createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, returnFromNecropolis, HAND_SIZE } from './deck';
-import { SPELL_NUM, getSpell, isSpell } from './spells';
+import { createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, returnFromNecropolis, HAND_SIZE } from './deck';
+import { getSpell, isSpell } from './spells';
 import type {
-  AbilityId,
   BattleEvent,
   BattleState,
   CardInstance,
@@ -15,6 +14,12 @@ import type {
   Snapshot,
   Unit,
 } from './types';
+
+import { rangeOf, hasRangeBonus, pw, furyBonus, effectiveAtk, computeDamage, findTarget } from './battleRules';
+import { leapLanding, moveUnit } from './battleMove';
+
+export { rangeOf, hasRangeBonus, auraPenalty, FURY_START, FURY_EVERY, furyBonus, allyBuff, effectiveAtk, computeDamage, distanceToEnemyHero, findTarget } from './battleRules';
+export { SALTO_MOVE, moveRange, leapLanding, moveUnit } from './battleMove';
 
 export const ROWS = 2;
 export const COLS = 12;
@@ -209,105 +214,7 @@ export function placeUnit(state: BattleState, card: CardInstance, side: Side, ro
   return u;
 }
 
-// ---------- regras de combate ----------
-
-export function rangeOf(u: Unit): number {
-  return u.range + u.abilities.reduce((s, id) => s + (ABILITIES[id]?.rangeBonus ?? 0), 0);
-}
-
-export function hasRangeBonus(u: Unit): boolean {
-  return !!has(u.abilities, (a) => a.rangeBonus);
-}
-
-const pw = (u: Unit, id: AbilityId) => (u.abilities.includes(id) ? abilityPower(id, u.stars, u.plus) : 0);
-
-export function auraPenalty(state: BattleState, u: Unit): number {
-  let p = 0;
-  for (const e of state.units) {
-    if (e.hp <= 0 || e.side === u.side) continue;
-    if (has(e.abilities, (x) => x.enemyAtkAura)) p += pw(e, 'sifao');
-  }
-  return Math.min(AURA_CAP, p);
-}
-
-/** Fúria de batalha: a partir do turno FURY_START, todos ganham +1 de ataque a cada FURY_EVERY turnos (evita empates travados). */
-export const FURY_START = 8;
-export const FURY_EVERY = 3;
-export function furyBonus(turn: number): number {
-  return turn < FURY_START ? 0 : 1 + Math.floor((turn - FURY_START) / FURY_EVERY);
-}
-
-/** Tambor de Guerra: o maior bônus entre os aliados vizinhos (não acumula), com teto. */
-export function allyBuff(state: BattleState, u: Unit): number {
-  if (u.isMinion && u.charId === 'cria') return 0;
-  let b = 0;
-  for (const a of state.units) {
-    if (a === u || a.hp <= 0 || a.side !== u.side) continue;
-    if (Math.abs(a.row - u.row) > 1 || Math.abs(a.col - u.col) > 1) continue;
-    if (has(a.abilities, (x) => x.allyAtkAura)) b = Math.max(b, pw(a, 'tambor'));
-  }
-  return Math.min(BUFF_CAP, b);
-}
-
-export function effectiveAtk(state: BattleState, u: Unit): number {
-  return Math.max(1, u.atk - auraPenalty(state, u)) + allyBuff(state, u) + (state.fury ? furyBonus(state.turn) : 0);
-}
-
-/** Dano após resistência. Resistência física 1 contra 3 de dano físico = 2. Mínimo 1. `pierce` ignora parte da resistência. */
-export function computeDamage(atk: number, type: 'fisico' | 'magico', target: { physRes: number; magRes: number }, pierce = 0): number {
-  const res = Math.max(0, (type === 'fisico' ? target.physRes : target.magRes) - pierce);
-  return Math.max(1, atk - res);
-}
-
-export function distanceToEnemyHero(state: BattleState, u: Unit): number {
-  return u.side === 'player' ? state.cols - u.col : u.col + 1;
-}
-
-/**
- * Mira. Regras (arena 2 × 12):
- * - Ninguém ataca unidades da OUTRA fileira, exceto as habilidades diagonais (Corte Diagonal / Golpe Reverso)
- *   e o respingo lateral da Explosão de Brasas.
- * - Básico: inimigo na casa logo à frente (alcance 1). Longo alcance: o inimigo MAIS PRÓXIMO até 4 casas à frente (v0.16.0).
- * - Miras especiais (retaguarda = mais distante; menor vida) olham só a própria fileira até `reach` casas.
- * - Comandante: funciona como uma unidade numa coluna virtual logo após o fim da arena, alcançável pelas duas
- *   fileiras. Sem unidade inimiga válida, qualquer unidade ataca o Comandante com seu alcance.
- */
-export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
-  const enemies = state.units.filter((e) => e.hp > 0 && e.side !== u.side);
-  const ab = has(u.abilities, (a) => a.targeting);
-  const targeting = ab?.targeting;
-  const d = dir(u.side);
-  const r = rangeOf(u);
-  const reach = Math.max(r, ab?.reach ?? 0);
-  const fwd = (e: Unit) => (e.col - u.col) * d;
-  const rowAhead = enemies.filter((e) => e.row === u.row && fwd(e) >= 1 && fwd(e) <= reach);
-
-  if (targeting === 'menorVida' && rowAhead.length) {
-    return rowAhead.sort((a, b) => a.hp - b.hp || fwd(a) - fwd(b))[0];
-  }
-  if (targeting === 'longoAlcance') {
-    const casters = rowAhead.filter((e) => hasRangeBonus(e)).sort((a, b) => fwd(a) - fwd(b));
-    if (casters.length) return casters[0];
-  }
-  if (targeting === 'maiorAtaque' && rowAhead.length) {
-    return rowAhead.sort((a, b) => b.atk - a.atk || fwd(a) - fwd(b))[0];
-  }
-  if (targeting === 'retaguarda' && rowAhead.length) {
-    return rowAhead.sort((a, b) => fwd(b) - fwd(a))[0];
-  }
-  if (targeting === 'diagTras') {
-    const back = enemies.filter((e) => fwd(e) === -1 && Math.abs(e.row - u.row) === 1);
-    if (back.length) return back.sort((a, b) => a.hp - b.hp)[0];
-  }
-  const straight = enemies.filter((e) => e.row === u.row && fwd(e) >= 1 && fwd(e) <= r).sort((a, b) => fwd(a) - fwd(b));
-  if (straight.length) return straight[0];
-  if (targeting === 'diagFrente') {
-    const diag = enemies.filter((e) => fwd(e) === 1 && Math.abs(e.row - u.row) === 1);
-    if (diag.length) return diag.sort((a, b) => a.hp - b.hp)[0];
-  }
-  if (distanceToEnemyHero(state, u) <= reach) return 'hero';
-  return null;
-}
+// ---------- regras de combate: alcance, ataque efetivo, dano e alvo (v0.28.1: em battleRules.ts) ----------
 
 function isMeleeFrontAttack(att: Unit, target: Unit): boolean {
   if (att.damageType !== 'fisico' || hasRangeBonus(att)) return false;
@@ -315,7 +222,7 @@ function isMeleeFrontAttack(att: Unit, target: Unit): boolean {
   return (att.col - target.col) * dir(target.side) === 1;
 }
 
-const nameOf = (u: Unit) => `${getChar(u.charId).name}${u.side === 'enemy' ? ' (inimigo)' : ''}`;
+export const nameOf = (u: Unit) => `${getChar(u.charId).name}${u.side === 'enemy' ? ' (inimigo)' : ''}`;
 
 function checkWinner(state: BattleState, ctx: Ctx) {
   if (state.winner) return;
@@ -570,83 +477,7 @@ export function criaAtk(stars: number): number {
   return stars >= 6 ? 3 : 2;
 }
 
-/** Salto Vendaval: anda até SALTO_MOVE casas em qualquer raridade/degrau (fixo, não escala). */
-export const SALTO_MOVE = 3;
-
-/** Quantas casas a unidade anda por ação (Salto Vendaval = 3 fixo; demais = atributo `move`). */
-export function moveRange(u: Unit): number {
-  return has(u.abilities, (a) => a.jump) ? SALTO_MOVE : u.move;
-}
-
-/**
- * Salto Vendaval (v0.15.4): o movimento do Riku É o salto. Casa de pouso = a 3ª casa à frente;
- * se estiver ocupada ou fora do campo, a 2ª; se também, a 1ª; se as três estiverem ocupadas (ou fora), ele fica.
- * Passa por cima de quem estiver no caminho (aliado ou inimigo). Nunca vai além da 3ª e não anda depois de cair.
- */
-export function leapLanding(state: BattleState, u: Unit): number | null {
-  const d = dir(u.side);
-  for (const k of [SALTO_MOVE, 2, 1]) {
-    const c = u.col + k * d;
-    if (inBoard(state, u.row, c) && !unitAt(state, u.row, c)) return c;
-  }
-  return null;
-}
-
-function leapMove(state: BattleState, ctx: Ctx, u: Unit): boolean {
-  const land = leapLanding(state, u);
-  if (land == null) return false;
-  const d = dir(u.side);
-  const start = u.col;
-  const from: [number, number] = [u.row, start];
-  const through: [number, number][] = [];
-  for (let c = start + d; (land - c) * d > 0; c += d) {
-    const o = unitAt(state, u.row, c);
-    if (o && o.side === u.side) through.push([u.row, c]);
-  }
-  u.col = land;
-  ctx.emit(state, { type: 'move', uid: u.uid, from, to: [u.row, land], jumped: true, through, text: `${nameOf(u)} salta para a coluna ${land + 1}.` });
-  return true;
-}
-
-/**
- * Move a unidade. Retorna true só quando o Riku salta (Salto Vendaval: seta JUMP + investida).
- * Demais (v0.15.0): andam até `move` casas, atravessam ALIADOS mas só param em casa livre (senão ficam na
- * última casa livre antes deles); inimigos bloqueiam; param assim que um alvo entra no alcance (checado nas casas livres).
- */
-export function moveUnit(state: BattleState, ctx: Ctx, u: Unit, opts: { leapFront?: boolean } = {}): boolean {
-  if (has(u.abilities, (a) => a.jump)) {
-    if (!opts.leapFront && findTarget(state, u)) return false;
-    return leapMove(state, ctx, u);
-  }
-  const d = dir(u.side);
-  const start = u.col;
-  const from: [number, number] = [u.row, start];
-  if (findTarget(state, u)) return false;
-  let stop = start;
-  const over: number[] = [];
-  for (let k = 1; k <= u.move; k++) {
-    const c = start + k * d;
-    if (!inBoard(state, u.row, c)) break;
-    const occ = unitAt(state, u.row, c);
-    if (occ && occ !== u) {
-      if (occ.side === u.side) {
-        over.push(c);
-        continue;
-      }
-      break;
-    }
-    stop = c;
-    u.col = c;
-    if (findTarget(state, u)) break;
-  }
-  u.col = stop;
-  const passed = over.filter((c) => (c - start) * d > 0 && (stop - c) * d > 0);
-  if (stop !== start) {
-    const how = passed.length ? 'passa pelos aliados e avança' : 'avança';
-    ctx.emit(state, { type: 'move', uid: u.uid, from, to: [u.row, stop], jumped: false, through: passed.map((c) => [u.row, c] as [number, number]), text: `${nameOf(u)} ${how} para a coluna ${stop + 1}.` });
-  }
-  return false;
-}
+// ---------- movimento (v0.28.1: em battleMove.ts) ----------
 
 /** Bênção do Lótus (v0.15.1): cura só os 2 aliados vizinhos mais feridos (mais vida perdida; empate: menos vida, depois quem entrou antes). */
 export const LOTUS_TARGETS = 2;
@@ -801,7 +632,7 @@ export function deploy(state: BattleState, side: Side, handIndex: number, row: n
   return { ok: true, events: ctx.events };
 }
 
-function bringBack(state: BattleState, ctx: Ctx, side: Side, uid: number, who: string) {
+export function bringBack(state: BattleState, ctx: Ctx, side: Side, uid: number, who: string) {
   const r = returnFromNecropolis(state.decks[side]);
   ctx.emit(state, {
     type: 'effect',
@@ -811,116 +642,8 @@ function bringBack(state: BattleState, ctx: Ctx, side: Side, uid: number, who: s
   });
 }
 
-// ---------- v0.17.0: feitiços ----------
-
-/** Aliados em campo que podem conjurar o feitiço (categoria do feitiço), o de maior ataque primeiro. */
-export function spellCasters(state: BattleState, side: Side, spellId: string): Unit[] {
-  const sp = getSpell(spellId);
-  return state.units
-    .filter((u) => u.side === side && u.hp > 0 && !u.isMinion && sp.categories.includes(getChar(u.charId).category))
-    .sort((a, b) => effectiveAtk(state, b) - effectiveAtk(state, a) || a.uid - b.uid);
-}
-
-/** Casas válidas para o feitiço (vazio se não houver conjurador). */
-export function spellTargets(state: BattleState, side: Side, spellId: string): [number, number][] {
-  const sp = getSpell(spellId);
-  if (!spellCasters(state, side, spellId).length) return [];
-  const foe = enemyOf(side);
-  if (sp.target === 'enemy') return state.units.filter((u) => u.side === foe && u.hp > 0).map((u) => [u.row, u.col]);
-  if (sp.target === 'ally') return state.units.filter((u) => u.side === side && u.hp > 0).map((u) => [u.row, u.col]);
-  const out: [number, number][] = [];
-  if (sp.target === 'row') {
-    for (let r = 0; r < state.rows; r++) for (let c = 0; c < state.cols; c++) out.push([r, c]);
-    return out;
-  }
-  if (!state.decks[side].defeated.length) return [];
-  for (let r = 0; r < state.rows; r++) for (let c = 0; c < state.cols; c++) if (isDeployCell(state, side, r, c)) out.push([r, c]);
-  return out;
-}
-
-const pctOf = (v: number, p: number) => Math.max(1, Math.ceil((v * p) / 100));
-
-/** Lança o feitiço da mão na casa (row, col). */
-export function castSpell(state: BattleState, side: Side, handIndex: number, row: number, col: number, ctx = new Ctx()): { ok: boolean; reason?: string; events: RecordedEvent[] } {
-  if (state.winner) return { ok: false, reason: 'Batalha encerrada', events: [] };
-  if (state.active !== side) return { ok: false, reason: 'Não é sua vez', events: [] };
-  const card = state.decks[side].hand[handIndex];
-  if (!card || !isSpell(card.charId)) return { ok: false, reason: 'Carta inválida', events: [] };
-  const w = waitOf(card);
-  if (w > 0) return { ok: false, reason: `Carta ainda não está pronta (falta${w > 1 ? 'm' : ''} ${w} rodada${w > 1 ? 's' : ''})`, events: [] };
-  const sp = getSpell(card.charId);
-  const caster = spellCasters(state, side, sp.id)[0];
-  if (!caster) return { ok: false, reason: `Precisa de um aliado ${sp.categories.map((c) => CAT_LABEL[c]).join(' ou ')} em campo para conjurar`, events: [] };
-  if (!spellTargets(state, side, sp.id).some(([r, c]) => r === row && c === col)) return { ok: false, reason: 'Alvo inválido para este feitiço', events: [] };
-  const foe = enemyOf(side);
-  const target = unitAt(state, row, col);
-  castFromHand(state.decks[side], handIndex);
-  if (state.stats) {
-    state.stats[side].cards++;
-    state.stats[side].spells++;
-  }
-  const atk = effectiveAtk(state, caster);
-  ctx.emit(state, { type: 'cast', side, spellId: sp.id, caster: caster.uid, target: [row, col], text: `${sp.icon} ${nameOf(caster)} conjura ${sp.name}${sp.target === 'row' ? ` na fileira ${row + 1}` : target && sp.target !== 'none' ? ` em ${nameOf(target)}` : ''}!` });
-  const src: DamageSource = { side, unit: caster, spell: true };
-  const hit = (u: Unit, p: number, type: 'fisico' | 'magico', ignoreRes = false) => {
-    const raw = pctOf(atk, p);
-    const dmg = ignoreRes ? raw : computeDamage(raw, type, u);
-    return applyDamage(state, ctx, u, dmg, type, src, raw > dmg ? ` (${raw - dmg} resistido)` : '');
-  };
-  const N = SPELL_NUM;
-  const rowFoes = () => state.units.filter((u) => u.side === foe && u.hp > 0 && u.row === row);
-  switch (sp.id) {
-    case 'f-investida':
-      if (target && !hit(target, N.investida, 'fisico')) pushBack(state, ctx, target);
-      break;
-    case 'f-giratoria':
-      for (const u of rowFoes()) if (!state.winner) hit(u, N.giratoria, 'fisico');
-      break;
-    case 'f-muralha':
-      if (target) addEffect(state, ctx, target, 'escudo', pctOf(caster.maxHp, N.muralhaHp), N.muralhaTurns);
-      break;
-    case 'f-tremor':
-      if (target && !hit(target, N.tremor, 'fisico') && state.units.includes(target)) {
-        addEffect(state, ctx, target, 'atordoado', 1, 1);
-        pushBack(state, ctx, target);
-      }
-      break;
-    case 'f-chuva':
-      for (const u of rowFoes()) if (!state.winner) hit(u, N.chuva, 'fisico');
-      break;
-    case 'f-flecha-veneno':
-      if (target && !hit(target, N.flechaHit, 'fisico') && state.units.includes(target)) addEffect(state, ctx, target, 'veneno', pctOf(atk, N.flechaDot), N.flechaTurns);
-      break;
-    case 'f-bola-fogo':
-      if (target && !hit(target, N.bolaHit, 'magico') && state.units.includes(target)) addEffect(state, ctx, target, 'queimadura', pctOf(atk, N.bolaDot), N.bolaTurns);
-      break;
-    case 'f-raio':
-      if (target && !hit(target, N.raio, 'magico') && state.units.includes(target)) addEffect(state, ctx, target, 'atordoado', 1, 1);
-      break;
-    case 'f-veneno':
-      if (target) addEffect(state, ctx, target, 'veneno', pctOf(atk, N.veneno), N.venenoTurns);
-      break;
-    case 'f-sombras':
-      if (target) hit(target, N.sombras, 'fisico', true);
-      break;
-    case 'f-cura':
-      for (const u of state.units.filter((x) => x.side === side && x.hp > 0 && x.row === row && x.hp < x.maxHp)) {
-        const h = Math.min(pctOf(u.maxHp, N.cura), u.maxHp - u.hp);
-        u.hp += h;
-        ctx.emit(state, { type: 'heal', uid: u.uid, amount: h, text: `💖 ${nameOf(u)} recupera ${h} de vida.` });
-      }
-      break;
-    case 'f-anjo':
-      if (target) addEffect(state, ctx, target, 'anjo', 1, 99);
-      break;
-    case 'f-necropolis':
-      bringBack(state, ctx, side, caster.uid, nameOf(caster));
-      break;
-  }
-  return { ok: true, events: ctx.events };
-}
-
-const CAT_LABEL: Record<string, string> = { tanque: 'Tanque', suporte: 'Suporte', dps: 'DPS', mago: 'Mago', arqueiro: 'Arqueiro', assassino: 'Assassino' };
+// ---------- v0.17.0: feitiços (v0.28.1: em battleSpells.ts) ----------
+export { castSpell, spellCasters, spellTargets } from './battleSpells';
 
 function endRoundIfNeeded(state: BattleState, ctx: Ctx) {
   if (state.winner) return;

@@ -25,14 +25,16 @@ Para gerar no computador: JDK 21 + Android SDK (`ANDROID_HOME`), as variáveis `
 ```bash
 npm install
 npm run dev     # servidor local
-npm test        # testes das regras de combate (vitest)
+npm test        # testes (vitest)
+npm run lint    # confere o código (ESLint)
 npm run build   # gera dist/
 ```
 
 Estrutura:
-- `src/core/` — regras puras do jogo (batalha, habilidades, IA, progressão, campanha), sem DOM, prontas para rodar num servidor no futuro modo online.
-- `src/ui/` — telas, retratos SVG procedurais, animações e save.
-- `tests/` — testes das regras.
+- `src/core/` — regras puras do jogo (batalha, habilidades, IA, progressão, campanha), sem DOM, prontas para rodar num servidor no futuro modo online. A batalha fica em `battle.ts` (estado, turnos, dano e efeitos), `battleRules.ts` (alcance, ataque e alvo), `battleMove.ts` (movimento) e `battleSpells.ts` (feitiços).
+- `src/app/` — as telas do jogo: `state.ts` (conta, save, perfil), `ui.ts` (topo, navegação, janelas), `home.ts`, `adventure.ts`, `tutorial.ts`, `collection.ts`, `train.ts`, `shop.ts`, `help.ts`. O `src/main.ts` só liga o app.
+- `src/ui/` — componentes, retratos SVG procedurais, batalha na tela (`battleView.ts` e `battleFx.ts`), animações e save.
+- `tests/` — testes por assunto: `batalha/`, `baralho/`, `campanha/`, `economia/`, `progressao/` e `visual/`.
 
 Deploy automático no GitHub Pages a cada push na `main` (`.github/workflows/deploy.yml`).
 
