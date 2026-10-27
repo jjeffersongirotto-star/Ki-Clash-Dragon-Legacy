@@ -123,10 +123,10 @@ describe('v0.23.0 — carta sem nível: raridade + degrau ("+" / "++")', () => {
     expect(u.maxHp).toBe(statsFor(getChar('mei'), 2, 1).hp);
   });
 
-  it('a carta não mostra "Nv.": a estrela dourada mostra o degrau ("+" / "++") e some no degrau base', () => {
+  it('a carta não mostra "Nv.": o degrau aparece na raridade ("Comum+" / "Comum++"; v0.28.7: sem a estrela)', () => {
     expect(cardHTML({ charId: 'riku', stars: 1 })).not.toContain('ck-star');
-    expect(cardHTML({ charId: 'riku', stars: 1, plus: 1 })).toContain('<b>+</b>');
-    expect(cardHTML({ charId: 'riku', stars: 1, plus: 2 })).toContain('<b>++</b>');
+    expect(cardHTML({ charId: 'riku', stars: 1, plus: 1 })).toContain('<div class="ck-rar">Comum+</div>');
+    expect(cardHTML({ charId: 'riku', stars: 1, plus: 2 })).toContain('<div class="ck-rar">Comum++</div>');
     for (const d of PLAYABLE) expect(cardHTML({ charId: d.id, stars: d.maxStars, plus: 2 })).not.toContain('Nv.');
   });
 });

@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.28.7] — 27/10/2026 · PR #59 — Ícone do grupo no canto da carta
+- **Canto direito de cima da carta:** sai a estrela dourada do degrau (o "+"/"++" já aparece em "Raro++" etc.) e entra o **ícone colorido do grupo**, sem círculo: ➕ verde (Suporte), 🛡 azul (Tanque), ⚔ vermelho (DPS), 🪄 roxo (Mago), 🏹 laranja (Arqueiro) e 💀 cinza (Assassino). Desenhos próprios, em cache (a carta continua sem SVG em linha).
+
 ## [0.28.6] — 27/10/2026 · PR #58 — Botão ⟳ gira no lugar
 - **Botão de atualizar:** o símbolo ⟳ virou um ícone desenhado e centralizado; ao procurar atualização só o ícone gira, em torno do próprio centro, e o botão fica parado (antes o botão inteiro girava torto).
 
