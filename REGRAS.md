@@ -1056,3 +1056,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Tela inicial no celular (v0.28.5):** em pé, a tela inicial cabe na altura da tela sem rolar (tamanhos calculados pela altura). A moeda da barra de recursos mostra o dragão dentro dela.
 - **Botão ⟳ (v0.28.6):** ao procurar atualização, só o ícone gira no centro do botão.
 - **Canto da carta (v0.28.7):** o canto direito de cima mostra o ícone colorido do **grupo** (Suporte ➕ verde, Tanque 🛡 azul, DPS ⚔ vermelho, Mago 🪄 roxo, Arqueiro 🏹 laranja, Assassino 💀 cinza). O degrau aparece só no texto da raridade ("Comum+", "Mítico++").
+- **Cartas futuras (v0.28.8):** o [CARTAS.md](CARTAS.md) é o **projeto** das 120 cartas (20 por tipo), com habilidades e números. **Ainda não estão no jogo**: entram depois que as artes forem feitas.
