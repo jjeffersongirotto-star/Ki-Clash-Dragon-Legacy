@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.29.0] — 27/10/2026 · PR #62 — Artes novas nas cartas
+- **Artes ilustradas:** os 20 personagens do jogo ganham a ilustração desenhada pelo jogador com outra IA, na carta (fundo inteiro), na Coleção, no Treinar/Despertar, na tela inicial, na janela da fase e na batalha (retrato emoldurado, virado para o lado do inimigo). A Cria Sombria continua com o desenho antigo.
+- **Só a ilustração foi aproveitada:** as imagens vieram no modelo antigo de carta; o script `scripts/art/build_cards.py` acha a moldura e a faixa do nome, apaga a gota de custo, a pílula ⚡ e a estrela "Nv." preenchendo com as cores ao redor e recorta no formato da carta (400×488, WebP). Números, raridade e grupo continuam os do jogo (CARTAS.md).
+- As 120 artes (inclusive as das 99 cartas novas, que entram na próxima versão) ficam em `src/assets/chars/` (~4,3 MB).
+
 ## [0.28.9] — 27/10/2026 · PR #61 — Monstro com ataque na diagonal de trás
 - Projeto das cartas (CARTAS.md): **Grub Presa-Lamacenta** (Monstro) ganha o ↙ Golpe Reverso, assim todo tipo tem quem ataque na diagonal de trás. Sem mudança no jogo.
 

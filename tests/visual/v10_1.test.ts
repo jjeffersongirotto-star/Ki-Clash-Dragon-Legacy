@@ -28,9 +28,11 @@ describe('v0.10.1 — retratos em cache (desempenho)', () => {
     expect(srcOf(portraitImg(riku, { stars: 3, layer: 'bg' }))).not.toBe(a);
   });
 
-  it('a carta usa 2 imagens (fundo e personagem) e nenhum SVG em linha', () => {
+  it('a carta usa imagens (sem SVG em linha): 2 camadas no desenho SVG, 1 com a arte ilustrada (v0.29.0)', () => {
+    expect((cardHTML({ charId: 'cria', stars: 1 }).match(/<img class="portrait/g) ?? []).length).toBe(2);
     const html = cardHTML({ charId: 'nyx', stars: 6, plus: true });
-    expect((html.match(/<img class="portrait/g) ?? []).length).toBe(2);
+    expect((html.match(/<img class="portrait/g) ?? []).length).toBe(1);
+    expect(html).toContain('char-art');
     expect(html).not.toContain('<svg');
     // efeitos premium continuam na carta (faíscas e reflexo)
     expect(html).toContain('class="spk"');
@@ -44,9 +46,12 @@ describe('v0.10.2 — cartas de grade congeladas (rolagem fluida)', () => {
     expect(html).toContain('grid-card');
     expect(html).not.toContain('card-shine');
     expect(html).not.toContain('<svg');
-    expect((html.match(/decoding="async"/g) ?? []).length).toBe(2);
+    // v0.29.0: com a arte ilustrada (WebP pronto) a carta de grade tem 1 imagem; o desenho SVG continua com 2 camadas
+    expect((html.match(/decoding="async"/g) ?? []).length).toBe(1);
     expect(html).toContain('data-gk="nyx|6||bg"');
-    expect(html).toContain('data-gk="nyx|6||fg"');
+    const svgCard = cardHTML({ charId: 'cria', stars: 1 }, { grid: true });
+    expect((svgCard.match(/decoding="async"/g) ?? []).length).toBe(2);
+    expect(svgCard).toContain('data-gk="cria|1||fg"');
   });
 
   it('carta em foco (detalhes, mão) continua com todos os efeitos', () => {

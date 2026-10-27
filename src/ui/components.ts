@@ -3,7 +3,7 @@ import { CATEGORY_INFO, RACE_INFO, STAR_COLORS, getChar } from '../core/characte
 import { XP_ITEMS, statsFor, stepIndex, stepOf, tierLabel, type OrbBag, type XpItemId } from '../core/progression';
 import type { AbilityId, CardInstance, CharacterDef } from '../core/types';
 import { GEAR_BY_ID, GEAR_RARITY_NAMES } from '../core/gear';
-import { portraitImg } from './art';
+import { cardArtImg } from './art';
 import { gridArtHTML } from './gridArt';
 import { cardPower } from '../core/power';
 import { waitFor } from '../core/battle';
@@ -117,11 +117,11 @@ export function cardHTML(
   return `<div class="card s${t} race-${def.race} cat-${def.category} ${opts.compact ? 'compact' : 'ab'} ${opts.extraClass ?? ''} ${opts.locked ? 'locked' : ''}${ga ? ` grid-card${ga.baked ? ' baked' : ''}` : ''}" style="${ga && opts.locked ? LOCKED_GRID_STYLE : `${starStyle(t)};--ac:${def.palette.aura};--race-c:${race.color}`}" ${opts.attrs ?? ''}>
     <div class="card-metal"><div class="card-frame">
       <div class="card-art">
-        <div class="card-bg">${ga ? ga.bg : portraitImg(def, { stars: t, layer: 'bg' })}</div>
+        <div class="card-bg">${ga ? ga.bg : cardArtImg(def, { stars: t, layer: 'bg' })}</div>
         <div class="card-aura"></div>
         ${t >= 3 && !ga ? '<div class="card-shine"></div>' : ''}
       </div>
-      <div class="card-fig">${ga ? ga.fg : portraitImg(def, { stars: t, layer: 'fg' })}</div>
+      <div class="card-fig">${ga ? ga.fg : cardArtImg(def, { stars: t, layer: 'fg' })}</div>
       <div class="ck-cost${opts.wait === 0 ? ' ready' : ''}" title="${opts.wait == null ? `Espera ${waitFor(def.id)} rodada(s) na mão` : opts.wait ? `Falta(m) ${opts.wait} rodada(s)` : 'Pronta para invocar'}"><span>${opts.wait ?? waitFor(def.id)}</span></div>
       <div class="ck-pow" title="Poder">⚡${power}</div>
       <div class="ck-cat" title="${cat.label}"><img src="${categoryIconURI(def.category)}" alt=""></div>

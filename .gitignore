@@ -4,3 +4,4 @@ dist
 .DS_Store
 android/app/*.keystore
 android/app/*.jks
+__pycache__/
