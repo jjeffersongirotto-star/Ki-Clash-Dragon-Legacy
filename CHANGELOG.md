@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.28.1] — 27/10/2026 · PR #53 — Organização do código
+- Sem mudança no jogo. `main.ts` dividido em telas (`src/app/`), `battle.ts` em regras de combate / movimento / feitiços, efeitos da batalha em `battleFx.ts`.
+- Testes agrupados por assunto em pastas (mesmos 384 testes).
+- **ESLint** (`npm run lint`, typescript-eslint) na CI.
+
 ## [0.28.0] — 27/10/2026 · PR #52 — Campanha: equilíbrio, liberação, Comandantes e estrelas
 - **⭐ Estrelas por fase:** a 1ª é vencer; a 2ª e a 3ª são 2 objetivos fixos de cada fase em cada dificuldade (❤️ vida do Comandante 50/70/100% · 🃏 no máximo 8/10/12 cartas · 🪄 sem feitiços ou 2 feitiços · 💀 6/8/10 abates). Normal e Difícil têm objetivos diferentes ou mais apertados. Saiu o "até 15 turnos". As estrelas já ganhas continuam valendo. A batalha agora conta cartas, feitiços e abates.
 - **🔓 Liberação fase a fase:** a fase N do Normal abre ao vencer a fase N no Fácil (e a N−1 no Normal); o Difícil igual em relação ao Normal.

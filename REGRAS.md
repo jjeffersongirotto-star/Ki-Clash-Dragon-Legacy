@@ -1041,3 +1041,10 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 | **v0.28.0, só personagens** | 93% | 92% | 90% | 79% | 74% | 77% | 71% | 68% | 66% | 67% |
 | v0.28.0, com até 4 feitiços | 100% | 100% | 97% | 85% | 85% | 89% | 80% | 65% | 58% | 62% |
 
+## 28. Organização do código (v0.28.1)
+- **Nenhuma regra do jogo mudou.** Só a organização do código:
+  - O `main.ts` (mais de 1.100 linhas) virou telas separadas em `src/app/` (Base, Aventura, Tutorial, Coleção, Treinar, Loja, Ajuda, estado e peças comuns).
+  - A batalha (`battle.ts`) foi dividida em regras de combate, movimento e feitiços; os efeitos visuais da batalha na tela foram para `battleFx.ts`.
+  - Os testes foram agrupados por assunto em pastas (`batalha`, `baralho`, `campanha`, `economia`, `progressao`, `visual`), com os mesmos testes de antes.
+  - **ESLint** confere o código (`npm run lint`) e roda na CI antes dos testes.
+
