@@ -1048,3 +1048,5 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
   - Os testes foram agrupados por assunto em pastas (`batalha`, `baralho`, `campanha`, `economia`, `progressao`, `visual`), com os mesmos testes de antes.
   - **ESLint** confere o código (`npm run lint`) e roda na CI antes dos testes.
 
+## 29. Lista de melhorias (v0.28.2)
+- O [MELHORIAS.md](MELHORIAS.md) guarda **só o que ainda não foi feito**. Quando algo entra no jogo, sai de lá e vai para o CHANGELOG e este arquivo. Itens novos só entram quando o jogador pedir.

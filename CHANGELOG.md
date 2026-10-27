@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.28.2] — 27/10/2026 · PR #54 — MELHORIAS.md atualizado
+- Sem mudança no jogo. O [MELHORIAS.md](MELHORIAS.md) agora tem só o que falta fazer (novas fases e cartas, progressão final, arte dos Comandantes, modo online e pendências técnicas); tudo o que já entrou no jogo saiu de lá.
+
 ## [0.28.1] — 27/10/2026 · PR #53 — Organização do código
 - Sem mudança no jogo. `main.ts` dividido em telas (`src/app/`), `battle.ts` em regras de combate / movimento / feitiços, efeitos da batalha em `battleFx.ts`.
 - Testes agrupados por assunto em pastas (mesmos 384 testes).
