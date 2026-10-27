@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.34.1] — 27/10/2026 · PR #70 — Tela inicial centralizada
+- **Celular em pé:** o conteúdo da tela inicial fica centralizado na altura, com a mesma faixa vazia em cima e embaixo (antes ficava colado em cima e sobrava espaço embaixo).
+
 ## [0.34.0] — 27/10/2026 · PR #69 — Artes novas inteiras e Comandantes de corpo inteiro
 - **Artes novas** nas 121 cartas (120 personagens + Cria Sombria): ilustrações limpas, no formato certo da carta, sem cortar o personagem. Resolução maior (486×675).
 - **Comandantes de corpo inteiro:** os recortes do Comandante adversário vêm das artes novas, sem perna ou braço faltando. Altura **aparente** de cada um (gigantes maiores, agachados e sentados menores; ninguém é esticado), limitada à coluna.

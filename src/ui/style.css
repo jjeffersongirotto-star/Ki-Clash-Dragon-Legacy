@@ -1359,6 +1359,13 @@ body.native-landscape .rotate-prompt { display: none !important; }
   .home .menu .btn { font-size: min(19px, 2.4dvh); padding: 1.3dvh 14px; }
   .home .link-btn { margin-top: 1dvh; }
 }
+/* v0.34.1: em pé, o conteúdo da tela inicial fica centralizado na altura (faixa vazia igual em cima e embaixo) */
+@media (orientation: portrait) and (max-width: 700px) {
+  .screen.home { min-height: 100dvh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;
+    padding-top: max(1.2dvh, env(safe-area-inset-top)); padding-bottom: max(1.2dvh, env(safe-area-inset-bottom)); }
+  .screen.home > * { flex: none; }
+  .home .account-box { margin-top: 0; }
+}
 @media (orientation: portrait) and (max-width: 700px) and (max-height: 760px) {
   .home-hero { width: min(22vw, 10.5dvh); }
   .home .menu .btn { padding: 1dvh 12px; }
