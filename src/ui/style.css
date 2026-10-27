@@ -1299,3 +1299,35 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .res .energy, .res .coin { background: none; border: 0; padding: 0; }
 .shop-grid > .hint { grid-column: 1 / -1; }
 .res .coin-face, .menu .coin-face { width: 1.5em; height: 1.5em; }
+
+/* ---------- v0.27.0: 🎴 Banner de cartas ---------- */
+.banner-box { margin: 10px 0 18px; padding: 10px; border-radius: 16px; background: linear-gradient(160deg, rgba(255,190,60,.12), rgba(120,40,200,.12)); border: 1px solid rgba(255,210,80,.45); box-shadow: 0 0 22px rgba(255,180,40,.18); }
+.banner-art { position: relative; height: 190px; border-radius: 12px; overflow: hidden; isolation: isolate;
+  background: linear-gradient(180deg, #2a0f4a 0%, #7a2a6a 45%, #f08a3c 78%, #ffd27a 100%); }
+.banner-sky { position: absolute; inset: 0; z-index: -1;
+  background: radial-gradient(circle at 78% 22%, rgba(255,240,190,.95) 0 22px, rgba(255,200,90,.35) 23px 46px, transparent 47px),
+    radial-gradient(1px 1px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 32% 8%, #fff, transparent), radial-gradient(1.5px 1.5px at 52% 26%, #fff, transparent), radial-gradient(1px 1px at 64% 12%, #fff, transparent); }
+.banner-mount { position: absolute; left: 0; right: 0; bottom: 0; height: 58%; z-index: -1;
+  background: linear-gradient(170deg, transparent 0 38%, #3a1640 38.5% 100%), linear-gradient(200deg, transparent 0 46%, #24102e 46.5% 100%);
+  clip-path: polygon(0 60%, 14% 30%, 26% 52%, 40% 12%, 55% 48%, 68% 22%, 82% 50%, 100% 28%, 100% 100%, 0 100%); }
+.banner-feat { position: absolute; right: 6px; bottom: 0; display: flex; gap: 2px; align-items: flex-end; }
+.banner-hero { display: flex; flex-direction: column; align-items: center; width: 108px; filter: drop-shadow(0 0 12px var(--rc)); animation: bannerFloat 3.2s ease-in-out infinite; }
+.banner-hero:nth-child(2) { animation-delay: -1.6s; }
+.banner-hero svg { width: 108px; height: 130px; }
+.banner-hero b { font-size: 11px; color: #fff; text-shadow: 0 1px 3px #000, 0 0 8px var(--rc); white-space: nowrap; margin-top: -6px; }
+.banner-title { position: absolute; left: 12px; top: 10px; max-width: 55%; }
+.banner-title h3 { margin: 0; font-size: 22px; color: #ffe27a; text-shadow: 0 2px 0 #7a3a00, 0 0 14px rgba(255,190,60,.8); }
+.banner-title small { color: #fff3c4; text-shadow: 0 1px 2px #000; }
+.banner-odds { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 2px; font-size: 12px; }
+.banner-odds span { padding: 2px 8px; border-radius: 99px; border: 1px solid var(--rc); color: var(--rc); background: rgba(0,0,0,.25); }
+@keyframes bannerFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.pull-reveal { display: flex; flex-direction: column; gap: 4px; max-height: 62vh; overflow: auto; }
+.pull-reveal.pull-10 { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.pull-reveal.pull-10 .unlock { flex-direction: column; text-align: center; margin: 0; max-width: none; font-size: 12px; gap: 4px; }
+.pull-card { opacity: 0; animation: pullIn .45s ease-out forwards; }
+.pull-card.r4 .unlock, .pull-card.r5 .unlock { animation: pullGlow 1.6s ease-in-out infinite; }
+.unlock.dup { opacity: .92; border-style: dashed; }
+.dup-luck { color: #ffe27a; text-shadow: 0 0 8px #ffb000; }
+@keyframes pullIn { from { opacity: 0; transform: scale(.6) rotateY(90deg); } to { opacity: 1; transform: none; } }
+@keyframes pullGlow { 0%, 100% { box-shadow: 0 0 14px var(--rc); } 50% { box-shadow: 0 0 30px var(--rc), 0 0 50px var(--rc); } }
+@media (max-width: 520px) { .banner-art { height: 160px; } .banner-hero, .banner-hero svg { width: 84px; } .banner-hero svg { height: 104px; } .banner-title h3 { font-size: 18px; } }

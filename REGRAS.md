@@ -187,7 +187,7 @@ Desde a v0.10 **não há mais estrelas de raridade**: a **raridade** é o tier d
 | Incomum | Épico+ | Aiko, Lyra, Gorath, Mei |
 | Raro | Lendário+ | Yume, Zarek |
 | Épico | Mítico+ | Nyx-07 |
-| Lendário (único) | Mítico+ | Kenji, Vorax — **bloqueados por enquanto** ("em breve") |
+| Lendário (único) | Mítico+ | Kenji, Vorax — saem **só no 🎴 Banner** da Loja (v0.27.0; antes "em breve") |
 
 ### O degrau "+"
 - O "+" **não muda habilidades** nem o visual (roupa, aura, físico e cenário do retrato).
@@ -988,3 +988,15 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 | Com Loja + 5 Repetir antes de cada fase nova | 93% | 92% | 96% | 69% | 69% | 68% | 59% | 67% | 67% | 66% |
 
 - A Loja **ajuda a destravar os itens** que faltam (+6 a +9 pontos nas fases 9 e 10) sem acabar com a dificuldade. Repetir dá mais Ouro e itens, e a energia limita quanto dá para repetir por dia.
+
+## 26. 🎴 Banner de cartas e cópias repetidas (v0.27.0)
+- O **Banner** fica na **🏪 Loja**, com paisagem e os personagens em destaque (**Kenji** e **Vorax**). Os banners são dados (`BANNERS` em `src/core/banner.ts`): cartas e fases futuras podem ganhar banners novos.
+- **Preço:** 1 carta = **300** Ouro de Dragão · 10 cartas = **2.700** (10 pelo preço de 9). No pacote de 10, **pelo menos 1 carta Rara ou melhor**.
+- **Chance de cada carta:** Comum **40%** · Incomum **27%** · Raro **20%** · Épico **10%** · Lendário **3%**.
+- **Que personagem sai:** sorteia a raridade e depois um personagem que pode ter essa raridade (raridade inicial ≤ sorteada ≤ raridade máxima dele). Ele vem **nessa raridade**, no degrau base. Ex.: um Raro pode ser a Yume (que começa em Raro) ou o Riku já em Raro.
+- **Kenji e Vorax** só existem no Lendário e **só saem no Banner** (não vêm em fase nem em pacote). Numa carta Lendária, **metade das vezes** sai um deles (≈0,75% cada por carta); na outra metade, outro personagem que pode ser Lendário (Yume, Zarek ou Nyx).
+- **Cópia repetida vira XP** (no Banner e nos pacotes de fase): o personagem que você já tem ganha o XP do **Orbe da raridade da carta repetida** (Comum 100 · Incomum 250 · Raro 400 · Épico 800 · Lendário 1.500 · Mítico 3.000), **+20% por "+"** da carta repetida, vezes a sorte: **12% ×2 · 5% ×5 · 1% ×10** (senão ×1).
+  - A cópia **não sobe a raridade** do seu personagem, mesmo se vier mais rara: vira só XP (de acordo com a raridade dela).
+  - O XP entra na barra do degrau como os Orbes: o que passar da barra cheia **se perde**.
+- A tela de compra mostra as cartas aparecendo uma a uma (as Épicas e Lendárias brilham). Personagem novo entra direto no baralho se couber.
+
