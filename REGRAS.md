@@ -1078,26 +1078,23 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 ## 32. Comandante adversário recortado (v0.30.1)
 - Na batalha, o Comandante adversário de cada fase (e do tutorial) aparece **só como o personagem recortado**, sem a carta e sem o fundo, de pé no mesmo piso do nosso bárbaro, com uma **respiração** leve. Na fase 10 continua o **minotauro** animado.
-- A **altura é proporcional ao nosso bárbaro** (1 = a altura dele na tela). Cada personagem tem um fator, escolhido pelo tamanho dele e pela pose/quanto do corpo aparece no recorte:
+- A **altura é proporcional ao nosso bárbaro** (1 = a altura dele na tela) e mostra o **tamanho aparente** do personagem: gigantes maiores, mulheres um pouco menores, e quem está agachado, ajoelhado, sentado ou flutuando fica mais baixo. Nunca é esticado para encher a coluna; quem passa de 1 fica limitado à altura da coluna. Desde a v0.34.0 todos os recortes vêm das artes novas **de corpo inteiro**:
 
 | Personagem | Altura | Por quê |
 |---|---|---|
-| Vorax, Zarek | 1,00 | altos, corpo inteiro |
-| Tobi | 0,90 | oni, corpo inteiro |
-| Lyra | 0,88 | mulher com chapéu, corpo inteiro |
-| Nyx, Yume | 0,87 | mulheres em pé, corpo inteiro |
-| Suri | 0,86 | espírito flutuando |
-| Jin | 0,85 | até o joelho |
-| Riku, Kenji | 0,80 | salto / base baixa |
-| Kuro, Aiko | 0,75 / 0,74 | agachado / mulher até o joelho |
-| Gorath | 0,72 | minotauro enorme, recorte até a coxa |
-| Sora | 0,72 | mulher em avanço baixo |
-| Ren | 0,70 | agachado |
-| Daichi, Toru | 0,66 | grandes, recorte até o quadril/coxa |
-| Hana | 0,65 | mulher, até a coxa |
-| Nara | 0,60 | mulher, até o quadril |
-| Mei | 0,55 | sentada |
-| Kael | 0,50 | recorte até a cintura |
+| Gorath | 1,12 | minotauro gigante, em pé |
+| Daichi | 1,10 | golem de pedra enorme |
+| Vorax | 1,00 | necromante alto |
+| Zarek | 0,98 | alienígena alto |
+| Tobi, Toru | 0,90 | oni grande / androide grandão |
+| Lyra | 0,88 | mulher em pé (chapéu) |
+| Nyx, Aiko | 0,86 | mulheres em pé |
+| Hana, Yume, Kael | 0,84 | em pé / avançando |
+| Kenji, Suri | 0,82 | base baixa de kung fu / espírito flutuando |
+| Sora | 0,80 | passo de dança |
+| Riku, Nara, Jin, Kuro | 0,66 | salto encolhido / avanço baixo / ajoelhado / agachado |
+| Mei | 0,62 | sentada no lótus |
+| Ren | 0,60 | agachado |
 
 - A tabela fica em `COMMANDER_LOOK` (`src/ui/art.ts`), junto com quem precisa ser espelhado para olhar para a arena. Os recortes vêm de `scripts/art/build_cutouts.py`.
 - **Cria Sombria (v0.30.2):** a invocação do Vorax usa a arte ilustrada própria (carta, batalha e recorte), como os outros 120 personagens.
@@ -1129,3 +1126,9 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Baralho com poucas cópias:** a batalha aceita baralho com qualquer número de cartas (o mínimo é conferido na tela do baralho), porque quem só tem 1 cópia de cada personagem tem menos cartas.
 - **Tutorial guiado:** as duas batalhas têm semente fixa e as cartas chegam prontas (sem espera). A tela escurece tudo menos o que deve ser tocado (carta, casa, LUTAR ou o aviso de girar a tela), com seta e texto do passo; o resto não responde ao toque. "Pular tutorial" sempre disponível.
 - **Fim do tutorial:** +2 💠 Gemas e um passo guiado no 🎴 Banner (Comprar 1 → Comprar 1 de novo → ✕). Se o jogo fechar antes, o passo volta ao abrir a Base enquanto houver gemas.
+
+## 36. Artes novas inteiras (v0.34.0)
+- As **121 artes** (120 personagens + Cria Sombria) foram trocadas pelas ilustrações limpas novas, no padrão aprovado no teste do Quorr: retrato 0,72, sem nada de carta, personagem inteiro. Saem em 486×675 (WebP), sem cortar o personagem.
+- **Área segura:** 15% de cima ficam sob a gota, o ⚡ e o ícone do grupo; 15% de baixo sob a faixa do nome; 5% de cada lado podem ser cortados na mão.
+- Os **Comandantes** usam recortes de **corpo inteiro** dessas artes (sem perna ou braço faltando), com a altura aparente da tabela da seção 32.
+- Script: `scripts/art/build_clean.py` (cartas) e `scripts/art/build_cutouts.py --limpas` (recortes).
