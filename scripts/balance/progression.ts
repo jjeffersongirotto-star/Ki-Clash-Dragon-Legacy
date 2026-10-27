@@ -114,7 +114,7 @@ function levelUp(p: Player, sc: Schedule) {
   while (p.leader < sc.hp.length && dp >= sc.thresholds[p.leader - 1]) p.leader++; // thresholds[L-1] = requisito do nível L+1
 }
 
-export interface StageStat { arrivePower: number[]; leader: number[]; winAtArrival: number[]; attempts: number[]; burst: number[]; maxAtk: number[]; hpLeftWin: number[] }
+export interface StageStat { arrivePower: number[]; leader: number[]; winAtArrival: number[]; attempts: number[]; burst: number[]; maxAtk: number[]; hpLeftWin: number[]; winStats: { cards: number; spells: number; kills: number }[] }
 
 /**
  * v0.20.1: `opts.repeats` = quantos "Repetir" (recompensa inteira, sem batalha) o jogador usa na última fase vencida
@@ -124,7 +124,7 @@ export interface StageStat { arrivePower: number[]; leader: number[]; winAtArriv
 export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { repeats?: number; repeatMult?: number } = {}) {
   const repeats = opts.repeats ?? 0;
   const repeatMult = opts.repeatMult ?? 0.5;
-  const stats: StageStat[] = STAGES.map(() => ({ arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [] }));
+  const stats: StageStat[] = STAGES.map(() => ({ arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [], winStats: [] }));
   let seed = 7;
   for (let pi = 0; pi < players; pi++) {
     const p: Player = { cards: {}, items: SIM_OLD_START ? { orbe1: 10, orbe3: 3 } : {}, ess: SIM_OLD_START ? 10 : 0, cleared: 0, leader: 1, gear: {}, gold: 0 };
@@ -146,7 +146,7 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
       let w = 0;
       for (let k = 0; k < probe; k++) {
         const r = simulate(battleDeck(p, i), STAGES[i].enemyDeck, hp, sc.enemyHp(i), seed++);
-        if (r.winner === 'player') { w++; st.hpLeftWin.push(r.playerHpLeft / hp); }
+        if (r.winner === 'player') { w++; st.hpLeftWin.push(r.playerHpLeft / hp); st.winStats.push(r.stats); }
         st.burst.push(r.maxBurstOnPlayer / hp); st.maxAtk.push(r.maxEnemyAtk);
       }
       st.winAtArrival.push(w / probe);

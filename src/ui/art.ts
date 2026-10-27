@@ -1,5 +1,6 @@
 import type { CharacterDef, Side } from '../core/types';
 import { sceneSVG } from './scenes';
+import { getChar } from '../core/characters';
 import leaderPlayerUrl from '../assets/leader-player.webp';
 import leaderEnemyUrl from '../assets/leader-enemy.webp';
 
@@ -16,6 +17,15 @@ export function playerLeaderImg(): string {
 /** Comandante adversário: minotauro (sem espelhar: o machado fica no ombro do lado de fora, rosto voltado para a arena). */
 export function enemyLeaderImg(): string {
   return `<img class="hero-svg hero-leader-enemy hero-img" src="${LEADER_ENEMY_URL}" width="286" height="512" alt="Comandante Adversário" decoding="async" draggable="false">`;
+}
+
+/**
+ * v0.28.0: Comandante inimigo da fase — o personagem da fase (sprite da arena, virado para a arena) ou, sem
+ * personagem (`null`, fase 10), o minotauro. `cls` = classes do lugar (batalha, mapa ou janela da fase).
+ */
+export function enemyCommanderArt(card: { charId: string; stars: number } | null, cls: string, style = ''): string {
+  if (!card) return `<img class="${cls}" src="${LEADER_ENEMY_URL}" alt="" draggable="false" style="${style}">`;
+  return `<span class="${cls} cmd-sprite" style="${style}">${unitSpriteSVG(getChar(card.charId), { stars: card.stars, side: 'enemy', flip: true })}</span>`;
 }
 
 let leaderWarm: HTMLImageElement[] | null = null;

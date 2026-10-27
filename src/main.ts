@@ -2,7 +2,7 @@ import { waitFor } from './core/battle';
 import type { Category } from './core/types';
 import './ui/style.css';
 import { CATEGORY_INFO, PLAYABLE, RACE_INFO, STAR_COLORS, getChar, isComingSoon } from './core/characters';
-import { STAGES, type Stage } from './core/campaign';
+import { STAGES, stageCommander, type Stage } from './core/campaign';
 import { MAX_STEP, TIER_NAMES, XP_ITEMS, playXp, ascendCost, ascendCostFor, barFull, canAscend, cardBarXp, feedXp, isMaxTier, nextTier, statsFor, stepOf, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
 import { playerLeaderImg, portraitImg, portraitSVG, unitSpriteSVG, warmLeader, warmPortraits } from './ui/art';
 import { cardPower, deckPower } from './core/power';
@@ -17,8 +17,8 @@ import { bakeGridArt } from './ui/gridArt';
 import { MAX_COPIES, addToDeck, deckMin, tutorialDone, rawSaveHas, copiesIn, deckCards, deckCount, deckIssue, deckMax, hasSave, loadSave, migrateV17, profileLevel, removeFromDeck, resetSave, setCopies, setSaveKey, teamReady, writeSave, type SaveData } from './ui/save';
 import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from './ui/update';
 import { GEAR_BY_ID, GEAR_CATEGORIES, GEAR_DROP, GEAR_PER_STEP, GEAR_RARE_CHANCE, GEAR_RARITIES, GEAR_SETS, STAGE_GEAR, reqRarity, addGear, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor, stageGearDrop } from './core/gear';
-import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_GOALS, addStars, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from './core/adventure';
-import { LEADER_ENEMY_URL } from './ui/art';
+import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from './core/adventure';
+import { enemyCommanderArt } from './ui/art';
 import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_PACK, TUTORIAL_REWARD, TUTORIAL_STARTER, TUTORIAL_TIPS, TUT_BATTLE1, TUT_BATTLE2, TUT_DONE, TUT_PACK, tutorialGear } from './core/tutorial';
 import { BANNERS, bannerPrice, grantCard, pull, type Banner, type GrantResult } from './core/banner';
 import { ENERGY_COST, FIRST_WIN_MULT, PROFILE_MAX, addProfileXp, energyMax, goldFor, msToNextEnergy, profileXpFor, spendEnergy, tickEnergy, totalXpFor, xpToNext, newProfile, type ProfileState } from './core/profile';
@@ -310,7 +310,7 @@ const MAP_TOP = 150;
 const advDiff = (): Difficulty => save.difficulty ?? 'facil';
 /** v0.21.0: ⭐ da fase (cheias = conquistadas, vazias = faltam); `fresh` destaca as recém-ganhas */
 const starsHTML = (mask: number, fresh = 0) =>
-  `<span class="stars-row" aria-label="${starCount(mask)} de ${STAR_GOALS.length} estrelas">${STAR_GOALS.map((_, i) => `<i class="${mask & (1 << i) ? 'on' : ''} ${fresh & (1 << i) ? 'new' : ''}">★</i>`).join('')}</span>`;
+  `<span class="stars-row" aria-label="${starCount(mask)} de ${STAR_COUNT} estrelas">${[0, 1, 2].map((i) => `<i class="${mask & (1 << i) ? 'on' : ''} ${fresh & (1 << i) ? 'new' : ''}">★</i>`).join('')}</span>`;
 type NodeState = 'done' | 'next' | 'lock';
 const nodeState = (diff: Difficulty, id: number): NodeState => (isCleared(save, diff, id) ? 'done' : stageUnlocked(save, diff, id) ? 'next' : 'lock');
 
@@ -332,7 +332,7 @@ function adventure() {
       const d = el.dataset.diff as Difficulty;
       if (!difficultyUnlocked(save, d)) {
         const prev = DIFFICULTIES[DIFFICULTIES.indexOf(d) - 1];
-        void gameAlert(`${DIFFICULTY_LABEL[d]} bloqueado`, `Vença a fase ${STAGES.length} no ${DIFFICULTY_LABEL[prev]} para liberar o ${DIFFICULTY_LABEL[d]}.`, '🔒');
+        void gameAlert(`${DIFFICULTY_LABEL[d]} bloqueado`, `Vença a fase 1 no ${DIFFICULTY_LABEL[prev]} para liberar o ${DIFFICULTY_LABEL[d]}. Cada fase do ${DIFFICULTY_LABEL[d]} abre quando você vence a mesma fase no ${DIFFICULTY_LABEL[prev]} e a fase anterior no ${DIFFICULTY_LABEL[d]}.`, '🔒');
         return;
       }
       save.difficulty = d;
@@ -365,7 +365,7 @@ function drawMap(scrollToNext = false) {
       const state = states[i];
       const left = state === 'done' ? dailyLeft(save.daily, diff, st.id) : 0;
       return `<button class="adv-node ${state}" data-st="${st.id}" style="left:${pos[i][0]}px;top:${pos[i][1]}px" aria-label="Fase ${st.id}: ${esc(st.name)}">
-        <img class="adv-cmd" src="${LEADER_ENEMY_URL}" alt="" draggable="false" style="animation-delay:-${(i * 0.37).toFixed(2)}s">
+        ${enemyCommanderArt(stageCommander(stageFor(st.id, diff)), 'adv-cmd', `animation-delay:-${(i * 0.37).toFixed(2)}s`)}
         <span class="adv-ball">${state === 'done' ? '✓' : state === 'next' ? st.id : '🔒'}</span>
         ${state === 'done' ? `<span class="adv-stars">${starsHTML(starsOf(save, diff, st.id))}</span>` : ''}
         <span class="adv-name">${st.id}. ${esc(st.name)}</span>
@@ -403,23 +403,23 @@ function stageDialog(stageId: number) {
   const play = canPlay(save, save.daily, diff, stageId);
   const repeat = canRepeat(save, save.daily, diff, stageId);
   const mask = starsOf(save, diff, stageId);
-  const full = starCount(mask) === STAR_GOALS.length;
+  const full = starCount(mask) === STAR_COUNT;
   void showDialog({
     title: `Fase ${st.id} · ${st.name}`,
     html: `<button class="stage-close" data-x aria-label="Fechar">✕</button>
-      <img class="stage-cmd" src="${LEADER_ENEMY_URL}" alt="">
+      ${enemyCommanderArt(stageCommander(st), 'stage-cmd')}
       <p class="stage-diff">Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
       <p class="stage-line">Comandante inimigo ❤${st.enemyHeroHp} · Inimigos até ${(() => { const top = foes.reduce((a, c) => (c.stars * 3 + stepOf(c) > a.stars * 3 + stepOf(a) ? c : a)); return tierHTML(top.stars, stepOf(top)); })()}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</p>
       <p class="stage-line">Recompensa: ✴${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && st.pack.some((id) => !save.cards[id]) ? ` · 🎁 pacote: <b>${st.pack.filter((id) => !save.cards[id]).map((id) => esc(getChar(id).name)).join(', ')}</b>` : ''}</p>
       <p class="stage-line">Itens: ${STAGE_GEAR[stageId - 1].map((id) => gearHTML(id, GEAR_DROP[diff][0])).join(' ')} <small>${100 - GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[GEAR_DROP[diff][0]].label} · ${GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[GEAR_DROP[diff][1]].label}</small></p>
-      <ul class="stage-goals">${STAR_GOALS.map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}</li>`).join('')}</ul>
+      <ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}</li>`).join('')}</ul>
       <p class="stage-line">Por vitória ou Repetir: ${goldHTML(goldFor(stageId, diff))} · 👤 +${profileXpFor(stageId, diff)} XP de perfil${done ? '' : ' <small>(em dobro na primeira vitória)</small>'} · você tem ${energyHTML(energyNow(), energyMax(prof()))}</p>
       ${done ? `<p class="stage-left ${left ? '' : 'out'}">${left ? `Hoje: <b>${left}/${DAILY_LIMIT}</b> restantes` : 'Limite de hoje atingido. Volta amanhã.'}</p>` : ''}
       <div class="stage-actions">
         <button class="btn primary big" data-act="play" ${play ? '' : 'disabled'}>⚔ Jogar <span class="cost">⚡${ENERGY_COST[diff]}</span></button>
         ${done ? `<button class="btn big" data-act="repeat" ${repeat ? '' : 'disabled'}>⟲ Repetir <span class="cost">⚡${ENERGY_COST[diff]}</span></button>` : ''}
       </div>
-      ${done && !full ? `<p class="stage-note">⟲ Repetir libera com as ${STAR_GOALS.length} ⭐ desta fase.</p>` : ''}`,
+      ${done && !full ? `<p class="stage-note">⟲ Repetir libera com as ${STAR_COUNT} ⭐ desta fase.</p>` : ''}`,
     buttons: [],
     onMount: (root, close) => {
       root.querySelector('.dialog')?.classList.add('stage-dialog');
@@ -548,7 +548,7 @@ function startBattle(stageId: number, diff: Difficulty = advDiff()) {
  * Fim da batalha. Vitória: recompensa inteira; a primeira vitória da fase (nesta dificuldade) não gasta
  * o limite do dia, as outras gastam 1. Derrota/empate: não gasta (e dá 1 Pergaminho de consolo).
  */
-function finishBattle(stageId: number, diff: Difficulty, winner: string, end?: { playerHp: number; playerMaxHp: number; turn: number }) {
+function finishBattle(stageId: number, diff: Difficulty, winner: string, end?: WinResult) {
   const stage = stageFor(stageId, diff);
   const first = !isCleared(save, diff, stageId);
   let html = '';
@@ -557,14 +557,16 @@ function finishBattle(stageId: number, diff: Difficulty, winner: string, end?: {
     if (first) markCleared(save, diff, stageId);
     else save.daily = useDaily(save.daily, diff, stageId);
     // v0.21.0: ⭐ dos objetivos cumpridos nesta vitória (somam aos que a fase já tinha)
-    const fresh = addStars(save, diff, stageId, end ? starsForWin(end) : 1);
+    const fresh = addStars(save, diff, stageId, end ? starsForWin(end, diff, stageId) : 1);
     const mask = starsOf(save, diff, stageId);
-    const starsLine = `<div class="win-stars">${starsHTML(mask, fresh)}</div><ul class="stage-goals">${STAR_GOALS.map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}${fresh & (1 << i) ? ' <b class="new-tag">nova!</b>' : ''}</li>`).join('')}</ul>${fresh && starCount(mask) === STAR_GOALS.length ? '<p class="hint">⟲ Repetir liberado nesta fase!</p>' : ''}`;
+    const starsLine = `<div class="win-stars">${starsHTML(mask, fresh)}</div><ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}${fresh & (1 << i) ? ' <b class="new-tag">nova!</b>' : ''}</li>`).join('')}</ul>${fresh && starCount(mask) === STAR_COUNT ? '<p class="hint">⟲ Repetir liberado nesta fase!</p>' : ''}`;
     // v0.25.0: pacote da primeira vitória — o desbloqueio da fase e um personagem de Comum
     const unlocked = grantPack(stage.pack);
-    const opened = first && stageId === STAGES.length && DIFFICULTIES[DIFFICULTIES.indexOf(diff) + 1];
+    // v0.28.0: vencer a fase N libera a mesma fase na dificuldade seguinte (se a anterior dela já foi vencida)
+    const nextDiff = DIFFICULTIES[DIFFICULTIES.indexOf(diff) + 1];
+    const opened = first && nextDiff && stageUnlocked(save, nextDiff, stageId) ? nextDiff : undefined;
     html = `<h2 class="win">🏆 Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : `Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.`}</p>
-      ${starsLine}${got}${opened ? `<p class="hint">🔓 Dificuldade <b>${DIFFICULTY_LABEL[opened]}</b> liberada!</p>` : ''}${unlocked}`;
+      ${starsLine}${got}${opened ? `<p class="hint">🔓 Fase ${stageId} liberada no <b>${DIFFICULTY_LABEL[opened]}</b>!</p>` : ''}${unlocked}`;
   } else {
     save.items.orbe1 += 1;
     html = `<h2 class="lose">${winner === 'empate' ? '⏱ Empate' : '💀 Derrota'}</h2><p>Treine seus personagens com Orbes e tente de novo! (+1 Orbe Comum)</p>`;

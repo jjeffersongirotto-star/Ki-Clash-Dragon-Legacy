@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { STAR_GOALS, addStars, canRepeat, markCleared, starCount, starsForWin, starsOf, type AdventureProgress, type StarProgress } from '../src/core/adventure';
+import { STAR_COUNT, starGoals, addStars, canRepeat, markCleared, starCount, starsForWin, starsOf, type AdventureProgress, type StarProgress } from '../src/core/adventure';
 import { STAGES } from '../src/core/campaign';
 import { defaultSave, normalizeV20 } from '../src/ui/save';
 import { adminSave } from '../src/ui/accounts';
@@ -8,12 +8,15 @@ const NOON = Date.UTC(2026, 9, 26, 15, 0);
 const prog = (): AdventureProgress & StarProgress => ({ cleared: [], clearedDiff: {}, stars: {} });
 
 describe('v0.21.0 — estrelas por fase', () => {
-  it('3 objetivos: vencer, Comandante com 50%+ da vida, até 15 turnos', () => {
-    expect(STAR_GOALS).toHaveLength(3);
-    expect(starsForWin({ playerHp: 10, playerMaxHp: 20, turn: 15 })).toBe(7);
-    expect(starsForWin({ playerHp: 9, playerMaxHp: 20, turn: 15 })).toBe(5);
-    expect(starsForWin({ playerHp: 20, playerMaxHp: 20, turn: 16 })).toBe(3);
-    expect(starsForWin({ playerHp: 1, playerMaxHp: 20, turn: 30 })).toBe(1);
+  // v0.28.0: os objetivos passaram a ser por fase (fase 1 do Fácil: vida ≥ 50% e no máximo 12 cartas; o de turnos saiu)
+  it('3 objetivos: vencer + os 2 da fase', () => {
+    expect(STAR_COUNT).toBe(3);
+    expect(starGoals('facil', 1)).toHaveLength(3);
+    const st = (cards: number) => ({ cards, spells: 0, kills: 0 });
+    expect(starsForWin({ playerHp: 10, playerMaxHp: 20, turn: 15, stats: st(12) })).toBe(7);
+    expect(starsForWin({ playerHp: 9, playerMaxHp: 20, turn: 15, stats: st(12) })).toBe(5);
+    expect(starsForWin({ playerHp: 20, playerMaxHp: 20, turn: 16, stats: st(13) })).toBe(3);
+    expect(starsForWin({ playerHp: 1, playerMaxHp: 20, turn: 30, stats: st(20) })).toBe(1);
     expect(starCount(7)).toBe(3);
     expect(starCount(5)).toBe(2);
   });

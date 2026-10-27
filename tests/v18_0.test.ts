@@ -100,7 +100,7 @@ describe('v0.18.0 — a IA inimiga usa feitiços', () => {
       }
     });
     expect(STAGES[0].enemyDeck.some((x) => isSpell(x.charId))).toBe(false);
-    expect(STAGES[9].enemyDeck.filter((x) => isSpell(x.charId))).toHaveLength(3);
+    expect(STAGES[9].enemyDeck.filter((x) => isSpell(x.charId))).toHaveLength(2); // v0.28.0: 2 feitiços (antes 3)
   });
   it('na fase 10 o inimigo lança feitiços durante a partida', () => {
     let casts = 0;

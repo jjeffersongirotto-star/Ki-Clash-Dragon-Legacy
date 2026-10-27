@@ -55,7 +55,8 @@ describe('v0.20.0 — dificuldades da Aventura', () => {
       DIFFICULTY_RULES.dificil.swaps = before;
     }
   });
-  it('progresso separado; Normal abre com a fase 10 no Fácil e o Difícil com a fase 10 no Normal', () => {
+  // v0.28.0: a fase N do Normal abre com a fase N do Fácil (e a N−1 do Normal); antes o Normal abria só com a fase 10
+  it('progresso separado; cada fase do Normal abre com a mesma fase do Fácil', () => {
     const p = fresh();
     expect(difficultyUnlocked(p, 'facil')).toBe(true);
     expect(difficultyUnlocked(p, 'normal')).toBe(false);

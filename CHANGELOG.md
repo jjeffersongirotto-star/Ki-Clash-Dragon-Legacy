@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.28.0] — 27/10/2026 · PR #52 — Campanha: equilíbrio, liberação, Comandantes e estrelas
+- **⭐ Estrelas por fase:** a 1ª é vencer; a 2ª e a 3ª são 2 objetivos fixos de cada fase em cada dificuldade (❤️ vida do Comandante 50/70/100% · 🃏 no máximo 8/10/12 cartas · 🪄 sem feitiços ou 2 feitiços · 💀 6/8/10 abates). Normal e Difícil têm objetivos diferentes ou mais apertados. Saiu o "até 15 turnos". As estrelas já ganhas continuam valendo. A batalha agora conta cartas, feitiços e abates.
+- **🔓 Liberação fase a fase:** a fase N do Normal abre ao vencer a fase N no Fácil (e a N−1 no Normal); o Difícil igual em relação ao Normal.
+- **👹 Comandante de cada fase:** fases 1–9 mostram o personagem mais forte da fase (sem repetir); o minotauro fica só na fase 10. No mapa, na janela da fase e na batalha.
+- **⚖ Fácil reequilibrado** (degraus, vida do Comandante e feitiços dos inimigos): vitória ao chegar 93/92/90/79/74/77/71/68/66/67% (antes 93/92/94/63/62/61/55/57/59/57%).
+
 ## [0.27.0] — 27/10/2026 · PR #51 — Banner de cartas e cópias repetidas
 - **🎴 Banner "Despertar do Dragão"** na 🏪 Loja: paisagem com Kenji e Vorax em destaque. 1 carta = 300 Ouro de Dragão, 10 cartas = 2.700 (pelo menos 1 Rara ou melhor no pacote de 10). Chances: Comum 40% · Incomum 27% · Raro 20% · Épico 10% · Lendário 3%.
 - Cada carta é um personagem na raridade sorteada (entre os que podem ter essa raridade). **Kenji e Vorax** deixam de ser "em breve" e saem **só no Banner**, na metade das cartas Lendárias.
