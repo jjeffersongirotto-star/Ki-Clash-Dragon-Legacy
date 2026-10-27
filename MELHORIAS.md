@@ -8,7 +8,3 @@
 - **Progressão e dificuldades:** o Normal (+1 degrau) e o Difícil (+2 degraus) ficam como estão. Depois que todas as fases existirem, refazer a progressão completa.
 - **Arte própria do Comandante de cada fase:** hoje cada fase usa a arte de um personagem do baralho dela (minotauro só na fase 10).
 - **Modo online:** a conferência das partidas já existe (`verifyMatch`); faltam o servidor e as contas online.
-
-## 📋 Pendências técnicas
-- `battleView.ts` ainda é grande (as janelas de carta/feitiço e o efeito das jogadas não foram separados).
-- XP de cópia repetida que passa da barra cheia se perde (um ×10 de sorte pode desperdiçar boa parte).

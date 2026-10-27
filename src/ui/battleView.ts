@@ -1,19 +1,19 @@
 import { playerAuto, playerEndTurn, playerUse } from '../core/match';
-import { createBattle, deployCells, effectiveAtk, spellCasters, spellTargets, unitAt, waitFor, waitOf, DEPLOY_DEPTH, Ctx } from '../core/battle';
-import { getSpell, isSpell } from '../core/spells';
-import { RACE_INFO, getChar } from '../core/characters';
-import { pileCount } from '../core/deck';
+import { createBattle, deployCells, spellTargets, unitAt, waitOf, DEPLOY_DEPTH, Ctx } from '../core/battle';
+import { isSpell } from '../core/spells';
 import type { BattleState, CardInstance, RecordedEvent, Side, Snapshot, Unit } from '../core/types';
 import type { Stage } from '../core/campaign';
 import { PLAYER_HERO_HP } from '../core/campaign';
-import { stepOf } from '../core/progression';
-import { attackFX, floatText, moveTrail, spark, statusList } from './battleFx';
-import { enemyCommanderArt, enemyLeaderImg, playerLeaderImg, unitSpriteSVG } from './art';
+import { INFO_DEFAULT, attackFX, floatText, moveTrail, spark, sleep } from './battleFx';
+import { enemyCommanderArt, enemyLeaderImg, playerLeaderImg } from './art';
 import { stageCommander } from '../core/campaign';
 import { gameConfirm } from './dialog';
 import { requestLandscape } from './orientation';
-import { dropAction, ghostTransform, shouldStartDrag } from './drag';
-import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from './components';
+import { esc } from './components';
+import * as battleEffects from './battleEffects';
+import * as battleRender from './battleRender';
+import * as battleModals from './battleModals';
+import * as battleHand from './battleHand';
 
 export interface BattleCallbacks {
   speed: () => number;
@@ -25,10 +25,10 @@ export interface BattleCallbacks {
   playerHeroHp?: number;
 }
 
-const INFO_DEFAULT = 'Toque numa carta e depois numa casa brilhante para invocar. Segure a carta (ou use 🔍 Detalhes) para ver os detalhes.';
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
+/**
+ * Tela da batalha. v0.28.3: a mão (battleHand), as janelas de detalhes (battleModals), o desenho do tabuleiro
+ * (battleRender) e a animação dos eventos (battleEffects) ficam em arquivos próprios; os métodos daqui só os chamam.
+ */
 export class BattleView {
   state: BattleState;
   root: HTMLElement;
@@ -220,152 +220,21 @@ export class BattleView {
   }
 
   renderHand() {
-    const s = this.state;
-    const hand = this.root.querySelector('#hand')!;
-    hand.innerHTML = s.decks.player.hand
-      .map((c, i) => {
-        const afford = waitOf(c) === 0 && s.active === 'player' && !s.winner;
-        const cls = `hand-card ${afford ? '' : 'cant'} ${this.selected === i ? 'sel' : ''}`;
-        // v0.17.0: feitiço pronto mas sem conjurador/alvo fica apagado (mostra o motivo ao tocar)
-        if (isSpell(c.charId)) return spellCardHTML(c.charId, { wait: waitOf(c), extraClass: `${cls} ${afford && !spellTargets(s, 'player', c.charId).length ? 'no-caster' : ''}`, attrs: `data-i="${i}"` });
-        return cardHTML(c, { wait: waitOf(c), extraClass: cls, attrs: `data-i="${i}"` });
-      })
-      .join('') || '<div class="empty-hand">Sem cartas na mão</div>';
-    hand.querySelectorAll<HTMLElement>('.hand-card').forEach((el) => {
-      const i = +el.dataset.i!;
-      // segurar a carta (~0,5 s) abre os detalhes; tocar seleciona; tocar de novo tira a seleção;
-      // v0.14.4: ARRASTAR a carta até uma casa da sua zona também invoca (toque e mouse)
-      let timer: ReturnType<typeof setTimeout> | undefined;
-      const cancel = () => clearTimeout(timer);
-      let drag: { id: number; x0: number; y0: number; gx: number; gy: number; ghost?: HTMLElement; over?: HTMLElement | null } | null = null;
-      el.addEventListener('pointerdown', (ev) => {
-        cancel();
-        this.suppressClick = false;
-        timer = setTimeout(() => {
-          const c = s.decks.player.hand[i];
-          if (!c || drag?.ghost) return;
-          drag = null;
-          this.suppressClick = true;
-          this.openCardModal(c, 'player');
-        }, 500);
-        drag = null;
-        if (this.busy || s.winner || s.active !== 'player' || (ev.pointerType === 'mouse' && ev.button !== 0)) return;
-        const r = el.getBoundingClientRect();
-        drag = { id: ev.pointerId, x0: ev.clientX, y0: ev.clientY, gx: ev.clientX - r.left, gy: ev.clientY - r.top };
-      });
-      el.addEventListener('pointermove', (ev) => {
-        if (!drag || ev.pointerId !== drag.id) return;
-        if (!drag.ghost) {
-          if (!shouldStartDrag(ev.clientX - drag.x0, ev.clientY - drag.y0)) return;
-          cancel();
-          try {
-            el.setPointerCapture(ev.pointerId);
-          } catch {
-            /* sem captura: segue pelos eventos do próprio elemento */
-          }
-          drag.ghost = this.makeDragGhost(el);
-          el.classList.add('dragging');
-          this.highlightDeploy(i);
-        }
-        ev.preventDefault();
-        drag.ghost.style.transform = ghostTransform(ev.clientX, ev.clientY, drag.gx, drag.gy);
-        const cell = this.cellAt(ev.clientX, ev.clientY);
-        if (cell !== drag.over) {
-          drag.over?.classList.remove('drop-over');
-          if (cell?.classList.contains('can')) cell.classList.add('drop-over');
-          drag.over = cell;
-        }
-      });
-      const end = (ev: PointerEvent, dropped: boolean) => {
-        cancel();
-        if (!drag || ev.pointerId !== drag.id) return;
-        const d = drag;
-        drag = null;
-        if (!d.ghost) return;
-        this.suppressClick = true;
-        d.over?.classList.remove('drop-over');
-        const cell = dropped ? this.cellAt(ev.clientX, ev.clientY) : null;
-        if (dropAction(cell ? { valid: cell.classList.contains('can') } : null) === 'deploy' && cell) {
-          d.ghost.parentElement!.remove();
-          el.classList.remove('dragging');
-          void this.dropCard(i, +cell.dataset.r!, +cell.dataset.c!);
-        } else {
-          this.returnDragGhost(d.ghost, el);
-          this.highlight();
-        }
-      };
-      el.addEventListener('pointerup', (ev) => end(ev, true));
-      el.addEventListener('pointercancel', (ev) => end(ev, false));
-      el.addEventListener('pointerleave', () => {
-        if (!drag?.ghost) cancel();
-      });
-      el.addEventListener('contextmenu', (e) => e.preventDefault());
-      el.addEventListener('click', () => {
-        if (this.suppressClick) {
-          this.suppressClick = false;
-          return;
-        }
-        if (this.selected === i) {
-          this.clearSelection();
-          return;
-        }
-        this.selected = i;
-        this.showCardInfo(i);
-        this.renderHand();
-        this.highlight();
-      });
-    });
-    const e = this.root.querySelector('#energy')!;
-    // v0.16.0: no lugar da energia, quantas cartas da mão estão prontas (contagem 0)
-    const inHand = s.decks.player.hand;
-    const ready = inHand.filter((h) => waitOf(h) === 0).length;
-    e.innerHTML = `<div class="energy-orb" title="Cartas prontas para invocar">⏳<b>${ready}</b></div><div class="energy-pips">${inHand.map((h) => `<i class="${waitOf(h) === 0 ? 'on' : ''}"></i>`).join('')}</div>`;
-    this.setPile('#pileDraw', pileCount(s.decks.player));
-    this.setPile('#pileDead', s.decks.player.defeated.length);
-    const depCount = s.units.filter((u) => u.side === 'player' && u.hp > 0).length;
-    const depEl = this.root.querySelector('#deployedCount');
-    if (depEl) depEl.textContent = String(depCount);
-    (this.root.querySelector('#fightBtn') as HTMLButtonElement).disabled = this.busy || !!s.winner;
+    return battleHand.renderHand(this);
   }
 
   setPile(sel: string, n: number) {
-    const el = this.root.querySelector<HTMLElement>(sel);
-    if (!el) return;
-    const b = el.querySelector('.pile-count')!;
-    if (b.textContent !== String(n)) {
-      b.textContent = String(n);
-      el.classList.remove('bump');
-      void el.offsetWidth;
-      el.classList.add('bump');
-    }
-    if (sel === '#pileDead') el.classList.toggle('empty', n === 0);
+    return battleHand.setPile(this, sel, n);
   }
 
   /** v0.14.4: cópia da carta que segue o dedo (dentro de um invólucro .hand para manter o visual da mão; só transform) */
   makeDragGhost(el: HTMLElement): HTMLElement {
-    const r = el.getBoundingClientRect();
-    const wrap = document.createElement('div');
-    wrap.className = 'hand drag-ghost-wrap';
-    const g = el.cloneNode(true) as HTMLElement;
-    g.classList.remove('sel', 'dragging');
-    g.classList.add('drag-ghost');
-    g.style.width = `${r.width}px`;
-    g.style.flex = 'none';
-    g.style.transform = `translate3d(${Math.round(r.left)}px, ${Math.round(r.top)}px, 0)`;
-    wrap.appendChild(g);
-    this.root.appendChild(wrap);
-    return g;
+    return battleHand.makeDragGhost(this, el);
   }
 
   /** soltou fora de uma casa válida: a carta volta para a mão (animação só de transform) */
   returnDragGhost(g: HTMLElement, el: HTMLElement) {
-    const r = el.getBoundingClientRect();
-    g.style.transition = 'transform .16s ease-out';
-    g.style.transform = `translate3d(${Math.round(r.left)}px, ${Math.round(r.top)}px, 0)`;
-    setTimeout(() => {
-      g.parentElement?.remove();
-      el.classList.remove('dragging');
-    }, 170);
+    return battleHand.returnDragGhost(this, g, el);
   }
 
   /** casa do campo embaixo do dedo (a carta fantasma não recebe toques) */
@@ -423,108 +292,21 @@ export class BattleView {
   }
 
   showCardInfo(i: number) {
-    const c = this.state.decks.player.hand[i];
-    if (!c) return;
-    if (isSpell(c.charId)) {
-      const sp = getSpell(c.charId);
-      const caster = spellCasters(this.state, 'player', sp.id)[0];
-      const w = waitOf(c);
-      this.setInfo(
-        `<div class="info-head"><span><b>${sp.icon} ${esc(sp.name)}</b> · feitiço · espera ${waitFor(sp.id)} rodada(s)${w ? ` (falta${w > 1 ? 'm' : ''} ${w})` : ' (pronto)'} · ${caster ? `conjurador: <b>${esc(getChar(caster.charId).name)}</b>` : `<span class="warn">precisa de um aliado ${esc(spellCastersLabel(sp))} em campo</span>`}</span><button class="btn small ghost info-inspect" data-inspect-hand="${i}">🔍 Detalhes</button></div>${spellInfoHTML(sp.id)}`,
-      );
-      this.root.querySelector('[data-inspect-hand]')?.addEventListener('click', () => this.openCardModal(c, 'player'));
-      this.infoUid = null;
-      return;
-    }
-    const def = getChar(c.charId);
-    this.setInfo(
-      `<div class="info-head"><span><b>${esc(def.name)}</b> ${tierHTML(c.stars, stepOf(c))} · ${raceHTML(def)} · espera ${waitFor(def.id)} rodada(s)${waitOf(c) ? ` (falta${waitOf(c) > 1 ? 'm' : ''} ${waitOf(c)})` : ' (pronta)'} · ${dmgLabel(def)} · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-hand="${i}">🔍 Detalhes</button></div>${abilityListHTML(def, c.stars, stepOf(c))}`,
-    );
-    this.root.querySelector('[data-inspect-hand]')?.addEventListener('click', () => this.openCardModal(c, 'player'));
-    this.infoUid = null;
+    return battleModals.showCardInfo(this, i);
   }
 
   showUnitInfo(u: Unit) {
-    const def = getChar(u.charId);
-    const fx = statusList(this.state, u);
-    this.setInfo(
-      `<div class="info-head"><span><b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${tierHTML(u.stars, u.plus)} · ${raceHTML(def)} · ❤ ${u.hp}/${u.maxHp} · ATQ ${effectiveAtk(this.state, u)} (${dmgLabel(def)}) · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-unit="${u.uid}">🔍 Ver Carta</button></div>${fx.length ? `<div class="u-status-list">${fx.map((f) => `<span>${f.icon} ${esc(f.label)}</span>`).join('')}</div>` : ''}${abilityListHTML(def, u.stars, u.plus)}`,
-    );
-    this.root.querySelector('[data-inspect-unit]')?.addEventListener('click', () =>
-      this.openCardModal({ charId: u.charId, stars: u.stars, plus: u.plus }, u.side),
-    );
-    this.infoUid = u.uid;
+    return battleModals.showUnitInfo(this, u);
   }
 
   /** Modal de detalhes da carta em batalha (idêntico à referência Legend of Dragon) */
   openCardModal(card: CardInstance, side: Side) {
-    document.querySelector('.battle-card-modal-bg')?.remove();
-    if (isSpell(card.charId)) return this.openSpellModal(card.charId);
-    const def = getChar(card.charId);
-    const race = RACE_INFO[def.race];
-    const bg = document.createElement('div');
-    bg.className = 'battle-card-modal-bg';
-    bg.innerHTML = `
-      <div class="battle-card-modal" style="${starStyle(card.stars)}">
-        <button class="bcm-close" aria-label="Fechar">✕</button>
-        <div class="bcm-body">
-        <div class="bcm-left">
-          ${cardHTML(card)}
-        </div>
-        <div class="bcm-right">
-          <div class="bcm-leader">Comandante: ${side === 'player' ? 'Você' : esc(this.stage.name)}</div>
-          <h3 class="bcm-title">${esc(def.name)}</h3>
-          <div class="bcm-sub">${esc(def.title)} · ${race.icon} ${race.label}</div>
-          <div class="bcm-tags">${categoryHTML(def, true)} ${tierHTML(card.stars, stepOf(card))}</div>
-          <div class="bcm-sec">Habilidades & Atributos</div>
-          <div class="bcm-stats">Alcance: <b>${reachLabel(def)}</b> · Movimento: <b>${def.move} casas</b> · Dano: <b>${dmgLabel(def)}</b></div>
-          ${abilityListHTML(def, card.stars, stepOf(card))}
-          <p class="bcm-lore">${esc(def.lore)}</p>
-        </div>
-        </div>
-      </div>
-      <div class="bcm-hint">Toque no botão '✕' ou fora da janela para fechar os detalhes da carta.</div>
-    `;
-    document.body.appendChild(bg);
-    // ao fechar, a carta não fica selecionada
-    const close = () => {
-      bg.remove();
-      if (this.selected != null) this.clearSelection();
-    };
-    bg.querySelector('.bcm-close')!.addEventListener('click', close);
-    bg.addEventListener('click', (e) => {
-      if (e.target === bg) close();
-    });
+    return battleModals.openCardModal(this, card, side);
   }
 
   /** v0.17.0: janela de detalhes do feitiço */
   openSpellModal(id: string) {
-    const sp = getSpell(id);
-    const bg = document.createElement('div');
-    bg.className = 'battle-card-modal-bg';
-    bg.innerHTML = `
-      <div class="battle-card-modal" style="--rc:#7c5cff;--rg:#b9a8ff">
-        <button class="bcm-close" aria-label="Fechar">✕</button>
-        <div class="bcm-body">
-        <div class="bcm-left">${spellCardHTML(id)}</div>
-        <div class="bcm-right">
-          <h3 class="bcm-title">${sp.icon} ${esc(sp.name)}</h3>
-          <div class="bcm-sub">Feitiço · ${esc(spellCastersLabel(sp))}</div>
-          <div class="bcm-sec">Efeito</div>
-          ${spellInfoHTML(id)}
-        </div>
-        </div>
-      </div>
-      <div class="bcm-hint">Toque no botão '✕' ou fora da janela para fechar.</div>`;
-    document.body.appendChild(bg);
-    const close = () => {
-      bg.remove();
-      if (this.selected != null) this.clearSelection();
-    };
-    bg.querySelector('.bcm-close')!.addEventListener('click', close);
-    bg.addEventListener('click', (e) => {
-      if (e.target === bg) close();
-    });
+    return battleModals.openSpellModal(this, id);
   }
 
   /** v0.17.0 (decisões 16 e 17): efeitos com duração e auras recebidas pela unidade */
@@ -620,81 +402,7 @@ export class BattleView {
   lastUnits = new Map<number, Unit>();
 
   renderSnapshot(snap: Snapshot, _ev?: RecordedEvent) {
-    const layer = this.root.querySelector('.units') as HTMLElement;
-    const seen = new Set<number>();
-    for (const u of snap.units) {
-      seen.add(u.uid);
-      this.lastUnits.set(u.uid, u);
-      let el = this.tokens.get(u.uid);
-      if (!el) {
-        const def = getChar(u.charId);
-        el = document.createElement('div');
-        el.className = `unit side-${u.side} cat-${def.category} ${u.isMinion ? 'minion' : ''} appear`;
-        el.setAttribute('style', `${starStyle(u.stars)};--ac:${def.palette.aura}`);
-        el.innerHTML = `
-          <div class="u-portrait">${unitSpriteSVG(def, { flip: u.side === 'enemy', stars: u.stars, side: u.side })}</div>
-          <div class="u-hp"><i></i></div>
-          <div class="u-stat-plate"><span class="u-atk"></span><b class="u-sep">|</b><span class="u-hpn"></span></div>
-          <div class="u-fx"></div>
-        `;
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const cur = this.state.units.find((x) => x.uid === u.uid);
-          if (this.selected != null) {
-            this.onCell(cur?.row ?? u.row, cur?.col ?? u.col);
-            return;
-          }
-          if (cur) this.showUnitInfo(cur);
-        });
-        layer.appendChild(el);
-        this.tokens.set(u.uid, el);
-        setTimeout(() => el!.classList.remove('appear'), 500);
-      }
-      el.style.setProperty('--r', String(u.row));
-      el.style.setProperty('--c', String(u.col));
-      (el.querySelector('.u-hp i') as HTMLElement).style.width = `${Math.max(0, (u.hp / u.maxHp) * 100)}%`;
-      const fake = { ...this.state, units: snap.units } as BattleState;
-      const atk = effectiveAtk(fake, u);
-      const atkEl = el.querySelector('.u-atk') as HTMLElement;
-      atkEl.textContent = String(atk);
-      atkEl.classList.toggle('debuff', atk < u.atk);
-      atkEl.classList.toggle('buff', atk > u.atk);
-      (el.querySelector('.u-hpn') as HTMLElement).textContent = String(Math.max(0, u.hp));
-      // v0.17.0: selos estáticos de efeito/aura (só troca o HTML quando muda)
-      const st = statusList(fake, u);
-      const key = st.map((x) => x.key).join(',');
-      const fxEl = el.querySelector('.u-fx') as HTMLElement;
-      if (fxEl.dataset.k !== key) {
-        fxEl.dataset.k = key;
-        fxEl.innerHTML = st.map((x) => `<i title="${esc(x.label)}">${x.icon}</i>`).join('');
-      }
-      el.classList.toggle('stunned', !!u.effects?.some((e) => e.kind === 'atordoado' && e.turns > 0));
-    }
-    if (this.infoUid != null && !seen.has(this.infoUid)) {
-      this.infoUid = null;
-      if (this.selected == null) this.setInfo(INFO_DEFAULT);
-    }
-    for (const [uid, el] of this.tokens) {
-      if (!seen.has(uid)) {
-        this.tokens.delete(uid);
-        el.classList.add('dying');
-        setTimeout(() => el.remove(), 650);
-      }
-    }
-    for (const side of ['player', 'enemy'] as Side[]) {
-      const h = snap.heroes[side];
-      const pct = `${Math.max(0, (h.hp / h.maxHp) * 100)}%`;
-      const box = this.root.querySelector(`#hero-${side}`)!;
-      (box.querySelector('.bar i') as HTMLElement).style.width = pct;
-      box.querySelector('.hero-hp span')!.textContent = `${h.hp}/${h.maxHp}`;
-      const topBar = this.root.querySelector(side === 'player' ? '#topBarP' : '#topBarE') as HTMLElement | null;
-      const topHp = this.root.querySelector(side === 'player' ? '#topHpP' : '#topHpE') as HTMLElement | null;
-      if (topBar) topBar.style.width = pct;
-      if (topHp) topHp.textContent = `${h.hp}/${h.maxHp}`;
-    }
-    const depEl = this.root.querySelector('#deployedCount');
-    if (depEl) depEl.textContent = String(snap.units.filter((u) => u.side === 'player' && u.hp > 0).length);
-    this.root.querySelector('#turnNo')!.textContent = String(snap.turn);
+    return battleRender.renderSnapshot(this, snap, _ev);
   }
 
   center(r: number, c: number): [number, number] {
@@ -723,165 +431,7 @@ export class BattleView {
   }
 
   async effect(ev: RecordedEvent) {
-    const fx = this.root.querySelector('.fx')!;
-    switch (ev.type) {
-      case 'turn':
-        this.banner(ev.side === 'player' ? `Turno ${ev.turn} · Sua vez` : `Turno ${ev.turn} · Inimigo`, ev.side);
-        await sleep(this.dur(650));
-        break;
-      case 'deploy':
-      case 'spawn':
-        await sleep(this.dur(380));
-        break;
-      case 'aura': {
-        this.board.classList.add('aura-pulse');
-        await sleep(this.dur(600));
-        this.board.classList.remove('aura-pulse');
-        break;
-      }
-      case 'move': {
-        const el = this.tokens.get(ev.uid);
-        const through = ev.through ?? [];
-        // v0.15.1: JUMP só no salto de verdade (Salto Vendaval); passar por aliados = PASSA
-        this.showMoveTrail(ev.from, ev.to, ev.jumped, ev.jumped ? 'JUMP' : through.length ? 'PASSA' : 'MOVE');
-        if (el) {
-          // v0.15.0: passar por um aliado = pulinho por cima dele (só transform), e o aliado se abaixa
-          const cls = ev.jumped || through.length ? ['jumping', 'passing'] : ['moving'];
-          el.classList.add(...cls);
-          setTimeout(() => el.classList.remove(...cls), this.dur(430));
-        }
-        for (const [r, c] of through) {
-          const o = ev.snap.units.find((x) => x.row === r && x.col === c && x.uid !== ev.uid);
-          const oe = o && this.tokens.get(o.uid);
-          if (!oe) continue;
-          oe.classList.add('ducking');
-          setTimeout(() => oe.classList.remove('ducking'), this.dur(430));
-        }
-        await sleep(this.dur(420));
-        break;
-      }
-      case 'push':
-        this.tokens.get(ev.uid)?.classList.add('pushed');
-        setTimeout(() => this.tokens.get(ev.uid)?.classList.remove('pushed'), 400);
-        await sleep(this.dur(350));
-        break;
-      case 'counter': {
-        const u = ev.snap.units.find((x) => x.uid === ev.uid);
-        if (u) {
-          const [x, y] = this.center(u.row, u.col);
-          this.floatText(x, y - 20, 'CONTRA-GOLPE!', 'counter');
-        }
-        await sleep(this.dur(400));
-        break;
-      }
-      case 'attack': {
-        const a = ev.snap.units.find((x) => x.uid === ev.uid);
-        if (!a) break;
-        const [ax, ay] = this.center(a.row, a.col);
-        let tx: number, ty: number;
-        if (ev.target === 'hero') [tx, ty] = this.heroCenter(ev.targetSide);
-        else {
-          const t = ev.snap.units.find((x) => x.uid === ev.target);
-          if (!t) break;
-          [tx, ty] = this.center(t.row, t.col);
-        }
-        const el = this.tokens.get(a.uid);
-        this.showAttackFX(ax, ay, tx, ty, ev.ranged, ev.damageType, a.side);
-        if (ev.ranged) {
-          const p = document.createElement('div');
-          p.className = `proj ${ev.damageType} side-${a.side}`;
-          p.style.left = `${ax}px`;
-          p.style.top = `${ay - 6}px`;
-          fx.appendChild(p);
-          const d = this.dur(320);
-          p.animate([{ transform: 'translate(-50%,-50%) scale(.6)' }, { transform: `translate(calc(${tx - ax}px - 50%), calc(${ty - ay}px - 50%)) scale(1.35)` }], { duration: d, easing: 'ease-in' });
-          el?.classList.add('casting');
-          await sleep(d);
-          p.remove();
-          el?.classList.remove('casting');
-        } else if (el) {
-          const cs = this.cellSize();
-          const dx = Math.max(-0.55, Math.min(0.55, (tx - ax) / cs / 1.6)) * cs;
-          const dy = Math.max(-0.55, Math.min(0.55, (ty - ay) / cs / 1.6)) * cs;
-          el.classList.add('attacking-melee');
-          el.animate([{ translate: '0 0' }, { translate: `${dx}px ${dy}px` }, { translate: '0 0' }], { duration: this.dur(300), easing: 'ease-out' });
-          await sleep(this.dur(220));
-          el.classList.remove('attacking-melee');
-        }
-        this.spark(tx, ty, ev.damageType);
-        break;
-      }
-      case 'damage': {
-        const t = ev.snap.units.find((x) => x.uid === ev.uid) ?? this.lastUnits.get(ev.uid);
-        if (t) {
-          const [x, y] = this.center(t.row, t.col);
-          this.floatText(x, y - 8, `-${ev.amount}`, ev.damageType);
-          const el = this.tokens.get(ev.uid);
-          el?.classList.remove('hit');
-          void el?.offsetWidth;
-          el?.classList.add('hit');
-        }
-        await sleep(this.dur(300));
-        break;
-      }
-      case 'hero': {
-        const [x, y] = this.heroCenter(ev.side);
-        this.floatText(x, y, `-${ev.amount}`, 'hero-dmg');
-        const box = this.root.querySelector(`#hero-${ev.side}`)!;
-        box.classList.remove('hit');
-        void (box as HTMLElement).offsetWidth;
-        box.classList.add('hit');
-        this.board.parentElement!.classList.add('quake');
-        setTimeout(() => this.board.parentElement!.classList.remove('quake'), 300);
-        await sleep(this.dur(380));
-        break;
-      }
-      case 'heal': {
-        const t = ev.snap.units.find((x) => x.uid === ev.uid);
-        if (t) {
-          const [x, y] = this.center(t.row, t.col);
-          this.floatText(x, y - 10, `+${ev.amount}`, 'heal');
-        }
-        await sleep(this.dur(300));
-        break;
-      }
-      case 'effect': {
-        const t = ev.snap.units.find((x) => x.uid === ev.uid) ?? this.lastUnits.get(ev.uid);
-        const TAG: Record<string, string> = { veneno: '🧪', queimadura: '🔥', atordoado: '💫 ATORDOADO', escudo: '🛡 ESCUDO', anjo: '👼 SALVO!', renascer: '♻ RENASCE!', reflexo: '🪞 REFLETE', necropolis: '⚰️ VOLTA!' };
-        if (t) {
-          const [x, y] = this.center(t.row, t.col);
-          this.floatText(x, y - 22, TAG[ev.kind] ?? '✦', `fx-tag fx-${ev.kind}`);
-        }
-        if (ev.kind === 'necropolis') this.renderHand();
-        await sleep(this.dur(ev.kind === 'veneno' || ev.kind === 'queimadura' ? 200 : 380));
-        break;
-      }
-      case 'cast': {
-        const sp = getSpell(ev.spellId);
-        const c = ev.snap.units.find((x) => x.uid === ev.caster);
-        if (c) {
-          const [x, y] = this.center(c.row, c.col);
-          this.floatText(x, y - 24, `${sp.icon} ${sp.name}`, 'fx-tag fx-cast');
-          this.tokens.get(c.uid)?.classList.add('casting');
-        }
-        if (ev.target && sp.target !== 'none') {
-          const [tx, ty] = this.center(ev.target[0], sp.target === 'row' ? Math.floor(this.state.cols / 2) : ev.target[1]);
-          this.spark(tx, ty, sp.damageType ?? 'heal');
-        }
-        if (ev.side === 'player') this.renderHand();
-        await sleep(this.dur(520));
-        if (c) this.tokens.get(c.uid)?.classList.remove('casting');
-        break;
-      }
-      case 'death':
-        if (this.mine.has(ev.uid)) this.setPile('#pileDead', ++this.deadShown);
-        await sleep(this.dur(380));
-        break;
-      case 'end':
-        this.banner(ev.winner === 'player' ? 'VITÓRIA!' : ev.winner === 'enemy' ? 'DERROTA' : 'EMPATE', ev.winner === 'player' ? 'player' : 'enemy', true);
-        await sleep(900);
-        break;
-    }
+    return battleEffects.effect(this, ev);
   }
 
   spark(x: number, y: number, type: string) {

@@ -5,6 +5,11 @@
 import { allyBuff, auraPenalty } from '../core/battle';
 import type { BattleState, Side, Unit } from '../core/types';
 
+/** Texto padrão do painel de informações da batalha. */
+export const INFO_DEFAULT = 'Toque numa carta e depois numa casa brilhante para invocar. Segure a carta (ou use 🔍 Detalhes) para ver os detalhes.';
+
+export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 /** Texto que sobe e some (dano, cura, "HIT!"). */
 export function floatText(fx: Element, x: number, y: number, text: string, cls: string) {
   const d = document.createElement('div');

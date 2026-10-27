@@ -12,7 +12,7 @@
  *   12% ×2 · 5% ×5 · 1% ×10 (senão ×1). A carta repetida não sobe a raridade da sua, mesmo se vier mais rara.
  */
 import { PLAYABLE } from './characters';
-import { feedXp, newOwned, orbXp, type OwnedCard, type XpItemId } from './progression';
+import { XP_ITEMS, feedXp, newOwned, orbXp, type OrbBag, type OwnedCard, type XpItemId } from './progression';
 
 export interface Banner {
   id: string;
@@ -106,13 +106,44 @@ export function dupMultiplier(rng: () => number): number {
 /** XP base da cópia: Orbe da raridade da carta convertida + 20% por "+". */
 export const dupBaseXp = (stars: number, plus = 0) => Math.round(orbXp(`orbe${Math.min(6, Math.max(1, stars))}` as XpItemId) * (1 + DUP_PLUS_BONUS * plus));
 
-export type GrantResult = { charId: string; stars: number; isNew: true } | { charId: string; stars: number; isNew: false; xp: number; mult: number; wasted: number; filled: boolean };
+/** v0.28.3: parte do XP de cópia que passa da barra cheia e volta como Orbes. */
+export const DUP_OVERFLOW_REFUND = 0.25;
+
+/**
+ * v0.28.3: converte XP em Orbes, do maior para o menor (Mítico 3.000 … Comum 100).
+ * O resto abaixo de 100 XP é descartado (arredonda para baixo).
+ */
+export function xpToOrbs(xp: number): OrbBag {
+  const bag: OrbBag = {};
+  let left = Math.max(0, Math.floor(xp));
+  for (const o of [...XP_ITEMS].reverse()) {
+    const k = Math.floor(left / o.xp);
+    if (k > 0) {
+      bag[o.id] = k;
+      left -= k * o.xp;
+    }
+  }
+  return bag;
+}
+
+/** v0.28.3: Orbes devolvidos por uma cópia cujo XP passou da barra cheia (25% do XP que passou). */
+export const overflowRefund = (wasted: number): OrbBag => xpToOrbs(wasted * DUP_OVERFLOW_REFUND);
+
+export type GrantResult =
+  | { charId: string; stars: number; isNew: true }
+  | { charId: string; stars: number; isNew: false; xp: number; mult: number; wasted: number; filled: boolean; refund: OrbBag };
 
 /**
  * Entrega uma carta (banner ou pacote): personagem novo entra na coleção na raridade da carta;
- * repetido vira XP no que você já tem.
+ * repetido vira XP no que você já tem. v0.28.3: 25% do XP que passar da barra cheia volta como Orbes
+ * (somados em `items`, quando informado).
  */
-export function grantCard(cards: Record<string, OwnedCard>, card: { charId: string; stars: number; plus?: number }, rng: () => number = Math.random): GrantResult {
+export function grantCard(
+  cards: Record<string, OwnedCard>,
+  card: { charId: string; stars: number; plus?: number },
+  rng: () => number = Math.random,
+  items?: Partial<Record<XpItemId, number>>,
+): GrantResult {
   const owned = cards[card.charId];
   if (!owned) {
     cards[card.charId] = { ...newOwned(card.charId), stars: card.stars, plus: 0 };
@@ -121,5 +152,7 @@ export function grantCard(cards: Record<string, OwnedCard>, card: { charId: stri
   const mult = dupMultiplier(rng);
   const xp = dupBaseXp(card.stars, card.plus ?? 0) * mult;
   const r = feedXp(owned, xp);
-  return { charId: card.charId, stars: card.stars, isNew: false, xp, mult, wasted: r.wasted, filled: r.filled };
+  const refund = overflowRefund(r.wasted);
+  if (items) for (const [id, k] of Object.entries(refund) as [XpItemId, number][]) items[id] = (items[id] ?? 0) + k;
+  return { charId: card.charId, stars: card.stars, isNew: false, xp, mult, wasted: r.wasted, filled: r.filled, refund };
 }
