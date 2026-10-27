@@ -3,6 +3,7 @@ import { getChar } from './characters';
 import { statsFor, tierLabel, stepOf } from './progression';
 import { createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, returnFromNecropolis, HAND_SIZE } from './deck';
 import { getSpell, isSpell } from './spells';
+import { nextRandom } from './rng';
 import type {
   BattleEvent,
   BattleState,
@@ -17,6 +18,7 @@ import type {
 
 import { rangeOf, hasRangeBonus, pw, furyBonus, effectiveAtk, computeDamage, findTarget } from './battleRules';
 import { leapLanding, moveUnit } from './battleMove';
+import { CHARACTERS } from './characters';
 
 export { rangeOf, hasRangeBonus, auraPenalty, FURY_START, FURY_EVERY, furyBonus, allyBuff, effectiveAtk, computeDamage, distanceToEnemyHero, findTarget } from './battleRules';
 export { SALTO_MOVE, moveRange, leapLanding, moveUnit } from './battleMove';
@@ -252,22 +254,45 @@ export interface AttackOpts {
 
 export const effectOf = (u: Unit, kind: EffectKind): Effect | undefined => u.effects?.find((e) => e.kind === kind && e.turns > 0);
 export const isStunned = (u: Unit) => !!effectOf(u, 'atordoado');
-const EFFECT_ICON: Record<EffectKind, string> = { veneno: '🧪', queimadura: '🔥', atordoado: '💫', escudo: '🛡', anjo: '👼' };
-const EFFECT_NAME: Record<EffectKind, string> = { veneno: 'envenenado', queimadura: 'em chamas', atordoado: 'atordoado', escudo: 'com escudo', anjo: 'protegido pelo Anjo da Guarda' };
+const EFFECT_ICON: Record<EffectKind, string> = { veneno: '🧪', queimadura: '🔥', atordoado: '💫', escudo: '🛡', anjo: '👼', sangramento: '🩸', lento: '🐌', congelado: '❄️', maldicao: '🕯️', imune: '⏳' };
+const EFFECT_NAME: Record<EffectKind, string> = {
+  veneno: 'envenenado',
+  queimadura: 'em chamas',
+  atordoado: 'atordoado',
+  escudo: 'com escudo',
+  anjo: 'protegido pelo Anjo da Guarda',
+  sangramento: 'sangrando',
+  lento: 'lento',
+  congelado: 'congelado',
+  maldicao: 'amaldiçoado',
+  imune: 'imune até o fim do turno',
+};
+/** v0.30.0: efeitos ruins (Purificar tira um deles; Evasão falha com congelado, atordoado ou lento). */
+export const BAD_EFFECTS: EffectKind[] = ['atordoado', 'congelado', 'lento', 'maldicao', 'veneno', 'queimadura', 'sangramento'];
+export const isHindered = (u: Unit) => !!(effectOf(u, 'atordoado') || effectOf(u, 'congelado') || effectOf(u, 'lento'));
+/** v0.30.0: Evasão — desvia de ataques à distância e feitiços de 1 alvo, se não estiver preso. */
+export const evades = (u: Unit) => u.abilities.includes('evasao') && !isHindered(u);
+const roll = (state: BattleState, pct: number) => nextRandom(state) * 100 < pct;
+const usedOf = (u: Unit) => (u.used ??= {});
 
 /**
  * Aplica um efeito com duração. Veneno/queimadura: fica o mais forte e a duração maior (não acumula).
  * Escudo: soma os pontos (teto 99) e fica a duração maior. Atordoar/anjo: só renova.
  */
-export function addEffect(state: BattleState, ctx: Ctx, u: Unit, kind: EffectKind, amount: number, turns: number) {
+export function addEffect(state: BattleState, ctx: Ctx, u: Unit, kind: EffectKind, amount: number, turns: number, stackTo = 0) {
   if (u.hp <= 0) return;
   u.effects ??= [];
   const cur = u.effects.find((e) => e.kind === kind);
   if (cur) {
-    cur.amount = kind === 'escudo' ? Math.min(99, cur.amount + amount) : Math.max(cur.amount, amount);
+    cur.amount = kind === 'escudo' ? Math.min(99, cur.amount + amount) : stackTo ? Math.min(stackTo, cur.amount + amount) : Math.max(cur.amount, amount);
     cur.turns = Math.max(cur.turns, turns);
   } else u.effects.push({ kind, amount, turns });
-  const extra = kind === 'veneno' || kind === 'queimadura' ? ` (${amount}/rodada, ${turns} rodada${turns > 1 ? 's' : ''})` : kind === 'escudo' ? ` (${amount}, ${turns} rodadas)` : '';
+  const extra =
+    kind === 'veneno' || kind === 'queimadura' || kind === 'sangramento'
+      ? ` (${amount}/rodada, ${turns} rodada${turns > 1 ? 's' : ''})`
+      : kind === 'escudo'
+        ? turns >= 99 ? ` (${amount})` : ` (${amount}, ${turns} rodadas)`
+        : '';
   ctx.emit(state, { type: 'effect', uid: u.uid, kind, text: `  ${EFFECT_ICON[kind]} ${nameOf(u)} fica ${EFFECT_NAME[kind]}${extra}.` });
 }
 
@@ -278,13 +303,13 @@ function dropExpired(u: Unit) {
 /** Início do lado: veneno (ignora resistência) e queimadura (reduzida pela resistência mágica) fazem dano. */
 function tickDots(state: BattleState, ctx: Ctx, side: Side) {
   for (const u of state.units.filter((x) => x.side === side && x.hp > 0)) {
-    for (const kind of ['veneno', 'queimadura'] as const) {
+    for (const kind of ['veneno', 'queimadura', 'sangramento'] as const) {
       const e = effectOf(u, kind);
       if (!e || state.winner || u.hp <= 0) continue;
-      const dmg = kind === 'veneno' ? e.amount : computeDamage(e.amount, 'magico', u);
+      const dmg = kind === 'queimadura' ? computeDamage(e.amount, 'magico', u) : e.amount;
       e.turns--;
-      ctx.emit(state, { type: 'effect', uid: u.uid, kind, text: `${EFFECT_ICON[kind]} ${nameOf(u)} sofre ${dmg} de ${kind === 'veneno' ? 'veneno' : 'queimadura'}.` });
-      applyDamage(state, ctx, u, dmg, kind === 'veneno' ? 'fisico' : 'magico', { side: enemyOf(side), dot: true });
+      ctx.emit(state, { type: 'effect', uid: u.uid, kind, text: `${EFFECT_ICON[kind]} ${nameOf(u)} sofre ${dmg} de ${kind}.` });
+      applyDamage(state, ctx, u, dmg, kind === 'queimadura' ? 'magico' : 'fisico', { side: enemyOf(side), dot: true });
     }
     dropExpired(u);
   }
@@ -294,13 +319,25 @@ function tickDots(state: BattleState, ctx: Ctx, side: Side) {
  * Fim do lado: o atordoar das unidades desse lado perde 1 rodada; o escudo temporário perde 1 rodada
  * no fim do turno do ADVERSÁRIO (v0.17.1: escudo de 2 rodadas protege contra 2 turnos inimigos).
  */
-function tickEnd(state: BattleState, side: Side) {
+function tickEnd(state: BattleState, ctx: Ctx, side: Side) {
   for (const u of state.units) {
     for (const e of u.effects ?? []) {
-      if (e.kind === 'atordoado' && u.side === side) e.turns--;
-      if (e.kind === 'escudo' && u.side !== side) e.turns--;
+      if ((e.kind === 'atordoado' || e.kind === 'congelado' || e.kind === 'maldicao') && u.side === side) e.turns--;
+      // v0.30.0: Lentidão — perde o ataque no 1º turno lento (amount 1) e ataca no 2º (amount 0)
+      if (e.kind === 'lento' && u.side === side) {
+        e.turns--;
+        e.amount = 0;
+      }
+      if ((e.kind === 'escudo' || e.kind === 'imune') && u.side !== side) e.turns--;
     }
     dropExpired(u);
+    // v0.30.0: Regeneração no fim do turno do próprio lado
+    const reg = u.side === side && u.hp > 0 ? pw(u, 'regeneracao') : 0;
+    if (reg && u.hp < u.maxHp) {
+      const h = Math.min(reg, u.maxHp - u.hp);
+      u.hp += h;
+      ctx.emit(state, { type: 'heal', uid: u.uid, amount: h, text: `💗 ${nameOf(u)} regenera ${h} de vida.` });
+    }
   }
 }
 
@@ -309,6 +346,10 @@ export interface DamageSource {
   unit?: Unit;
   spell?: boolean;
   dot?: boolean;
+  /** v0.30.0: Perfurar — ignora escudos */
+  ignoreShield?: boolean;
+  /** v0.30.0: já é a parte desviada pelo Protetor (não desvia de novo) */
+  noProtect?: boolean;
 }
 
 /**
@@ -317,6 +358,24 @@ export interface DamageSource {
  */
 export function applyDamage(state: BattleState, ctx: Ctx, target: Unit, dmg: number, type: 'fisico' | 'magico', src: DamageSource, note = ''): boolean {
   let amount = Math.max(0, dmg);
+  // v0.30.0: Vontade Inquebrável — imune até o fim do turno inimigo
+  if (amount > 0 && effectOf(target, 'imune')) {
+    ctx.emit(state, { type: 'damage', uid: target.uid, amount: 0, damageType: type, text: `  ⏳ ${nameOf(target)} está imune: 0 de dano.` });
+    return false;
+  }
+  // v0.30.0: Maldição — +25% de dano de todas as fontes
+  if (amount > 0 && effectOf(target, 'maldicao')) amount = Math.round(amount * 1.25);
+  // v0.30.0: Protetor — um aliado vizinho com Protetor recebe parte do dano (não em dano contínuo)
+  if (amount > 0 && !src.dot && !src.noProtect) {
+    const guard = state.units
+      .filter((a) => a !== target && a.side === target.side && a.hp > 0 && a.abilities.includes('protetor') && Math.abs(a.row - target.row) <= 1 && Math.abs(a.col - target.col) <= 1)
+      .sort((a, b) => a.uid - b.uid)[0];
+    const share = guard ? Math.floor((amount * pw(guard, 'protetor')) / 100) : 0;
+    if (guard && share > 0) {
+      amount -= share;
+      applyDamage(state, ctx, guard, share, type, { ...src, noProtect: true }, ` 🛡️ (${nameOf(guard)} protege ${nameOf(target)})`);
+    }
+  }
   // Reflexo de Magia (só contra dano mágico de ataque ou de feitiço; não reflete veneno/queimadura)
   const refl = !src.dot && (type === 'magico' || src.spell) ? pw(target, 'reflexo') : 0;
   let reflected = 0;
@@ -324,7 +383,7 @@ export function applyDamage(state: BattleState, ctx: Ctx, target: Unit, dmg: num
     reflected = Math.floor((amount * refl) / 100);
     amount -= reflected;
   }
-  const sh = effectOf(target, 'escudo');
+  const sh = src.ignoreShield ? undefined : effectOf(target, 'escudo');
   let absorbed = 0;
   if (sh && amount > 0) {
     absorbed = Math.min(sh.amount, amount);
@@ -343,6 +402,12 @@ export function applyDamage(state: BattleState, ctx: Ctx, target: Unit, dmg: num
     });
   else ctx.emit(state, { type: 'damage', uid: target.uid, amount, damageType: type, text: `  → ${amount} de dano.` });
   const dead = target.hp <= 0 ? checkDeath(state, ctx, target, src.unit) : false;
+  // v0.30.0: Couraça Adaptativa — cada golpe físico recebido cura 1 e soma +1 de resistência física (até 3)
+  if (!dead && type === 'fisico' && !src.dot && target.abilities.includes('couracaAdaptativa') && target.hp > 0) {
+    target.physRes = Math.min(RES_CAP, target.physRes + 1);
+    if (target.hp < target.maxHp) target.hp += 1;
+    ctx.emit(state, { type: 'effect', uid: target.uid, kind: 'habilidade', text: `  🛡️ ${nameOf(target)} se adapta: resistência física ${target.physRes}.` });
+  }
   // v0.20.1: só reflete quem continua de pé (derrotada, a Nyx não devolve dano; salva pelo Anjo/Renascer, devolve)
   if (reflected > 0 && !dead) {
     ctx.emit(state, { type: 'effect', uid: target.uid, kind: 'reflexo', text: `  🪞 ${nameOf(target)} reflete ${reflected} de dano mágico!` });
@@ -357,6 +422,20 @@ function hitHero(state: BattleState, ctx: Ctx, side: Side, amount: number, why: 
   state.heroes[side].hp = Math.max(0, state.heroes[side].hp - amount);
   ctx.emit(state, { type: 'hero', side, amount, text: `${why}: ${amount} de dano (${state.heroes[side].hp}/${state.heroes[side].maxHp}).` });
   checkWinner(state, ctx);
+  retaliate(state, ctx, side, amount);
+}
+
+/** v0.30.0: Protocolo de Retaliação — o Comandante do lado `side` sofreu dano: o inimigo mais próximo dele sofre o mesmo (até 5). */
+function retaliate(state: BattleState, ctx: Ctx, side: Side, amount: number) {
+  if (state.winner || amount <= 0) return;
+  const guard = state.units.find((a) => a.side === side && a.hp > 0 && a.abilities.includes('retaliacao'));
+  if (!guard) return;
+  const foes = state.units.filter((e) => e.side !== side && e.hp > 0);
+  if (!foes.length) return;
+  // o Comandante fica atrás da coluna 0 (jogador) ou da última coluna (inimigo)
+  const near = foes.sort((a, b) => (side === 'player' ? a.col - b.col : b.col - a.col) || a.row - b.row)[0];
+  ctx.emit(state, { type: 'effect', uid: guard.uid, kind: 'habilidade', text: `⚖️ ${nameOf(guard)} ativa o Protocolo de Retaliação contra ${nameOf(near)}!` });
+  applyDamage(state, ctx, near, Math.min(pw(guard, 'retaliacao'), amount), 'fisico', { side, unit: guard }, ' ⚖️');
 }
 
 /** A unidade chegou a 0: Anjo da Guarda (efeito do feitiço, depois a habilidade de um vizinho) e Renascer salvam. */
@@ -375,6 +454,15 @@ function checkDeath(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit): 
     angel.angelUsed = true;
     victim.hp = 1;
     ctx.emit(state, { type: 'effect', uid: victim.uid, kind: 'anjo', text: angel === victim ? `  👼 ${nameOf(angel)} (Anjo da Guarda) se salva: fica com 1 de vida!` : `  👼 ${nameOf(angel)} (Anjo da Guarda) salva ${nameOf(victim)}: fica com 1 de vida!` });
+    return false;
+  }
+  // v0.30.0: Vontade Inquebrável — fica com 1 de vida e imune até o fim do turno inimigo (uma vez)
+  if (victim.abilities.includes('ultimaResistencia') && !victim.used?.lastStand) {
+    usedOf(victim).lastStand = true;
+    victim.hp = 1;
+    victim.effects ??= [];
+    victim.effects.push({ kind: 'imune', amount: 1, turns: 1 });
+    ctx.emit(state, { type: 'effect', uid: victim.uid, kind: 'imune', text: `  ⏳ ${nameOf(victim)} se recusa a cair (Vontade Inquebrável): fica com 1 de vida e imune até o fim do turno!` });
     return false;
   }
   if (victim.abilities.includes('renascer') && !victim.revived && !victim.isMinion) {
@@ -410,6 +498,7 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
     state.heroes[side].hp = Math.max(0, state.heroes[side].hp - atk);
     ctx.emit(state, { type: 'hero', side, amount: atk, text: `Comandante ${side === 'enemy' ? 'inimigo' : 'aliado'} sofre ${atk} de dano (${state.heroes[side].hp}/${state.heroes[side].maxHp}).` });
     checkWinner(state, ctx);
+    retaliate(state, ctx, side, atk);
     return;
   }
   // execução (Instinto Predador)
@@ -421,14 +510,42 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
     if (hasRangeBonus(target)) atk += pw(u, 'cacaMagos');
     if (target.hp >= target.maxHp) atk += pw(u, 'surpresa');
   }
-  const pierce = pw(u, 'retaguarda') + pw(u, 'precisao');
+  // v0.30.0: Golpe pelas Costas (+1 em quem está atrás, na mesma fileira) e Golpe Crítico (dobro)
+  const behind = target.row === u.row && (target.col - u.col) * dir(u.side) < 0;
+  if (!opts.counter && behind) atk += pw(u, 'ataqueCostas');
+  let crit = false;
+  if (!opts.counter && !opts.secondary && opts.fixed == null && u.abilities.includes('critico') && roll(state, pw(u, 'critico'))) {
+    atk *= 2;
+    crit = true;
+  }
+  const piercing = u.abilities.includes('perfurar');
+  const pierce = piercing ? 99 : pw(u, 'retaguarda') + pw(u, 'precisao');
   const ranged = !(u.damageType === 'fisico' && dist <= 1 && !hasRangeBonus(u));
   const dmg = computeDamage(atk, u.damageType, target, pierce);
-  ctx.emit(state, { type: 'attack', uid: u.uid, target: target.uid, targetSide: target.side, ranged, damageType: u.damageType, text: `${nameOf(u)} ${verb} ${nameOf(target)}` });
+  ctx.emit(state, { type: 'attack', uid: u.uid, target: target.uid, targetSide: target.side, ranged, damageType: u.damageType, text: `${nameOf(u)} ${verb} ${nameOf(target)}${crit ? ' — 🎯 CRÍTICO!' : ''}` });
+  // v0.30.0: Evasão — desvia de ataques à distância
+  if (ranged && evades(target)) {
+    ctx.emit(state, { type: 'effect', uid: target.uid, kind: 'habilidade', text: `  💨 ${nameOf(target)} desvia do ataque à distância!` });
+    return;
+  }
   const resisted = atk - dmg;
   const front = isMeleeFrontAttack(u, target);
-  if (applyDamage(state, ctx, target, dmg, u.damageType, { side: u.side, unit: u }, resisted > 0 ? ` (${resisted} resistido)` : '')) return;
+  const hpBefore = target.hp;
+  const died = applyDamage(state, ctx, target, dmg, u.damageType, { side: u.side, unit: u, ignoreShield: piercing }, resisted > 0 ? ` (${resisted} resistido)` : '');
+  // v0.30.0: Vampirismo — cura parte do dano causado
+  const vamp = pw(u, 'vampirismo');
+  if (vamp && u.hp > 0 && u.hp < u.maxHp && state.units.includes(u)) {
+    const dealt = Math.min(dmg, Math.max(0, hpBefore));
+    const h = Math.min(u.maxHp - u.hp, Math.max(dealt >= 2 ? 1 : 0, Math.round((dealt * vamp) / 100)));
+    if (h > 0) {
+      u.hp += h;
+      ctx.emit(state, { type: 'heal', uid: u.uid, amount: h, text: `  🧛 ${nameOf(u)} drena ${h} de vida.` });
+    }
+  }
+  if (died) return;
   if (state.winner || u.hp <= 0 || !state.units.includes(u)) return;
+  if (!opts.counter && target.hp > 0 && state.units.includes(target)) onHit(state, ctx, u, target, !!opts.secondary);
+  if (state.winner || u.hp <= 0 || !state.units.includes(u) || target.hp <= 0 || !state.units.includes(target)) return;
   // gancho: Couraça de Espinhos (só golpe principal, físico corpo a corpo de frente)
   if (!opts.counter && !opts.secondary && has(target.abilities, (a) => a.thorns) && front) {
     const back = pw(target, 'espinhos');
@@ -445,6 +562,69 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   if (!opts.counter && !opts.secondary && front && has(u.abilities, (a) => a.pushOnHit) && target.hp > 0 && state.units.includes(target)) pushBack(state, ctx, target);
 }
 
+/** Habilidades que o Copiador não copia: as das cartas que começam no Mítico. */
+let MYTHIC_ONLY: Set<string> | null = null;
+const mythicOnly = () => (MYTHIC_ONLY ??= new Set(CHARACTERS.filter((c) => c.minStars >= 6).flatMap((c) => c.abilities)));
+
+/** v0.30.0: efeitos ao acertar uma unidade (o alvo continua de pé). Golpes secundários só aplicam os efeitos de dano contínuo. */
+function onHit(state: BattleState, ctx: Ctx, u: Unit, t: Unit, secondary: boolean) {
+  if (u.abilities.includes('veneno')) addEffect(state, ctx, t, 'veneno', pw(u, 'veneno'), 3);
+  if (u.abilities.includes('sangramento') && u.damageType === 'fisico') addEffect(state, ctx, t, 'sangramento', 1, 3);
+  if (u.abilities.includes('queimadura')) addEffect(state, ctx, t, 'queimadura', 1, pw(u, 'queimadura'), 2);
+  if (secondary) return;
+  if (u.abilities.includes('maldicao')) addEffect(state, ctx, t, 'maldicao', 25, 2);
+  if (u.abilities.includes('lentidao')) addEffect(state, ctx, t, 'lento', 1, 2);
+  const tu = usedOf(t);
+  if (u.abilities.includes('congelar') && (tu.frozenTurn == null || tu.frozenTurn < state.turn - 1) && roll(state, 50)) {
+    tu.frozenTurn = state.turn;
+    addEffect(state, ctx, t, 'congelado', 1, 1);
+  }
+  if (u.abilities.includes('atordoar') && (tu.stunTurn == null || tu.stunTurn < state.turn - 1) && roll(state, 50)) {
+    tu.stunTurn = state.turn;
+    addEffect(state, ctx, t, 'atordoado', 1, 1);
+  }
+  // Domínio Enfraquecedor: cada golpe tira 1 de ataque do alvo (até −3 por alvo)
+  if (u.abilities.includes('dominio') && (tu.drained ?? 0) < 3) {
+    tu.drained = (tu.drained ?? 0) + 1;
+    t.atkMod = (t.atkMod ?? 0) - 1;
+    ctx.emit(state, { type: 'effect', uid: t.uid, kind: 'habilidade', text: `  🌀 ${nameOf(t)} perde 1 de ataque.` });
+  }
+  // Copiador: no primeiro golpe, copia a 1ª habilidade do alvo
+  const uu = usedOf(u);
+  if (u.abilities.includes('copiador') && !uu.copied) {
+    uu.copied = true;
+    const copy = t.abilities.find((a) => !u.abilities.includes(a) && !mythicOnly().has(a));
+    if (copy) {
+      u.abilities.push(copy);
+      ctx.emit(state, { type: 'effect', uid: u.uid, kind: 'habilidade', text: `  🪞 ${nameOf(u)} copia ${ABILITIES[copy].name} de ${nameOf(t)}!` });
+    }
+  }
+  // Selo do Vazio: golpe físico tira todas as habilidades do alvo
+  if (u.abilities.includes('anular') && u.damageType === 'fisico' && t.abilities.length) {
+    t.abilities = [];
+    t.physRes = 0;
+    t.magRes = 0;
+    ctx.emit(state, { type: 'effect', uid: t.uid, kind: 'habilidade', text: `  🚫 ${nameOf(t)} perde todas as habilidades (Selo do Vazio)!` });
+  }
+  // Sede Eterna / Marca da Sede: drena vida extra
+  const drain = pw(u, 'sedeEterna') || pw(u, 'marcaSede');
+  if (drain) {
+    const real = Math.min(drain, t.hp);
+    applyDamage(state, ctx, t, drain, 'magico', { side: u.side, unit: u }, ' 🧛 (sede)');
+    if (u.hp > 0 && u.hp < u.maxHp && real > 0) {
+      const h = Math.min(real, u.maxHp - u.hp);
+      u.hp += h;
+      ctx.emit(state, { type: 'heal', uid: u.uid, amount: h, text: `  🧛 ${nameOf(u)} se cura em ${h}.` });
+    }
+  }
+  // Execução: derrota na hora quem ficar com 25% da vida ou menos
+  if (u.abilities.includes('execucao') && t.hp > 0 && state.units.includes(t) && t.hp * 4 <= t.maxHp) {
+    ctx.emit(state, { type: 'effect', uid: t.uid, kind: 'habilidade', text: `  ☠️ ${nameOf(u)} executa ${nameOf(t)}!` });
+    t.hp = 0;
+    checkDeath(state, ctx, t, u);
+  }
+}
+
 function kill(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit) {
   victim.hp = 0;
   state.units = state.units.filter((x) => x !== victim);
@@ -453,7 +633,42 @@ function kill(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit) {
   const st = state.stats?.[enemyOf(victim.side)];
   if (st && !victim.isMinion) st.kills++;
   ctx.emit(state, { type: 'death', uid: victim.uid, text: `✖ ${nameOf(victim)} foi derrotado.` });
+  // v0.30.0: Ressurreição guarda as cartas derrotadas; Fúria e Vingança somam ataque; Explosão ao morrer
+  if (!victim.isMinion && victim.card) ((state.fallen ??= { player: [], enemy: [] })[victim.side] ??= []).push({ ...victim.card });
+  for (const a of state.units) {
+    if (a.hp <= 0) continue;
+    const au = a.side !== victim.side && !victim.isMinion && a.abilities.includes('furia') ? usedOf(a) : null;
+    if (au && (au.furia ?? 0) < pw(a, 'furia')) {
+      au.furia = (au.furia ?? 0) + 1;
+      a.atkMod = (a.atkMod ?? 0) + 1;
+      ctx.emit(state, { type: 'effect', uid: a.uid, kind: 'habilidade', text: `  📈 Fúria: ${nameOf(a)} ganha +1 de ataque.` });
+    }
+    const av = a.side === victim.side && !victim.isMinion && a.abilities.includes('vinganca') ? usedOf(a) : null;
+    if (av && (av.vinganca ?? 0) < pw(a, 'vinganca')) {
+      av.vinganca = (av.vinganca ?? 0) + 1;
+      a.atkMod = (a.atkMod ?? 0) + 1;
+      ctx.emit(state, { type: 'effect', uid: a.uid, kind: 'habilidade', text: `  🕯️ Vingança: ${nameOf(a)} ganha +1 de ataque.` });
+    }
+  }
+  const boom = pw(victim, 'explosao');
+  if (boom) {
+    ctx.emit(state, { type: 'effect', uid: victim.uid, kind: 'habilidade', text: `💥 ${nameOf(victim)} explode!` });
+    for (const e of state.units.filter((e) => e.side !== victim.side && e.hp > 0 && Math.abs(e.row - victim.row) <= 1 && Math.abs(e.col - victim.col) <= 1)) {
+      if (state.winner) break;
+      applyDamage(state, ctx, e, boom, 'fisico', { side: victim.side }, ' 💥');
+    }
+  }
   if (!killer) return;
+  // Sede Eterna: passa a Marca da Sede ao aliado mais próximo
+  if (killer.side !== victim.side && killer.abilities.includes('sedeEterna') && killer.hp > 0) {
+    const ally = state.units
+      .filter((a) => a !== killer && a.side === killer.side && a.hp > 0 && !a.abilities.includes('sedeEterna') && !a.abilities.includes('marcaSede'))
+      .sort((a, b) => Math.abs(a.col - killer.col) + Math.abs(a.row - killer.row) - (Math.abs(b.col - killer.col) + Math.abs(b.row - killer.row)) || a.uid - b.uid)[0];
+    if (ally) {
+      ally.abilities.push('marcaSede');
+      ctx.emit(state, { type: 'effect', uid: ally.uid, kind: 'habilidade', text: `  🩸 ${nameOf(ally)} recebe a Marca da Sede!` });
+    }
+  }
   // v0.15.0: sem "passo da vitória" — quem derrota fica onde está.
   const oldPos: [number, number] = [killer.row, killer.col];
   // gancho: invocar ao derrotar
@@ -548,6 +763,78 @@ function strike(state: BattleState, ctx: Ctx, u: Unit, t: Unit | 'hero', bonus =
   // Flecha Dupla
   const second = pw(u, 'flechaDupla');
   if (second && t.hp > 0 && state.units.includes(t)) attack(state, ctx, u, t, { fixed: second, secondary: true, label: 'dispara a 2ª flecha em' });
+  if (state.winner || u.hp <= 0) return;
+  // v0.30.0: Raio em Cadeia — salta para até 2 inimigos vizinhos (60% e 30%)
+  if (u.abilities.includes('raioCadeia')) {
+    const hit = new Set<number>([t.uid]);
+    let at: [number, number] = [tRow, tCol];
+    for (const pct of [60, 30]) {
+      const next = state.units
+        .filter((e) => e.side !== u.side && e.hp > 0 && !hit.has(e.uid) && Math.abs(e.row - at[0]) <= 1 && Math.abs(e.col - at[1]) <= 1)
+        .sort((a, b) => Math.abs(a.col - at[1]) - Math.abs(b.col - at[1]) || a.uid - b.uid)[0];
+      if (!next) break;
+      hit.add(next.uid);
+      at = [next.row, next.col];
+      attack(state, ctx, u, next, { pct, secondary: true, label: '⚡ o raio salta para' });
+      if (state.winner || u.hp <= 0) return;
+    }
+  }
+}
+
+/** v0.30.0: casa livre mais próxima de (row, col) — mesma coluna/fileira primeiro, depois as vizinhas. */
+function nearestFree(state: BattleState, row: number, col: number, maxDist = state.cols): [number, number] | null {
+  for (let d = 0; d <= maxDist; d++)
+    for (const c of d ? [col - d, col + d] : [col])
+      for (const r of [row, 1 - row])
+        if (r >= 0 && r < state.rows && inBoard(state, r, c) && !unitAt(state, r, c)) return [r, c];
+  return null;
+}
+
+/** v0.30.0: Purificar — tira um efeito ruim do aliado vizinho (ou dele mesmo) mais afetado. */
+function purify(state: BattleState, ctx: Ctx, u: Unit) {
+  const bad = (a: Unit) => (a.effects ?? []).filter((e) => e.turns > 0 && BAD_EFFECTS.includes(e.kind)).length;
+  const who = state.units
+    .filter((a) => a.side === u.side && a.hp > 0 && Math.abs(a.row - u.row) <= 1 && Math.abs(a.col - u.col) <= 1 && bad(a))
+    .sort((a, b) => bad(b) - bad(a) || a.uid - b.uid)[0];
+  if (!who) return;
+  const e = BAD_EFFECTS.map((k) => effectOf(who, k)).find(Boolean)!;
+  e.turns = 0;
+  dropExpired(who);
+  ctx.emit(state, { type: 'effect', uid: who.uid, kind: 'habilidade', text: `🌿 ${nameOf(u)} purifica ${nameOf(who)} (${EFFECT_NAME[e.kind]} some).` });
+}
+
+/** v0.30.0: Ressurreição — traz o último aliado derrotado com 50% da vida (rodada 3 em diante, 1 vez a cada 10 rodadas). */
+function resurrect(state: BattleState, ctx: Ctx, u: Unit) {
+  const uu = usedOf(u);
+  if (state.turn < 3 || (uu.resTurn != null && state.turn - uu.resTurn < 10)) return;
+  const list = state.fallen?.[u.side];
+  if (!list?.length) return;
+  const spot = nearestFree(state, u.row, u.col);
+  if (!spot) return;
+  const card = list.pop()!;
+  uu.resTurn = state.turn;
+  const r = placeUnit(state, card, u.side, spot[0], spot[1]);
+  r.hp = Math.max(1, Math.ceil((r.maxHp * pw(u, 'ressurreicao')) / 100));
+  ctx.emit(state, { type: 'spawn', uid: r.uid, text: `✨ ${nameOf(u)} ressuscita ${nameOf(r)} com ${r.hp} de vida!` });
+}
+
+/** v0.30.0: Teleporte — 1 vez por partida, pula para logo atrás do inimigo mais avançado da fileira e o ataca pelas costas. */
+function teleport(state: BattleState, ctx: Ctx, u: Unit): boolean {
+  const uu = usedOf(u);
+  if (uu.teleport) return false;
+  const d = dir(u.side);
+  const foe = state.units
+    .filter((e) => e.side !== u.side && e.hp > 0 && e.row === u.row && (e.col - u.col) * d >= 1)
+    .sort((a, b) => (a.col - b.col) * d)[0];
+  if (!foe) return false;
+  const land = foe.col + d;
+  if (!inBoard(state, u.row, land) || unitAt(state, u.row, land)) return false;
+  uu.teleport = true;
+  const from: [number, number] = [u.row, u.col];
+  u.col = land;
+  ctx.emit(state, { type: 'move', uid: u.uid, from, to: [u.row, land], jumped: true, through: [], text: `🌀 ${nameOf(u)} se teleporta para trás de ${nameOf(foe)}!` });
+  attack(state, ctx, u, foe, { bonus: pw(u, 'teleporte'), label: 'ataca pelas costas' });
+  return true;
 }
 
 /**
@@ -569,21 +856,49 @@ export function act(state: BattleState, ctx: Ctx, u: Unit) {
   }
   healNeighbors(state, ctx, u);
   healRow(state, ctx, u);
+  // v0.30.0: habilidades no início da ação
+  if (u.abilities.includes('purificar')) purify(state, ctx, u);
+  if (u.abilities.includes('ressurreicao')) resurrect(state, ctx, u);
+  if (state.winner || u.hp <= 0) return;
+  if (u.abilities.includes('teleporte') && teleport(state, ctx, u)) return;
+  // v0.30.0: congelado não ataca (ainda anda); lento anda 1 casa e perde o ataque no 1º turno lento
+  const frozen = !!effectOf(u, 'congelado');
+  const slow = effectOf(u, 'lento');
+  const noAttack = frozen || !!slow?.amount;
+  // v0.30.0: Investida — na primeira ação, anda 2 casas a mais e o primeiro golpe tem +1
+  const uu = usedOf(u);
+  const charge = u.abilities.includes('investida') && !uu.charged;
+  uu.charged = true;
+  const bonus0 = charge ? pw(u, 'investida') : 0;
+  const moveOpts = { maxMove: slow ? 1 : charge ? u.move + 2 : undefined };
+  const startCol = u.col;
+  const bleedOnMove = () => {
+    const b = effectOf(u, 'sangramento');
+    if (b && u.col !== startCol && u.hp > 0) applyDamage(state, ctx, u, 1, 'fisico', { side: enemyOf(u.side), dot: true }, ' 🩸 (ferida abre ao andar)');
+  };
+  if (noAttack) {
+    ctx.emit(state, { type: 'effect', uid: u.uid, kind: frozen ? 'congelado' : 'lento', text: frozen ? `❄️ ${nameOf(u)} está congelado e não ataca.` : `🐌 ${nameOf(u)} está lento e não ataca neste turno.` });
+    if (!findTarget(state, u)) moveUnit(state, ctx, u, moveOpts);
+    bleedOnMove();
+    return;
+  }
   let t = findTarget(state, u);
   if (t && canLeapOver(state, u, t)) {
     // Salto Vendaval (v0.15.2/v0.15.4): salta por cima do inimigo da frente e ataca com investida ao cair
     const jumped = moveUnit(state, ctx, u, { leapFront: true });
     t = findTarget(state, u);
-    if (t) strike(state, ctx, u, t, jumped ? pw(u, 'salto') : 0);
+    if (t) strike(state, ctx, u, t, (jumped ? pw(u, 'salto') : 0) + bonus0);
     return;
   }
   if (t) {
-    strike(state, ctx, u, t);
+    strike(state, ctx, u, t, bonus0);
     return;
   }
-  const jumped = moveUnit(state, ctx, u);
+  const jumped = moveUnit(state, ctx, u, moveOpts);
+  bleedOnMove();
+  if (u.hp <= 0 || state.winner || !state.units.includes(u)) return;
   t = findTarget(state, u);
-  if (t) strike(state, ctx, u, t, jumped ? pw(u, 'salto') : 0);
+  if (t) strike(state, ctx, u, t, (jumped ? pw(u, 'salto') : 0) + bonus0);
 }
 
 /**
@@ -607,7 +922,7 @@ export function resolveSide(state: BattleState, ctx: Ctx, side: Side) {
     const u = state.units.find((x) => x.uid === uid);
     if (u) act(state, ctx, u);
   }
-  tickEnd(state, side);
+  tickEnd(state, ctx, side);
 }
 
 export function deploy(state: BattleState, side: Side, handIndex: number, row: number, col: number, ctx = new Ctx()): { ok: boolean; reason?: string; events: RecordedEvent[] } {
@@ -629,7 +944,30 @@ export function deploy(state: BattleState, side: Side, handIndex: number, row: n
   const aura = has(u.abilities, (a) => a.enemyAtkAura);
   if (aura) ctx.emit(state, { type: 'aura', uid: u.uid, text: `🌀 ${def.name} drena o ataque de todos os inimigos!` });
   if (has(u.abilities, (a) => a.necro)) bringBack(state, ctx, side, u.uid, def.name);
+  onEnter(state, ctx, u);
   return { ok: true, events: ctx.events };
+}
+
+/** v0.30.0: habilidades ao entrar em campo — Escudo de Entrada e Clone. */
+export function onEnter(state: BattleState, ctx: Ctx, u: Unit) {
+  const sh = pw(u, 'escudoInicial');
+  if (sh) addEffect(state, ctx, u, 'escudo', sh, 99);
+  if (u.abilities.includes('clone')) {
+    const spot = [
+      [u.row, u.col + dir(u.side)],
+      [u.row, u.col - dir(u.side)],
+      [1 - u.row, u.col],
+      [1 - u.row, u.col + dir(u.side)],
+      [1 - u.row, u.col - dir(u.side)],
+    ].find(([r, c]) => inBoard(state, r, c) && !unitAt(state, r, c));
+    if (spot) {
+      const c = placeUnit(state, { charId: u.charId, stars: u.stars, plus: u.plus }, u.side, spot[0], spot[1], { minion: true, atk: Math.max(1, Math.ceil(u.atk / 2)), hp: Math.max(1, Math.ceil(u.maxHp / 2)) });
+      c.abilities = [];
+      c.physRes = 0;
+      c.magRes = 0;
+      ctx.emit(state, { type: 'spawn', uid: c.uid, text: `👥 ${nameOf(u)} cria um clone!` });
+    }
+  }
 }
 
 export function bringBack(state: BattleState, ctx: Ctx, side: Side, uid: number, who: string) {

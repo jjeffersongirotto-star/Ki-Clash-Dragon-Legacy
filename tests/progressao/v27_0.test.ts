@@ -11,7 +11,8 @@ describe('v0.27.0 — Banner de cartas', () => {
   it('preços 300 / 2.700 e chances 40/27/20/10/3', () => {
     expect(bannerPrice(B, 1)).toBe(300);
     expect(bannerPrice(B, 10)).toBe(2700);
-    expect(B.odds).toEqual({ 1: 0.4, 2: 0.27, 3: 0.2, 4: 0.1, 5: 0.03 });
+    // v0.30.0: + Mítico 0,5% (tirado do Comum) para as cartas que começam no Mítico
+    expect(B.odds).toEqual({ 1: 0.395, 2: 0.27, 3: 0.2, 4: 0.1, 5: 0.03, 6: 0.005 });
     expect(Object.values(B.odds).reduce((a, b) => a + b, 0)).toBeCloseTo(1, 9);
   });
 

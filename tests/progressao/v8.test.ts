@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { act, attack, createBattle, Ctx, effectiveAtk, findTarget, placeUnit } from '../../src/core/battle';
-import { CHARACTERS, PLAYABLE, STARTER_IDS, getChar, isComingSoon } from '../../src/core/characters';
+import { CHARACTERS, NEW_IDS, PLAYABLE, STARTER_IDS, getChar, isComingSoon } from '../../src/core/characters';
 import { STAGES, UNLOCKS } from '../../src/core/campaign';
 import { abilityPower } from '../../src/core/abilities';
 import { defaultSave, migrateV8, teamReady, type SaveData } from '../../src/ui/save';
@@ -35,10 +35,10 @@ describe('progressão v0.8', () => {
     expect(new Set(CHARACTERS.map((d) => d.id)).size).toBe(CHARACTERS.length);
   });
   it('2★, 3★ e 4★ desbloqueiam pelas fases; 5★/6★ ficam "em breve" e não saem em nenhuma fase', () => {
-    const unlockables = PLAYABLE.filter((d) => d.minStars >= 2 && d.minStars <= 4).map((d) => d.id).sort();
+    const unlockables = PLAYABLE.filter((d) => d.minStars >= 2 && d.minStars <= 4 && !NEW_IDS.has(d.id)).map((d) => d.id).sort();
     expect(Object.values(UNLOCKS).sort()).toEqual(unlockables);
     expect(Object.values(UNLOCKS)).toContain('nyx');
-    expect(PLAYABLE.filter(isComingSoon).map((d) => d.id).sort()).toEqual(['kenji', 'vorax']);
+    expect(PLAYABLE.filter((d) => isComingSoon(d) && !NEW_IDS.has(d.id)).map((d) => d.id).sort()).toEqual(['kenji', 'vorax']);
     for (const st of STAGES) if (st.unlock) expect(isComingSoon(getChar(st.unlock))).toBe(false);
     // ordem: quem começa com menos estrelas sai antes
     const order = Object.entries(UNLOCKS).sort((a, b) => +a[0] - +b[0]).map(([, id]) => getChar(id).minStars);

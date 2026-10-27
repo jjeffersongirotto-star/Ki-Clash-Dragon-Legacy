@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PLAYABLE } from '../../src/core/characters';
+import { NEW_IDS, PLAYABLE } from '../../src/core/characters';
 import { abilityPower, ABILITIES } from '../../src/core/abilities';
 import { portraitSVG } from '../../src/ui/art';
 
@@ -45,16 +45,18 @@ describe('habilidades escalam dentro da faixa de estrelas de cada personagem', (
 });
 
 describe('fundos temáticos dos retratos', () => {
+  // v0.30.0: as cenas em SVG são dos 20 personagens desenhados em SVG (as cartas novas usam arte ilustrada)
+  const SVG_DRAWN = PLAYABLE.filter((d) => !NEW_IDS.has(d.id));
   it('cada personagem tem cena própria (Cria usa a do Vorax)', async () => {
     const { SCENE_IDS, sceneSVG } = await import('../../src/ui/scenes');
-    for (const d of PLAYABLE) expect(SCENE_IDS).toContain(d.id);
-    const scenes = PLAYABLE.map((d) => sceneSVG(d.id, d.minStars, 'x', '#000'));
-    expect(new Set(scenes).size).toBe(PLAYABLE.length);
+    for (const d of SVG_DRAWN) expect(SCENE_IDS).toContain(d.id);
+    const scenes = SVG_DRAWN.map((d) => sceneSVG(d.id, d.minStars, 'x', '#000'));
+    expect(new Set(scenes).size).toBe(SVG_DRAWN.length);
     expect(sceneSVG('cria', 5, 'x', '#000')).toBe(sceneSVG('vorax', 5, 'x', '#000'));
   });
   it('a cena fica mais rica a cada estrela e continua leve', async () => {
     const { sceneSVG } = await import('../../src/ui/scenes');
-    for (const d of PLAYABLE) {
+    for (const d of SVG_DRAWN) {
       let prev = -1;
       for (let s = d.minStars; s <= d.maxStars; s++) {
         const svg = sceneSVG(d.id, s, 'x', '#000');

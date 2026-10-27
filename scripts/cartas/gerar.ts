@@ -7,7 +7,7 @@
  * Os 20 personagens que já existem contam para as 20 cartas de cada tipo (a Cria Sombria é só uma invocação).
  */
 import { writeFileSync, mkdirSync } from 'node:fs';
-import { CATEGORY_INFO, CHARACTERS, RACE_INFO } from '../../src/core/characters';
+import { CATEGORY_INFO, CHARACTERS, NEW_IDS, RACE_INFO } from '../../src/core/characters';
 import { ABILITIES } from '../../src/core/abilities';
 import { TIER_NAMES, statsFor } from '../../src/core/progression';
 import type { Category, CharacterDef, Race } from '../../src/core/types';
@@ -57,16 +57,16 @@ const NOVAS: Hab[] = [
   { id: 'critico', nome: 'Golpe Crítico', icone: '🎯', forca: 'simples', origem: 'nova', texto: '25% de chance de causar o dobro de dano (30% no Lendário e no Mítico).' },
   { id: 'perfurar', nome: 'Perfurar', icone: '🗡️', forca: 'media', origem: 'nova', texto: 'O ataque ignora escudos e TODA a resistência do alvo.', nota: 'Diferente do Feixe Perfurante (que atravessa a fileira) e do Tiro Certeiro (que ignora só parte da resistência física).' },
   { id: 'raioCadeia', nome: 'Raio em Cadeia', icone: '⚡', forca: 'forte', origem: 'nova', texto: 'O ataque salta para até mais 2 inimigos vizinhos do alvo, com 60% e 30% do dano.' },
-  { id: 'lentidao', nome: 'Lentidão', icone: '🐌', forca: 'simples', origem: 'nova', texto: 'O alvo fica lento por 2 turnos: anda só 1 casa e ataca só a cada 2 turnos.' },
+  { id: 'lentidao', nome: 'Lentidão', icone: '🐌', forca: 'simples', origem: 'nova', texto: 'O alvo fica lento por 2 turnos: anda só 1 casa e perde o ataque no primeiro desses turnos.' },
   { id: 'gritoGuerra', nome: 'Grito de Guerra', icone: '📯', forca: 'media', origem: 'nova', texto: 'Enquanto estiver vivo, todos os aliados da MESMA FILEIRA ganham +1 de ataque (não soma com o Tambor de Guerra; teto de bônus 2).', nota: 'O Tambor de Guerra do Tobi ajuda os vizinhos; o Grito ajuda a fileira inteira.' },
-  { id: 'teleporte', nome: 'Teleporte', icone: '🌀', forca: 'media', origem: 'nova', texto: 'Uma vez por partida, no início da ação, pula para a casa livre logo atrás do inimigo mais avançado da fileira e o ataca pelas costas (ou troca de lugar com um aliado ferido, se não houver inimigo).' },
+  { id: 'teleporte', nome: 'Teleporte', icone: '🌀', forca: 'media', origem: 'nova', texto: 'Uma vez por partida, no início da ação, pula para a casa livre logo atrás do inimigo mais avançado da fileira e o ataca pelas costas (+1 de dano).' },
   { id: 'clone', nome: 'Clone', icone: '👥', forca: 'forte', origem: 'nova', texto: 'Ao entrar em campo, cria uma cópia com metade da vida e do ataque na casa livre vizinha. A cópia não tem habilidades.' },
   { id: 'maldicao', nome: 'Maldição', icone: '🕯️', forca: 'media', origem: 'nova', texto: 'O alvo recebe +25% de dano de todas as fontes por 2 turnos.' },
   { id: 'purificar', nome: 'Purificar', icone: '🌿', forca: 'simples', origem: 'nova', texto: 'No início da sua ação, tira um efeito ruim (veneno, queimadura, sangramento, congelamento, atordoamento, lentidão ou maldição) do aliado vizinho mais afetado.' },
   // sugeridas (comuns nesse tipo de jogo)
   { id: 'ataqueCostas', nome: 'Golpe pelas Costas', icone: '🔙', forca: 'simples', origem: 'sugerida', texto: 'Ataca primeiro o inimigo que já passou por ele na mesma fileira (atrás dele), com +1 de dano nesse golpe; se não houver, ataca à frente.' },
   { id: 'regeneracao', nome: 'Regeneração', icone: '💗', forca: 'simples', origem: 'sugerida', texto: 'No fim de cada turno, recupera 1 de vida (2 a partir do Épico).' },
-  { id: 'investida', nome: 'Investida', icone: '🐎', forca: 'simples', origem: 'sugerida', texto: 'No turno em que entra em campo, já ataca se houver inimigo no alcance.' },
+  { id: 'investida', nome: 'Investida', icone: '🐎', forca: 'simples', origem: 'sugerida', texto: 'Na primeira ação depois de entrar em campo, anda 2 casas a mais e o primeiro golpe causa +1 de dano.' },
   { id: 'execucao', nome: 'Execução', icone: '☠️', forca: 'forte', origem: 'sugerida', texto: 'Derrota na hora o inimigo atingido (não o Comandante) se ele ficar com 25% da vida ou menos.' },
   { id: 'escudoInicial', nome: 'Escudo de Entrada', icone: '🔰', forca: 'simples', origem: 'sugerida', texto: 'Entra em campo com um escudo que absorve 3 de dano (5 a partir do Épico).' },
 ];
@@ -142,7 +142,7 @@ const NOVAS_CARTAS: T[] = [
   t('emi', 'Emi Brisa-Arcana', 'humano', 'mago', 'm', 'R', 'L', 4, 3, 4, 'longoAlcance,maldicao', 'Estudante de pergaminhos proibidos que amaldiçoa com símbolos de vento.', 'Garota de óculos, uniforme escolar azul com capa, pergaminho flutuando, símbolos roxos no ar.'),
   t('ryuji', 'Ryuji Punho-de-Tempestade', 'humano', 'dps', 'f', 'E', 'M', 4, 3, 6, 'furia,critico', 'Lutador de torneio que fica mais forte a cada inimigo que cai.', 'Lutador musculoso de faixa na cabeça, luvas de pano rasgadas, raios azuis nos punhos.'),
   t('kaori', 'Kaori Vendaval-Sagrado', 'humano', 'suporte', 'm', 'E', 'M', 4, 2, 6, 'gritoGuerra,sopro', 'Sacerdotisa que toca o sino do templo e anima a fileira inteira.', 'Sacerdotisa de hakama vermelho e branco, sino dourado na mão, fitas voando.'),
-  t('tetsuo', 'Tetsuo Muralha-Viva', 'humano', 'tanque', 'f', 'E', 'M', 4, 2, 12, 'protetor,provocar', 'Guarda-costas do imperador; ninguém fere quem está ao lado dele.', 'Samurai de armadura pesada azul-marinho, escudo retangular grande, postura de guarda.'),
+  t('tetsuo', 'Tetsuo Muralha-Viva', 'humano', 'tanque', 'f', 'E', 'M', 4, 2, 12, 'protetor,provocar,guarda', 'Guarda-costas do imperador; ninguém fere quem está ao lado dele.', 'Samurai de armadura pesada azul-marinho, escudo retangular grande, postura de guarda.'),
   t('hayato', 'Mestre Hayato Céu-Partido', 'humano', 'dps', 'f', 'L', 'M', 5, 3, 7, 'atordoar,diagFrente', 'Velho mestre cujo golpe de palma faz o inimigo perder os sentidos.', 'Ancião de barba branca longa, roupa de monge laranja, palma aberta com onda de choque.'),
   t('rin', 'Rin Flecha-do-Amanhecer', 'humano', 'arqueiro', 'f', 'L', 'M', 5, 3, 5, 'longoAlcance,perfurar,critico', 'Arqueira lendária cujas flechas de luz atravessam qualquer armadura.', 'Arqueira de cabelo ruivo curto, armadura leve dourada, arco de luz alaranjada.'),
   t('kaito', 'Kaito Selo-do-Vazio', 'humano', 'dps', 'f', 'M', 'M', 6, 3, 5, 'anular,critico', 'Monge exilado que sela o poder dos inimigos com cada golpe do punho.', 'Monge de cabeça raspada, tatuagens de selos pretos nos braços, aura cinza e branca.'),
@@ -189,7 +189,7 @@ const NOVAS_CARTAS: T[] = [
   t('odo', 'Odo Sombra-de-Papel', 'mago', 'assassino', 'm', 'I', 'E', 3, 4, 4, 'retaguarda,lentidao', 'Ilusionista que vira papel e atinge os inimigos do fundo.', 'Figura magra de máscara de papel branca, roupa preta, tiras de papel encantado girando.'),
   t('celina', 'Celina Geada-Eterna', 'mago', 'mago', 'm', 'R', 'L', 4, 3, 4, 'longoAlcance,congelar', 'Feiticeira do norte que transforma o campo em gelo.', 'Mulher de vestido azul-gelo, cabelo azul longo, cajado de cristal de gelo.'),
   t('tiberius', 'Tiberius Runa-Viva', 'mago', 'suporte', 'm', 'R', 'L', 4, 2, 6, 'longoAlcance,purificar,escudoInicial', 'Escriba de runas que protege e limpa os aliados.', 'Velho de barba trançada, túnica verde com runas douradas, pena flutuante.'),
-  t('nalia', 'Nalia Arco-Rúnico', 'mago', 'arqueiro', 'm', 'R', 'L', 4, 3, 5, 'longoAlcance,olhoAguia', 'Arqueira encantada cujas flechas mágicas acertam mais longe.', 'Elfa de capa verde-musgo, arco de madeira com runas azuis, flechas de luz.'),
+  t('nalia', 'Nalia Arco-Rúnico', 'mago', 'arqueiro', 'f', 'R', 'L', 4, 3, 5, 'longoAlcance,olhoAguia', 'Arqueira encantada cujas flechas mágicas acertam mais longe.', 'Elfa de capa verde-musgo, arco de madeira com runas azuis, flechas de luz.'),
   t('varo', 'Varo Golem-de-Cristal', 'mago', 'tanque', 'f', 'R', 'L', 4, 2, 11, 'barreira,explosao', 'Golem criado por magos; ao quebrar, espalha cacos afiados.', 'Golem de cristal rosa e lilás, núcleo brilhante no peito, rachaduras de luz.'),
   t('selene', 'Selene Lua-Arcana', 'mago', 'mago', 'm', 'E', 'M', 4, 3, 4, 'longoAlcance,queimadura,perfurar', 'Maga da lua cujo fogo prateado atravessa qualquer proteção.', 'Mulher de vestido azul-noite com estrelas, coroa de lua crescente, chamas prateadas.'),
   t('dorian', 'Dorian Pena-Encantada', 'mago', 'suporte', 'm', 'E', 'M', 4, 2, 6, 'longoAlcance,sopro,gritoGuerra', 'Bardo arcano cuja canção cura e inflama a fileira.', 'Bardo de chapéu com pena longa, roupa vinho, alaúde mágico com notas flutuando.'),
@@ -204,7 +204,7 @@ const NOVAS_CARTAS: T[] = [
   t('skarr', 'Skarr Escorpião-de-Areia', 'monstro', 'assassino', 'f', 'I', 'E', 3, 4, 4, 'retaguarda,veneno', 'Escorpião gigante que alcança com o ferrão os inimigos do fundo.', 'Escorpião bege-areia do tamanho de um cavalo, ferrão roxo pingando veneno.'),
   t('bufo', 'Bufo Sapo-Ácido', 'monstro', 'mago', 'm', 'I', 'E', 3, 3, 5, 'longoAlcance,veneno', 'Sapo gordo que cospe ácido venenoso de longe.', 'Sapo enorme verde-limão com manchas roxas, bochechas inchadas, baba ácida.'),
   t('trokk', 'Trokk Chifre-Partido', 'monstro', 'dps', 'f', 'I', 'E', 3, 3, 7, 'diagFrente,ombrada', 'Minotauro jovem que derruba quem estiver na frente e nos lados.', 'Minotauro marrom com um chifre quebrado, machado curto, colete de couro.'),
-  t('magra', "Mag'ra Colosso-de-Lava", 'monstro', 'tanque', 'f', 'R', 'L', 4, 2, 11, 'explosao,provocar', 'Gigante de rocha derretida que explode quando cai.', 'Colosso de pedra preta com rachaduras de lava laranja, vapor saindo.'),
+  t('magra', "Mag'ra Colosso-de-Lava", 'monstro', 'tanque', 'f', 'R', 'L', 4, 2, 11, 'explosao,provocar,guarda', 'Gigante de rocha derretida que explode quando cai.', 'Colosso de pedra preta com rachaduras de lava laranja, vapor saindo.'),
   t('fenra', 'Fenra Loba-Uivante', 'monstro', 'suporte', 'f', 'R', 'L', 3, 2, 7, 'gritoGuerra,regeneracao', 'Loba alfa cujo uivo dá coragem a toda a matilha.', 'Loba cinza enorme com crina prateada, uivando para cima, marcas tribais azuis.'),
   t('spindra', 'Spindra Aranha-Tecelã', 'monstro', 'arqueiro', 'f', 'R', 'L', 4, 3, 5, 'longoAlcance,lentidao,veneno', 'Aranha gigante que atira teias venenosas de longe.', 'Aranha roxa e preta de oito olhos vermelhos, teias brilhantes, abdômen listrado.'),
   t('ghul', 'Ghul Devora-Ossos', 'monstro', 'dps', 'f', 'R', 'L', 3, 3, 7, 'vampirismo,furia', 'Carniceiro das cavernas que se cura mordendo.', 'Criatura curvada de pele cinza, boca enorme de dentes, ossos pendurados como enfeite.'),
@@ -213,7 +213,7 @@ const NOVAS_CARTAS: T[] = [
   t('borgo', 'Borgo Tronco-Antigo', 'monstro', 'tanque', 'f', 'E', 'M', 4, 2, 12, 'regeneracao,espinhos,provocar', 'Árvore viva de mil anos coberta de espinhos.', 'Ent de madeira escura com casca espinhosa, musgo nos ombros, olhos de seiva dourada.'),
   t('rhazor', 'Rhazor Rei-das-Feras', 'monstro', 'dps', 'f', 'L', 'M', 5, 3, 7, 'furia,sangramento,critico', 'Leão-rei que fica mais feroz a cada presa derrubada.', 'Leão humanoide de juba vermelha, garras douradas, cicatrizes, coroa de ossos.'),
   t('oculus', 'Oculus Olho-Medonho', 'monstro', 'mago', 'm', 'L', 'M', 5, 3, 5, 'longoAlcance,maldicao,lentidao', 'Olho flutuante que amaldiçoa e paralisa com o olhar.', 'Olho gigante flutuante com tentáculos, íris roxa, aura de névoa escura.'),
-  t('grendar', 'Grendar Pai-da-Ninhada', 'monstro', 'tanque', 'f', 'L', 'M', 5, 2, 12, 'provocar,protetor,explosao', 'Monstro ancestral que protege os filhotes e explode ao cair.', 'Besta enorme de couro verde-oliva, ovos brilhando nas costas, braços como troncos.'),
+  t('grendar', 'Grendar Pai-da-Ninhada', 'monstro', 'tanque', 'f', 'L', 'M', 5, 2, 12, 'provocar,protetor,explosao,guarda', 'Monstro ancestral que protege os filhotes e explode ao cair.', 'Besta enorme de couro verde-oliva, ovos brilhando nas costas, braços como troncos.'),
   t('kolossus', 'Kolossus Couraça-Viva', 'monstro', 'tanque', 'f', 'M', 'M', 6, 2, 10, 'couracaAdaptativa,provocar', 'Titã cuja carapaça endurece a cada golpe que recebe.', 'Titã de carapaça de besouro preta e dourada, placas se fechando, olhos verdes.'),
   t('vharga', 'Vharga Ceifadora-Voraz', 'monstro', 'assassino', 'f', 'M', 'M', 6, 4, 4, 'execucao,menorVida', 'Fera alada que termina com qualquer inimigo ferido.', 'Criatura alada de pele vermelho-escura, foices no lugar dos braços, asas rasgadas.'),
   // ---------------- Necromante (18) ----------------
@@ -230,7 +230,7 @@ const NOVAS_CARTAS: T[] = [
   t('ivra', 'Ivra Fiandeira-de-Almas', 'necromante', 'suporte', 'm', 'R', 'L', 4, 2, 6, 'longoAlcance,sopro,purificar', 'Fiandeira que costura almas e fecha feridas dos aliados.', 'Mulher pálida de vestido roxo, fios de alma brilhando entre os dedos, roca flutuante.'),
   t('sabbath', 'Sabbath Ceifador-Pálido', 'necromante', 'assassino', 'f', 'E', 'M', 4, 4, 4, 'retaguarda,critico,sangramento', 'Ceifador que colhe primeiro os inimigos mais recuados.', 'Figura encapuzada branca e preta, foice longa, máscara de osso.'),
   t('nocturna', 'Nocturna Bruxa-Pestilenta', 'necromante', 'mago', 'm', 'E', 'M', 4, 3, 4, 'longoAlcance,veneno,maldicao', 'Bruxa da peste que envenena e amaldiçoa de uma vez.', 'Bruxa de chapéu pontudo verde-escuro, caldeirão fumegante, corvos em volta.'),
-  t('ghor', 'Ghor Abominação-Costurada', 'necromante', 'tanque', 'f', 'E', 'M', 4, 2, 12, 'explosao,regeneracao,provocar', 'Monstro costurado de muitos corpos que estoura ao cair.', 'Gigante costurado de pele de várias cores, pontos grossos, gancho na mão, barriga inchada.'),
+  t('ghor', 'Ghor Abominação-Costurada', 'necromante', 'tanque', 'f', 'E', 'M', 4, 2, 12, 'explosao,regeneracao,provocar,guarda', 'Monstro costurado de muitos corpos que estoura ao cair.', 'Gigante costurado de pele de várias cores, pontos grossos, gancho na mão, barriga inchada.'),
   t('lamenta', 'Lamenta Viúva-Vingativa', 'necromante', 'mago', 'm', 'L', 'M', 5, 3, 4, 'longoAlcance,vinganca', 'Viúva espectral que fica mais forte a cada aliado que cai.', 'Fantasma de viúva com véu negro, lágrimas de luz roxa, buquê de flores mortas.'),
   t('drakon', 'Drakon Lorde-dos-Ossos', 'necromante', 'dps', 'f', 'L', 'M', 5, 3, 7, 'furia,vampirismo,diagFrente', 'Lorde esqueleto que se fortalece e se cura no meio da batalha.', 'Esqueleto alto de armadura de ossos de dragão, coroa, espada de osso enorme, olhos verdes.'),
   t('sanguis', 'Sanguis Sede-Eterna', 'necromante', 'dps', 'f', 'M', 'M', 6, 3, 5, 'sedeEterna', 'Vampiro primordial: quem bebe da batalha ao lado dele também sente a sede.', 'Vampiro nobre de capa vermelho-sangue, cabelo branco, olhos vermelhos, garras longas.'),
@@ -245,7 +245,7 @@ for (const [id, a] of Object.entries(ABILITIES)) {
 }
 for (const h of NOVAS) HABS[h.id] = h;
 
-const existentes: Carta[] = CHARACTERS.filter((c) => c.id !== 'cria').map((c) => ({
+const existentes: Carta[] = CHARACTERS.filter((c) => c.id !== 'cria' && !NEW_IDS.has(c.id)).map((c) => ({
   id: c.id, nome: c.name, raca: c.race, grupo: c.category, dano: c.damageType, min: c.minStars, max: c.maxStars, espera: c.cost,
   atk: c.atk, hp: c.hp, habs: [...c.abilities], lore: c.lore, aparencia: 'Já tem arte no jogo.', existente: true,
 }));

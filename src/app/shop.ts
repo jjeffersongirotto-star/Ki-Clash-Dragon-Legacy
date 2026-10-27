@@ -88,7 +88,7 @@ export function shop() {
 /** v0.27.0: 🎴 banner estilizado (paisagem, destaque dos mais fortes, chances e botões 1 / 10). */
 export function bannerHTML(b: Banner, gold: number): string {
   const feat = b.featured.map((id) => getChar(id));
-  const odds = Object.entries(b.odds).map(([r, p]) => `<span style="${starStyle(Number(r))}">${TIER_NAMES[Number(r)]} ${Math.round(p * 100)}%</span>`).join('');
+  const odds = Object.entries(b.odds).map(([r, p]) => `<span style="${starStyle(Number(r))}">${TIER_NAMES[Number(r)]} ${String(Math.round(p * 1000) / 10).replace('.', ',')}%</span>`).join('');
   const btn = (n: 1 | 10) => {
     const price = bannerPrice(b, n);
     return `<button class="btn ${gold >= price ? 'primary' : ''}" data-banner="${b.id}" data-pull="${n}" ${gold >= price ? '' : 'disabled'}>${n === 1 ? 'Comprar 1 carta' : 'Comprar 10 cartas'} ${goldHTML(fmt(price))}</button>`;

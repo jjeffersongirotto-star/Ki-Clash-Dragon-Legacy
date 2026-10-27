@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.30.0] — 27/10/2026 · PR #63 — 120 cartas no jogo
+- **99 personagens novos** (projeto do CARTAS.md), com a arte ilustrada: agora são **120 personagens, 20 de cada tipo**. Os novos saem **só no 🎴 Banner** da Loja (não mudam as fases, os pacotes de fase nem o começo do jogo).
+- **34 habilidades novas no motor de batalha:** Golpe Crítico, Provocar, Sangramento, Lentidão, Golpe pelas Costas, Veneno, Maldição, Purificar, Fúria, Regeneração, Explosão, Congelamento, Grito de Guerra, Protetor, Perfurar, Escudo de Entrada, Queimadura, Vampirismo, Investida, Atordoamento, Teleporte, Selo do Vazio, Vontade Inquebrável, Evasão, Domínio Enfraquecedor, Copiador, Protocolo de Retaliação, Clone, Raio em Cadeia, Couraça Adaptativa, Execução, Vingança, Sede Eterna (com a Marca da Sede) e Ressurreição. Tudo determinístico (a partida continua refazível e verificável).
+- **Banner:** chance de **Mítico 0,5%** (tirada do Comum: 40% → 39,5%) para as cartas que começam no Mítico.
+- **Ajustes no projeto:** Nalia passa a dano físico (arqueira); Tetsuo, Mag'ra, Grendar e Ghor ganham Postura de Guarda (todo Tanque tem resistência); Investida, Lentidão e Teleporte com o texto do jogo. O baralho automático completa com mais personagens quando sobram vagas de feitiço.
+- **Campanha igual:** 300 batalhas de fase com a mesma semente dão exatamente o mesmo resultado antes e depois.
+
 ## [0.29.0] — 27/10/2026 · PR #62 — Artes novas nas cartas
 - **Artes ilustradas:** os 20 personagens do jogo ganham a ilustração desenhada pelo jogador com outra IA, na carta (fundo inteiro), na Coleção, no Treinar/Despertar, na tela inicial, na janela da fase e na batalha (retrato emoldurado, virado para o lado do inimigo). A Cria Sombria continua com o desenho antigo.
 - **Só a ilustração foi aproveitada:** as imagens vieram no modelo antigo de carta; o script `scripts/art/build_cards.py` acha a moldura e a faixa do nome, apaga a gota de custo, a pílula ⚡ e a estrela "Nv." preenchendo com as cores ao redor e recorta no formato da carta (400×488, WebP). Números, raridade e grupo continuam os do jogo (CARTAS.md).

@@ -185,9 +185,9 @@ describe('v0.16.0 — contas locais e ADM', () => {
       expect(o.stars).toBe(def.maxStars);
       expect(o.plus).toBe(2);
     }
-    // v0.17: baralho de 40 (máximo) = 10 personagens × 3 + feitiços
+    // v0.17: baralho de 40 (máximo) = 10 personagens × 3 + feitiços (v0.30.0: vagas de feitiço que sobram vão para o 11º personagem)
     expect(new Set(d.deck).size).toBe(d.deck.length);
-    expect(d.deck.filter((id) => !id.startsWith('f-'))).toHaveLength(10);
+    expect(d.deck.filter((id) => !id.startsWith('f-')).length).toBeGreaterThanOrEqual(10);
     expect(d.deck.some((id) => id.startsWith('f-'))).toBe(true);
     expect(d.deck.reduce((n, id) => n + (d.copies?.[id] ?? 3), 0)).toBe(40);
     expect(d.cleared).toEqual(STAGES.map((s) => s.id));

@@ -52,5 +52,13 @@ export function autoDeck(owned: CardInstance[], max: number, spellSlots = 0): Ca
     out.push({ charId: s.id, stars: 1, copies: n });
     sl -= n;
   }
+  // v0.30.0: com muitos personagens de grupos parecidos podem sobrar vagas de feitiço — completa com os próximos personagens
+  for (const c of chars) {
+    if (sl <= 0) break;
+    if (out.some((o) => o.charId === c.charId)) continue;
+    const n = Math.min(MAX_COPIES, sl);
+    out.push({ ...c, copies: n });
+    sl -= n;
+  }
   return out;
 }

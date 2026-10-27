@@ -1,7 +1,7 @@
 /**
  * v0.17.0 — Feitiços na batalha (lógica pura). v0.28.1: separado de battle.ts, que reexporta estas funções.
  */
-import { addEffect, applyDamage, bringBack, computeDamage, Ctx, effectiveAtk, enemyOf, isDeployCell, nameOf, pushBack, unitAt, waitOf, type DamageSource } from './battle';
+import { addEffect, applyDamage, bringBack, computeDamage, Ctx, effectiveAtk, enemyOf, evades, isDeployCell, nameOf, pushBack, unitAt, waitOf, type DamageSource } from './battle';
 import { getChar } from './characters';
 import { castFromHand } from './deck';
 import { SPELL_NUM, getSpell, isSpell } from './spells';
@@ -55,6 +55,11 @@ export function castSpell(state: BattleState, side: Side, handIndex: number, row
   }
   const atk = effectiveAtk(state, caster);
   ctx.emit(state, { type: 'cast', side, spellId: sp.id, caster: caster.uid, target: [row, col], text: `${sp.icon} ${nameOf(caster)} conjura ${sp.name}${sp.target === 'row' ? ` na fileira ${row + 1}` : target && sp.target !== 'none' ? ` em ${nameOf(target)}` : ''}!` });
+  // v0.30.0: Evasão — feitiço de 1 alvo contra um inimigo que desvia
+  if (sp.target === 'enemy' && target && target.side === foe && evades(target)) {
+    ctx.emit(state, { type: 'effect', uid: target.uid, kind: 'habilidade', text: `  💨 ${nameOf(target)} desvia do feitiço!` });
+    return { ok: true, events: ctx.events };
+  }
   const src: DamageSource = { side, unit: caster, spell: true };
   const hit = (u: Unit, p: number, type: 'fisico' | 'magico', ignoreRes = false) => {
     const raw = pctOf(atk, p);
