@@ -64,6 +64,32 @@ export function dmgLabel(def: CharacterDef) {
  * - Base: Emblema explosivo de Ataque (punho) à esquerda, placa metálica chanfrada com o nome no centro,
  *   e gota rubra de Vida à direita.
  */
+/**
+ * v0.28.7: ícone colorido do GRUPO no canto direito de cima da carta (no lugar da estrela do degrau,
+ * que já aparece escrito em "Raro++" etc.). Desenhos próprios em SVG, sem círculo em volta.
+ */
+const grad = (id: string, a: string, b: string, c: string) =>
+  `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset=".5" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></linearGradient>`;
+export const CATEGORY_SVG: Record<string, string> = {
+  suporte: `<svg viewBox="0 0 24 24"><defs>${grad('cg-sup', '#b9ffc8', '#3ddc6a', '#138a3a')}</defs><path d="M9 2.5h6v6.5h6.5v6H15v6.5H9V15H2.5V9H9z" fill="url(#cg-sup)" stroke="#0b3d1c" stroke-width="1.4" stroke-linejoin="round"/><path d="M10.2 3.8h1.6v6.4H5" fill="none" stroke="#eaffef" stroke-width=".9" opacity=".8"/></svg>`,
+  tanque: `<svg viewBox="0 0 24 24"><defs>${grad('cg-tan', '#cfe8ff', '#3b9cff', '#0b4fa8')}</defs><path d="M12 2 20.5 5v6.2c0 5.3-3.6 9.2-8.5 10.8C7.1 20.4 3.5 16.5 3.5 11.2V5z" fill="url(#cg-tan)" stroke="#06244d" stroke-width="1.4" stroke-linejoin="round"/><path d="M12 4.6v15" stroke="#e8f4ff" stroke-width="1.1" opacity=".75"/><path d="M6 7.2 12 5.2" stroke="#fff" stroke-width=".9" opacity=".7"/></svg>`,
+  dps: `<svg viewBox="0 0 24 24"><defs>${grad('cg-dps', '#ffd0c8', '#ff4d3a', '#a3140a')}</defs><g stroke="#4a0700" stroke-width="1.2" stroke-linejoin="round" fill="url(#cg-dps)"><path d="M4 3l3 .3 9.3 9.3-2.7 2.7L4.3 6z"/><path d="M20 3l-3 .3-9.3 9.3 2.7 2.7L19.7 6z"/><path d="M5.5 15.8l2.7 2.7-2.3 2.3-2.7-2.7zM18.5 15.8l-2.7 2.7 2.3 2.3 2.7-2.7z"/><path d="M6.6 13.6l3.8 3.8M17.4 13.6l-3.8 3.8" stroke-width="2.4" stroke="#4a0700"/></g></svg>`,
+  mago: `<svg viewBox="0 0 24 24"><defs>${grad('cg-mag', '#f1d4ff', '#b05cff', '#5a1499')}</defs><path d="M4 20.5 15 9.5l1.6 1.6-11 11z" fill="url(#cg-mag)" stroke="#2a0647" stroke-width="1.2" stroke-linejoin="round"/><path d="M17 1.8l1.4 3 3.2.5-2.3 2.2.6 3.2-2.9-1.6-2.9 1.6.6-3.2-2.3-2.2 3.2-.5z" fill="url(#cg-mag)" stroke="#2a0647" stroke-width="1.1" stroke-linejoin="round"/><circle cx="17" cy="6.3" r="1" fill="#fff" opacity=".85"/></svg>`,
+  arqueiro: `<svg viewBox="0 0 24 24"><defs>${grad('cg-arq', '#ffe7b8', '#ff9f1a', '#a85400')}</defs><path d="M6 2.5c8 2.5 10.5 7 10.5 9.5S14 19 6 21.5" fill="none" stroke="#4a2400" stroke-width="3.6" stroke-linecap="round"/><path d="M6 2.5c8 2.5 10.5 7 10.5 9.5S14 19 6 21.5" fill="none" stroke="url(#cg-arq)" stroke-width="2.2" stroke-linecap="round"/><path d="M6 2.5v19" stroke="#fff3d6" stroke-width=".9"/><path d="M3 12h17" stroke="#4a2400" stroke-width="2.2" stroke-linecap="round"/><path d="M3 12h17" stroke="#ffd27a" stroke-width="1"/><path d="M22 12l-3.4-2.2v4.4z" fill="url(#cg-arq)" stroke="#4a2400" stroke-width="1" stroke-linejoin="round"/></svg>`,
+  assassino: `<svg viewBox="0 0 24 24"><defs>${grad('cg-ass', '#e9e9f2', '#9a9ab0', '#3d3d52')}</defs><path d="M12 2.5c4.9 0 8.3 3.4 8.3 7.9 0 2.6-1.2 4.4-3 5.4v3.4c0 1-.8 1.8-1.8 1.8h-7c-1 0-1.8-.8-1.8-1.8v-3.4c-1.8-1-3-2.8-3-5.4 0-4.5 3.4-7.9 8.3-7.9z" fill="url(#cg-ass)" stroke="#15151f" stroke-width="1.3" stroke-linejoin="round"/><circle cx="8.6" cy="11" r="2.3" fill="#15151f"/><circle cx="15.4" cy="11" r="2.3" fill="#15151f"/><path d="M12 13.4l-1.3 2.4h2.6z" fill="#15151f"/><path d="M10 18.3v2.4M12 18.3v2.4M14 18.3v2.4" stroke="#15151f" stroke-width="1"/></svg>`,
+};
+
+/** Ícone do grupo como imagem (data URI, em cache): a carta não leva SVG em linha (v0.10.1). */
+const catURI = new Map<string, string>();
+export function categoryIconURI(category: string): string {
+  let u = catURI.get(category);
+  if (!u) {
+    u = `data:image/svg+xml;charset=utf-8,${encodeURIComponent((CATEGORY_SVG[category] ?? '').replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" '))}`;
+    catURI.set(category, u);
+  }
+  return u;
+}
+
 /** v0.10.3: carta bloqueada de grade — tons cinza diretos (no lugar de filter: grayscale + opacity) */
 const LOCKED_GRID_STYLE = '--rc:#535559;--rg:#7b7d80;--ac:#55575a;--race-c:#55575a';
 
@@ -98,7 +124,7 @@ export function cardHTML(
       <div class="card-fig">${ga ? ga.fg : portraitImg(def, { stars: t, layer: 'fg' })}</div>
       <div class="ck-cost${opts.wait === 0 ? ' ready' : ''}" title="${opts.wait == null ? `Espera ${waitFor(def.id)} rodada(s) na mão` : opts.wait ? `Falta(m) ${opts.wait} rodada(s)` : 'Pronta para invocar'}"><span>${opts.wait ?? waitFor(def.id)}</span></div>
       <div class="ck-pow" title="Poder">⚡${power}</div>
-      ${step ? `<div class="ck-star" title="Degrau ${tier}"><b>${'+'.repeat(step)}</b></div>` : ''}
+      <div class="ck-cat" title="${cat.label}"><img src="${categoryIconURI(def.category)}" alt=""></div>
       ${opts.badge ? `<div class="card-badge">${opts.badge}</div>` : ''}
       <div class="ck-banner"><span class="ck-name"${nfit}><span class="full">${esc(def.name).replace(/-/g, '\u2011')}</span><span class="short">${esc(def.name.split(' ')[0])}</span></span><i class="ck-gem"></i></div>
       <div class="ck-panel">

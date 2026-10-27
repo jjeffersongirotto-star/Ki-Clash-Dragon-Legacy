@@ -17,7 +17,10 @@ describe('v0.14.2 — acabamento da carta (prévia v14.2f)', () => {
   it('topo: ⚡Poder sozinho na pílula e degrau na estrela dourada (v0.23.0: "+"/"++", sem "Nv.")', () => {
     const h = cardHTML({ charId: 'lyra', stars: 2, plus: 2 }, { power: 10000 });
     expect(h).toContain('<div class="ck-pow" title="Poder">⚡10000</div>');
-    expect(h).toContain('<div class="ck-star" title="Degrau Incomum++"><b>++</b></div>');
+    // v0.28.7: a estrela do degrau saiu; o canto mostra o ícone do grupo e o degrau fica em "Incomum++"
+    expect(h).not.toContain('ck-star');
+    expect(h).toContain('<div class="ck-cat" title="Mago">');
+    expect(h).toContain('<div class="ck-rar">Incomum++</div>');
     expect(h).not.toContain('Nv.');
     expect(h).not.toContain('ck-lvp');
     expect(h).not.toContain('ck-lv"');
