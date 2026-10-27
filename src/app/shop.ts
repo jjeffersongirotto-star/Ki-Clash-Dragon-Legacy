@@ -9,10 +9,10 @@ import { unitSpriteHTML } from '../ui/art';
 import { goldHTML, gearHTML, orbHTML, esc, starStyle } from '../ui/components';
 import { leaveBattleMode } from '../ui/orientation';
 import { GEAR_BY_ID, GEAR_CATEGORIES, GEAR_RARITIES, GEAR_SETS, gearCount, gearNeeded } from '../core/gear';
-import { BANNERS, bannerPrice, grantCard, pull, type Banner } from '../core/banner';
+import { BANNERS, PITY_EVERY, PITY_RARITY as PITY_RARITY_LABEL, bannerPrice, grantCard, pityCount, pull, type Banner } from '../core/banner';
 import { GEAR_PRICE, ORB_PRICE, buyGear, buyOrb } from '../core/shop';
 import { app, save, persist, teamCards, fmt, prof } from './state';
-import { topbar, bindNav, resultModalWith } from './ui';
+import { topbar, bindNav, modal, closeModal } from './ui';
 import { grantedHTML } from './adventure';
 
 // ---------------- LOJA (v0.26.0) ----------------
@@ -68,20 +68,39 @@ export function shop() {
   app.querySelectorAll<HTMLElement>('[data-gear]').forEach((b) => b.addEventListener('click', () => { if (buyGear(prof(), bag, b.dataset.gear!, Number(b.dataset.r)).ok) rerender(); }));
   app.querySelectorAll<HTMLElement>('[data-orb]').forEach((b) => b.addEventListener('click', () => { if (buyOrb(prof(), save.items, b.dataset.orb as XpItemId).ok) rerender(); }));
   app.querySelectorAll<HTMLElement>('[data-pull]').forEach((b) =>
-    b.addEventListener('click', () => {
-      const banner = BANNERS.find((x) => x.id === b.dataset.banner)!;
-      const n = Number(b.dataset.pull) as 1 | 10;
-      const price = bannerPrice(banner, n);
-      if (prof().gold < price) return;
-      prof().gold -= price;
-      const got = pull(banner, n).map((c) => grantCard(save.cards, c, Math.random, save.items));
-      persist();
-      const best = Math.max(...got.map((g) => g.stars));
-      resultModalWith(
-        `<h2 class="win">🎴 ${esc(banner.name)}</h2><div class="pull-reveal pull-${n}" style="${starStyle(best)}">${got.map((g, i) => `<div class="pull-card r${g.stars}" style="animation-delay:${i * 0.12}s">${grantedHTML(g)}</div>`).join('')}</div>`,
-        [{ label: 'Continuar', primary: true, run: shop }],
-      );
-    }),
+    b.addEventListener('click', () => buyCards(BANNERS.find((x) => x.id === b.dataset.banner)!, Number(b.dataset.pull) as 1 | 10)),
+  );
+}
+
+/**
+ * Compra 1 ou 10 cartas do banner e mostra o resultado.
+ * v0.31.0: o resultado traz "Comprar 1" e "Comprar 10" (de novo, direto) e um ✕ embaixo, no meio, para sair.
+ */
+export function buyCards(banner: Banner, n: 1 | 10) {
+  const price = bannerPrice(banner, n);
+  if (prof().gold < price) return;
+  prof().gold -= price;
+  const got = pull(banner, n, Math.random, (save.bannerPity ??= {})).map((c) => grantCard(save.cards, c, Math.random, save.items));
+  persist();
+  const best = Math.max(...got.map((g) => g.stars));
+  const gold = prof().gold;
+  const again = (k: 1 | 10) => {
+    const p = bannerPrice(banner, k);
+    const ok = gold >= p;
+    return `<button class="btn ${ok ? 'primary' : ''}" data-again="${k}" ${ok ? '' : 'disabled'} title="${ok ? '' : 'Ouro de Dragão insuficiente'}">Comprar ${k} ${goldHTML(fmt(p))}</button>`;
+  };
+  modal(
+    `<h2 class="win">🎴 ${esc(banner.name)}</h2><div class="pull-reveal pull-${n}" style="${starStyle(best)}">${got.map((g, i) => `<div class="pull-card r${g.stars}" style="animation-delay:${i * 0.12}s">${grantedHTML(g)}</div>`).join('')}</div>
+    <p class="hint pity-line">🎯 Lendária garantida: <b>${pityCount(banner, save.bannerPity)}/${PITY_EVERY}</b> · você tem ${goldHTML(fmt(gold))}</p>
+    <div class="row pull-again">${again(1)}${again(10)}</div>
+    <div class="row pull-exit"><button class="btn ghost pull-x" data-m="close" aria-label="Sair" title="Sair">✕</button></div>`,
+    (m) => {
+      m.querySelector('[data-m=close]')!.addEventListener('click', () => {
+        closeModal();
+        shop();
+      });
+      m.querySelectorAll<HTMLElement>('[data-again]').forEach((el) => el.addEventListener('click', () => buyCards(banner, Number(el.dataset.again) as 1 | 10)));
+    },
   );
 }
 
@@ -100,7 +119,8 @@ export function bannerHTML(b: Banner, gold: number): string {
       <div class="banner-title"><h3>🎴 ${esc(b.name)}</h3><small>${esc(b.subtitle)}</small></div>
     </div>
     <div class="banner-odds">${odds}</div>
-    <p class="hint">Cada carta é um personagem na raridade sorteada. ${feat.map((d) => esc(d.name)).join(' e ')} saem só aqui, no ${TIER_NAMES[b.featuredRarity]}. No pacote de 10: pelo menos 1 ${TIER_NAMES[b.guarantee10]} ou melhor. Personagem repetido vira XP dele (às vezes ×2, ×5 ou ×10).</p>
+    <div class="pity-mark" title="A cada ${PITY_EVERY} cartas compradas, 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor garantida (volta a 0 quando sai uma)">🎯 Lendária garantida <b>${pityCount(b, save.bannerPity)}/${PITY_EVERY}</b></div>
+    <p class="hint">Cada carta é um personagem na raridade sorteada. ${feat.map((d) => esc(d.name)).join(' e ')} saem só aqui, no ${TIER_NAMES[b.featuredRarity]}. No pacote de 10: pelo menos 1 ${TIER_NAMES[b.guarantee10]} ou melhor. A cada ${PITY_EVERY} cartas: 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor. Personagem repetido vira XP dele (às vezes ×2, ×5 ou ×10).</p>
     <div class="row">${btn(1)}${btn(10)}</div>
   </div>`;
 }

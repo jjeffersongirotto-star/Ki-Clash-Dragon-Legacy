@@ -156,8 +156,14 @@ export function cardDetail(id: string, previewStars?: number) {
   for (let s = def.minStars; s <= def.maxStars; s++) {
     starTabs.push(`<button class="star-tab ${s === stars ? 'active' : ''}" data-pstar="${s}" style="${starStyle(s)}">${tierLabel(s, s === curStars ? curPlus : 0)}${s === curStars && owned ? ' <small>(atual)</small>' : ''}</button>`);
   }
-  modal(`<div class="detail" style="${starStyle(stars)}">
+  // v0.31.0: ações em "cards" ao lado da carta (Colocar no baralho / Treinar) e ✕ no canto; sem botões embaixo
+  const actions = owned
+    ? `<button class="act-tile primary" data-m="deck"><i>${inDeck ? '📤' : '🃏'}</i><span>${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</span></button><button class="act-tile" data-m="train"><i>🔥</i><span>Treinar</span></button>`
+    : '';
+  const lockNote = owned ? '' : isComingSoon(def) ? `<p class="hint">🎴 Personagem ${tierLabel(def.minStars)}: sai só no <b>Banner</b> da 🏪 Loja.</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id) ?? '?'} pela primeira vez para desbloquear.</p>`;
+  modal(`<button class="modal-x" data-m="close" aria-label="Fechar" title="Fechar">✕</button><div class="detail" style="${starStyle(stars)}">
     <div class="detail-left">
+      <div class="detail-acts">${actions}</div>
       ${cardHTML({ charId: id, stars, plus }, { extraClass: 'detail-card', locked: !owned && previewStars == null, power: pow })}
       <div class="detail-sprite-box">
         <div class="ds-sprite">${unitSpriteHTML(def, { stars, side: 'player' })}</div>
@@ -174,10 +180,11 @@ export function cardDetail(id: string, previewStars?: number) {
       </div>
       <div class="stat-row"><span class="pow-stat" title="Poder = 10 × peso da habilidade × √(ataque × vida)">Poder <b>⚡ ${fmt(pow)}</b></span><span title="Rodadas que a carta espera na mão até poder ser invocada">Espera <b>⏳ ${waitFor(def.id)}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${reachLabel(def)}</b></span><span>Movimento <b>${def.move}</b></span></div>
       ${abilityListHTML(def, stars, plus)}
+      ${lockNote}
       <p class="lore">${esc(def.lore)}</p>
-    </div></div>
-    <div class="row">${owned ? `<button class="btn primary" data-m="deck">${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</button><button class="btn" data-m="train">Treinar</button>` : isComingSoon(def) ? `<p class="hint">🎴 Personagem ${tierLabel(def.minStars)}: sai só no <b>Banner</b> da 🏪 Loja.</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id) ?? '?'} pela primeira vez para desbloquear.</p>`}<button class="btn ghost" data-m="close">Fechar</button></div>`,
+    </div></div>`,
     (m) => {
+      m.querySelector('.modal')?.classList.add('modal-detail');
       m.querySelector('[data-m=close]')!.addEventListener('click', closeModal);
       m.querySelectorAll<HTMLElement>('[data-pstar]').forEach((btn) =>
         btn.addEventListener('click', () => cardDetail(id, +btn.dataset.pstar!)),

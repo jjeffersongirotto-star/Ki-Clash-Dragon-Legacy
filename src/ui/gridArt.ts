@@ -74,8 +74,8 @@ function canvas(w: number, h: number): [HTMLCanvasElement, CanvasRenderingContex
   return [c, c.getContext('2d')!];
 }
 
-/** aura de Ki (gradiente elíptico) + raios girando no quadro inicial (Épico+), como no CSS */
-function drawAura(W: number, H: number, t: number, aura: string): HTMLCanvasElement {
+/** aura de Ki (gradiente elíptico), como no CSS (v0.31.0: sem os raios girando) */
+function drawAura(W: number, H: number, _t: number, aura: string): HTMLCanvasElement {
   const [c, g] = canvas(W, H);
   const [r, gg, b] = hexRgb(aura);
   // .card-aura: radial-gradient(ellipse 60% 65% at 50% 68%, mix(ac 80%, #fff) 0%, mix(ac 50%, transparent) 38%, transparent 72%)
@@ -89,33 +89,6 @@ function drawAura(W: number, H: number, t: number, aura: string): HTMLCanvasElem
   g.fillStyle = rg;
   g.fillRect(-3, -3, 6, 6);
   g.restore();
-  if (t >= 4 && 'createConicGradient' in g) {
-    // ::before inset -40%, conic "from 0deg at 50% 62%" (raios de 6° a cada 20°), máscara radial 15%→55%
-    const cx = W * 0.5, cy = -0.4 * H + 0.62 * 1.8 * H;
-    const [rc, rgc] = canvas(W, H);
-    const cg = rgc.createConicGradient(-Math.PI / 2, cx, cy);
-    const col = `rgba(${r},${gg},${b},.55)`;
-    for (let k = 0; k < 18; k++) {
-      const a = (k * 20) / 360, e = (k * 20 + 6) / 360;
-      cg.addColorStop(a, col);
-      cg.addColorStop(e, col);
-      cg.addColorStop(Math.min(1, e + 0.0001), 'rgba(0,0,0,0)');
-      cg.addColorStop(Math.min(1, (k * 20 + 20) / 360 - 0.0001), 'rgba(0,0,0,0)');
-    }
-    rgc.fillStyle = cg;
-    rgc.fillRect(0, 0, W, H);
-    const corners = [[-0.4 * W, -0.4 * H], [1.4 * W, -0.4 * H], [-0.4 * W, 1.4 * H], [1.4 * W, 1.4 * H]];
-    const far = Math.max(...corners.map(([x, y]) => Math.hypot(x - cx, y - cy)));
-    const mg = rgc.createRadialGradient(cx, cy, 0, cx, cy, far);
-    mg.addColorStop(0.15, 'rgba(0,0,0,1)');
-    mg.addColorStop(0.55, 'rgba(0,0,0,0)');
-    rgc.globalCompositeOperation = 'destination-in';
-    rgc.fillStyle = mg;
-    rgc.fillRect(0, 0, W, H);
-    g.globalAlpha = t >= 6 ? 0.8 : 0.55;
-    g.drawImage(rc, 0, 0);
-    g.globalAlpha = 1;
-  }
   return c;
 }
 

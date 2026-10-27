@@ -3,7 +3,9 @@
  *
  * - Cada banner é um dado em BANNERS (nome, destaque, preços, chances). Para um banner novo (cartas ou fases
  *   futuras), basta acrescentar uma entrada.
- * - Comprar 1 carta ou 10 cartas (10 = preço de 9). No pacote de 10, pelo menos 1 carta Rara ou melhor.
+ * - Comprar 1 carta ou 10 cartas (10 = preço de 9). No pacote de 10, pelo menos 1 carta Rara ou melhor
+ *   (v0.31.0: Épica ou melhor). v0.31.0: a cada 80 cartas compradas (contador por conta), 1 Lendária ou melhor
+ *   garantida; o contador volta a 0 sempre que sai uma Lendária ou Mítica.
  * - Cada carta sorteia primeiro a RARIDADE (chances do banner) e depois um personagem que pode estar nessa
  *   raridade (raridade inicial ≤ sorteada ≤ raridade máxima). Ele vem NESSA raridade, no degrau base.
  *   No Lendário, metade das vezes sai um personagem em destaque (Kenji ou Vorax, que só saem no banner).
@@ -44,9 +46,9 @@ export const BANNERS: Banner[] = [
     featuredRarity: 5,
     price1: 300,
     price10: 2700,
-    // v0.30.0: Mítico 0,5% (as cartas que começam no Mítico só saem aqui), tirado do Comum (40% → 39,5%)
-    odds: { 1: 0.395, 2: 0.27, 3: 0.2, 4: 0.1, 5: 0.03, 6: 0.005 },
-    guarantee10: 3,
+    // v0.31.0: Comum 25 · Incomum 30 · Raro 25 · Épico 15 · Lendário 4 · Mítico 1 (pedido do jogador)
+    odds: { 1: 0.25, 2: 0.3, 3: 0.25, 4: 0.15, 5: 0.04, 6: 0.01 },
+    guarantee10: 4,
   },
 ];
 
@@ -77,13 +79,37 @@ export function drawAt(b: Banner, r: number, rng: () => number): PulledCard {
   return { charId: pick(rest.length ? rest : pool), stars: r };
 }
 
-/** Compra `n` cartas (1 ou 10). No pacote de 10 garante uma carta de `guarantee10` ou melhor. */
-export function pull(b: Banner, n: 1 | 10, rng: () => number = Math.random): PulledCard[] {
+/** v0.31.0: garantia por quantidade — a cada PITY_EVERY cartas, uma Lendária (raridade PITY_RARITY) ou melhor. */
+export const PITY_EVERY = 80;
+export const PITY_RARITY = 5;
+
+/** Contador da garantia (cartas compradas desde a última Lendária ou Mítica), por banner. */
+export type PityState = Record<string, number>;
+
+/**
+ * Compra `n` cartas (1 ou 10). No pacote de 10 garante uma carta de `guarantee10` ou melhor.
+ * v0.31.0: com `pity`, a 80ª carta sem Lendária vem Lendária ou melhor; sair Lendária/Mítica zera o contador.
+ */
+export function pull(b: Banner, n: 1 | 10, rng: () => number = Math.random, pity?: PityState): PulledCard[] {
   const out: PulledCard[] = [];
-  for (let i = 0; i < n; i++) out.push(drawAt(b, rollRarity(b.odds, rng), rng));
-  if (n === 10 && !out.some((c) => c.stars >= b.guarantee10)) out[n - 1] = drawAt(b, rollRarity(b.odds, rng, b.guarantee10), rng);
+  let count = pity?.[b.id] ?? 0;
+  for (let i = 0; i < n; i++) {
+    count++;
+    const min = pity && count >= PITY_EVERY ? PITY_RARITY : 1;
+    const c = drawAt(b, rollRarity(b.odds, rng, min), rng);
+    if (c.stars >= PITY_RARITY) count = 0;
+    out.push(c);
+  }
+  if (n === 10 && !out.some((c) => c.stars >= b.guarantee10)) {
+    out[n - 1] = drawAt(b, rollRarity(b.odds, rng, b.guarantee10), rng);
+    if (out[n - 1].stars >= PITY_RARITY) count = 0;
+  }
+  if (pity) pity[b.id] = count;
   return out;
 }
+
+/** Quantas cartas já contam para a próxima Lendária garantida (0 a 79). */
+export const pityCount = (b: Banner, pity?: PityState) => pity?.[b.id] ?? 0;
 
 export const bannerPrice = (b: Banner, n: 1 | 10) => (n === 10 ? b.price10 : b.price1);
 
