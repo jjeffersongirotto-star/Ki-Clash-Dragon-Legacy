@@ -9,6 +9,8 @@ Uso (as imagens de origem NÃO vão para o repositório; precisa de `pip install
   python3 scripts/art/build_cutouts.py <pasta-com-as-imagens-ou-subpastas> [ids...] [--debug pasta]
 Sem ids: gera os 20 personagens originais (os únicos que aparecem como Comandante nas fases e no tutorial).
 Saída: src/assets/cutouts/<id>.webp (altura máx. H_OUT, largura proporcional)
+v0.34.0: `--limpas` para ilustrações limpas (usa a imagem inteira), `todos` como id gera todos, `--saida pasta` muda a saída;
+imprime quais bordas da imagem a figura toca (figura cortada pela borda não serve de Comandante).
 """
 import json, os, sys
 import numpy as np
@@ -21,6 +23,9 @@ OUT = os.path.join(ROOT, 'src', 'assets', 'cutouts')
 H_OUT = 560
 QUALITY = 74
 MODEL = 'birefnet-general-lite'
+# v0.34.0: personagens que se confundem com o chão (ex.: golem de pedra sobre rocha) — soma a máscara de outros modelos
+# (com ganho) à do modelo principal e endurece a borda. id → [(modelo, ganho), ...]
+MERGE = {'daichi': [('isnet-anime', 2.2), ('isnet-general-use', 2.5)]}
 
 
 def keep_main(alpha):
@@ -37,52 +42,75 @@ def keep_main(alpha):
     return np.where(keep, alpha, 0).astype(np.uint8)
 
 
-def cutout(session, crop):
-    from rembg import remove  # noqa: PLC0415
+def cutout(session, crop, cid=None):
+    from rembg import new_session, remove  # noqa: PLC0415
     rgba = remove(crop, session=session, post_process_mask=True)
     a = np.asarray(rgba).copy()
+    if cid in MERGE:
+        al = a[..., 3].astype(float)
+        for model, gain in MERGE[cid]:
+            extra = np.asarray(remove(crop, session=new_session(model), only_mask=True)).astype(float)
+            al = np.maximum(al, np.clip(extra * gain, 0, 255))
+        a[..., :3] = np.asarray(crop.convert('RGB'))  # cores originais (o rembg zera onde a máscara dele é 0)
+        a[..., 3] = np.where(al > 70, 255, 0).astype(np.uint8)
     alpha = keep_main(a[..., 3])
     # contorno suave: fecha buraquinhos e amacia 1px
     al = Image.fromarray(alpha).filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(0.8))
     a[..., 3] = np.minimum(np.asarray(al), alpha.astype(np.uint16) + 40).astype(np.uint8)
     img = Image.fromarray(a, 'RGBA')
+    # v0.34.0: bordas da imagem tocadas pela figura (personagem cortado pela borda → não serve de Comandante)
+    m = a[..., 3] > 128
+    edge = 4
+    touches = {k: int(v.sum()) for k, v in (('topo', m[:edge]), ('base', m[-edge:]), ('esq', m[:, :edge]), ('dir', m[:, -edge:]))}
     bbox = img.getchannel('A').point(lambda v: 255 if v > 24 else 0).getbbox()
     if bbox:
         img = img.crop(bbox)
     if img.height > H_OUT:
         img = img.resize((round(img.width * H_OUT / img.height), H_OUT), Image.LANCZOS)
+    img.info['touches'] = touches
     return img
 
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     debug = sys.argv[sys.argv.index('--debug') + 1] if '--debug' in sys.argv else None
+    clean = '--limpas' in sys.argv
+    for flag in ('--saida',):
+        if flag in sys.argv:
+            args.remove(sys.argv[sys.argv.index(flag) + 1])
     if debug:
         args.remove(debug)
         os.makedirs(debug, exist_ok=True)
     src, want = args[0], set(args[1:])
     cards = json.load(open(os.path.join(ROOT, 'docs', 'cartas.json')))['cartas']
     ids = {c['id'] for c in cards} | TOKENS
-    if not want:
+    if want == {'todos'}:
+        want = ids
+    elif not want:
         want = {c['id'] for c in cards if c.get('existente')}
     from rembg import new_session  # noqa: PLC0415
     session = new_session(MODEL)
     files = [os.path.join(dp, f) for dp, _, fs in os.walk(src) for f in fs if f.lower().endswith(('.jpg', '.jpeg', '.png', '.webp'))]
-    os.makedirs(OUT, exist_ok=True)
+    out = sys.argv[sys.argv.index('--saida') + 1] if '--saida' in sys.argv else OUT
+    os.makedirs(out, exist_ok=True)
     done = set()
     for p in sorted(files):
         cid = id_for(p, ids)
         if cid not in want or cid in done:
             continue
-        crop = clean_art(p, cid)[0]
-        img = cutout(session, crop)
-        img.save(os.path.join(OUT, f'{cid}.webp'), 'WEBP', quality=QUALITY, method=6, exact=False)
+        # v0.34.0: ilustrações limpas (--limpas) entram inteiras; as cartas antigas passam pela limpeza do build_cards
+        crop = Image.open(p).convert('RGB') if clean else clean_art(p, cid)[0]
+        if crop.height > 1500:
+            crop = crop.resize((round(crop.width * 1500 / crop.height), 1500), Image.LANCZOS)
+        img = cutout(session, crop, cid)
+        touches = img.info.get('touches', {})
+        img.save(os.path.join(out, f'{cid}.webp'), 'WEBP', quality=QUALITY, method=6, exact=False)
         if debug:
             bg = Image.new('RGBA', img.size, (40, 20, 60, 255))
             bg.alpha_composite(img)
             bg.convert('RGB').save(os.path.join(debug, f'{cid}.png'))
         done.add(cid)
-        print(cid, img.size, os.path.getsize(os.path.join(OUT, f'{cid}.webp')))
+        print(cid, img.size, os.path.getsize(os.path.join(out, f'{cid}.webp')), 'bordas:', touches, flush=True)
     print(f'{len(done)} recortes; faltam: {sorted(want - done)}')
 
 

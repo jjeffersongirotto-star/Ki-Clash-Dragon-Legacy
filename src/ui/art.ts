@@ -52,27 +52,29 @@ const CUTOUT_FILES = import.meta.glob('../assets/cutouts/*.webp', { eager: true,
 const CUTOUTS = new Map(Object.entries(CUTOUT_FILES).map(([k, v]) => [k.slice(k.lastIndexOf('/') + 1, -'.webp'.length), v]));
 export const hasCutout = (id: string): boolean => CUTOUTS.has(id);
 export const COMMANDER_LOOK: Record<string, { h: number; flip?: boolean }> = {
-  riku: { h: 0.8, flip: true }, // salto com os joelhos dobrados
-  hana: { h: 0.65 }, // mulher, recorte até a coxa
-  ren: { h: 0.7 }, // agachado
-  kenji: { h: 0.8 }, // mestre em base baixa, até o joelho
-  nara: { h: 0.6, flip: true }, // mulher, até o quadril
-  suri: { h: 0.86 }, // espírito flutuando, corpo inteiro
-  aiko: { h: 0.74, flip: true }, // mulher, até o joelho
-  zarek: { h: 1.0 }, // alienígena alto, corpo inteiro
-  toru: { h: 0.66 }, // grandão, recorte até a coxa
-  jin: { h: 0.85 }, // até o joelho
-  nyx: { h: 0.87, flip: true }, // androide feminina em pé
-  kael: { h: 0.5 }, // recorte até a cintura
-  sora: { h: 0.72, flip: true }, // mulher em avanço baixo
-  lyra: { h: 0.88, flip: true }, // mulher com chapéu, corpo inteiro
-  mei: { h: 0.55 }, // sentada
-  daichi: { h: 0.66 }, // golem enorme, recorte até o quadril
-  kuro: { h: 0.75 }, // agachado
-  tobi: { h: 0.9 }, // oni tocando tambor, corpo inteiro
-  gorath: { h: 0.72 }, // minotauro enorme, até a coxa
-  vorax: { h: 1.0 }, // alto, corpo inteiro
-  yume: { h: 0.87 }, // mulher, corpo inteiro
+  // v0.34.0: artes novas de corpo inteiro. Altura APARENTE em relação ao nosso bárbaro (1,0): tamanho real do personagem
+  // e pose (agachado, ajoelhado, sentado ou flutuando fica mais baixo; nunca é esticado para encher a coluna).
+  gorath: { h: 1.12 }, // minotauro gigante, em pé
+  daichi: { h: 1.1 }, // golem de pedra enorme, base aberta
+  vorax: { h: 1.0 }, // necromante alto, em pé
+  zarek: { h: 0.98 }, // alienígena alto, em pé
+  tobi: { h: 0.9 }, // oni grande tocando tambor, em movimento
+  toru: { h: 0.9 }, // androide grandão, base aberta
+  kenji: { h: 0.82 }, // homem em base baixa de kung fu
+  lyra: { h: 0.88, flip: true }, // mulher em pé (o chapéu soma altura)
+  nyx: { h: 0.86, flip: true }, // androide feminina em pé
+  aiko: { h: 0.86, flip: true }, // mulher em pé atirando com o arco
+  hana: { h: 0.84, flip: true }, // mulher em pé com o arco
+  yume: { h: 0.84 }, // mulher avançando com a foice
+  kael: { h: 0.84 }, // jovem em pé
+  suri: { h: 0.82 }, // espírito flutuando
+  sora: { h: 0.8, flip: true }, // mulher em passo de dança
+  riku: { h: 0.66, flip: true }, // salto com os joelhos encolhidos
+  nara: { h: 0.66, flip: true }, // mulher em avanço baixo
+  jin: { h: 0.66 }, // ajoelhado mirando
+  kuro: { h: 0.66 }, // agachado para o bote
+  ren: { h: 0.6 }, // agachado
+  mei: { h: 0.62 }, // sentada sobre a flor de lótus
 };
 export function enemyCommanderBattle(card: { charId: string; stars: number } | null): string {
   if (!card) return enemyLeaderImg();
