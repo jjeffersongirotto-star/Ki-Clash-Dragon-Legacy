@@ -5,7 +5,7 @@ import type { BattleState, CardInstance, RecordedEvent, Side, Snapshot, Unit } f
 import type { Stage } from '../core/campaign';
 import { PLAYER_HERO_HP } from '../core/campaign';
 import { INFO_DEFAULT, attackFX, floatText, moveTrail, spark, sleep } from './battleFx';
-import { enemyCommanderArt, enemyLeaderImg, playerLeaderImg } from './art';
+import { enemyCommanderBattle, playerLeaderImg } from './art';
 import { stageCommander } from '../core/campaign';
 import { gameConfirm } from './dialog';
 import { requestLandscape } from './orientation';
@@ -112,7 +112,7 @@ export class BattleView {
           <div class="banner" id="banner"></div>
         </div>
         <div class="hero hero-e" id="hero-enemy">
-          <div class="hero-fig"><div class="hero-aura"></div>${(() => { const c = stageCommander(this.stage); return c ? enemyCommanderArt(c, 'hero-svg hero-leader-enemy hero-cmd') : enemyLeaderImg(); })()}</div>
+          <div class="hero-fig"><div class="hero-aura"></div>${enemyCommanderBattle(stageCommander(this.stage))}</div>
           <div class="hero-hp"><div class="bar"><i></i></div><span></span></div>
         </div>
       </div>
