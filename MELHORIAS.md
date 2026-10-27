@@ -4,6 +4,7 @@
 > Novos itens só entram aqui quando o jogador pedir.
 
 ## 🕓 Para depois (decidido)
+- **120 cartas (projeto pronto):** as 99 cartas novas e as habilidades novas estão desenhadas no [CARTAS.md](CARTAS.md); faltam as artes (feitas por outra IA) e colocar no jogo.
 - **Novas fases e novas cartas:** serão criadas no futuro. Os banners (`BANNERS` em `src/core/banner.ts`) já estão prontos para receber cartas novas.
 - **Progressão e dificuldades:** o Normal (+1 degrau) e o Difícil (+2 degraus) ficam como estão. Depois que todas as fases existirem, refazer a progressão completa.
 - **Arte própria do Comandante de cada fase:** hoje cada fase usa a arte de um personagem do baralho dela (minotauro só na fase 10).

@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.28.8] — 27/10/2026 · PR #60 — Fichas das 120 cartas (CARTAS.md)
+- Sem mudança no jogo. Novo **[CARTAS.md](CARTAS.md)**: o projeto das 120 cartas (6 tipos × 20). Os 20 personagens atuais contam; **99 são novas**. Cada ficha tem nome, tipo, grupo, raridade, dano, padrão de ataque, espera, habilidades, história, dica de aparência (para a outra IA desenhar) e ataque/vida em cada degrau (fórmula real do jogo).
+- Cada tipo tem 1–2 Míticos, 3–4 Lendários e personagens que atacam pelas costas e na diagonal. As 31 habilidades pedidas (2 já existiam: Couraça de Espinhos e Sopro Restaurador) + 5 sugeridas; as fortes são únicas.
+- Gerado por `scripts/cartas/gerar.ts` (confere as regras); versão para programas em `docs/cartas.json`.
+
 ## [0.28.7] — 27/10/2026 · PR #59 — Ícone do grupo no canto da carta
 - **Canto direito de cima da carta:** sai a estrela dourada do degrau (o "+"/"++" já aparece em "Raro++" etc.) e entra o **ícone colorido do grupo**, sem círculo: ➕ verde (Suporte), 🛡 azul (Tanque), ⚔ vermelho (DPS), 🪄 roxo (Mago), 🏹 laranja (Arqueiro) e 💀 cinza (Assassino). Desenhos próprios, em cache (a carta continua sem SVG em linha).
 
