@@ -32,7 +32,7 @@ describe('v0.11.1 — proporção Líder × unidades', () => {
     expect(battleSrc).toContain('id="hero-player"');
     expect(battleSrc).toContain('id="hero-enemy"');
     expect(battleSrc).toContain('playerLeaderImg()');
-    expect(battleSrc).toContain('enemyLeaderImg()');
+    expect(battleSrc).toContain('enemyCommanderBattle('); // v0.30.1: Comandante adversário recortado (minotauro quando a fase não tem personagem)
     expect(battleSrc).not.toContain('hero-name');
   });
 });

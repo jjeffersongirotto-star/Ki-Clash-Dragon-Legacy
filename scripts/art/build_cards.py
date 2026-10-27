@@ -127,7 +127,8 @@ def fill(img, mask, valid):
     return Image.composite(res, img, soft)
 
 
-def process(path, cid, debug=None):
+def clean_art(path, cid):
+    """Janela da arte em resolução original, já sem a gota, a pílula e a estrela. Retorna (imagem, caixa, máscara, original)."""
     img = Image.open(path).convert('RGB')
     a = np.asarray(img).astype(int)
     if cid in MANUAL:
@@ -155,7 +156,12 @@ def process(path, cid, debug=None):
     else:
         h2 = int(round(w * H_OUT / W_OUT))
         ay1 = ay0 + h2
-    art = clean.crop((ax0, ay0, ax1, ay1)).resize((W_OUT, H_OUT), Image.LANCZOS)
+    return clean.crop((ax0, ay0, ax1, ay1)), (ax0, ay0, ax1, ay1), mask, img
+
+
+def process(path, cid, debug=None):
+    crop, (ax0, ay0, ax1, ay1), mask, img = clean_art(path, cid)
+    art = crop.resize((W_OUT, H_OUT), Image.LANCZOS)
     os.makedirs(OUT, exist_ok=True)
     art.save(os.path.join(OUT, f'{cid}.webp'), 'WEBP', quality=QUALITY, method=6)
     if debug:

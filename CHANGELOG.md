@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.30.1] — 27/10/2026 · PR #64 — Comandante adversário recortado e respirando
+- **Comandante adversário na batalha** agora aparece como o nosso: **só o personagem recortado** (sem carta e sem fundo), de pé no mesmo piso, dentro da coluna, com **respiração** (animação leve em CSS) e virado para a arena.
+- **Altura proporcional ao nosso bárbaro** (tabela por personagem em REGRAS seção 32): quem está agachado, sentado ou aparece só até a cintura fica mais baixo; mulheres um pouco menores; monstros grandes maiores. A fase 10 continua com o minotauro animado.
+- Recortes gerados por `scripts/art/build_cutouts.py` (rembg, modelo BiRefNet) a partir das artes originais: 21 imagens, ~0,9 MB no total.
+
 ## [0.30.0] — 27/10/2026 · PR #63 — 120 cartas no jogo
 - **99 personagens novos** (projeto do CARTAS.md), com a arte ilustrada: agora são **120 personagens, 20 de cada tipo**. Os novos saem **só no 🎴 Banner** da Loja (não mudam as fases, os pacotes de fase nem o começo do jogo).
 - **34 habilidades novas no motor de batalha:** Golpe Crítico, Provocar, Sangramento, Lentidão, Golpe pelas Costas, Veneno, Maldição, Purificar, Fúria, Regeneração, Explosão, Congelamento, Grito de Guerra, Protetor, Perfurar, Escudo de Entrada, Queimadura, Vampirismo, Investida, Atordoamento, Teleporte, Selo do Vazio, Vontade Inquebrável, Evasão, Domínio Enfraquecedor, Copiador, Protocolo de Retaliação, Clone, Raio em Cadeia, Couraça Adaptativa, Execução, Vingança, Sede Eterna (com a Marca da Sede) e Ressurreição. Tudo determinístico (a partida continua refazível e verificável).

@@ -41,6 +41,47 @@ export function enemyCommanderArt(card: { charId: string; stars: number } | null
   return `<span class="${cls} cmd-sprite" style="${style}">${unitSpriteHTML(getChar(card.charId), { stars: card.stars, side: 'enemy', flip: true })}</span>`;
 }
 
+/**
+ * v0.30.1: Comandante adversário na BATALHA — só o personagem recortado (sem carta nem fundo; src/assets/cutouts/<id>.webp,
+ * gerado por scripts/art/build_cutouts.py), de pé no mesmo piso do nosso Comandante, com respiração em CSS.
+ * A altura é PROPORCIONAL ao nosso bárbaro (1 = a altura dele na tela): leva em conta o tamanho do personagem
+ * (mulheres um pouco menores, monstros grandes maiores) e a pose/quanto do corpo aparece no recorte
+ * (agachado, sentado ou cortado na cintura fica mais baixo). `flip` = espelhar para olhar para a arena (à esquerda).
+ */
+const CUTOUT_FILES = import.meta.glob('../assets/cutouts/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+const CUTOUTS = new Map(Object.entries(CUTOUT_FILES).map(([k, v]) => [k.slice(k.lastIndexOf('/') + 1, -'.webp'.length), v]));
+export const hasCutout = (id: string): boolean => CUTOUTS.has(id);
+export const COMMANDER_LOOK: Record<string, { h: number; flip?: boolean }> = {
+  riku: { h: 0.8, flip: true }, // salto com os joelhos dobrados
+  hana: { h: 0.65 }, // mulher, recorte até a coxa
+  ren: { h: 0.7 }, // agachado
+  kenji: { h: 0.8 }, // mestre em base baixa, até o joelho
+  nara: { h: 0.6, flip: true }, // mulher, até o quadril
+  suri: { h: 0.86 }, // espírito flutuando, corpo inteiro
+  aiko: { h: 0.74, flip: true }, // mulher, até o joelho
+  zarek: { h: 1.0 }, // alienígena alto, corpo inteiro
+  toru: { h: 0.66 }, // grandão, recorte até a coxa
+  jin: { h: 0.85 }, // até o joelho
+  nyx: { h: 0.87, flip: true }, // androide feminina em pé
+  kael: { h: 0.5 }, // recorte até a cintura
+  sora: { h: 0.72, flip: true }, // mulher em avanço baixo
+  lyra: { h: 0.88, flip: true }, // mulher com chapéu, corpo inteiro
+  mei: { h: 0.55 }, // sentada
+  daichi: { h: 0.66 }, // golem enorme, recorte até o quadril
+  kuro: { h: 0.75 }, // agachado
+  tobi: { h: 0.9 }, // oni tocando tambor, corpo inteiro
+  gorath: { h: 0.72 }, // minotauro enorme, até a coxa
+  vorax: { h: 1.0 }, // alto, corpo inteiro
+  yume: { h: 0.87 }, // mulher, corpo inteiro
+};
+export function enemyCommanderBattle(card: { charId: string; stars: number } | null): string {
+  if (!card) return enemyLeaderImg();
+  const url = CUTOUTS.get(card.charId);
+  if (!url) return enemyCommanderArt(card, 'hero-svg hero-leader-enemy hero-cmd');
+  const look = COMMANDER_LOOK[card.charId] ?? { h: 0.85 };
+  return `<span class="hero-cut${look.flip ? ' flip' : ''}" style="--hs:${look.h}"><img src="${url}" alt="Comandante Adversário" decoding="async" draggable="false"></span>`;
+}
+
 let leaderWarm: HTMLImageElement[] | null = null;
 /** Baixa e decodifica as artes dos dois Comandantes antes da primeira batalha (evita travada ao entrar na luta). */
 export function warmLeader(): void {

@@ -1075,3 +1075,29 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **No início da ação:** Purificar tira 1 efeito ruim do vizinho mais afetado; Ressurreição traz o último aliado derrotado com 50% da vida (rodada 3 em diante, 1 vez a cada 10 rodadas); Teleporte (1 vez) pula para trás do inimigo mais avançado da fileira e ataca (+1); Investida: na 1ª ação anda 2 casas a mais e bate com +1.
 - **Outras:** Regeneração (1, ou 2 no Épico+, no fim do turno) · Explosão ao morrer (2, ou 3 no Épico+, nos inimigos vizinhos) · Raio em Cadeia (+2 inimigos vizinhos com 60% e 30%) · Clone (cópia sem habilidades com metade da vida e do ataque) · Protocolo de Retaliação (dano no seu Comandante volta no inimigo mais próximo dele, até 5) · Sede Eterna (drena 2, ou 3 no Mítico++, e passa a Marca da Sede, que drena 1).
 - As cartas novas usam o peso de Poder neutro (1,0) até serem medidas no simulador.
+
+## 32. Comandante adversário recortado (v0.30.1)
+- Na batalha, o Comandante adversário de cada fase (e do tutorial) aparece **só como o personagem recortado**, sem a carta e sem o fundo, de pé no mesmo piso do nosso bárbaro, com uma **respiração** leve. Na fase 10 continua o **minotauro** animado.
+- A **altura é proporcional ao nosso bárbaro** (1 = a altura dele na tela). Cada personagem tem um fator, escolhido pelo tamanho dele e pela pose/quanto do corpo aparece no recorte:
+
+| Personagem | Altura | Por quê |
+|---|---|---|
+| Vorax, Zarek | 1,00 | altos, corpo inteiro |
+| Tobi | 0,90 | oni, corpo inteiro |
+| Lyra | 0,88 | mulher com chapéu, corpo inteiro |
+| Nyx, Yume | 0,87 | mulheres em pé, corpo inteiro |
+| Suri | 0,86 | espírito flutuando |
+| Jin | 0,85 | até o joelho |
+| Riku, Kenji | 0,80 | salto / base baixa |
+| Kuro, Aiko | 0,75 / 0,74 | agachado / mulher até o joelho |
+| Gorath | 0,72 | minotauro enorme, recorte até a coxa |
+| Sora | 0,72 | mulher em avanço baixo |
+| Ren | 0,70 | agachado |
+| Daichi, Toru | 0,66 | grandes, recorte até o quadril/coxa |
+| Hana | 0,65 | mulher, até a coxa |
+| Nara | 0,60 | mulher, até o quadril |
+| Mei | 0,55 | sentada |
+| Kael | 0,50 | recorte até a cintura |
+
+- A tabela fica em `COMMANDER_LOOK` (`src/ui/art.ts`), junto com quem precisa ser espelhado para olhar para a arena. Os recortes vêm de `scripts/art/build_cutouts.py`.
+

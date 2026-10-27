@@ -1383,3 +1383,22 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .banner-hero .art-sprite { width: 108px; height: 130px; }
 @media (max-width: 520px) { .banner-hero .art-sprite { width: 84px; height: 104px; } }
 .cmd-sprite .art-sprite { height: auto; width: 100%; }
+
+/* =====================================================================
+   v0.30.1 — Comandante adversário recortado (só o personagem), de pé no mesmo piso do nosso,
+   com altura PROPORCIONAL ao nosso bárbaro (--hs: 1 = altura dele) e respiração em CSS
+   ===================================================================== */
+.battle .hero-fig { container-type: size; }
+/* altura do nosso bárbaro na tela: a imagem dele (271×512) ocupa a coluna inteira em "contain" */
+.hero-cut { position: absolute; bottom: 0; left: 0; z-index: 1; pointer-events: none;
+  width: 100cqw; height: calc(min(100cqh, 100cqw * 512 / 271) * var(--hs, 1)); }
+.hero-cut img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%;
+  transform-origin: 50% 100%; animation: cutBreath 3s ease-in-out infinite; -webkit-user-drag: none; user-select: none; }
+.hero-cut.flip img { animation-name: cutBreathFlip; }
+@keyframes cutBreath { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.012, 1.03); } }
+@keyframes cutBreathFlip { 0%, 100% { transform: scale(-1, 1); } 50% { transform: scale(-1.012, 1.03); } }
+@media (prefers-reduced-motion: reduce) {
+  .hero-cut img { animation: none; }
+  .hero-cut.flip img { transform: scaleX(-1); }
+}
+
