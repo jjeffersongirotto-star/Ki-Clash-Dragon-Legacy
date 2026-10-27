@@ -1109,7 +1109,10 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 /* ---- v0.19.0: versão e botão redondo ⟳ de atualização no canto superior da Base ---- */
 .account-box .app-version { margin-left: auto; font-size: 12px; color: #8f9ad0; font-weight: 700; }
 .account-box .upd-btn { width: 38px; height: 38px; padding: 0; border-radius: 50%; font-size: 20px; line-height: 1; display: inline-grid; place-items: center; flex: none; margin-right: env(safe-area-inset-right); }
-.account-box .upd-btn.checking { animation: upd-spin .8s linear infinite; pointer-events: none; }
+/* v0.28.5: só o ícone gira, em torno do próprio centro (o botão fica parado) */
+.account-box .upd-btn .upd-ico { width: 22px; height: 22px; display: block; transform-origin: 50% 50%; }
+.account-box .upd-btn.checking { pointer-events: none; }
+.account-box .upd-btn.checking .upd-ico { animation: upd-spin .8s linear infinite; }
 @keyframes upd-spin { to { transform: rotate(360deg); } }
 
 

@@ -29,7 +29,7 @@ export function home(): void {
       : `<button class="btn small" id="accIn">👤 Entrar / Criar conta</button>`}
       ${(() => { const p = prof(); const lv = profileLevel(save); const into = p.xp - totalXpFor(lv); const need = xpToNext(lv); return `<span class="profile-chip" title="Nível de perfil: sobe com XP de perfil (1 por energia gasta e ao vencer ou repetir fases)"><span>👤 Nível <b>${lv}</b>${lv < PROFILE_MAX ? ` <small>${into}/${need}</small>` : ' <small>máx.</small>'}</span><span class="profile-bar"><i style="width:${lv < PROFILE_MAX ? ((100 * into) / need).toFixed(1) : 100}%"></i></span></span>`; })()}
       <span class="app-version">v${APP_VERSION}</span>
-      <button class="btn small upd-btn" id="updBtn" title="Procurar atualização" aria-label="Procurar atualização">⟳</button></div>
+      <button class="btn small upd-btn" id="updBtn" title="Procurar atualização" aria-label="Procurar atualização"><svg class="upd-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M20.5 3.5v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
     <div class="logo">
       <div class="logo-ki">KI-CLASH</div>
       <div class="logo-sub">DRAGON LEGACY</div>

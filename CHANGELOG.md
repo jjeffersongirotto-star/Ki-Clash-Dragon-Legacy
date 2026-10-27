@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.28.6] — 27/10/2026 · PR #58 — Botão ⟳ gira no lugar
+- **Botão de atualizar:** o símbolo ⟳ virou um ícone desenhado e centralizado; ao procurar atualização só o ícone gira, em torno do próprio centro, e o botão fica parado (antes o botão inteiro girava torto).
+
 ## [0.28.5] — 27/10/2026 · PR #57 — Tela inicial cabe no celular e moeda corrigida
 - **Tela inicial sem rolagem** no celular em pé: logo, cartas, recursos e botões se ajustam à altura da tela.
 - **🪙 Moeda corrigida na barra de recursos:** o estilo de "pílula" da barra era aplicado também às partes de dentro da moeda, e o dragão aparecia solto fora dela (e os Orbes com pílula dupla). Agora só os itens da barra ganham a pílula.
