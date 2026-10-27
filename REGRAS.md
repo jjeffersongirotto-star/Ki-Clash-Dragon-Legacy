@@ -1057,3 +1057,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Botão ⟳ (v0.28.6):** ao procurar atualização, só o ícone gira no centro do botão.
 - **Canto da carta (v0.28.7):** o canto direito de cima mostra o ícone colorido do **grupo** (Suporte ➕ verde, Tanque 🛡 azul, DPS ⚔ vermelho, Mago 🪄 roxo, Arqueiro 🏹 laranja, Assassino 💀 cinza). O degrau aparece só no texto da raridade ("Comum+", "Mítico++").
 - **Cartas futuras (v0.28.8):** o [CARTAS.md](CARTAS.md) é o **projeto** das 120 cartas (20 por tipo), com habilidades e números. **Ainda não estão no jogo**: entram depois que as artes forem feitas.
+- **Projeto das cartas (v0.28.9):** no CARTAS.md, todo tipo tem quem ataque atrás na mesma fileira (🔙 Golpe pelas Costas) e na diagonal de trás (↙ Golpe Reverso).

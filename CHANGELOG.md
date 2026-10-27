@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.28.9] — 27/10/2026 · PR #61 — Monstro com ataque na diagonal de trás
+- Projeto das cartas (CARTAS.md): **Grub Presa-Lamacenta** (Monstro) ganha o ↙ Golpe Reverso, assim todo tipo tem quem ataque na diagonal de trás. Sem mudança no jogo.
+
 ## [0.28.8] — 27/10/2026 · PR #60 — Fichas das 120 cartas (CARTAS.md)
 - Sem mudança no jogo. Novo **[CARTAS.md](CARTAS.md)**: o projeto das 120 cartas (6 tipos × 20). Os 20 personagens atuais contam; **99 são novas**. Cada ficha tem nome, tipo, grupo, raridade, dano, padrão de ataque, espera, habilidades, história, dica de aparência (para a outra IA desenhar) e ataque/vida em cada degrau (fórmula real do jogo).
 - Cada tipo tem 1–2 Míticos, 3–4 Lendários e personagens que atacam pelas costas e na diagonal. As 31 habilidades pedidas (2 já existiam: Couraça de Espinhos e Sopro Restaurador) + 5 sugeridas; as fortes são únicas.

@@ -10,7 +10,7 @@
 |---|---|---|---|---|---|---|---|---|---|---|
 | 🌍 Humano | 20 | 16 | 4 | 4 | 4 | 3 | 3 | 2 | Shin, Sayuri | Akemi, Masao, Hayato |
 | 🪐 Extraterrestre | 20 | 16 | 4 | 4 | 4 | 3 | 4 | 1 | Zarek, Velka, Zynna, Nhyra | Nara, Thessa, Kryx, Vexar |
-| 👹 Monstro | 20 | 16 | 4 | 4 | 4 | 3 | 3 | 2 | Skarr, Ysmera | Trokk |
+| 👹 Monstro | 20 | 16 | 4 | 4 | 4 | 3 | 3 | 2 | Skarr, Ysmera | Grub, Trokk |
 | 🔮 Mago Arcano | 20 | 16 | 4 | 4 | 4 | 3 | 4 | 1 | Odo, Kaela | Isel, Corvin |
 | 🤖 Androide | 20 | 17 | 4 | 4 | 4 | 3 | 3 | 2 | Vex-4, Phase-3 | Toru, Kraz-9, Razor-V |
 | ☠️ Necromante | 20 | 18 | 4 | 4 | 4 | 3 | 3 | 2 | Lethe, Sabbath | Ossian, Morrigan, Drakon |
@@ -894,7 +894,7 @@
 | Daichi Punho-de-Rocha *(já no jogo)* | 🛡️ Tanque | Comum | físico | 2 / 9 | 🌵 Couraça de Espinhos |
 | Kuro Garra-Noturna *(já no jogo)* | 💀 Assassino | Comum | físico | 3 / 5 | 🐾 Ataque Surpresa |
 | Tobi Tambor-de-Guerra *(já no jogo)* | ➕ Suporte | Comum | físico | 2 / 7 | 🥁 Tambor de Guerra |
-| Grub Presa-Lamacenta | ⚔️ DPS | Comum | físico | 3 / 6 | 🩸 Sangramento |
+| Grub Presa-Lamacenta | ⚔️ DPS | Comum | físico | 3 / 6 | ↙ Golpe Reverso, 🩸 Sangramento |
 | Gorath Muralha-de-Ferro *(já no jogo)* | 🛡️ Tanque | Incomum | físico | 3 / 19 | ⛰ Inabalável, 💢 Ombrada |
 | Bufo Sapo-Ácido | 🪄 Mago | Incomum | mágico | 5 / 8 | 🎯 Longo Alcance, 🧪 Veneno |
 | Skarr Escorpião-de-Areia | 💀 Assassino | Incomum | físico | 6 / 6 | 🗡️ Emboscada, 🧪 Veneno |
@@ -976,11 +976,12 @@
 
 #### Grub Presa-Lamacenta
 - **Grupo:** ⚔️ DPS · **Raridade:** Comum → até Épico++ · **Dano:** físico · **Espera:** 2 rodada(s) na mão
-- **Ataque:** 👊 Frente: corpo a corpo, o inimigo logo à frente
+- **Ataque:** 👊 Frente: corpo a corpo, o inimigo logo à frente · ↘ Diagonal: prioriza a diagonal logo atrás
 - **Ao chegar (Comum):** ⚔ 3 de ataque · ❤ 6 de vida
 - **Habilidades:**
+  - ↙ Golpe Reverso: Prioriza o inimigo na diagonal logo atrás (pega quem passou por ele na outra fileira).
   - 🩸 Sangramento: Golpes físicos abrem feridas: o alvo perde 1 de vida por turno por 3 turnos, e mais 1 em cada turno em que andar.
-- **História:** Fera do pântano de presas tortas que deixam feridas abertas.
+- **História:** Fera do pântano que morde de lado quem tenta passar por ela, deixando feridas abertas.
 - **Aparência:** Monstrinho verde-lama de presas grandes, olhos amarelos, garras sujas.
 
 <details><summary>Ataque e vida em cada degrau</summary>
@@ -2695,7 +2696,7 @@
 | Habilidade | Força | O que faz | Quem tem |
 |---|---|---|---|
 | ↗ Corte Diagonal | simples | Também ataca o inimigo na diagonal logo à frente (outra fileira, 1 coluna adiante). | Nara, Akemi, Hayato, Kryx, Vexar, Kraz-9, Isel, Trokk, Ossian, Drakon |
-| ↙ Golpe Reverso | simples | Prioriza o inimigo na diagonal logo atrás (pega quem passou por ele na outra fileira). | Toru, Masao, Thessa, Razor-V, Corvin, Morrigan |
+| ↙ Golpe Reverso | simples | Prioriza o inimigo na diagonal logo atrás (pega quem passou por ele na outra fileira). | Toru, Masao, Thessa, Razor-V, Corvin, Grub, Morrigan |
 | 🛡 Postura de Guarda | simples | Resistência física: reduz o dano de cada golpe físico (v0.17.0: a resistência é habilidade, não status de toda carta). | Toru, Taro, Goro, Quorr, Bastion-2, Sentinel-0, Aegis-Ω, Grav |
 | ⤴ Salto Vendaval | **forte (única)** | Move-se sempre saltando para a 3ª casa à frente, por cima de aliados ou inimigos (2ª ou 1ª se a de cima estiver ocupada). Salta também por cima do inimigo da frente. Ao cair, ataca com bônus. | Riku |
 | 🎯 Longo Alcance | simples | Ataca o inimigo mais próximo até 4 casas à frente na sua fileira (inclusive o Comandante). Não avança quando consegue atacar. | Aiko, Lyra, Mei, Nyx-07, Vorax, Sora, Kael, Suri, Hana, Jin, Yuna, Daisuke, Emi, Rin, Pip, Orun, Ilun, Morv, Aurel, Lunaris, Medi-3, Cryo-6, Echo-5, Halo-8, Pulse-7, Omega-9, Fen, Celina, Tiberius, Nalia, Selene, Dorian, Morgause, Eldrin, Vesna, Aethra, Bufo, Spindra, Oculus, Mira, Pira, Cador, Wex, Ivra, Nocturna, Lamenta, Elegia |
