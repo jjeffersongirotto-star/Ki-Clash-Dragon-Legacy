@@ -12,7 +12,7 @@ describe('v0.27.0 — Banner de cartas', () => {
     expect(bannerPrice(B, 1)).toBe(300);
     expect(bannerPrice(B, 10)).toBe(2700);
     // v0.30.0: + Mítico 0,5% (tirado do Comum) para as cartas que começam no Mítico
-    expect(B.odds).toEqual({ 1: 0.395, 2: 0.27, 3: 0.2, 4: 0.1, 5: 0.03, 6: 0.005 });
+    expect(B.odds).toEqual({ 1: 0.25, 2: 0.3, 3: 0.25, 4: 0.15, 5: 0.04, 6: 0.01 }); // v0.31.0
     expect(Object.values(B.odds).reduce((a, b) => a + b, 0)).toBeCloseTo(1, 9);
   });
 
@@ -52,12 +52,12 @@ describe('v0.27.0 — Banner de cartas', () => {
     for (const st of STAGES) for (const id of BANNER_EXCLUSIVE) expect(st.pack).not.toContain(id);
   });
 
-  it('pacote de 10: 10 cartas e pelo menos 1 Rara ou melhor', () => {
+  it('pacote de 10: 10 cartas e pelo menos 1 Épica ou melhor (v0.31.0; antes Rara)', () => {
     const rng = lcg(5);
     for (let k = 0; k < 500; k++) {
       const got = pull(B, 10, rng);
       expect(got).toHaveLength(10);
-      expect(got.some((c) => c.stars >= 3)).toBe(true);
+      expect(got.some((c) => c.stars >= 4)).toBe(true);
     }
     expect(pull(B, 1, rng)).toHaveLength(1);
   });

@@ -56,6 +56,8 @@ export interface SaveData {
   profile?: ProfileState;
   /** migração v0.26.0: saves antigos começam no nível de perfil que tinham (1 + fases vencidas), com energia cheia */
   v26?: boolean;
+  /** v0.31.0: cartas compradas em cada banner desde a última Lendária/Mítica (garantia a cada 80) */
+  bannerPity?: Record<string, number>;
 }
 
 /** Carta como era salva até a v0.22.0 (com nível numerado e `plus` verdadeiro/falso). */

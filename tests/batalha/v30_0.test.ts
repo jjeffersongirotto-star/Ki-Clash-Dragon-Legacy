@@ -30,9 +30,9 @@ describe('v0.30.0 — as 120 cartas', () => {
       expect(d.hp).toBeGreaterThan(0);
     }
   });
-  it('banner: Mítico 0,5% e as cartas que começam no Mítico saem nessa raridade', () => {
+  it('banner: Mítico 1% (v0.31.0; antes 0,5%) e as cartas que começam no Mítico saem nessa raridade', () => {
     const b = BANNERS[0];
-    expect(b.odds[6]).toBe(0.005);
+    expect(b.odds[6]).toBe(0.01);
     const mythic = PLAYABLE.filter((d) => d.minStars === 6).map((d) => d.id);
     expect(mythic.length).toBeGreaterThan(5);
     for (const id of mythic) expect(poolFor(6)).toContain(id);

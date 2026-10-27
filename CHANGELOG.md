@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.31.0] — 27/10/2026 · PR #66 — Carta sem raios, detalhes sem rolar e banner com garantias
+- **Carta:** saem os raios de luz girando por cima da arte (Épico+); ficam o reflexo e a borda.
+- **Detalhes da carta:** ✕ no canto para fechar; "Colocar no baralho" e "Treinar" viram cards ao lado da carta; no celular em pé tudo cabe sem barra de rolagem (conferido em 412×915 e 360×740).
+- **Banner:** chances Comum 25 · Incomum 30 · Raro 25 · Épico 15 · Lendário 4 · Mítico 1%; pacote de 10 garante **1 Épica**; **Lendária garantida a cada 80 cartas** (contador N/80 no card do banner, zera quando sai Lendária/Mítica).
+- **Resultado da compra:** botões Comprar 1 / Comprar 10 e ✕ embaixo para sair.
+
 ## [0.30.2] — 27/10/2026 · PR #65 — Arte nova da Cria Sombria
 - **🟢 Cria Sombria** (a invocação do Vorax) ganha a arte ilustrada enviada pelo jogador: na carta, nas unidades da batalha e no recorte (sem fundo). Agora nenhum personagem usa mais o desenho SVG antigo.
 - `scripts/art/build_cards.py` aceita ilustrações já limpas (tabela `PLAIN`: só recorta no formato da carta); `build_cutouts.py` também gera o recorte da Cria.

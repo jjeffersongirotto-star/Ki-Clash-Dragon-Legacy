@@ -990,7 +990,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 ## 26. 🎴 Banner de cartas e cópias repetidas (v0.27.0)
 - O **Banner** fica na **🏪 Loja**, com paisagem e os personagens em destaque (**Kenji** e **Vorax**). Os banners são dados (`BANNERS` em `src/core/banner.ts`): cartas e fases futuras podem ganhar banners novos.
-- **Preço:** 1 carta = **300** Ouro de Dragão · 10 cartas = **2.700** (10 pelo preço de 9). No pacote de 10, **pelo menos 1 carta Rara ou melhor**.
+- **Preço:** 1 carta = **300** Ouro de Dragão · 10 cartas = **2.700** (10 pelo preço de 9). No pacote de 10, **pelo menos 1 carta Épica ou melhor** (v0.31.0; antes Rara).
 - **Chance de cada carta:** Comum **40%** · Incomum **27%** · Raro **20%** · Épico **10%** · Lendário **3%**.
 - **Que personagem sai:** sorteia a raridade e depois um personagem que pode ter essa raridade (raridade inicial ≤ sorteada ≤ raridade máxima dele). Ele vem **nessa raridade**, no degrau base. Ex.: um Raro pode ser a Yume (que começa em Raro) ou o Riku já em Raro.
 - **Kenji e Vorax** só existem no Lendário e **só saem no Banner** (não vêm em fase nem em pacote). Numa carta Lendária, **metade das vezes** sai um deles (≈0,75% cada por carta); na outra metade, outro personagem que pode ser Lendário (Yume, Zarek ou Nyx).
@@ -1065,7 +1065,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 ## 31. As 120 cartas e as habilidades novas (v0.30.0)
 - O jogo tem **120 personagens, 20 de cada tipo** (fichas completas no [CARTAS.md](CARTAS.md)). Os 99 novos saem **só no 🎴 Banner**; as fases, os pacotes de fase e o começo do jogo continuam com os 20 de antes.
-- **Banner:** Comum 39,5% · Incomum 27% · Raro 20% · Épico 10% · Lendário 3% · **Mítico 0,5%** (cartas que começam no Mítico só saem nessa raridade).
+- **Banner:** Comum 25% · Incomum 30% · Raro 25% · Épico 15% · Lendário 4% · **Mítico 1%** (v0.31.0; cartas que começam no Mítico só saem nessa raridade).
 - **Efeitos novos** (ícone na unidade): 🩸 sangramento (1 por turno por 3 turnos, +1 quando anda) · 🐌 lento (anda 1 casa, perde o ataque no 1º turno lento) · ❄️ congelado (não ataca no próximo turno, ainda anda) · 💫 atordoado (perde a ação) · 🕯️ maldição (+25% de dano recebido por 2 turnos) · ⏳ imune (Vontade Inquebrável).
 - **Ao acertar:** Veneno, Sangramento (golpe físico) e Queimadura (acumula até 2) também nos golpes secundários; Maldição, Lentidão, Congelamento (50%), Atordoamento (50%), Domínio (−1 de ataque, até −3), Copiador, Selo do Vazio, Sede Eterna e Execução só no golpe principal. Congelar/atordoar não pegam o mesmo alvo dois turnos seguidos.
 - **Golpe Crítico:** 25% (30% no Lendário e Mítico) de dano dobrado no golpe principal. **Perfurar:** ignora escudo e toda a resistência. **Evasão:** desvia de ataques à distância e feitiços de 1 alvo, a não ser que esteja congelado, atordoado ou lento.
@@ -1101,3 +1101,11 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 - A tabela fica em `COMMANDER_LOOK` (`src/ui/art.ts`), junto com quem precisa ser espelhado para olhar para a arena. Os recortes vêm de `scripts/art/build_cutouts.py`.
 - **Cria Sombria (v0.30.2):** a invocação do Vorax usa a arte ilustrada própria (carta, batalha e recorte), como os outros 120 personagens.
+
+## 33. Carta, detalhes e banner (v0.31.0)
+- **Carta:** saíram os raios de luz girando por cima da arte (Épico ou melhor). Ficam a aura, o reflexo que passa e a borda.
+- **Janela de detalhes (Coleção):** ✕ no canto de cima à direita para fechar. **Colocar no baralho** (ou Tirar) e **Treinar** viram dois "cards" ao lado da carta (à esquerda); no celular em pé o "Visual na Arena" fica do outro lado e tudo cabe sem rolar.
+- **Banner — chances por carta:** Comum 25% · Incomum 30% · Raro 25% · Épico 15% · Lendário 4% · Mítico 1%.
+- **Pacote de 10:** pelo menos **1 Épica ou melhor**.
+- **Lendária garantida:** a cada **80 cartas** compradas no banner (as de 1 e as de 10 contam carta por carta), a 80ª vem Lendária ou Mítica. O contador volta a 0 sempre que sai uma Lendária ou Mítica (por sorte ou garantida). O card do banner mostra **N/80**.
+- **Depois de comprar:** o resultado mostra **Comprar 1** e **Comprar 10** (de novo, direto) e um **✕** embaixo, no meio, para sair.
