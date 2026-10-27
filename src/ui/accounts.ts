@@ -122,6 +122,9 @@ export function adminSave(): SaveData {
     cards[def.id] = { charId: def.id, xp: 0, stars: def.maxStars, plus: MAX_STEP };
   }
   d.cards = cards;
+  // v0.32.0: 9 cópias guardadas de cada personagem (baralho com 3 e sobras para testar o Desmanchar)
+  d.dupes = Object.fromEntries(Object.values(cards).map((c) => [c.charId, { [c.stars]: 9 }]));
+  d.genXp = 0;
   d.cleared = STAGES.map((s) => s.id);
   d.clearedDiff = { normal: STAGES.map((s) => s.id), dificil: STAGES.map((s) => s.id) };
   // v0.21.0: 3 ⭐ em todas as fases, nas 3 dificuldades

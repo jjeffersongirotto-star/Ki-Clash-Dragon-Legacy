@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DUP_OVERFLOW_REFUND, dupBaseXp, grantCard, overflowRefund, xpToOrbs } from '../../src/core/banner';
+import { DUP_OVERFLOW_REFUND, dupBaseXp, feedCopy, overflowRefund, xpToOrbs } from '../../src/core/banner';
 import { bagXp, cardBarXp, newOwned, type OwnedCard, type XpItemId } from '../../src/core/progression';
 
 describe('v0.28.3 — XP de cópia que passa da barra cheia vira Orbe (25%)', () => {
@@ -25,14 +25,11 @@ describe('v0.28.3 — XP de cópia que passa da barra cheia vira Orbe (25%)', ()
     expect(overflowRefund(300)).toEqual({});
   });
 
-  it('cópia repetida com a barra cheia: o XP que passou volta em Orbes na bolsa', () => {
+  it('cópia desmanchada (direcionado, v0.32.0) com a barra cheia: o XP que passou volta em Orbes na bolsa', () => {
     const owned: OwnedCard = { ...newOwned('riku') };
     owned.xp = cardBarXp(owned);
-    const cards = { riku: owned };
     const items: Partial<Record<XpItemId, number>> = { orbe1: 2 };
-    const g = grantCard(cards, { charId: 'riku', stars: 3 }, () => 0.99, items);
-    expect(g.isNew).toBe(false);
-    if (g.isNew) return;
+    const g = feedCopy(owned, 3, 0, () => 0.99, items);
     expect(g.wasted).toBe(dupBaseXp(3)); // barra já cheia: tudo passou
     expect(g.refund).toEqual(xpToOrbs(dupBaseXp(3) * 0.25));
     expect(items.orbe1).toBe(2 + (g.refund.orbe1 ?? 0));
@@ -40,9 +37,7 @@ describe('v0.28.3 — XP de cópia que passa da barra cheia vira Orbe (25%)', ()
   });
 
   it('sem XP passando, nada é devolvido; sem bolsa informada, a bolsa não muda', () => {
-    const cards = { riku: { ...newOwned('riku') } };
-    const g = grantCard(cards, { charId: 'riku', stars: 1 }, () => 0.99);
-    if (g.isNew) throw new Error('era repetido');
+    const g = feedCopy({ ...newOwned('riku') }, 1, 0, () => 0.99);
     expect(g.wasted).toBe(0);
     expect(g.refund).toEqual({});
   });

@@ -1109,3 +1109,14 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Pacote de 10:** pelo menos **1 Épica ou melhor**.
 - **Lendária garantida:** a cada **80 cartas** compradas no banner (as de 1 e as de 10 contam carta por carta), a 80ª vem Lendária ou Mítica. O contador volta a 0 sempre que sai uma Lendária ou Mítica (por sorte ou garantida). O card do banner mostra **N/80**.
 - **Depois de comprar:** o resultado mostra **Comprar 1** e **Comprar 10** (de novo, direto) e um **✕** embaixo, no meio, para sair.
+
+## 34. Cópias, 🎒 Inventário e Desmanchar (v0.32.0)
+- **Ganhar um personagem dá 1 cópia.** Para ter 3 dele no baralho, você precisa ter 3 cópias (o baralho só usa as que você tem, até 3 por personagem). Feitiços continuam até 3.
+- **Repetido não vira mais XP sozinho:** cada personagem repetido (banner ou pacote) vira **+1 cópia guardada** no Inventário.
+- **🎒 Inventário** (na Base), com duas abas: **Itens** (Essências, Orbes, XP guardado e itens de ascensão) e **Personagens repetidos** (as cópias de cada personagem, por raridade).
+- **Desmanchar** (aba Personagens repetidos), dois modos:
+  - **🎯 Direcionado:** a cópia vira XP do **próprio** personagem: Orbe da raridade da cópia (Comum 100 … Mítico 3.000), com a sorte de sempre (12% ×2 · 5% ×5 · 1% ×10). XP que passa da barra cheia: 25% volta em Orbes.
+  - **♻ Geral:** a cópia vira **25%** desse XP, guardado como **Orbes** (para qualquer personagem). O que não fecha um Orbe inteiro fica guardado ("XP guardado") para a próxima.
+  - Nunca dá para desmanchar a **última cópia** nem as cópias que o **baralho está usando**.
+- **Mínimo do baralho:** 3 × personagens (até 20), mas nunca mais do que as cópias que você pode usar.
+- **Saves antigos:** cada personagem que você já tinha ganha **3 cópias** (2 guardadas, na raridade inicial dele), então o baralho não perde nada. Os 3 personagens do tutorial também terminam com 3 cópias cada. A conta ADM tem 9 cópias guardadas de cada personagem.

@@ -9,6 +9,7 @@ import { normalizeGear, type GearBag } from '../core/gear';
 import { DIFFICULTIES, clearedIn, type DailyUse, type Difficulty } from '../core/adventure';
 import { TUTORIAL_STARTER, TUT_BATTLE1, TUT_DONE } from '../core/tutorial';
 import { levelFromXp, newProfile, normalizeProfile, type ProfileState } from '../core/profile';
+import { addDupe, dupeCount, totalCopies, type Dupes } from '../core/banner';
 
 export interface SaveData {
   version: 1;
@@ -58,6 +59,12 @@ export interface SaveData {
   v26?: boolean;
   /** v0.31.0: cartas compradas em cada banner desde a última Lendária/Mítica (garantia a cada 80) */
   bannerPity?: Record<string, number>;
+  /** v0.32.0: cópias repetidas guardadas (personagem → raridade → quantidade); o personagem que você tem é a 1ª cópia */
+  dupes?: Dupes;
+  /** v0.32.0: XP do Desmanchar geral que ainda não fechou um Orbe inteiro */
+  genXp?: number;
+  /** migração v0.32.0: saves antigos ganham 3 cópias de cada personagem (o baralho não perde nada) */
+  v32?: boolean;
 }
 
 /** Carta como era salva até a v0.22.0 (com nível numerado e `plus` verdadeiro/falso). */
@@ -132,6 +139,9 @@ export function defaultSave(): SaveData {
     v24: true,
     v25: true,
     v26: true,
+    v32: true,
+    dupes: {},
+    genXp: 0,
     profile: newProfile(),
     tutorial: TUT_BATTLE1,
     gear: {},
@@ -148,7 +158,11 @@ export const profileLevel = (d: SaveData) => levelFromXp(d.profile?.xp ?? 0);
 export const deckMax = (d: SaveData) => deckMaxFor(profileLevel(d));
 /** a carta (personagem possuído ou feitiço) pode estar no baralho? */
 export const usable = (d: SaveData, id: string) => isSpell(id) || (!!CHAR_BY_ID[id] && !!d.cards[id]);
-export const copiesIn = (d: SaveData, id: string) => Math.max(1, Math.min(MAX_COPIES, Math.floor(d.copies?.[id] ?? MAX_COPIES)));
+/** v0.32.0: quantas cópias da carta o baralho pode ter: feitiço até 3; personagem até 3, mas só as que você tem. */
+export const maxCopiesFor = (d: SaveData, id: string) => (isSpell(id) ? MAX_COPIES : Math.max(1, Math.min(MAX_COPIES, totalCopies(d.cards, d.dupes, id))));
+export const copiesIn = (d: SaveData, id: string) => Math.max(1, Math.min(maxCopiesFor(d, id), Math.floor(d.copies?.[id] ?? MAX_COPIES)));
+/** v0.32.0: cópias que você tem do personagem (0 se não tem) */
+export const ownedCopies = (d: SaveData, id: string) => totalCopies(d.cards, d.dupes, id);
 /** as entradas do baralho prontas para a batalha */
 export function deckCards(d: SaveData): CardInstance[] {
   return d.deck
@@ -160,8 +174,15 @@ export function deckCards(d: SaveData): CardInstance[] {
     );
 }
 export const deckCount = (d: SaveData) => deckSize(deckCards(d));
-/** v0.25.0: mínimo do baralho = 3 × personagens que o jogador tem (até 20) */
-export const deckMin = (d: SaveData) => deckMinFor(Object.keys(d.cards).filter((id) => CHAR_BY_ID[id] && !CHAR_BY_ID[id].summonOnly).length);
+/**
+ * v0.25.0: mínimo do baralho = 3 × personagens que o jogador tem (até 20).
+ * v0.32.0: conta as cópias que dá para usar (até 3 de cada personagem), ainda limitado a 20.
+ */
+export const deckMin = (d: SaveData) =>
+  Math.min(
+    deckMinFor(Object.keys(d.cards).filter((id) => CHAR_BY_ID[id] && !CHAR_BY_ID[id].summonOnly).length),
+    Math.max(1, Object.keys(d.cards).filter((id) => CHAR_BY_ID[id] && !CHAR_BY_ID[id].summonOnly).reduce((n, id) => n + maxCopiesFor(d, id), 0)),
+  );
 /** motivo de o baralho não valer (null = pode lutar) */
 export const deckIssue = (d: SaveData) => deckProblem(deckCards(d), deckMax(d), deckMin(d));
 
@@ -169,7 +190,7 @@ export const deckIssue = (d: SaveData) => deckProblem(deckCards(d), deckMax(d), 
 export function addToDeck(d: SaveData, id: string): number {
   if (!usable(d, id) || d.deck.includes(id)) return 0;
   const room = deckMax(d) - deckCount(d);
-  const n = Math.min(MAX_COPIES, room);
+  const n = Math.min(maxCopiesFor(d, id), room);
   if (n < 1) return 0;
   d.deck.push(id);
   (d.copies ??= {})[id] = n;
@@ -183,7 +204,7 @@ export function removeFromDeck(d: SaveData, id: string) {
 export function setCopies(d: SaveData, id: string, n: number): number {
   const cur = copiesIn(d, id);
   const room = deckMax(d) - deckCount(d) + cur;
-  const v = Math.max(1, Math.min(MAX_COPIES, Math.floor(n), room));
+  const v = Math.max(1, Math.min(maxCopiesFor(d, id), Math.floor(n), room));
   (d.copies ??= {})[id] = v;
   return v;
 }
@@ -275,6 +296,7 @@ export function loadSave(): SaveData {
     // sempre normaliza os Comandantes (save antigo sem o campo, ou campo corrompido)
     migrateV13(merged);
     migrateV26(merged, d); // antes do baralho: o tamanho máximo vem do nível de perfil
+    migrateV32(merged, d); // antes do baralho: as cópias que você tem limitam o baralho
     migrateV17(merged);
     normalizeV20(merged);
     merged.items = migrateOrbs(d.items as Record<string, unknown>);
@@ -321,6 +343,38 @@ export function migrateV25(merged: SaveData, raw: Partial<SaveData>): SaveData {
 export function migrateV26(merged: SaveData, raw: Partial<SaveData>, now = Date.now()): SaveData {
   merged.profile = raw.v26 ? normalizeProfile(raw.profile, 1, now) : normalizeProfile(undefined, profileLevelFor(merged.cleared.length), now);
   merged.v26 = true;
+  return merged;
+}
+
+/** Confere as cópias guardadas (personagem válido que você tem, raridade 1–6, quantidade inteira > 0). */
+export function normalizeDupes(v: unknown, cards: Record<string, OwnedCard>): Dupes {
+  const out: Dupes = {};
+  if (!v || typeof v !== 'object') return out;
+  for (const [id, row] of Object.entries(v as Record<string, unknown>)) {
+    if (!CHAR_BY_ID[id] || !cards[id] || !row || typeof row !== 'object') continue;
+    for (const [r, k] of Object.entries(row as Record<string, unknown>)) {
+      const stars = Math.floor(Number(r));
+      const n = Math.floor(Number(k));
+      if (stars >= 1 && stars <= 6 && n > 0) addDupe(out, id, stars, n);
+    }
+  }
+  return out;
+}
+
+/**
+ * v0.32.0: ganhar um personagem dá 1 cópia; o baralho só usa as cópias que você tem (até 3).
+ * Save antigo: cada personagem que você já tinha ganha +2 cópias guardadas (3 no total, na raridade inicial dele),
+ * para ninguém perder espaço no baralho.
+ */
+export function migrateV32(merged: SaveData, raw: Partial<SaveData>): SaveData {
+  merged.dupes = normalizeDupes(raw.dupes, merged.cards);
+  if (!raw.v32)
+    for (const id of Object.keys(merged.cards)) {
+      const def = CHAR_BY_ID[id];
+      if (def && !def.summonOnly && dupeCount(merged.dupes, id) < MAX_COPIES - 1) addDupe(merged.dupes, id, def.minStars, MAX_COPIES - 1 - dupeCount(merged.dupes, id));
+    }
+  merged.genXp = Math.max(0, Math.floor(Number(raw.genXp) || 0));
+  merged.v32 = true;
   return merged;
 }
 

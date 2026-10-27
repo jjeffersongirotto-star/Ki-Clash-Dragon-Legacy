@@ -43,7 +43,7 @@ describe('v0.25.0 — tutorial', () => {
     expect(Object.keys(d.cards)).toEqual([TUTORIAL_STARTER]);
     expect(Object.values(d.items).every((v) => v === 0)).toBe(true);
     expect(d.essencias).toBe(0);
-    expect(deckMin(d)).toBe(3);
+    expect(deckMin(d)).toBe(1); // v0.32.0: o Riku é 1 cópia (as batalhas do tutorial montam o próprio baralho)
     expect(deckIssue(d)).toBeNull();
   });
 
@@ -99,6 +99,7 @@ describe('v0.25.0 — tutorial', () => {
     expect(deckProblem(three.map((c) => ({ ...c, copies: 2 })))).toMatch(/6 de no mínimo 9/);
     const d = defaultSave();
     for (const id of TUTORIAL_PACK) d.cards[id] = newOwned(id);
+    d.dupes = Object.fromEntries(TUTORIAL_CHARS.map((id) => [id, { 1: 2 }])); // v0.32.0: 3 cópias de cada (fim do tutorial)
     d.deck = ['riku', 'sora']; // tem 3 personagens: o mínimo conta os que ele TEM
     expect(deckIssue(d)).toMatch(/6 de no mínimo 9/);
   });

@@ -287,6 +287,8 @@ describe('v0.17.0 — baralho com cópias e nível de perfil (decisão 6)', () =
   const oldStart = () => {
     const d = defaultSave();
     for (const id of STARTER_IDS) d.cards[id] = newOwned(id);
+    // v0.32.0: o baralho só usa as cópias que você tem — aqui, 3 de cada (como um save migrado)
+    d.dupes = Object.fromEntries(STARTER_IDS.map((id) => [id, { 1: 2 }]));
     d.deck = STARTER_IDS.slice(0, 10);
     return d;
   };

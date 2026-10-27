@@ -48,6 +48,12 @@ export function openAccountSave(): SaveData {
     d.profile = adminSave().profile;
     writeSave(d);
   }
+  // v0.32.0: a ADM ganha uma vez 9 cópias guardadas de cada personagem (para testar o Desmanchar)
+  if (id && accounts.accounts[id]?.admin && !rawSaveHas('"admDupes32":true')) {
+    d.dupes = adminSave().dupes;
+    (d as SaveData & { admDupes32?: boolean }).admDupes32 = true;
+    writeSave(d);
+  }
   return d;
 }
 export let save: SaveData = openAccountSave();

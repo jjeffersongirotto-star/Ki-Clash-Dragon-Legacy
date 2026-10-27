@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BANNERS, BANNER_EXCLUSIVE, bannerPrice, drawAt, dupBaseXp, dupMultiplier, grantCard, poolFor, pull, rollRarity } from '../../src/core/banner';
+import { BANNERS, BANNER_EXCLUSIVE, bannerPrice, drawAt, dupBaseXp, dupMultiplier, feedCopy, grantCard, poolFor, pull, rollRarity } from '../../src/core/banner';
 import { getChar } from '../../src/core/characters';
 import { STAGES } from '../../src/core/campaign';
 import { cardBarXp, newOwned, type OwnedCard } from '../../src/core/progression';
@@ -63,7 +63,7 @@ describe('v0.27.0 — Banner de cartas', () => {
   });
 });
 
-describe('v0.27.0 — cópias repetidas viram XP', () => {
+describe('v0.27.0 — cópias repetidas (v0.32.0: guardadas; o Desmanchar direcionado vira XP)', () => {
   it('XP base = Orbe da raridade + 20% por "+"', () => {
     expect([1, 2, 3, 4, 5, 6].map((s) => dupBaseXp(s))).toEqual([100, 250, 400, 800, 1500, 3000]);
     expect(dupBaseXp(3, 1)).toBe(480);
@@ -84,27 +84,26 @@ describe('v0.27.0 — cópias repetidas viram XP', () => {
     expect(c[10] / n).toBeCloseTo(0.01, 1);
   });
 
-  it('personagem novo entra na raridade da carta; repetido vira XP e não sobe a raridade', () => {
+  it('personagem novo entra na raridade da carta; repetido (v0.32.0) vira 1 cópia guardada e não sobe a raridade', () => {
     const cards: Record<string, OwnedCard> = {};
-    const a = grantCard(cards, { charId: 'riku', stars: 3 }, () => 0.9);
+    const dupes = {};
+    const a = grantCard(cards, { charId: 'riku', stars: 3 }, dupes);
     expect(a.isNew).toBe(true);
     expect(cards.riku).toMatchObject({ stars: 3, plus: 0, xp: 0 });
-    const b = grantCard(cards, { charId: 'riku', stars: 4 }, () => 0.9);
+    const b = grantCard(cards, { charId: 'riku', stars: 4 }, dupes);
     expect(b.isNew).toBe(false);
-    if (!b.isNew) expect(b.xp).toBe(800);
+    if (!b.isNew) expect(b.copies).toBe(2);
     expect(cards.riku.stars).toBe(3);
-    expect(cards.riku.xp).toBe(Math.min(800, cardBarXp(cards.riku)));
+    expect(cards.riku.xp).toBe(0); // não vira XP sozinho
+    expect(dupes).toEqual({ riku: { 4: 1 } });
   });
 
-  it('cópia com sorte ×10 e XP que passa da barra é perdido (regra de sempre)', () => {
-    const cards = { daichi: newOwned('daichi') };
-    const r = grantCard(cards, { charId: 'daichi', stars: 1 }, () => 0.001);
-    expect(r.isNew).toBe(false);
-    if (!r.isNew) {
-      expect(r.mult).toBe(10);
-      expect(r.xp).toBe(1000);
-      expect(cards.daichi.xp).toBe(Math.min(1000, cardBarXp(cards.daichi)));
-      expect(r.wasted).toBe(Math.max(0, 1000 - cardBarXp(cards.daichi)));
-    }
+  it('Desmanchar direcionado: cópia com sorte ×10; o XP que passa da barra não fica na carta', () => {
+    const daichi = newOwned('daichi');
+    const r = feedCopy(daichi, 1, 0, () => 0.001);
+    expect(r.mult).toBe(10);
+    expect(r.xp).toBe(1000);
+    expect(daichi.xp).toBe(Math.min(1000, cardBarXp(daichi)));
+    expect(r.wasted).toBe(Math.max(0, 1000 - cardBarXp(daichi)));
   });
 });

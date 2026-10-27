@@ -12,7 +12,7 @@ import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reach
 import { SPELLS, getSpell, isSpell } from '../core/spells';
 import { gameAlert, showDialog } from '../ui/dialog';
 import { leaveBattleMode } from '../ui/orientation';
-import { MAX_COPIES, addToDeck, deckMin, copiesIn, deckCount, deckIssue, deckMax, profileLevel, removeFromDeck, setCopies } from '../ui/save';
+import { MAX_COPIES, addToDeck, deckMin, copiesIn, maxCopiesFor, deckCount, deckIssue, deckMax, profileLevel, removeFromDeck, setCopies } from '../ui/save';
 import { app, save, setTrainSel, persist, unlockStage, entryName, teamPower, activeLeader, leaderLevel, fmt } from './state';
 import { topbar, bindNav, modal, closeModal, bakeAllGrid } from './ui';
 import { train } from './train';
@@ -98,7 +98,7 @@ export function collection() {
     const card = isSpell(id)
       ? spellCardHTML(id, { compact: true, attrs: `data-card="${id}"` })
       : cardHTML(save.cards[id], { compact: true, grid: true, attrs: `data-card="${id}"`, power: cardPower(save.cards[id]) });
-    return `<div class="deck-entry">${card}<div class="copies" data-copies="${id}"><button class="cp-btn" data-cp="-1" aria-label="Menos uma cópia" ${n <= 1 ? 'disabled' : ''}>−</button><b>×${n}</b><button class="cp-btn" data-cp="1" aria-label="Mais uma cópia" ${n >= MAX_COPIES || count >= max ? 'disabled' : ''}>+</button></div></div>`;
+    return `<div class="deck-entry">${card}<div class="copies" data-copies="${id}"><button class="cp-btn" data-cp="-1" aria-label="Menos uma cópia" ${n <= 1 ? 'disabled' : ''}>−</button><b>×${n}</b><button class="cp-btn" data-cp="1" aria-label="Mais uma cópia" title="${n >= maxCopiesFor(save, id) && n < MAX_COPIES ? `Você tem ${maxCopiesFor(save, id)} cópia(s) deste personagem` : ''}" ${n >= maxCopiesFor(save, id) || count >= max ? 'disabled' : ''}>+</button></div></div>`;
   };
   app.innerHTML = `<div class="screen">${topbar('Coleção & Baralho')}
     ${leaderPanelHTML()}
