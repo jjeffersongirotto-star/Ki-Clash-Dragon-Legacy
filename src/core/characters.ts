@@ -1,4 +1,5 @@
 import type { Category, CharacterDef, Race, Rarity } from './types';
+import { NEW_CHARACTERS } from './charactersNew';
 
 export const RARITY_INFO: Record<Rarity, { label: string; color: string; glow: string; order: number }> = {
   comum: { label: 'Comum', color: '#9aa3ad', glow: '#c9d1d9', order: 0 },
@@ -39,7 +40,8 @@ export const STAR_COLORS: Record<number, { color: string; glow: string; label: s
 
 const base = { move: 2, range: 1, physRes: 0, magRes: 0 };
 
-export const CHARACTERS: CharacterDef[] = [
+/** Os 21 personagens até a v0.29.0 (e a Cria Sombria). */
+const BASE_CHARACTERS: CharacterDef[] = [
   {
     ...base,
     id: 'riku',
@@ -506,6 +508,11 @@ export const CHARACTERS: CharacterDef[] = [
   },
 ];
 
+/** v0.30.0: + as 99 cartas novas (charactersNew.ts). */
+export const CHARACTERS: CharacterDef[] = [...BASE_CHARACTERS, ...NEW_CHARACTERS];
+/** v0.30.0: ids das cartas novas (só saem no banner). */
+export const NEW_IDS = new Set(NEW_CHARACTERS.map((c) => c.id));
+
 export const CHAR_BY_ID: Record<string, CharacterDef> = Object.fromEntries(CHARACTERS.map((c) => [c.id, c]));
 
 export function getChar(id: string): CharacterDef {
@@ -523,14 +530,15 @@ export const PLAYABLE = CHARACTERS.filter((c) => !c.summonOnly);
 export const UNIQUE_5STAR = ['kenji', 'vorax'];
 
 /** Personagens iniciais (v0.8): todo jogador novo começa com todos os de Comum, e só com eles. */
-export const STARTER_IDS = PLAYABLE.filter((c) => c.minStars === 1).map((c) => c.id);
+export const STARTER_IDS = BASE_CHARACTERS.filter((c) => !c.summonOnly && c.minStars === 1).map((c) => c.id);
 
 /**
  * Quem começa em Lendário ou Mítico não vem em fase nem em pacote (v0.8: "em breve").
  * v0.27.0: esses personagens (Kenji e Vorax) só saem no 🎴 Banner da Loja (banner.ts).
  */
 export function isComingSoon(def: CharacterDef): boolean {
-  return def.minStars >= 5;
+  // v0.30.0: as 99 cartas novas também saem só no banner
+  return def.minStars >= 5 || NEW_IDS.has(def.id);
 }
 export function expectedMaxStars(minStars: number): number {
   return minStars <= 2 ? 4 : minStars === 3 ? 5 : 6;

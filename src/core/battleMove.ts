@@ -49,7 +49,7 @@ function leapMove(state: BattleState, ctx: Ctx, u: Unit): boolean {
  * Demais (v0.15.0): andam até `move` casas, atravessam ALIADOS mas só param em casa livre (senão ficam na
  * última casa livre antes deles); inimigos bloqueiam; param assim que um alvo entra no alcance (checado nas casas livres).
  */
-export function moveUnit(state: BattleState, ctx: Ctx, u: Unit, opts: { leapFront?: boolean } = {}): boolean {
+export function moveUnit(state: BattleState, ctx: Ctx, u: Unit, opts: { leapFront?: boolean; maxMove?: number } = {}): boolean {
   if (has(u.abilities, (a) => a.jump)) {
     if (!opts.leapFront && findTarget(state, u)) return false;
     return leapMove(state, ctx, u);
@@ -60,7 +60,7 @@ export function moveUnit(state: BattleState, ctx: Ctx, u: Unit, opts: { leapFron
   if (findTarget(state, u)) return false;
   let stop = start;
   const over: number[] = [];
-  for (let k = 1; k <= u.move; k++) {
+  for (let k = 1; k <= (opts.maxMove ?? u.move); k++) {
     const c = start + k * d;
     if (!inBoard(state, u.row, c)) break;
     const occ = unitAt(state, u.row, c);

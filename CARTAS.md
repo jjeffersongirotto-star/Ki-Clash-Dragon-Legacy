@@ -48,7 +48,7 @@
 | Sayuri Agulha-Venenosa | 💀 Assassino | Raro | físico | 10 / 10 | 🗡️ Emboscada, 🧪 Veneno |
 | Kaori Vendaval-Sagrado | ➕ Suporte | Épico | mágico | 8 / 25 | 📯 Grito de Guerra, 🍃 Sopro Restaurador |
 | Ryuji Punho-de-Tempestade | ⚔️ DPS | Épico | físico | 12 / 25 | 📈 Fúria, 🎯 Golpe Crítico |
-| Tetsuo Muralha-Viva | 🛡️ Tanque | Épico | físico | 8 / 49 | 🛡️ Protetor, 🗯️ Provocar |
+| Tetsuo Muralha-Viva | 🛡️ Tanque | Épico | físico | 8 / 49 | 🛡️ Protetor, 🗯️ Provocar, 🛡 Postura de Guarda |
 | Kenji Punho-Espelhado *(já no jogo)* | ⚔️ DPS | Lendário | físico | 20 / 46 | 🔁 Punho Espelhado |
 | Mestre Hayato Céu-Partido | ⚔️ DPS | Lendário | físico | 20 / 46 | 💫 Atordoamento, ↗ Corte Diagonal |
 | Rin Flecha-do-Amanhecer | 🏹 Arqueiro | Lendário | físico | 20 / 33 | 🎯 Longo Alcance, 🗡️ Perfurar, 🎯 Golpe Crítico |
@@ -165,7 +165,7 @@
 - **Ao chegar (Incomum):** ⚔ 5 de ataque · ❤ 8 de vida
 - **Habilidades:**
   - 🎯 Longo Alcance: Ataca o inimigo mais próximo até 4 casas à frente na sua fileira (inclusive o Comandante). Não avança quando consegue atacar.
-  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e ataca só a cada 2 turnos.
+  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e perde o ataque no primeiro desses turnos.
 - **História:** Caçador das montanhas cujas flechas com peso de ferro deixam o alvo lento.
 - **Aparência:** Homem barbado com capa de pele, arco longo de metal escuro, aljava nas costas.
 
@@ -347,6 +347,7 @@
 - **Habilidades:**
   - 🛡️ Protetor: Recebe no lugar dos aliados vizinhos 30% do dano que eles sofreriam (40% a partir do Épico). É sempre um personagem de muita vida e pouco ataque.
   - 🗯️ Provocar: Os inimigos vizinhos são obrigados a atacá-lo, se puderem.
+  - 🛡 Postura de Guarda: Resistência física: reduz o dano de cada golpe físico (v0.17.0: a resistência é habilidade, não status de toda carta).
 - **História:** Guarda-costas do imperador; ninguém fere quem está ao lado dele.
 - **Aparência:** Samurai de armadura pesada azul-marinho, escudo retangular grande, postura de guarda.
 
@@ -423,7 +424,7 @@
 - **Ao chegar (Mítico):** ⚔ 32 de ataque · ❤ 63 de vida
 - **Habilidades:**
   - ⏳ Vontade Inquebrável *(única)*: Na primeira vez que receberia um golpe fatal, fica com 1 de vida e imune a todo dano até o fim do turno inimigo.
-  - 🐎 Investida: No turno em que entra em campo, já ataca se houver inimigo no alcance.
+  - 🐎 Investida: Na primeira ação depois de entrar em campo, anda 2 casas a mais e o primeiro golpe causa +1 de dano.
 - **História:** Heroína que já se levantou de golpes que derrubariam qualquer outro.
 - **Aparência:** Guerreira de cabelo preto curto com bandana branca, roupa vermelha rasgada, punhos em chamas douradas.
 
@@ -611,7 +612,7 @@
 - **Ao chegar (Incomum):** ⚔ 5 de ataque · ❤ 10 de vida
 - **Habilidades:**
   - ↙ Golpe Reverso: Prioriza o inimigo na diagonal logo atrás (pega quem passou por ele na outra fileira).
-  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e ataca só a cada 2 turnos.
+  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e perde o ataque no primeiro desses turnos.
 - **História:** Guerreira que gira e acerta quem tenta escapar por trás.
 - **Aparência:** Mulher alienígena alta de pele prateada, cabelo em espiral, chicote de energia.
 
@@ -772,7 +773,7 @@
 - **Ataque:** 👊 Frente: corpo a corpo, o inimigo logo à frente · 🌀 Costas: 1× por partida aparece atrás do inimigo mais avançado
 - **Ao chegar (Épico):** ⚔ 16 de ataque · ❤ 16 de vida
 - **Habilidades:**
-  - 🌀 Teleporte: Uma vez por partida, no início da ação, pula para a casa livre logo atrás do inimigo mais avançado da fileira e o ataca pelas costas (ou troca de lugar com um aliado ferido, se não houver inimigo).
+  - 🌀 Teleporte: Uma vez por partida, no início da ação, pula para a casa livre logo atrás do inimigo mais avançado da fileira e o ataca pelas costas (+1 de dano).
   - 🎯 Golpe Crítico: 25% de chance de causar o dobro de dano (30% no Lendário e no Mítico).
 - **História:** Ladra que abre portais e aparece atrás do alvo.
 - **Aparência:** Alienígena ágil de pele verde-água, capuz curto, adagas e um portal roxo atrás dela.
@@ -814,7 +815,7 @@
 - **Habilidades:**
   - 🎯 Longo Alcance: Ataca o inimigo mais próximo até 4 casas à frente na sua fileira (inclusive o Comandante). Não avança quando consegue atacar.
   - 🦅 Olho de Águia: Causa dano extra em unidades a 2 ou mais casas de distância (quanto mais longe, mais certeiro).
-  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e ataca só a cada 2 turnos.
+  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e perde o ataque no primeiro desses turnos.
 - **História:** Atiradora que acerta alvos a anos-luz de distância.
 - **Aparência:** Alienígena esguia de pele azul-noite, visor prateado, arco feito de luz de estrelas.
 
@@ -901,12 +902,12 @@
 | Trokk Chifre-Partido | ⚔️ DPS | Incomum | físico | 5 / 11 | ↗ Corte Diagonal, 💢 Ombrada |
 | Fenra Loba-Uivante | ➕ Suporte | Raro | físico | 5 / 18 | 📯 Grito de Guerra, 💗 Regeneração |
 | Ghul Devora-Ossos | ⚔️ DPS | Raro | físico | 8 / 18 | 🧛 Vampirismo, 📈 Fúria |
-| Mag'ra Colosso-de-Lava | 🛡️ Tanque | Raro | físico | 5 / 28 | 💥 Explosão, 🗯️ Provocar |
+| Mag'ra Colosso-de-Lava | 🛡️ Tanque | Raro | físico | 5 / 28 | 💥 Explosão, 🗯️ Provocar, 🛡 Postura de Guarda |
 | Spindra Aranha-Tecelã | 🏹 Arqueiro | Raro | físico | 8 / 13 | 🎯 Longo Alcance, 🐌 Lentidão, 🧪 Veneno |
 | Borgo Tronco-Antigo | 🛡️ Tanque | Épico | físico | 8 / 49 | 💗 Regeneração, 🌵 Couraça de Espinhos, 🗯️ Provocar |
 | Krag Javali-de-Guerra | ⚔️ DPS | Épico | físico | 12 / 29 | 🐎 Investida, 💢 Ombrada, 🎯 Golpe Crítico |
 | Ysmera Serpente-Abissal | 💀 Assassino | Épico | físico | 16 / 21 | 🔙 Golpe pelas Costas, 🧪 Veneno |
-| Grendar Pai-da-Ninhada | 🛡️ Tanque | Lendário | físico | 13 / 79 | 🗯️ Provocar, 🛡️ Protetor, 💥 Explosão |
+| Grendar Pai-da-Ninhada | 🛡️ Tanque | Lendário | físico | 13 / 79 | 🗯️ Provocar, 🛡️ Protetor, 💥 Explosão, 🛡 Postura de Guarda |
 | Oculus Olho-Medonho | 🪄 Mago | Lendário | mágico | 20 / 33 | 🎯 Longo Alcance, 🕯️ Maldição, 🐌 Lentidão |
 | Rhazor Rei-das-Feras | ⚔️ DPS | Lendário | físico | 20 / 46 | 📈 Fúria, 🩸 Sangramento, 🎯 Golpe Crítico |
 | Kolossus Couraça-Viva | 🛡️ Tanque | Mítico | físico | 21 / 105 | 🛡️ Couraça Adaptativa, 🗯️ Provocar |
@@ -1122,6 +1123,7 @@
 - **Habilidades:**
   - 💥 Explosão: Ao morrer, causa 2 de dano (3 a partir do Épico) em todos os inimigos vizinhos.
   - 🗯️ Provocar: Os inimigos vizinhos são obrigados a atacá-lo, se puderem.
+  - 🛡 Postura de Guarda: Resistência física: reduz o dano de cada golpe físico (v0.17.0: a resistência é habilidade, não status de toda carta).
 - **História:** Gigante de rocha derretida que explode quando cai.
 - **Aparência:** Colosso de pedra preta com rachaduras de lava laranja, vapor saindo.
 
@@ -1141,7 +1143,7 @@
 - **Ao chegar (Raro):** ⚔ 8 de ataque · ❤ 13 de vida
 - **Habilidades:**
   - 🎯 Longo Alcance: Ataca o inimigo mais próximo até 4 casas à frente na sua fileira (inclusive o Comandante). Não avança quando consegue atacar.
-  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e ataca só a cada 2 turnos.
+  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e perde o ataque no primeiro desses turnos.
   - 🧪 Veneno: O alvo fica envenenado: perde 1 de vida no fim de cada turno dele por 3 turnos (2 de vida por turno a partir do Épico). Não acumula; um novo golpe renova.
 - **História:** Aranha gigante que atira teias venenosas de longe.
 - **Aparência:** Aranha roxa e preta de oito olhos vermelhos, teias brilhantes, abdômen listrado.
@@ -1182,7 +1184,7 @@
 - **Ataque:** 👊 Frente: corpo a corpo, o inimigo logo à frente
 - **Ao chegar (Épico):** ⚔ 12 de ataque · ❤ 29 de vida
 - **Habilidades:**
-  - 🐎 Investida: No turno em que entra em campo, já ataca se houver inimigo no alcance.
+  - 🐎 Investida: Na primeira ação depois de entrar em campo, anda 2 casas a mais e o primeiro golpe causa +1 de dano.
   - 💢 Ombrada: Ao acertar um inimigo corpo a corpo de frente, empurra o alvo 1 casa para trás (se a casa estiver livre).
   - 🎯 Golpe Crítico: 25% de chance de causar o dobro de dano (30% no Lendário e no Mítico).
 - **História:** Javali blindado que já entra no campo atropelando.
@@ -1226,6 +1228,7 @@
   - 🗯️ Provocar: Os inimigos vizinhos são obrigados a atacá-lo, se puderem.
   - 🛡️ Protetor: Recebe no lugar dos aliados vizinhos 30% do dano que eles sofreriam (40% a partir do Épico). É sempre um personagem de muita vida e pouco ataque.
   - 💥 Explosão: Ao morrer, causa 2 de dano (3 a partir do Épico) em todos os inimigos vizinhos.
+  - 🛡 Postura de Guarda: Resistência física: reduz o dano de cada golpe físico (v0.17.0: a resistência é habilidade, não status de toda carta).
 - **História:** Monstro ancestral que protege os filhotes e explode ao cair.
 - **Aparência:** Besta enorme de couro verde-oliva, ovos brilhando nas costas, braços como troncos.
 
@@ -1245,7 +1248,7 @@
 - **Habilidades:**
   - 🎯 Longo Alcance: Ataca o inimigo mais próximo até 4 casas à frente na sua fileira (inclusive o Comandante). Não avança quando consegue atacar.
   - 🕯️ Maldição: O alvo recebe +25% de dano de todas as fontes por 2 turnos.
-  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e ataca só a cada 2 turnos.
+  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e perde o ataque no primeiro desses turnos.
 - **História:** Olho flutuante que amaldiçoa e paralisa com o olhar.
 - **Aparência:** Olho gigante flutuante com tentáculos, íris roxa, aura de névoa escura.
 
@@ -1329,7 +1332,7 @@
 | Isel Bruma-Cortante | ⚔️ DPS | Incomum | mágico | 5 / 10 | ↗ Corte Diagonal, 🕯️ Maldição |
 | Odo Sombra-de-Papel | 💀 Assassino | Incomum | mágico | 6 / 6 | 🗡️ Emboscada, 🐌 Lentidão |
 | Celina Geada-Eterna | 🪄 Mago | Raro | mágico | 8 / 10 | 🎯 Longo Alcance, ❄️ Congelamento |
-| Nalia Arco-Rúnico | 🏹 Arqueiro | Raro | mágico | 8 / 13 | 🎯 Longo Alcance, 🦅 Olho de Águia |
+| Nalia Arco-Rúnico | 🏹 Arqueiro | Raro | físico | 8 / 13 | 🎯 Longo Alcance, 🦅 Olho de Águia |
 | Tiberius Runa-Viva | ➕ Suporte | Raro | mágico | 5 / 15 | 🎯 Longo Alcance, 🌿 Purificar, 🔰 Escudo de Entrada |
 | Varo Golem-de-Cristal | 🛡️ Tanque | Raro | físico | 5 / 28 | 🔰 Barreira Arcana, 💥 Explosão |
 | Dorian Pena-Encantada | ➕ Suporte | Épico | mágico | 8 / 25 | 🎯 Longo Alcance, 🍃 Sopro Restaurador, 📯 Grito de Guerra |
@@ -1495,7 +1498,7 @@
 - **Ao chegar (Incomum):** ⚔ 6 de ataque · ❤ 6 de vida
 - **Habilidades:**
   - 🗡️ Emboscada: Ataca o inimigo mais distante da sua fileira até 2 casas à frente, ignorando parte da resistência.
-  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e ataca só a cada 2 turnos.
+  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e perde o ataque no primeiro desses turnos.
 - **História:** Ilusionista que vira papel e atinge os inimigos do fundo.
 - **Aparência:** Figura magra de máscara de papel branca, roupa preta, tiras de papel encantado girando.
 
@@ -1530,7 +1533,7 @@
 </details>
 
 #### Nalia Arco-Rúnico
-- **Grupo:** 🏹 Arqueiro · **Raridade:** Raro → até Lendário++ · **Dano:** mágico · **Espera:** 4 rodada(s) na mão
+- **Grupo:** 🏹 Arqueiro · **Raridade:** Raro → até Lendário++ · **Dano:** físico · **Espera:** 4 rodada(s) na mão
 - **Ataque:** 🎯 Longe: o inimigo mais próximo até 4 casas à frente na fileira
 - **Ao chegar (Raro):** ⚔ 8 de ataque · ❤ 13 de vida
 - **Habilidades:**
@@ -1718,7 +1721,7 @@
 - **Habilidades:**
   - 🎯 Longo Alcance: Ataca o inimigo mais próximo até 4 casas à frente na sua fileira (inclusive o Comandante). Não avança quando consegue atacar.
   - ❄️ Congelamento: Ao acertar, 50% de chance de congelar o alvo: ele não ataca no próximo turno (ainda pode andar). Não congela o mesmo alvo duas vezes seguidas.
-  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e ataca só a cada 2 turnos.
+  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e perde o ataque no primeiro desses turnos.
 - **História:** Rainha do inverno que deixa os inimigos lentos e gelados.
 - **Aparência:** Rainha de manto branco com pele, coroa de gelo azul, cetro de floco de neve.
 
@@ -1928,7 +1931,7 @@
 - **Ao chegar (Incomum):** ⚔ 6 de ataque · ❤ 6 de vida
 - **Habilidades:**
   - 🗡️ Emboscada: Ataca o inimigo mais distante da sua fileira até 2 casas à frente, ignorando parte da resistência.
-  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e ataca só a cada 2 turnos.
+  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e perde o ataque no primeiro desses turnos.
 - **História:** Unidade de infiltração que atira nos alvos mais recuados.
 - **Aparência:** Androide magro preto-fosco, camuflagem ótica parcial, olho vermelho em fenda.
 
@@ -1988,7 +1991,7 @@
 - **Ataque:** 👊 Frente: corpo a corpo, o inimigo logo à frente · 🔙 Costas: quem já passou por ele na fileira · 🌀 Costas: 1× por partida aparece atrás do inimigo mais avançado
 - **Ao chegar (Raro):** ⚔ 10 de ataque · ❤ 10 de vida
 - **Habilidades:**
-  - 🌀 Teleporte: Uma vez por partida, no início da ação, pula para a casa livre logo atrás do inimigo mais avançado da fileira e o ataca pelas costas (ou troca de lugar com um aliado ferido, se não houver inimigo).
+  - 🌀 Teleporte: Uma vez por partida, no início da ação, pula para a casa livre logo atrás do inimigo mais avançado da fileira e o ataca pelas costas (+1 de dano).
   - 🔙 Golpe pelas Costas: Ataca primeiro o inimigo que já passou por ele na mesma fileira (atrás dele), com +1 de dano nesse golpe; se não houver, ataca à frente.
 - **História:** Protótipo que se desmonta em partículas e reaparece atrás do alvo.
 - **Aparência:** Androide roxo-metálico com partes do corpo se desfazendo em pixels, lâminas nos antebraços.
@@ -2167,7 +2170,7 @@
 - **Ao chegar (Mítico):** ⚔ 32 de ataque · ❤ 53 de vida
 - **Habilidades:**
   - 🪞 Copiador *(única)*: No primeiro ataque, copia a primeira habilidade do inimigo atingido e fica com ela até o fim da partida (não copia habilidades únicas de cartas Míticas).
-  - 🐎 Investida: No turno em que entra em campo, já ataca se houver inimigo no alcance.
+  - 🐎 Investida: Na primeira ação depois de entrar em campo, anda 2 casas a mais e o primeiro golpe causa +1 de dano.
 - **História:** Androide de metal líquido que imita a técnica de quem toca.
 - **Aparência:** Androide de metal líquido prateado espelhado, rosto sem traços, braço mudando de forma.
 
@@ -2197,7 +2200,7 @@
 | Ivra Fiandeira-de-Almas | ➕ Suporte | Raro | mágico | 5 / 15 | 🎯 Longo Alcance, 🍃 Sopro Restaurador, 🌿 Purificar |
 | Morrigan Lâmina-Cinzenta | ⚔️ DPS | Raro | físico | 8 / 15 | ↙ Golpe Reverso, 🧛 Vampirismo |
 | Thane Cavaleiro-Caído | 🛡️ Tanque | Raro | físico | 5 / 28 | 🗯️ Provocar, 🌵 Couraça de Espinhos |
-| Ghor Abominação-Costurada | 🛡️ Tanque | Épico | físico | 8 / 49 | 💥 Explosão, 💗 Regeneração, 🗯️ Provocar |
+| Ghor Abominação-Costurada | 🛡️ Tanque | Épico | físico | 8 / 49 | 💥 Explosão, 💗 Regeneração, 🗯️ Provocar, 🛡 Postura de Guarda |
 | Nocturna Bruxa-Pestilenta | 🪄 Mago | Épico | mágico | 12 / 16 | 🎯 Longo Alcance, 🧪 Veneno, 🕯️ Maldição |
 | Sabbath Ceifador-Pálido | 💀 Assassino | Épico | físico | 16 / 16 | 🗡️ Emboscada, 🎯 Golpe Crítico, 🩸 Sangramento |
 | Vorax *(já no jogo)* | 🪄 Mago | Lendário | mágico | 20 / 39 | 🎯 Longo Alcance, 🥚 Prole Sombria, ⚰️ Chamado da Necropolis |
@@ -2235,7 +2238,7 @@
 - **Ao chegar (Comum):** ⚔ 1 de ataque · ❤ 5 de vida
 - **Habilidades:**
   - 🎯 Longo Alcance: Ataca o inimigo mais próximo até 4 casas à frente na sua fileira (inclusive o Comandante). Não avança quando consegue atacar.
-  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e ataca só a cada 2 turnos.
+  - 🐌 Lentidão: O alvo fica lento por 2 turnos: anda só 1 casa e perde o ataque no primeiro desses turnos.
 - **História:** Fantasma de menina que sussurra e deixa os inimigos pesados.
 - **Aparência:** Fantasma de menina pálida, vestido branco antigo, cabelo longo flutuando.
 
@@ -2458,6 +2461,7 @@
   - 💥 Explosão: Ao morrer, causa 2 de dano (3 a partir do Épico) em todos os inimigos vizinhos.
   - 💗 Regeneração: No fim de cada turno, recupera 1 de vida (2 a partir do Épico).
   - 🗯️ Provocar: Os inimigos vizinhos são obrigados a atacá-lo, se puderem.
+  - 🛡 Postura de Guarda: Resistência física: reduz o dano de cada golpe físico (v0.17.0: a resistência é habilidade, não status de toda carta).
 - **História:** Monstro costurado de muitos corpos que estoura ao cair.
 - **Aparência:** Gigante costurado de pele de várias cores, pontos grossos, gancho na mão, barriga inchada.
 
@@ -2651,35 +2655,35 @@
 
 | Habilidade | Força | O que faz | Quem tem |
 |---|---|---|---|
-| 🧛 Vampirismo | simples | Cura a si mesmo em 25% do dano que causa (30% no Raro, 35% no Lendário). | Ghul, Brunna, Morrigan, Drakon |
-| 🧪 Veneno | simples | O alvo fica envenenado: perde 1 de vida no fim de cada turno dele por 3 turnos (2 de vida por turno a partir do Épico). Não acumula; um novo golpe renova. *Hoje o veneno existe só no feitiço Flecha Envenenada; aqui vira habilidade de personagem.* | Sayuri, Skarr, Bufo, Spindra, Ysmera, Cador, Nocturna |
-| 🛡️ Protetor | media | Recebe no lugar dos aliados vizinhos 30% do dano que eles sofreriam (40% a partir do Épico). É sempre um personagem de muita vida e pouco ataque. | Tetsuo, Gorm, Sentinel-0, Grendar |
-| 🌀 Domínio Enfraquecedor | **forte (única)** | Ao entrar em campo, todos os inimigos perdem 1 de ataque enquanto ele estiver vivo (soma com o Sifão de Energia até o teto de −2). Cada ataque dele tira mais 1 de ataque do alvo (até −3 por alvo; ataque mínimo 1). Ataca de longe. *Pedido como carta Lendária. A parte da aura lembra o Sifão de Energia da Nyx-07; o enfraquecimento a cada golpe é novo.* | Omega-9 |
-| ❄️ Congelamento | media | Ao acertar, 50% de chance de congelar o alvo: ele não ataca no próximo turno (ainda pode andar). Não congela o mesmo alvo duas vezes seguidas. | Orun, Morv, Cryo-6, Celina, Vesna |
-| 🔥 Queimadura | simples | O alvo pega fogo: sofre 1 de dano mágico no fim de cada turno por 2 turnos (3 turnos a partir do Épico). Acumula até 2 queimaduras. *Diferença do Veneno: o fogo é dano mágico e acumula.* | Fen, Selene, Eldrin, Pira |
-| 💨 Evasão | **forte (única)** | Desvia de TODOS os ataques à distância (longo alcance, flechas e feitiços de 1 alvo). Se estiver congelado, atordoado ou lento, é atingido normalmente. | Nhyra |
-| 💫 Atordoamento | media | Ao acertar, 50% de chance de atordoar o alvo: no próximo turno ele não age (não anda, não ataca, não usa habilidade). Não atordoa o mesmo alvo duas vezes seguidas. *Diferença do Congelamento: congelado ainda anda; atordoado fica parado.* | Hayato, Pulse-7 |
-| 🩸 Sangramento | simples | Golpes físicos abrem feridas: o alvo perde 1 de vida por turno por 3 turnos, e mais 1 em cada turno em que andar. *Diferença do Veneno: é físico e piora quando o alvo se move.* | Akemi, Velka, Vexar, Kraz-9, Razor-V, Grub, Rhazor, Lethe, Sabbath |
-| 🧛 Sede Eterna | **forte (única)** | Cada ataque tira 2 de vida EXTRA do alvo (3 no Mítico++) e cura ele mesmo nessa quantidade. Ao derrotar um inimigo, passa a "Marca da Sede" para o aliado mais próximo: esse aliado também tira 1 de vida extra por ataque e se cura com ela, mas não passa a marca adiante. *Vampirismo mítico pedido pelo jogador.* | Sanguis |
-| 🪞 Copiador | **forte (única)** | No primeiro ataque, copia a primeira habilidade do inimigo atingido e fica com ela até o fim da partida (não copia habilidades únicas de cartas Míticas). | Mímesis |
-| 🚫 Selo do Vazio | **forte (única)** | Cada golpe físico tira TODAS as habilidades do alvo até o fim da partida (ele vira uma unidade sem habilidades). Não afeta Comandantes. Personagem de ataque físico. | Kaito |
-| 📈 Fúria | simples | Ganha +1 de ataque a cada inimigo derrotado (por qualquer aliado), até +3. | Ryuji, Vexar, Corvin, Ghul, Rhazor, Drakon |
-| 🕯️ Vingança | **forte (única)** | Ganha +1 de ataque a cada ALIADO derrotado, até +4. Ataca de longe. *Pedido como carta Lendária de ataque de longe.* | Lamenta |
-| ✨ Ressurreição | **forte (única)** | Traz de volta ao campo, na casa livre mais próxima, um aliado derrotado com 50% da vida. Pode usar 1 vez a cada 10 rodadas (a primeira já na rodada 3). *Diferente do Chamado da Necropolis (que devolve a carta para a mão) e do Renascer (que só vale para si).* | Elegia |
-| 🛡️ Couraça Adaptativa | **forte (única)** | Começa com resistência física 1. Cada golpe físico recebido cura 1 de vida e soma +1 de resistência física (até 3). | Kolossus |
-| ⏳ Vontade Inquebrável | **forte (única)** | Na primeira vez que receberia um golpe fatal, fica com 1 de vida e imune a todo dano até o fim do turno inimigo. | Aya |
-| ⚖️ Protocolo de Retaliação | **forte (única)** | Enquanto estiver em campo, quando o seu Comandante sofrer dano, o inimigo mais próximo dele sofre o mesmo dano (até 5 por vez). | Aegis-Ω |
-| 💥 Explosão | simples | Ao morrer, causa 2 de dano (3 a partir do Épico) em todos os inimigos vizinhos. | Bastion-2, Varo, Mag'ra, Grendar, Grav, Ghor |
-| 🗯️ Provocar | simples | Os inimigos vizinhos são obrigados a atacá-lo, se puderem. | Taro, Tetsuo, Brakk, Titan-X, Bram, Mag'ra, Borgo, Grendar, Kolossus, Thane, Ghor |
 | 🎯 Golpe Crítico | simples | 25% de chance de causar o dobro de dano (30% no Lendário e no Mítico). | Shin, Masao, Ryuji, Rin, Kaito, Kryx, Zynna, Bolt-12, Spike-11, Razor-V, Eldrin, Krag, Rhazor, Sabbath |
-| 🗡️ Perfurar | media | O ataque ignora escudos e TODA a resistência do alvo. *Diferente do Feixe Perfurante (que atravessa a fileira) e do Tiro Certeiro (que ignora só parte da resistência física).* | Rin, Echo-5, Selene, Corvin |
-| ⚡ Raio em Cadeia | **forte (única)** | O ataque salta para até mais 2 inimigos vizinhos do alvo, com 60% e 30% do dano. | Aethra |
-| 🐌 Lentidão | simples | O alvo fica lento por 2 turnos: anda só 1 casa e ataca só a cada 2 turnos. | Daisuke, Thessa, Lunaris, Vex-4, Odo, Vesna, Spindra, Oculus, Mira |
-| 📯 Grito de Guerra | media | Enquanto estiver vivo, todos os aliados da MESMA FILEIRA ganham +1 de ataque (não soma com o Tambor de Guerra; teto de bônus 2). *O Tambor de Guerra do Tobi ajuda os vizinhos; o Grito ajuda a fileira inteira.* | Kaori, Sylith, Dorian, Fenra |
-| 🌀 Teleporte | media | Uma vez por partida, no início da ação, pula para a casa livre logo atrás do inimigo mais avançado da fileira e o ataca pelas costas (ou troca de lugar com um aliado ferido, se não houver inimigo). | Zynna, Phase-3 |
-| 👥 Clone | **forte (única)** | Ao entrar em campo, cria uma cópia com metade da vida e do ataque na casa livre vizinha. A cópia não tem habilidades. | Morgause |
+| 🗯️ Provocar | simples | Os inimigos vizinhos são obrigados a atacá-lo, se puderem. | Taro, Tetsuo, Brakk, Titan-X, Bram, Mag'ra, Borgo, Grendar, Kolossus, Thane, Ghor |
+| 🩸 Sangramento | simples | Golpes físicos abrem feridas: o alvo perde 1 de vida por turno por 3 turnos, e mais 1 em cada turno em que andar. *Diferença do Veneno: é físico e piora quando o alvo se move.* | Akemi, Velka, Vexar, Kraz-9, Razor-V, Grub, Rhazor, Lethe, Sabbath |
+| 🐌 Lentidão | simples | O alvo fica lento por 2 turnos: anda só 1 casa e perde o ataque no primeiro desses turnos. | Daisuke, Thessa, Lunaris, Vex-4, Odo, Vesna, Spindra, Oculus, Mira |
+| 🧪 Veneno | simples | O alvo fica envenenado: perde 1 de vida no fim de cada turno dele por 3 turnos (2 de vida por turno a partir do Épico). Não acumula; um novo golpe renova. *Hoje o veneno existe só no feitiço Flecha Envenenada; aqui vira habilidade de personagem.* | Sayuri, Skarr, Bufo, Spindra, Ysmera, Cador, Nocturna |
 | 🕯️ Maldição | media | O alvo recebe +25% de dano de todas as fontes por 2 turnos. | Emi, Ilun, Isel, Kaela, Oculus, Wex, Nocturna |
 | 🌿 Purificar | simples | No início da sua ação, tira um efeito ruim (veneno, queimadura, sangramento, congelamento, atordoamento, lentidão ou maldição) do aliado vizinho mais afetado. | Yuna, Pip, Sylith, Halo-8, Tiberius, Ivra |
+| 📈 Fúria | simples | Ganha +1 de ataque a cada inimigo derrotado (por qualquer aliado), até +3. | Ryuji, Vexar, Corvin, Ghul, Rhazor, Drakon |
+| 💥 Explosão | simples | Ao morrer, causa 2 de dano (3 a partir do Épico) em todos os inimigos vizinhos. | Bastion-2, Varo, Mag'ra, Grendar, Grav, Ghor |
+| ❄️ Congelamento | media | Ao acertar, 50% de chance de congelar o alvo: ele não ataca no próximo turno (ainda pode andar). Não congela o mesmo alvo duas vezes seguidas. | Orun, Morv, Cryo-6, Celina, Vesna |
+| 📯 Grito de Guerra | media | Enquanto estiver vivo, todos os aliados da MESMA FILEIRA ganham +1 de ataque (não soma com o Tambor de Guerra; teto de bônus 2). *O Tambor de Guerra do Tobi ajuda os vizinhos; o Grito ajuda a fileira inteira.* | Kaori, Sylith, Dorian, Fenra |
+| 🛡️ Protetor | media | Recebe no lugar dos aliados vizinhos 30% do dano que eles sofreriam (40% a partir do Épico). É sempre um personagem de muita vida e pouco ataque. | Tetsuo, Gorm, Sentinel-0, Grendar |
+| 🗡️ Perfurar | media | O ataque ignora escudos e TODA a resistência do alvo. *Diferente do Feixe Perfurante (que atravessa a fileira) e do Tiro Certeiro (que ignora só parte da resistência física).* | Rin, Echo-5, Selene, Corvin |
+| 🔥 Queimadura | simples | O alvo pega fogo: sofre 1 de dano mágico no fim de cada turno por 2 turnos (3 turnos a partir do Épico). Acumula até 2 queimaduras. *Diferença do Veneno: o fogo é dano mágico e acumula.* | Fen, Selene, Eldrin, Pira |
+| 🧛 Vampirismo | simples | Cura a si mesmo em 25% do dano que causa (30% no Raro, 35% no Lendário). | Ghul, Brunna, Morrigan, Drakon |
+| 💫 Atordoamento | media | Ao acertar, 50% de chance de atordoar o alvo: no próximo turno ele não age (não anda, não ataca, não usa habilidade). Não atordoa o mesmo alvo duas vezes seguidas. *Diferença do Congelamento: congelado ainda anda; atordoado fica parado.* | Hayato, Pulse-7 |
+| 🌀 Teleporte | media | Uma vez por partida, no início da ação, pula para a casa livre logo atrás do inimigo mais avançado da fileira e o ataca pelas costas (+1 de dano). | Zynna, Phase-3 |
+| 🚫 Selo do Vazio | **forte (única)** | Cada golpe físico tira TODAS as habilidades do alvo até o fim da partida (ele vira uma unidade sem habilidades). Não afeta Comandantes. Personagem de ataque físico. | Kaito |
+| ⏳ Vontade Inquebrável | **forte (única)** | Na primeira vez que receberia um golpe fatal, fica com 1 de vida e imune a todo dano até o fim do turno inimigo. | Aya |
+| 💨 Evasão | **forte (única)** | Desvia de TODOS os ataques à distância (longo alcance, flechas e feitiços de 1 alvo). Se estiver congelado, atordoado ou lento, é atingido normalmente. | Nhyra |
+| 🌀 Domínio Enfraquecedor | **forte (única)** | Ao entrar em campo, todos os inimigos perdem 1 de ataque enquanto ele estiver vivo (soma com o Sifão de Energia até o teto de −2). Cada ataque dele tira mais 1 de ataque do alvo (até −3 por alvo; ataque mínimo 1). Ataca de longe. *Pedido como carta Lendária. A parte da aura lembra o Sifão de Energia da Nyx-07; o enfraquecimento a cada golpe é novo.* | Omega-9 |
+| 🪞 Copiador | **forte (única)** | No primeiro ataque, copia a primeira habilidade do inimigo atingido e fica com ela até o fim da partida (não copia habilidades únicas de cartas Míticas). | Mímesis |
+| ⚖️ Protocolo de Retaliação | **forte (única)** | Enquanto estiver em campo, quando o seu Comandante sofrer dano, o inimigo mais próximo dele sofre o mesmo dano (até 5 por vez). | Aegis-Ω |
+| 👥 Clone | **forte (única)** | Ao entrar em campo, cria uma cópia com metade da vida e do ataque na casa livre vizinha. A cópia não tem habilidades. | Morgause |
+| ⚡ Raio em Cadeia | **forte (única)** | O ataque salta para até mais 2 inimigos vizinhos do alvo, com 60% e 30% do dano. | Aethra |
+| 🛡️ Couraça Adaptativa | **forte (única)** | Começa com resistência física 1. Cada golpe físico recebido cura 1 de vida e soma +1 de resistência física (até 3). | Kolossus |
+| 🕯️ Vingança | **forte (única)** | Ganha +1 de ataque a cada ALIADO derrotado, até +4. Ataca de longe. *Pedido como carta Lendária de ataque de longe.* | Lamenta |
+| 🧛 Sede Eterna | **forte (única)** | Cada ataque tira 2 de vida EXTRA do alvo (3 no Mítico++) e cura ele mesmo nessa quantidade. Ao derrotar um inimigo, passa a "Marca da Sede" para o aliado mais próximo: esse aliado também tira 1 de vida extra por ataque e se cura com ela, mas não passa a marca adiante. *Vampirismo mítico pedido pelo jogador.* | Sanguis |
+| ✨ Ressurreição | **forte (única)** | Traz de volta ao campo, na casa livre mais próxima, um aliado derrotado com 50% da vida. Pode usar 1 vez a cada 10 rodadas (a primeira já na rodada 3). *Diferente do Chamado da Necropolis (que devolve a carta para a mão) e do Renascer (que só vale para si).* | Elegia |
 
 ### Sugeridas (comuns nesse tipo de jogo)
 
@@ -2687,9 +2691,9 @@
 |---|---|---|---|
 | 🔙 Golpe pelas Costas | simples | Ataca primeiro o inimigo que já passou por ele na mesma fileira (atrás dele), com +1 de dano nesse golpe; se não houver, ataca à frente. | Shin, Velka, Nhyra, Phase-3, Kaela, Ysmera, Lethe |
 | 💗 Regeneração | simples | No fim de cada turno, recupera 1 de vida (2 a partir do Épico). | Quorr, Gorm, Halo-8, Fenra, Borgo, Ghor |
-| 🐎 Investida | simples | No turno em que entra em campo, já ataca se houver inimigo no alcance. | Aya, Mímesis, Krag |
-| ☠️ Execução | **forte (única)** | Derrota na hora o inimigo atingido (não o Comandante) se ele ficar com 25% da vida ou menos. | Vharga |
 | 🔰 Escudo de Entrada | simples | Entra em campo com um escudo que absorve 3 de dano (5 a partir do Épico). | Aurel, Sylith, Sentinel-0, Tiberius |
+| 🐎 Investida | simples | Na primeira ação depois de entrar em campo, anda 2 casas a mais e o primeiro golpe causa +1 de dano. | Aya, Mímesis, Krag |
+| ☠️ Execução | **forte (única)** | Derrota na hora o inimigo atingido (não o Comandante) se ele ficar com 25% da vida ou menos. | Vharga |
 
 ### Que já existem no jogo
 
@@ -2697,7 +2701,7 @@
 |---|---|---|---|
 | ↗ Corte Diagonal | simples | Também ataca o inimigo na diagonal logo à frente (outra fileira, 1 coluna adiante). | Nara, Akemi, Hayato, Kryx, Vexar, Kraz-9, Isel, Trokk, Ossian, Drakon |
 | ↙ Golpe Reverso | simples | Prioriza o inimigo na diagonal logo atrás (pega quem passou por ele na outra fileira). | Toru, Masao, Thessa, Razor-V, Corvin, Grub, Morrigan |
-| 🛡 Postura de Guarda | simples | Resistência física: reduz o dano de cada golpe físico (v0.17.0: a resistência é habilidade, não status de toda carta). | Toru, Taro, Goro, Quorr, Bastion-2, Sentinel-0, Aegis-Ω, Grav |
+| 🛡 Postura de Guarda | simples | Resistência física: reduz o dano de cada golpe físico (v0.17.0: a resistência é habilidade, não status de toda carta). | Toru, Taro, Goro, Tetsuo, Quorr, Bastion-2, Sentinel-0, Aegis-Ω, Mag'ra, Grendar, Grav, Ghor |
 | ⤴ Salto Vendaval | **forte (única)** | Move-se sempre saltando para a 3ª casa à frente, por cima de aliados ou inimigos (2ª ou 1ª se a de cima estiver ocupada). Salta também por cima do inimigo da frente. Ao cair, ataca com bônus. | Riku |
 | 🎯 Longo Alcance | simples | Ataca o inimigo mais próximo até 4 casas à frente na sua fileira (inclusive o Comandante). Não avança quando consegue atacar. | Aiko, Lyra, Mei, Nyx-07, Vorax, Sora, Kael, Suri, Hana, Jin, Yuna, Daisuke, Emi, Rin, Pip, Orun, Ilun, Morv, Aurel, Lunaris, Medi-3, Cryo-6, Echo-5, Halo-8, Pulse-7, Omega-9, Fen, Celina, Tiberius, Nalia, Selene, Dorian, Morgause, Eldrin, Vesna, Aethra, Bufo, Spindra, Oculus, Mira, Pira, Cador, Wex, Ivra, Nocturna, Lamenta, Elegia |
 | ➶ Flecha Dupla | media | Dispara uma segunda flecha no mesmo alvo. | Aiko |
@@ -2726,3 +2730,4 @@
 | 💢 Ombrada | simples | Ao acertar um inimigo corpo a corpo de frente, empurra o alvo 1 casa para trás (se a casa estiver livre). | Gorath, Goro, Spike-11, Trokk, Krag |
 | ⚰️ Chamado da Necropolis | **forte (única)** | Ao entrar em campo, traz de volta da Necropolis a última carta aliada derrotada: ela volta para a mão já pronta (ou para o baralho, com a mão cheia). | Vorax |
 | 🔰 Barreira Arcana | simples | Resistência mágica: reduz o dano de cada golpe mágico. | Lyra, Morv, Bram, Varo |
+| 🩸 Marca da Sede | simples | Recebida da Sede Eterna: cada ataque tira 1 de vida extra do alvo e cura quem ataca. | — |

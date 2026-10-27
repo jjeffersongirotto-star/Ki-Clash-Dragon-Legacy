@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { beforeEach, describe, expect, it } from 'vitest';
-import { ABILITY_WEIGHT, POWER_SCALE, cardPower, deckPower } from '../../src/core/power';
+import { ABILITY_WEIGHT, POWER_SCALE, abilityWeight, cardPower, deckPower } from '../../src/core/power';
 import { LEADERS, LEADER_HP, LEADER_THRESHOLDS, canEvolve, evolveLeader, getLeader, leaderHp, nextRequirement } from '../../src/core/leaders';
 import { PLAYABLE, STARTER_IDS, getChar } from '../../src/core/characters';
 import { STAGES, PLAYER_HERO_HP, enemyLeaderHp } from '../../src/core/campaign';
@@ -34,8 +34,10 @@ describe('v0.13 — Poder das cartas', () => {
     expect(cardPower({ charId: 'toru', stars: 1 })).toBe(47);
   });
   it('todo personagem jogável tem peso de habilidade, com média ~1', () => {
-    for (const d of PLAYABLE) expect(ABILITY_WEIGHT[d.id], d.id).toBeGreaterThan(0.5);
-    const ws = PLAYABLE.map((d) => ABILITY_WEIGHT[d.id]);
+    // v0.30.0: as cartas novas ainda não foram medidas no simulador e usam o peso neutro 1
+    for (const d of PLAYABLE) expect(abilityWeight(d.id), d.id).toBeGreaterThan(0.5);
+    for (const id of Object.keys(ABILITY_WEIGHT)) expect(PLAYABLE.some((d) => d.id === id)).toBe(true);
+    const ws = PLAYABLE.map((d) => abilityWeight(d.id));
     expect(ws.reduce((a, b) => a + b, 0) / ws.length).toBeCloseTo(1, 1);
   });
   it('sobe a cada degrau ("+", "++" e raridade; v0.23.0, sem nível)', () => {

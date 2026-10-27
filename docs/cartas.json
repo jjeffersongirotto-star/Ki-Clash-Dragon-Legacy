@@ -50,11 +50,15 @@
         "toru",
         "taro",
         "goro",
+        "tetsuo",
         "quorr",
         "bastion2",
         "sentinel0",
         "aegis",
-        "grav"
+        "magra",
+        "grendar",
+        "grav",
+        "ghor"
       ]
     },
     {
@@ -436,282 +440,6 @@
       ]
     },
     {
-      "id": "vampirismo",
-      "nome": "Vampirismo",
-      "icone": "🧛",
-      "forca": "simples",
-      "origem": "nova",
-      "texto": "Cura a si mesmo em 25% do dano que causa (30% no Raro, 35% no Lendário).",
-      "usadaPor": [
-        "ghul",
-        "brunna",
-        "morrigan",
-        "drakon"
-      ]
-    },
-    {
-      "id": "veneno",
-      "nome": "Veneno",
-      "icone": "🧪",
-      "forca": "simples",
-      "origem": "nova",
-      "texto": "O alvo fica envenenado: perde 1 de vida no fim de cada turno dele por 3 turnos (2 de vida por turno a partir do Épico). Não acumula; um novo golpe renova.",
-      "nota": "Hoje o veneno existe só no feitiço Flecha Envenenada; aqui vira habilidade de personagem.",
-      "usadaPor": [
-        "sayuri",
-        "skarr",
-        "bufo",
-        "spindra",
-        "ysmera",
-        "cador",
-        "nocturna"
-      ]
-    },
-    {
-      "id": "protetor",
-      "nome": "Protetor",
-      "icone": "🛡️",
-      "forca": "media",
-      "origem": "nova",
-      "texto": "Recebe no lugar dos aliados vizinhos 30% do dano que eles sofreriam (40% a partir do Épico). É sempre um personagem de muita vida e pouco ataque.",
-      "usadaPor": [
-        "tetsuo",
-        "gorm",
-        "sentinel0",
-        "grendar"
-      ]
-    },
-    {
-      "id": "dominio",
-      "nome": "Domínio Enfraquecedor",
-      "icone": "🌀",
-      "forca": "forte",
-      "origem": "nova",
-      "texto": "Ao entrar em campo, todos os inimigos perdem 1 de ataque enquanto ele estiver vivo (soma com o Sifão de Energia até o teto de −2). Cada ataque dele tira mais 1 de ataque do alvo (até −3 por alvo; ataque mínimo 1). Ataca de longe.",
-      "nota": "Pedido como carta Lendária. A parte da aura lembra o Sifão de Energia da Nyx-07; o enfraquecimento a cada golpe é novo.",
-      "usadaPor": [
-        "omega9"
-      ]
-    },
-    {
-      "id": "congelar",
-      "nome": "Congelamento",
-      "icone": "❄️",
-      "forca": "media",
-      "origem": "nova",
-      "texto": "Ao acertar, 50% de chance de congelar o alvo: ele não ataca no próximo turno (ainda pode andar). Não congela o mesmo alvo duas vezes seguidas.",
-      "usadaPor": [
-        "orun",
-        "morv",
-        "cryo6",
-        "celina",
-        "vesna"
-      ]
-    },
-    {
-      "id": "queimadura",
-      "nome": "Queimadura",
-      "icone": "🔥",
-      "forca": "simples",
-      "origem": "nova",
-      "texto": "O alvo pega fogo: sofre 1 de dano mágico no fim de cada turno por 2 turnos (3 turnos a partir do Épico). Acumula até 2 queimaduras.",
-      "nota": "Diferença do Veneno: o fogo é dano mágico e acumula.",
-      "usadaPor": [
-        "fen",
-        "selene",
-        "eldrin",
-        "pira"
-      ]
-    },
-    {
-      "id": "evasao",
-      "nome": "Evasão",
-      "icone": "💨",
-      "forca": "forte",
-      "origem": "nova",
-      "texto": "Desvia de TODOS os ataques à distância (longo alcance, flechas e feitiços de 1 alvo). Se estiver congelado, atordoado ou lento, é atingido normalmente.",
-      "usadaPor": [
-        "nhyra"
-      ]
-    },
-    {
-      "id": "atordoar",
-      "nome": "Atordoamento",
-      "icone": "💫",
-      "forca": "media",
-      "origem": "nova",
-      "texto": "Ao acertar, 50% de chance de atordoar o alvo: no próximo turno ele não age (não anda, não ataca, não usa habilidade). Não atordoa o mesmo alvo duas vezes seguidas.",
-      "nota": "Diferença do Congelamento: congelado ainda anda; atordoado fica parado.",
-      "usadaPor": [
-        "hayato",
-        "pulse7"
-      ]
-    },
-    {
-      "id": "sangramento",
-      "nome": "Sangramento",
-      "icone": "🩸",
-      "forca": "simples",
-      "origem": "nova",
-      "texto": "Golpes físicos abrem feridas: o alvo perde 1 de vida por turno por 3 turnos, e mais 1 em cada turno em que andar.",
-      "nota": "Diferença do Veneno: é físico e piora quando o alvo se move.",
-      "usadaPor": [
-        "akemi",
-        "velka",
-        "vexar",
-        "kraz9",
-        "razorv",
-        "grub",
-        "rhazor",
-        "lethe",
-        "sabbath"
-      ]
-    },
-    {
-      "id": "sedeEterna",
-      "nome": "Sede Eterna",
-      "icone": "🧛",
-      "forca": "forte",
-      "origem": "nova",
-      "texto": "Cada ataque tira 2 de vida EXTRA do alvo (3 no Mítico++) e cura ele mesmo nessa quantidade. Ao derrotar um inimigo, passa a \"Marca da Sede\" para o aliado mais próximo: esse aliado também tira 1 de vida extra por ataque e se cura com ela, mas não passa a marca adiante.",
-      "nota": "Vampirismo mítico pedido pelo jogador.",
-      "usadaPor": [
-        "sanguis"
-      ]
-    },
-    {
-      "id": "copiador",
-      "nome": "Copiador",
-      "icone": "🪞",
-      "forca": "forte",
-      "origem": "nova",
-      "texto": "No primeiro ataque, copia a primeira habilidade do inimigo atingido e fica com ela até o fim da partida (não copia habilidades únicas de cartas Míticas).",
-      "usadaPor": [
-        "mimic"
-      ]
-    },
-    {
-      "id": "anular",
-      "nome": "Selo do Vazio",
-      "icone": "🚫",
-      "forca": "forte",
-      "origem": "nova",
-      "texto": "Cada golpe físico tira TODAS as habilidades do alvo até o fim da partida (ele vira uma unidade sem habilidades). Não afeta Comandantes. Personagem de ataque físico.",
-      "usadaPor": [
-        "kaito"
-      ]
-    },
-    {
-      "id": "furia",
-      "nome": "Fúria",
-      "icone": "📈",
-      "forca": "simples",
-      "origem": "nova",
-      "texto": "Ganha +1 de ataque a cada inimigo derrotado (por qualquer aliado), até +3.",
-      "usadaPor": [
-        "ryuji",
-        "vexar",
-        "corvin",
-        "ghul",
-        "rhazor",
-        "drakon"
-      ]
-    },
-    {
-      "id": "vinganca",
-      "nome": "Vingança",
-      "icone": "🕯️",
-      "forca": "forte",
-      "origem": "nova",
-      "texto": "Ganha +1 de ataque a cada ALIADO derrotado, até +4. Ataca de longe.",
-      "nota": "Pedido como carta Lendária de ataque de longe.",
-      "usadaPor": [
-        "lamenta"
-      ]
-    },
-    {
-      "id": "ressurreicao",
-      "nome": "Ressurreição",
-      "icone": "✨",
-      "forca": "forte",
-      "origem": "nova",
-      "texto": "Traz de volta ao campo, na casa livre mais próxima, um aliado derrotado com 50% da vida. Pode usar 1 vez a cada 10 rodadas (a primeira já na rodada 3).",
-      "nota": "Diferente do Chamado da Necropolis (que devolve a carta para a mão) e do Renascer (que só vale para si).",
-      "usadaPor": [
-        "elegia"
-      ]
-    },
-    {
-      "id": "couracaAdaptativa",
-      "nome": "Couraça Adaptativa",
-      "icone": "🛡️",
-      "forca": "forte",
-      "origem": "nova",
-      "texto": "Começa com resistência física 1. Cada golpe físico recebido cura 1 de vida e soma +1 de resistência física (até 3).",
-      "usadaPor": [
-        "kolossus"
-      ]
-    },
-    {
-      "id": "ultimaResistencia",
-      "nome": "Vontade Inquebrável",
-      "icone": "⏳",
-      "forca": "forte",
-      "origem": "nova",
-      "texto": "Na primeira vez que receberia um golpe fatal, fica com 1 de vida e imune a todo dano até o fim do turno inimigo.",
-      "usadaPor": [
-        "aya"
-      ]
-    },
-    {
-      "id": "retaliacao",
-      "nome": "Protocolo de Retaliação",
-      "icone": "⚖️",
-      "forca": "forte",
-      "origem": "nova",
-      "texto": "Enquanto estiver em campo, quando o seu Comandante sofrer dano, o inimigo mais próximo dele sofre o mesmo dano (até 5 por vez).",
-      "usadaPor": [
-        "aegis"
-      ]
-    },
-    {
-      "id": "explosao",
-      "nome": "Explosão",
-      "icone": "💥",
-      "forca": "simples",
-      "origem": "nova",
-      "texto": "Ao morrer, causa 2 de dano (3 a partir do Épico) em todos os inimigos vizinhos.",
-      "usadaPor": [
-        "bastion2",
-        "varo",
-        "magra",
-        "grendar",
-        "grav",
-        "ghor"
-      ]
-    },
-    {
-      "id": "provocar",
-      "nome": "Provocar",
-      "icone": "🗯️",
-      "forca": "simples",
-      "origem": "nova",
-      "texto": "Os inimigos vizinhos são obrigados a atacá-lo, se puderem.",
-      "usadaPor": [
-        "taro",
-        "tetsuo",
-        "brakk",
-        "titanx",
-        "bram",
-        "magra",
-        "borgo",
-        "grendar",
-        "kolossus",
-        "thane",
-        "ghor"
-      ]
-    },
-    {
       "id": "critico",
       "nome": "Golpe Crítico",
       "icone": "🎯",
@@ -736,29 +464,44 @@
       ]
     },
     {
-      "id": "perfurar",
-      "nome": "Perfurar",
-      "icone": "🗡️",
-      "forca": "media",
+      "id": "provocar",
+      "nome": "Provocar",
+      "icone": "🗯️",
+      "forca": "simples",
       "origem": "nova",
-      "texto": "O ataque ignora escudos e TODA a resistência do alvo.",
-      "nota": "Diferente do Feixe Perfurante (que atravessa a fileira) e do Tiro Certeiro (que ignora só parte da resistência física).",
+      "texto": "Os inimigos vizinhos são obrigados a atacá-lo, se puderem.",
       "usadaPor": [
-        "rin",
-        "echo5",
-        "selene",
-        "corvin"
+        "taro",
+        "tetsuo",
+        "brakk",
+        "titanx",
+        "bram",
+        "magra",
+        "borgo",
+        "grendar",
+        "kolossus",
+        "thane",
+        "ghor"
       ]
     },
     {
-      "id": "raioCadeia",
-      "nome": "Raio em Cadeia",
-      "icone": "⚡",
-      "forca": "forte",
+      "id": "sangramento",
+      "nome": "Sangramento",
+      "icone": "🩸",
+      "forca": "simples",
       "origem": "nova",
-      "texto": "O ataque salta para até mais 2 inimigos vizinhos do alvo, com 60% e 30% do dano.",
+      "texto": "Golpes físicos abrem feridas: o alvo perde 1 de vida por turno por 3 turnos, e mais 1 em cada turno em que andar.",
+      "nota": "Diferença do Veneno: é físico e piora quando o alvo se move.",
       "usadaPor": [
-        "aethra"
+        "akemi",
+        "velka",
+        "vexar",
+        "kraz9",
+        "razorv",
+        "grub",
+        "rhazor",
+        "lethe",
+        "sabbath"
       ]
     },
     {
@@ -767,7 +510,7 @@
       "icone": "🐌",
       "forca": "simples",
       "origem": "nova",
-      "texto": "O alvo fica lento por 2 turnos: anda só 1 casa e ataca só a cada 2 turnos.",
+      "texto": "O alvo fica lento por 2 turnos: anda só 1 casa e perde o ataque no primeiro desses turnos.",
       "usadaPor": [
         "daisuke",
         "thessa",
@@ -781,41 +524,38 @@
       ]
     },
     {
-      "id": "gritoGuerra",
-      "nome": "Grito de Guerra",
-      "icone": "📯",
-      "forca": "media",
-      "origem": "nova",
-      "texto": "Enquanto estiver vivo, todos os aliados da MESMA FILEIRA ganham +1 de ataque (não soma com o Tambor de Guerra; teto de bônus 2).",
-      "nota": "O Tambor de Guerra do Tobi ajuda os vizinhos; o Grito ajuda a fileira inteira.",
+      "id": "ataqueCostas",
+      "nome": "Golpe pelas Costas",
+      "icone": "🔙",
+      "forca": "simples",
+      "origem": "sugerida",
+      "texto": "Ataca primeiro o inimigo que já passou por ele na mesma fileira (atrás dele), com +1 de dano nesse golpe; se não houver, ataca à frente.",
       "usadaPor": [
-        "kaori",
-        "sylith",
-        "dorian",
-        "fenra"
+        "shin",
+        "velka",
+        "nhyra",
+        "phase3",
+        "kaela",
+        "ysmera",
+        "lethe"
       ]
     },
     {
-      "id": "teleporte",
-      "nome": "Teleporte",
-      "icone": "🌀",
-      "forca": "media",
+      "id": "veneno",
+      "nome": "Veneno",
+      "icone": "🧪",
+      "forca": "simples",
       "origem": "nova",
-      "texto": "Uma vez por partida, no início da ação, pula para a casa livre logo atrás do inimigo mais avançado da fileira e o ataca pelas costas (ou troca de lugar com um aliado ferido, se não houver inimigo).",
+      "texto": "O alvo fica envenenado: perde 1 de vida no fim de cada turno dele por 3 turnos (2 de vida por turno a partir do Épico). Não acumula; um novo golpe renova.",
+      "nota": "Hoje o veneno existe só no feitiço Flecha Envenenada; aqui vira habilidade de personagem.",
       "usadaPor": [
-        "zynna",
-        "phase3"
-      ]
-    },
-    {
-      "id": "clone",
-      "nome": "Clone",
-      "icone": "👥",
-      "forca": "forte",
-      "origem": "nova",
-      "texto": "Ao entrar em campo, cria uma cópia com metade da vida e do ataque na casa livre vizinha. A cópia não tem habilidades.",
-      "usadaPor": [
-        "morgause"
+        "sayuri",
+        "skarr",
+        "bufo",
+        "spindra",
+        "ysmera",
+        "cador",
+        "nocturna"
       ]
     },
     {
@@ -852,20 +592,19 @@
       ]
     },
     {
-      "id": "ataqueCostas",
-      "nome": "Golpe pelas Costas",
-      "icone": "🔙",
+      "id": "furia",
+      "nome": "Fúria",
+      "icone": "📈",
       "forca": "simples",
-      "origem": "sugerida",
-      "texto": "Ataca primeiro o inimigo que já passou por ele na mesma fileira (atrás dele), com +1 de dano nesse golpe; se não houver, ataca à frente.",
+      "origem": "nova",
+      "texto": "Ganha +1 de ataque a cada inimigo derrotado (por qualquer aliado), até +3.",
       "usadaPor": [
-        "shin",
-        "velka",
-        "nhyra",
-        "phase3",
-        "kaela",
-        "ysmera",
-        "lethe"
+        "ryuji",
+        "vexar",
+        "corvin",
+        "ghul",
+        "rhazor",
+        "drakon"
       ]
     },
     {
@@ -885,27 +624,78 @@
       ]
     },
     {
-      "id": "investida",
-      "nome": "Investida",
-      "icone": "🐎",
+      "id": "explosao",
+      "nome": "Explosão",
+      "icone": "💥",
       "forca": "simples",
-      "origem": "sugerida",
-      "texto": "No turno em que entra em campo, já ataca se houver inimigo no alcance.",
+      "origem": "nova",
+      "texto": "Ao morrer, causa 2 de dano (3 a partir do Épico) em todos os inimigos vizinhos.",
       "usadaPor": [
-        "aya",
-        "mimic",
-        "krag"
+        "bastion2",
+        "varo",
+        "magra",
+        "grendar",
+        "grav",
+        "ghor"
       ]
     },
     {
-      "id": "execucao",
-      "nome": "Execução",
-      "icone": "☠️",
-      "forca": "forte",
-      "origem": "sugerida",
-      "texto": "Derrota na hora o inimigo atingido (não o Comandante) se ele ficar com 25% da vida ou menos.",
+      "id": "congelar",
+      "nome": "Congelamento",
+      "icone": "❄️",
+      "forca": "media",
+      "origem": "nova",
+      "texto": "Ao acertar, 50% de chance de congelar o alvo: ele não ataca no próximo turno (ainda pode andar). Não congela o mesmo alvo duas vezes seguidas.",
       "usadaPor": [
-        "vharga"
+        "orun",
+        "morv",
+        "cryo6",
+        "celina",
+        "vesna"
+      ]
+    },
+    {
+      "id": "gritoGuerra",
+      "nome": "Grito de Guerra",
+      "icone": "📯",
+      "forca": "media",
+      "origem": "nova",
+      "texto": "Enquanto estiver vivo, todos os aliados da MESMA FILEIRA ganham +1 de ataque (não soma com o Tambor de Guerra; teto de bônus 2).",
+      "nota": "O Tambor de Guerra do Tobi ajuda os vizinhos; o Grito ajuda a fileira inteira.",
+      "usadaPor": [
+        "kaori",
+        "sylith",
+        "dorian",
+        "fenra"
+      ]
+    },
+    {
+      "id": "protetor",
+      "nome": "Protetor",
+      "icone": "🛡️",
+      "forca": "media",
+      "origem": "nova",
+      "texto": "Recebe no lugar dos aliados vizinhos 30% do dano que eles sofreriam (40% a partir do Épico). É sempre um personagem de muita vida e pouco ataque.",
+      "usadaPor": [
+        "tetsuo",
+        "gorm",
+        "sentinel0",
+        "grendar"
+      ]
+    },
+    {
+      "id": "perfurar",
+      "nome": "Perfurar",
+      "icone": "🗡️",
+      "forca": "media",
+      "origem": "nova",
+      "texto": "O ataque ignora escudos e TODA a resistência do alvo.",
+      "nota": "Diferente do Feixe Perfurante (que atravessa a fileira) e do Tiro Certeiro (que ignora só parte da resistência física).",
+      "usadaPor": [
+        "rin",
+        "echo5",
+        "selene",
+        "corvin"
       ]
     },
     {
@@ -920,6 +710,229 @@
         "sylith",
         "sentinel0",
         "tiberius"
+      ]
+    },
+    {
+      "id": "queimadura",
+      "nome": "Queimadura",
+      "icone": "🔥",
+      "forca": "simples",
+      "origem": "nova",
+      "texto": "O alvo pega fogo: sofre 1 de dano mágico no fim de cada turno por 2 turnos (3 turnos a partir do Épico). Acumula até 2 queimaduras.",
+      "nota": "Diferença do Veneno: o fogo é dano mágico e acumula.",
+      "usadaPor": [
+        "fen",
+        "selene",
+        "eldrin",
+        "pira"
+      ]
+    },
+    {
+      "id": "vampirismo",
+      "nome": "Vampirismo",
+      "icone": "🧛",
+      "forca": "simples",
+      "origem": "nova",
+      "texto": "Cura a si mesmo em 25% do dano que causa (30% no Raro, 35% no Lendário).",
+      "usadaPor": [
+        "ghul",
+        "brunna",
+        "morrigan",
+        "drakon"
+      ]
+    },
+    {
+      "id": "investida",
+      "nome": "Investida",
+      "icone": "🐎",
+      "forca": "simples",
+      "origem": "sugerida",
+      "texto": "Na primeira ação depois de entrar em campo, anda 2 casas a mais e o primeiro golpe causa +1 de dano.",
+      "usadaPor": [
+        "aya",
+        "mimic",
+        "krag"
+      ]
+    },
+    {
+      "id": "atordoar",
+      "nome": "Atordoamento",
+      "icone": "💫",
+      "forca": "media",
+      "origem": "nova",
+      "texto": "Ao acertar, 50% de chance de atordoar o alvo: no próximo turno ele não age (não anda, não ataca, não usa habilidade). Não atordoa o mesmo alvo duas vezes seguidas.",
+      "nota": "Diferença do Congelamento: congelado ainda anda; atordoado fica parado.",
+      "usadaPor": [
+        "hayato",
+        "pulse7"
+      ]
+    },
+    {
+      "id": "teleporte",
+      "nome": "Teleporte",
+      "icone": "🌀",
+      "forca": "media",
+      "origem": "nova",
+      "texto": "Uma vez por partida, no início da ação, pula para a casa livre logo atrás do inimigo mais avançado da fileira e o ataca pelas costas (+1 de dano).",
+      "usadaPor": [
+        "zynna",
+        "phase3"
+      ]
+    },
+    {
+      "id": "anular",
+      "nome": "Selo do Vazio",
+      "icone": "🚫",
+      "forca": "forte",
+      "origem": "nova",
+      "texto": "Cada golpe físico tira TODAS as habilidades do alvo até o fim da partida (ele vira uma unidade sem habilidades). Não afeta Comandantes. Personagem de ataque físico.",
+      "usadaPor": [
+        "kaito"
+      ]
+    },
+    {
+      "id": "ultimaResistencia",
+      "nome": "Vontade Inquebrável",
+      "icone": "⏳",
+      "forca": "forte",
+      "origem": "nova",
+      "texto": "Na primeira vez que receberia um golpe fatal, fica com 1 de vida e imune a todo dano até o fim do turno inimigo.",
+      "usadaPor": [
+        "aya"
+      ]
+    },
+    {
+      "id": "evasao",
+      "nome": "Evasão",
+      "icone": "💨",
+      "forca": "forte",
+      "origem": "nova",
+      "texto": "Desvia de TODOS os ataques à distância (longo alcance, flechas e feitiços de 1 alvo). Se estiver congelado, atordoado ou lento, é atingido normalmente.",
+      "usadaPor": [
+        "nhyra"
+      ]
+    },
+    {
+      "id": "dominio",
+      "nome": "Domínio Enfraquecedor",
+      "icone": "🌀",
+      "forca": "forte",
+      "origem": "nova",
+      "texto": "Ao entrar em campo, todos os inimigos perdem 1 de ataque enquanto ele estiver vivo (soma com o Sifão de Energia até o teto de −2). Cada ataque dele tira mais 1 de ataque do alvo (até −3 por alvo; ataque mínimo 1). Ataca de longe.",
+      "nota": "Pedido como carta Lendária. A parte da aura lembra o Sifão de Energia da Nyx-07; o enfraquecimento a cada golpe é novo.",
+      "usadaPor": [
+        "omega9"
+      ]
+    },
+    {
+      "id": "copiador",
+      "nome": "Copiador",
+      "icone": "🪞",
+      "forca": "forte",
+      "origem": "nova",
+      "texto": "No primeiro ataque, copia a primeira habilidade do inimigo atingido e fica com ela até o fim da partida (não copia habilidades únicas de cartas Míticas).",
+      "usadaPor": [
+        "mimic"
+      ]
+    },
+    {
+      "id": "retaliacao",
+      "nome": "Protocolo de Retaliação",
+      "icone": "⚖️",
+      "forca": "forte",
+      "origem": "nova",
+      "texto": "Enquanto estiver em campo, quando o seu Comandante sofrer dano, o inimigo mais próximo dele sofre o mesmo dano (até 5 por vez).",
+      "usadaPor": [
+        "aegis"
+      ]
+    },
+    {
+      "id": "clone",
+      "nome": "Clone",
+      "icone": "👥",
+      "forca": "forte",
+      "origem": "nova",
+      "texto": "Ao entrar em campo, cria uma cópia com metade da vida e do ataque na casa livre vizinha. A cópia não tem habilidades.",
+      "usadaPor": [
+        "morgause"
+      ]
+    },
+    {
+      "id": "raioCadeia",
+      "nome": "Raio em Cadeia",
+      "icone": "⚡",
+      "forca": "forte",
+      "origem": "nova",
+      "texto": "O ataque salta para até mais 2 inimigos vizinhos do alvo, com 60% e 30% do dano.",
+      "usadaPor": [
+        "aethra"
+      ]
+    },
+    {
+      "id": "couracaAdaptativa",
+      "nome": "Couraça Adaptativa",
+      "icone": "🛡️",
+      "forca": "forte",
+      "origem": "nova",
+      "texto": "Começa com resistência física 1. Cada golpe físico recebido cura 1 de vida e soma +1 de resistência física (até 3).",
+      "usadaPor": [
+        "kolossus"
+      ]
+    },
+    {
+      "id": "execucao",
+      "nome": "Execução",
+      "icone": "☠️",
+      "forca": "forte",
+      "origem": "sugerida",
+      "texto": "Derrota na hora o inimigo atingido (não o Comandante) se ele ficar com 25% da vida ou menos.",
+      "usadaPor": [
+        "vharga"
+      ]
+    },
+    {
+      "id": "vinganca",
+      "nome": "Vingança",
+      "icone": "🕯️",
+      "forca": "forte",
+      "origem": "nova",
+      "texto": "Ganha +1 de ataque a cada ALIADO derrotado, até +4. Ataca de longe.",
+      "nota": "Pedido como carta Lendária de ataque de longe.",
+      "usadaPor": [
+        "lamenta"
+      ]
+    },
+    {
+      "id": "sedeEterna",
+      "nome": "Sede Eterna",
+      "icone": "🧛",
+      "forca": "forte",
+      "origem": "nova",
+      "texto": "Cada ataque tira 2 de vida EXTRA do alvo (3 no Mítico++) e cura ele mesmo nessa quantidade. Ao derrotar um inimigo, passa a \"Marca da Sede\" para o aliado mais próximo: esse aliado também tira 1 de vida extra por ataque e se cura com ela, mas não passa a marca adiante.",
+      "nota": "Vampirismo mítico pedido pelo jogador.",
+      "usadaPor": [
+        "sanguis"
+      ]
+    },
+    {
+      "id": "marcaSede",
+      "nome": "Marca da Sede",
+      "icone": "🩸",
+      "texto": "Recebida da Sede Eterna: cada ataque tira 1 de vida extra do alvo e cura quem ataca.",
+      "forca": "simples",
+      "origem": "jogo",
+      "usadaPor": []
+    },
+    {
+      "id": "ressurreicao",
+      "nome": "Ressurreição",
+      "icone": "✨",
+      "forca": "forte",
+      "origem": "nova",
+      "texto": "Traz de volta ao campo, na casa livre mais próxima, um aliado derrotado com 50% da vida. Pode usar 1 vez a cada 10 rodadas (a primeira já na rodada 3).",
+      "nota": "Diferente do Chamado da Necropolis (que devolve a carta para a mão) e do Renascer (que só vale para si).",
+      "usadaPor": [
+        "elegia"
       ]
     }
   ],
@@ -3554,7 +3567,8 @@
       "hp": 12,
       "habs": [
         "protetor",
-        "provocar"
+        "provocar",
+        "guarda"
       ],
       "lore": "Guarda-costas do imperador; ninguém fere quem está ao lado dele.",
       "aparencia": "Samurai de armadura pesada azul-marinho, escudo retangular grande, postura de guarda.",
@@ -6622,7 +6636,7 @@
       "nome": "Nalia Arco-Rúnico",
       "raca": "mago",
       "grupo": "arqueiro",
-      "dano": "magico",
+      "dano": "fisico",
       "min": 3,
       "max": 5,
       "espera": 4,
@@ -7595,7 +7609,8 @@
       "hp": 11,
       "habs": [
         "explosao",
-        "provocar"
+        "provocar",
+        "guarda"
       ],
       "lore": "Gigante de rocha derretida que explode quando cai.",
       "aparencia": "Colosso de pedra preta com rachaduras de lava laranja, vapor saindo.",
@@ -8240,7 +8255,8 @@
       "habs": [
         "provocar",
         "protetor",
-        "explosao"
+        "explosao",
+        "guarda"
       ],
       "lore": "Monstro ancestral que protege os filhotes e explode ao cair.",
       "aparencia": "Besta enorme de couro verde-oliva, ovos brilhando nas costas, braços como troncos.",
@@ -9424,7 +9440,8 @@
       "habs": [
         "explosao",
         "regeneracao",
-        "provocar"
+        "provocar",
+        "guarda"
       ],
       "lore": "Monstro costurado de muitos corpos que estoura ao cair.",
       "aparencia": "Gigante costurado de pele de várias cores, pontos grossos, gancho na mão, barriga inchada.",

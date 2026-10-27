@@ -117,7 +117,7 @@ export function collection() {
     <div class="card-grid spell-grid">${SPELLS.map((sp) => spellCardHTML(sp.id, { attrs: `data-card="${sp.id}"`, badge: save.deck.includes(sp.id) ? `✔ ×${copiesIn(save, sp.id)}` : undefined, extraClass: save.deck.includes(sp.id) ? 'in-deck' : '' })).join('')}</div>
     ${locked.length ? `<div class="divider"><span>🔒 Ainda não obtidos (${locked.length})</span></div>
     <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, stars: def.minStars }, { locked: true, grid: true, extraClass: isComingSoon(def) ? 'soon' : '', attrs: `data-card="${def.id}"`, badge: lockBadge(def.id) })).join('')}</div>
-    ${locked.some(isComingSoon) ? `<p class="hint soon-note">🎴 <b>Só no Banner:</b> ${locked.filter(isComingSoon).map((d) => esc(d.name)).join(' e ')} — compre cartas no Banner da 🏪 Loja.</p>` : ''}` : ''}
+    ${locked.some(isComingSoon) ? `<p class="hint soon-note">🎴 <b>Só no Banner:</b> ${locked.filter(isComingSoon).length > 3 ? `${locked.filter(isComingSoon).length} personagens` : locked.filter(isComingSoon).map((d) => esc(d.name)).join(' e ')} — compre cartas no Banner da 🏪 Loja.</p>` : ''}` : ''}
   </div>`;
   bindNav();
   app.querySelectorAll<HTMLElement>('[data-rf]').forEach((el) =>

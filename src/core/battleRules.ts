@@ -19,7 +19,7 @@ export function auraPenalty(state: BattleState, u: Unit): number {
   let p = 0;
   for (const e of state.units) {
     if (e.hp <= 0 || e.side === u.side) continue;
-    if (has(e.abilities, (x) => x.enemyAtkAura)) p += pw(e, 'sifao');
+    if (has(e.abilities, (x) => x.enemyAtkAura)) p += pw(e, 'sifao') + pw(e, 'dominio');
   }
   return Math.min(AURA_CAP, p);
 }
@@ -40,11 +40,14 @@ export function allyBuff(state: BattleState, u: Unit): number {
     if (Math.abs(a.row - u.row) > 1 || Math.abs(a.col - u.col) > 1) continue;
     if (has(a.abilities, (x) => x.allyAtkAura)) b = Math.max(b, pw(a, 'tambor'));
   }
+  // v0.30.0: Grito de Guerra — aliados da mesma fileira (qualquer distância); não soma com o Tambor
+  for (const a of state.units)
+    if (a !== u && a.hp > 0 && a.side === u.side && a.row === u.row && a.abilities.includes('gritoGuerra')) b = Math.max(b, pw(a, 'gritoGuerra'));
   return Math.min(BUFF_CAP, b);
 }
 
 export function effectiveAtk(state: BattleState, u: Unit): number {
-  return Math.max(1, u.atk - auraPenalty(state, u)) + allyBuff(state, u) + (state.fury ? furyBonus(state.turn) : 0);
+  return Math.max(1, u.atk + (u.atkMod ?? 0) - auraPenalty(state, u)) + allyBuff(state, u) + (state.fury ? furyBonus(state.turn) : 0);
 }
 
 /** Dano após resistência. Resistência física 1 contra 3 de dano físico = 2. Mínimo 1. `pierce` ignora parte da resistência. */
@@ -75,6 +78,17 @@ export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
   const reach = Math.max(r, ab?.reach ?? 0);
   const fwd = (e: Unit) => (e.col - u.col) * d;
   const rowAhead = enemies.filter((e) => e.row === u.row && fwd(e) >= 1 && fwd(e) <= reach);
+  // v0.30.0: Provocar — quem pode atingir um provocador é obrigado a atacá-lo
+  const canHit = (e: Unit) =>
+    (e.row === u.row && fwd(e) >= 1 && fwd(e) <= reach) ||
+    (Math.abs(e.row - u.row) === 1 && ((fwd(e) === 1 && u.abilities.includes('diagFrente')) || (fwd(e) === -1 && u.abilities.includes('diagTras')))) ||
+    (e.row === u.row && fwd(e) === -1 && u.abilities.includes('ataqueCostas'));
+  const taunt = enemies.filter((e) => e.abilities.includes('provocar') && canHit(e)).sort((a, b) => Math.abs(fwd(a)) - Math.abs(fwd(b)) || a.uid - b.uid)[0];
+  if (taunt) return taunt;
+  if (targeting === 'costas') {
+    const back = enemies.find((e) => e.row === u.row && fwd(e) === -1);
+    if (back) return back;
+  }
 
   if (targeting === 'menorVida' && rowAhead.length) {
     return rowAhead.sort((a, b) => a.hp - b.hp || fwd(a) - fwd(b))[0];

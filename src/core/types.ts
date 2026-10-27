@@ -41,10 +41,48 @@ export type AbilityId =
   | 'reflexo'
   | 'ombrada'
   | 'necromancia'
-  | 'barreira';
+  | 'barreira'
+  // v0.30.0: habilidades das 99 cartas novas (CARTAS.md)
+  | 'critico'
+  | 'provocar'
+  | 'sangramento'
+  | 'lentidao'
+  | 'ataqueCostas'
+  | 'veneno'
+  | 'maldicao'
+  | 'purificar'
+  | 'furia'
+  | 'regeneracao'
+  | 'explosao'
+  | 'congelar'
+  | 'gritoGuerra'
+  | 'protetor'
+  | 'perfurar'
+  | 'escudoInicial'
+  | 'queimadura'
+  | 'vampirismo'
+  | 'investida'
+  | 'atordoar'
+  | 'teleporte'
+  | 'anular'
+  | 'ultimaResistencia'
+  | 'evasao'
+  | 'dominio'
+  | 'copiador'
+  | 'retaliacao'
+  | 'clone'
+  | 'raioCadeia'
+  | 'couracaAdaptativa'
+  | 'execucao'
+  | 'vinganca'
+  | 'sedeEterna'
+  | 'marcaSede'
+  | 'ressurreicao';
 
 /** v0.17.0: efeitos com duração (contador de rodadas) */
-export type EffectKind = 'veneno' | 'queimadura' | 'atordoado' | 'escudo' | 'anjo';
+export type EffectKind = 'veneno' | 'queimadura' | 'atordoado' | 'escudo' | 'anjo'
+  // v0.30.0
+  | 'sangramento' | 'lento' | 'congelado' | 'maldicao' | 'imune';
 export interface Effect {
   kind: EffectKind;
   /** dano por rodada (veneno/queimadura) ou pontos de escudo que restam */
@@ -128,6 +166,10 @@ export interface Unit {
   /** v0.17.0: Renascer já usado / Anjo da Guarda (habilidade) já usado */
   revived?: boolean;
   angelUsed?: boolean;
+  /** v0.30.0: ataque somado/tirado por habilidades (Fúria, Vingança, Domínio Enfraquecedor) */
+  atkMod?: number;
+  /** v0.30.0: usos únicos e contadores (Teleporte, Copiador, Vontade Inquebrável, Investida, Ressurreição, Congelar/Atordoar) */
+  used?: { teleport?: boolean; copied?: boolean; lastStand?: boolean; charged?: boolean; resTurn?: number; frozenTurn?: number; stunTurn?: number; furia?: number; vinganca?: number; drained?: number };
 }
 
 export interface Hero {
@@ -156,6 +198,8 @@ export interface BattleState {
   record?: MatchRecord;
   /** v0.28.0: contagem da partida por lado (estrelas): cartas usadas, feitiços usados e personagens inimigos derrotados */
   stats?: Record<Side, BattleStats>;
+  /** v0.30.0: cartas de personagem derrotadas por lado, na ordem (Ressurreição) */
+  fallen?: Record<Side, CardInstance[]>;
 }
 
 export interface BattleStats {
@@ -208,7 +252,7 @@ export type BattleEvent =
   | { type: 'aura'; uid: number; text: string }
   | { type: 'heal'; uid: number; amount: number; text: string }
   | { type: 'end'; winner: Side | 'empate'; text: string }
-  | { type: 'effect'; uid: number; kind: EffectKind | 'renascer' | 'reflexo' | 'necropolis'; text: string }
+  | { type: 'effect'; uid: number; kind: EffectKind | 'renascer' | 'reflexo' | 'necropolis' | 'habilidade'; text: string }
   | { type: 'cast'; side: Side; spellId: string; caster: number; target?: [number, number]; text: string };
 
 export type RecordedEvent = BattleEvent & { snap: Snapshot };

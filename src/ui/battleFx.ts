@@ -89,11 +89,21 @@ export function statusList(state: BattleState, u: Unit): { icon: string; label: 
   const pen = auraPenalty(state, u);
   if (buff > 0) out.push({ icon: '🥁', label: `aura +${buff} ATQ`, key: `b${buff}` });
   if (pen > 0) out.push({ icon: '🌀', label: `drenado −${pen} ATQ`, key: `p${pen}` });
-  const ICON = { veneno: '🧪', queimadura: '🔥', atordoado: '💫', escudo: '🛡', anjo: '👼' } as const;
+  const ICON = { veneno: '🧪', queimadura: '🔥', atordoado: '💫', escudo: '🛡', anjo: '👼', sangramento: '🩸', lento: '🐌', congelado: '❄️', maldicao: '🕯️', imune: '⏳' } as const;
+  if (u.atkMod) out.push({ icon: u.atkMod > 0 ? '📈' : '🌀', label: `${u.atkMod > 0 ? '+' : '−'}${Math.abs(u.atkMod)} ATQ (habilidade)`, key: `m${u.atkMod}` });
   for (const e of u.effects ?? []) {
     if (e.turns <= 0) continue;
     const label =
-      e.kind === 'veneno' ? `veneno ${e.amount}/rodada (${e.turns})` : e.kind === 'queimadura' ? `queimadura ${e.amount}/rodada (${e.turns})` : e.kind === 'atordoado' ? 'atordoado' : e.kind === 'escudo' ? `escudo ${e.amount} (${e.turns})` : 'Anjo da Guarda';
+      e.kind === 'veneno' ? `veneno ${e.amount}/rodada (${e.turns})`
+      : e.kind === 'queimadura' ? `queimadura ${e.amount}/rodada (${e.turns})`
+      : e.kind === 'sangramento' ? `sangramento ${e.amount}/rodada (${e.turns})`
+      : e.kind === 'atordoado' ? 'atordoado'
+      : e.kind === 'congelado' ? 'congelado (não ataca)'
+      : e.kind === 'lento' ? `lento (${e.turns})`
+      : e.kind === 'maldicao' ? `amaldiçoado +25% de dano (${e.turns})`
+      : e.kind === 'imune' ? 'imune até o fim do turno'
+      : e.kind === 'escudo' ? (e.turns >= 99 ? `escudo ${e.amount}` : `escudo ${e.amount} (${e.turns})`)
+      : 'Anjo da Guarda';
     out.push({ icon: ICON[e.kind], label, key: `${e.kind}${e.amount}` });
   }
   return out;

@@ -44,7 +44,8 @@ export const BANNERS: Banner[] = [
     featuredRarity: 5,
     price1: 300,
     price10: 2700,
-    odds: { 1: 0.4, 2: 0.27, 3: 0.2, 4: 0.1, 5: 0.03 },
+    // v0.30.0: Mítico 0,5% (as cartas que começam no Mítico só saem aqui), tirado do Comum (40% → 39,5%)
+    odds: { 1: 0.395, 2: 0.27, 3: 0.2, 4: 0.1, 5: 0.03, 6: 0.005 },
     guarantee10: 3,
   },
 ];
