@@ -526,8 +526,8 @@ export const UNIQUE_5STAR = ['kenji', 'vorax'];
 export const STARTER_IDS = PLAYABLE.filter((c) => c.minStars === 1).map((c) => c.id);
 
 /**
- * Bloqueados por enquanto (v0.8): quem começa em Lendário ou Mítico não pode ser obtido no jogo.
- * A forma de desbloquear será decidida numa atualização futura ("em breve").
+ * Quem começa em Lendário ou Mítico não vem em fase nem em pacote (v0.8: "em breve").
+ * v0.27.0: esses personagens (Kenji e Vorax) só saem no 🎴 Banner da Loja (banner.ts).
  */
 export function isComingSoon(def: CharacterDef): boolean {
   return def.minStars >= 5;

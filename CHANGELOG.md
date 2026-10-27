@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.27.0] — 27/10/2026 · PR #51 — Banner de cartas e cópias repetidas
+- **🎴 Banner "Despertar do Dragão"** na 🏪 Loja: paisagem com Kenji e Vorax em destaque. 1 carta = 300 Ouro de Dragão, 10 cartas = 2.700 (pelo menos 1 Rara ou melhor no pacote de 10). Chances: Comum 40% · Incomum 27% · Raro 20% · Épico 10% · Lendário 3%.
+- Cada carta é um personagem na raridade sorteada (entre os que podem ter essa raridade). **Kenji e Vorax** deixam de ser "em breve" e saem **só no Banner**, na metade das cartas Lendárias.
+- **Cópia repetida vira XP** (Banner e pacotes de fase): Orbe da raridade da carta + 20% por "+", com sorte de 12% ×2, 5% ×5 e 1% ×10. A cópia não sobe a raridade.
+- Banners como dados (`BANNERS`), prontos para cartas e fases futuras. Tela de revelação das cartas (1 ou 10).
+
 ## [0.26.2] — 26/10/2026 · PR #50 — Moeda com cara de moeda
 - **🪙 Ouro de Dragão:** borda serrilhada, anel de pontinhos em relevo, campo do meio rebaixado, ouro metálico com sombreamento e um brilho passando. O dragão 🐉 voltou ao dourado um pouco laranja (pedido do jogador) e ficou em relevo (luz em cima, sombra embaixo).
 

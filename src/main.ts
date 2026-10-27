@@ -3,7 +3,7 @@ import type { Category } from './core/types';
 import './ui/style.css';
 import { CATEGORY_INFO, PLAYABLE, RACE_INFO, STAR_COLORS, getChar, isComingSoon } from './core/characters';
 import { STAGES, type Stage } from './core/campaign';
-import { MAX_STEP, TIER_NAMES, XP_ITEMS, playXp, ascendCost, ascendCostFor, barFull, canAscend, cardBarXp, feedXp, isMaxTier, newOwned, nextTier, statsFor, stepOf, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
+import { MAX_STEP, TIER_NAMES, XP_ITEMS, playXp, ascendCost, ascendCostFor, barFull, canAscend, cardBarXp, feedXp, isMaxTier, nextTier, statsFor, stepOf, stepXp, tierLabel, xpProgress, type XpItemId } from './core/progression';
 import { playerLeaderImg, portraitImg, portraitSVG, unitSpriteSVG, warmLeader, warmPortraits } from './ui/art';
 import { cardPower, deckPower } from './core/power';
 import { canEvolve, evolveLeader, getLeader, leaderHp, leaderMaxLevel, nextRequirement } from './core/leaders';
@@ -20,6 +20,7 @@ import { GEAR_BY_ID, GEAR_CATEGORIES, GEAR_DROP, GEAR_PER_STEP, GEAR_RARE_CHANCE
 import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_GOALS, addStars, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from './core/adventure';
 import { LEADER_ENEMY_URL } from './ui/art';
 import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_PACK, TUTORIAL_REWARD, TUTORIAL_STARTER, TUTORIAL_TIPS, TUT_BATTLE1, TUT_BATTLE2, TUT_DONE, TUT_PACK, tutorialGear } from './core/tutorial';
+import { BANNERS, bannerPrice, grantCard, pull, type Banner, type GrantResult } from './core/banner';
 import { ENERGY_COST, FIRST_WIN_MULT, PROFILE_MAX, addProfileXp, energyMax, goldFor, msToNextEnergy, profileXpFor, spendEnergy, tickEnergy, totalXpFor, xpToNext, newProfile, type ProfileState } from './core/profile';
 import { GEAR_PRICE, ORB_PRICE, buyGear, buyOrb } from './core/shop';
 import { adminSave, createAccount, loadAccounts, login, logout, saveKeyFor, NAME_MAX, PASS_MIN } from './ui/accounts';
@@ -435,17 +436,19 @@ function stageDialog(stageId: number) {
   });
 }
 
-/** v0.25.0: dá os personagens do pacote que o jogador ainda não tem (entram direto no baralho se couber). */
+/** v0.27.0: mostra uma carta recebida (personagem novo ou cópia repetida que virou XP). */
+function grantedHTML(g: GrantResult): string {
+  const def = getChar(g.charId);
+  if (g.isNew) {
+    const joined = addToDeck(save, def.id) > 0;
+    return `<div class="unlock" style="${starStyle(g.stars)}">${cardHTML(save.cards[def.id], { compact: true })}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${raceHTML(def)} ${categoryHTML(def, true)} · ${tierHTML(g.stars)}${joined ? '<br><small>Entrou direto no seu baralho.</small>' : ''}</div></div>`;
+  }
+  return `<div class="unlock dup" style="${starStyle(g.stars)}">${cardHTML({ charId: g.charId, stars: g.stars }, { compact: true })}<div><b>Repetido:</b> ${esc(def.name)} ${tierHTML(g.stars)}<br>📈 virou <b>+${fmt(g.xp)} XP</b>${g.mult > 1 ? ` <b class="dup-luck">×${g.mult}!</b>` : ''}${g.filled ? '<br><small>Barra cheia: suba o degrau em Treinar.</small>' : g.wasted > 0 ? `<br><small>${fmt(g.wasted)} XP passaram da barra cheia.</small>` : ''}</div></div>`;
+}
+
+/** v0.25.0: dá os personagens do pacote (entram direto no baralho se couber). v0.27.0: o repetido vira XP. */
 function grantPack(ids: string[]): string {
-  return ids
-    .filter((id) => !save.cards[id])
-    .map((id) => {
-      save.cards[id] = newOwned(id);
-      const def = getChar(id);
-      const joined = addToDeck(save, def.id) > 0;
-      return `<div class="unlock" style="${starStyle(def.minStars)}">${cardHTML(save.cards[def.id], { compact: true })}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${raceHTML(def)} ${categoryHTML(def, true)} · ${tierHTML(def.minStars)}${joined ? '<br><small>Entrou direto no seu baralho.</small>' : ''}</div></div>`;
-    })
-    .join('');
+  return ids.map((id) => grantedHTML(grantCard(save.cards, { charId: id, stars: getChar(id).minStars }))).join('');
 }
 
 /** Dá a recompensa inteira da fase na dificuldade (vitória ou Repetir; v0.22.0: Orbes pela dificuldade, com as chances do Difícil). */
@@ -698,7 +701,7 @@ function collection() {
   const owned = PLAYABLE.filter((d) => save.cards[d.id] && matchRace(d.id)).map((d) => d.id).sort(byPower);
   const lockOrder = (id: string) => (isComingSoon(getChar(id)) ? 999 : unlockStage(id) ?? 99);
   const locked = PLAYABLE.filter((d) => !save.cards[d.id] && matchRace(d.id)).sort((a, b) => lockOrder(a.id) - lockOrder(b.id));
-  const lockBadge = (id: string) => (isComingSoon(getChar(id)) ? '🔒 Em breve' : `🔒 Fase ${unlockStage(id) ?? '?'}`);
+  const lockBadge = (id: string) => (isComingSoon(getChar(id)) ? '🎴 Banner' : `🔒 Fase ${unlockStage(id) ?? '?'}`);
   const count = deckCount(save);
   const max = deckMax(save);
   const issue = deckIssue(save);
@@ -726,7 +729,7 @@ function collection() {
     <div class="card-grid spell-grid">${SPELLS.map((sp) => spellCardHTML(sp.id, { attrs: `data-card="${sp.id}"`, badge: save.deck.includes(sp.id) ? `✔ ×${copiesIn(save, sp.id)}` : undefined, extraClass: save.deck.includes(sp.id) ? 'in-deck' : '' })).join('')}</div>
     ${locked.length ? `<div class="divider"><span>🔒 Ainda não obtidos (${locked.length})</span></div>
     <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, stars: def.minStars }, { locked: true, grid: true, extraClass: isComingSoon(def) ? 'soon' : '', attrs: `data-card="${def.id}"`, badge: lockBadge(def.id) })).join('')}</div>
-    ${locked.some(isComingSoon) ? `<p class="hint soon-note">🔒 <b>Em breve:</b> ${locked.filter(isComingSoon).map((d) => esc(d.name)).join(' e ')} ${locked.filter(isComingSoon).length > 1 ? 'começam' : 'começa'} em Lendário e ainda não ${locked.filter(isComingSoon).length > 1 ? 'podem' : 'pode'} ser obtidos. A forma de conseguir será revelada numa atualização futura.</p>` : ''}` : ''}
+    ${locked.some(isComingSoon) ? `<p class="hint soon-note">🎴 <b>Só no Banner:</b> ${locked.filter(isComingSoon).map((d) => esc(d.name)).join(' e ')} — compre cartas no Banner da 🏪 Loja.</p>` : ''}` : ''}
   </div>`;
   bindNav();
   app.querySelectorAll<HTMLElement>('[data-rf]').forEach((el) =>
@@ -785,7 +788,7 @@ function cardDetail(id: string, previewStars?: number) {
       ${abilityListHTML(def, stars, plus)}
       <p class="lore">${esc(def.lore)}</p>
     </div></div>
-    <div class="row">${owned ? `<button class="btn primary" data-m="deck">${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</button><button class="btn" data-m="train">Treinar</button>` : isComingSoon(def) ? `<p class="hint">🔒 <b>Em breve.</b> Personagem ${tierLabel(def.minStars)}: ainda não pode ser obtido. A forma de conseguir será revelada numa atualização futura.</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id) ?? '?'} pela primeira vez para desbloquear.</p>`}<button class="btn ghost" data-m="close">Fechar</button></div>`,
+    <div class="row">${owned ? `<button class="btn primary" data-m="deck">${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</button><button class="btn" data-m="train">Treinar</button>` : isComingSoon(def) ? `<p class="hint">🎴 Personagem ${tierLabel(def.minStars)}: sai só no <b>Banner</b> da 🏪 Loja.</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id) ?? '?'} pela primeira vez para desbloquear.</p>`}<button class="btn ghost" data-m="close">Fechar</button></div>`,
     (m) => {
       m.querySelector('[data-m=close]')!.addEventListener('click', closeModal);
       m.querySelectorAll<HTMLElement>('[data-pstar]').forEach((btn) =>
@@ -896,6 +899,7 @@ function shop() {
   app.innerHTML = `<div class="screen">${topbar('🏪 Loja')}
   <div class="shop">
     <p class="hint">Compre com ${goldHTML()} <b>Ouro de Dragão</b>, que vem de cada vitória e Repetir (em dobro na primeira vitória de cada fase).</p>
+    ${BANNERS.map((b) => bannerHTML(b, gold)).join('')}
     <h3>🎒 Itens de ascensão</h3>
     <div class="shop-tabs">
       <button class="btn small ${shopCat === 'need' ? 'on primary' : ''}" data-cat="need">⭐ Faltando no baralho${need.size ? ` (${need.size})` : ''}</button>
@@ -917,6 +921,42 @@ function shop() {
   app.querySelectorAll<HTMLElement>('[data-rar]').forEach((b) => b.addEventListener('click', () => { shopRarity = Number(b.dataset.rar); rerender(); }));
   app.querySelectorAll<HTMLElement>('[data-gear]').forEach((b) => b.addEventListener('click', () => { if (buyGear(prof(), bag, b.dataset.gear!, Number(b.dataset.r)).ok) rerender(); }));
   app.querySelectorAll<HTMLElement>('[data-orb]').forEach((b) => b.addEventListener('click', () => { if (buyOrb(prof(), save.items, b.dataset.orb as XpItemId).ok) rerender(); }));
+  app.querySelectorAll<HTMLElement>('[data-pull]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const banner = BANNERS.find((x) => x.id === b.dataset.banner)!;
+      const n = Number(b.dataset.pull) as 1 | 10;
+      const price = bannerPrice(banner, n);
+      if (prof().gold < price) return;
+      prof().gold -= price;
+      const got = pull(banner, n).map((c) => grantCard(save.cards, c));
+      persist();
+      const best = Math.max(...got.map((g) => g.stars));
+      resultModalWith(
+        `<h2 class="win">🎴 ${esc(banner.name)}</h2><div class="pull-reveal pull-${n}" style="${starStyle(best)}">${got.map((g, i) => `<div class="pull-card r${g.stars}" style="animation-delay:${i * 0.12}s">${grantedHTML(g)}</div>`).join('')}</div>`,
+        [{ label: 'Continuar', primary: true, run: shop }],
+      );
+    }),
+  );
+}
+
+/** v0.27.0: 🎴 banner estilizado (paisagem, destaque dos mais fortes, chances e botões 1 / 10). */
+function bannerHTML(b: Banner, gold: number): string {
+  const feat = b.featured.map((id) => getChar(id));
+  const odds = Object.entries(b.odds).map(([r, p]) => `<span style="${starStyle(Number(r))}">${TIER_NAMES[Number(r)]} ${Math.round(p * 100)}%</span>`).join('');
+  const btn = (n: 1 | 10) => {
+    const price = bannerPrice(b, n);
+    return `<button class="btn ${gold >= price ? 'primary' : ''}" data-banner="${b.id}" data-pull="${n}" ${gold >= price ? '' : 'disabled'}>${n === 1 ? 'Comprar 1 carta' : 'Comprar 10 cartas'} ${goldHTML(fmt(price))}</button>`;
+  };
+  return `<div class="banner-box">
+    <div class="banner-art">
+      <div class="banner-sky"></div><div class="banner-mount"></div>
+      <div class="banner-feat">${feat.map((d) => `<div class="banner-hero" style="${starStyle(b.featuredRarity)}">${unitSpriteSVG(d, { stars: b.featuredRarity, side: 'player' })}<b>${esc(d.name)}</b></div>`).join('')}</div>
+      <div class="banner-title"><h3>🎴 ${esc(b.name)}</h3><small>${esc(b.subtitle)}</small></div>
+    </div>
+    <div class="banner-odds">${odds}</div>
+    <p class="hint">Cada carta é um personagem na raridade sorteada. ${feat.map((d) => esc(d.name)).join(' e ')} saem só aqui, no ${TIER_NAMES[b.featuredRarity]}. No pacote de 10: pelo menos 1 ${TIER_NAMES[b.guarantee10]} ou melhor. Personagem repetido vira XP dele (às vezes ×2, ×5 ou ×10).</p>
+    <div class="row">${btn(1)}${btn(10)}</div>
+  </div>`;
 }
 
 function train() {
@@ -1074,7 +1114,7 @@ function help() {
       <li><b>Jogar ou Repetir</b> uma fase gasta energia: <b>Fácil ${ENERGY_COST.facil} · Normal ${ENERGY_COST.normal} · Difícil ${ENERGY_COST.dificil}</b>. Na batalha ela é gasta ao começar (a derrota também gasta). O tutorial é grátis.</li>
       <li>A energia <b>recupera 1 a cada 6 minutos</b> até o máximo do seu nível de perfil (nível 1 = 20 … nível 100 = 300).</li>
       <li>O <b>nível de perfil</b> sobe com XP de perfil: <b>1 por energia gasta</b> e mais um bônus a cada vitória ou Repetir (em dobro na primeira vitória). Ao subir de nível, você <b>ganha a energia máxima do nível novo</b>, que pode passar do máximo. O nível também aumenta o tamanho do baralho.</li>
-      <li>Cada vitória ou Repetir dá <b>Ouro de Dragão</b> (mais nas fases altas e nas dificuldades difíceis; em dobro na primeira vitória). Gaste na <b>🏪 Loja</b> em itens de ascensão e Orbes.</li></ul>
+      <li>Cada vitória ou Repetir dá <b>Ouro de Dragão</b> (mais nas fases altas e nas dificuldades difíceis; em dobro na primeira vitória). Gaste na <b>🏪 Loja</b> em itens de ascensão, Orbes e cartas do <b>🎴 Banner</b> (personagem repetido vira XP dele).</li></ul>
     <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.values(CATEGORY_INFO).map((c) => `<li><b>${c.icon} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
   </div></div>`;
   bindNav();
