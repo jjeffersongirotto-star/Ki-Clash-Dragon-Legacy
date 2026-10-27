@@ -1132,3 +1132,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Área segura:** 15% de cima ficam sob a gota, o ⚡ e o ícone do grupo; 15% de baixo sob a faixa do nome; 5% de cada lado podem ser cortados na mão.
 - Os **Comandantes** usam recortes de **corpo inteiro** dessas artes (sem perna ou braço faltando), com a altura aparente da tabela da seção 32.
 - Script: `scripts/art/build_clean.py` (cartas) e `scripts/art/build_cutouts.py --limpas` (recortes).
+- **Tela inicial em pé (v0.34.1):** o conteúdo fica centralizado na altura da tela, com faixas vazias iguais em cima e embaixo.
