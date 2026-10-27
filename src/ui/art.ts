@@ -4,6 +4,19 @@ import { getChar } from '../core/characters';
 import leaderPlayerUrl from '../assets/leader-player.webp';
 import leaderEnemyUrl from '../assets/leader-enemy.webp';
 
+/**
+ * v0.29.0: artes ilustradas dos personagens (src/assets/chars/<id>.webp, geradas por scripts/art/build_cards.py a partir
+ * das cartas desenhadas por outra IA). Quem tem arte usa a imagem na carta, na batalha e nas telas; quem não tem
+ * (ex.: Cria Sombria) continua com o desenho em SVG.
+ */
+const CHAR_ART_FILES = import.meta.glob('../assets/chars/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+const CHAR_ART = new Map(Object.entries(CHAR_ART_FILES).map(([k, v]) => [k.slice(k.lastIndexOf('/') + 1, -'.webp'.length), v]));
+export const charArtUrl = (id: string): string | undefined => CHAR_ART.get(id);
+export const hasCharArt = (id: string): boolean => CHAR_ART.has(id);
+/** Arte ilustrada como <img> (carta, retratos). */
+export const charArtImg = (id: string, cls = 'portrait char-art') =>
+  `<img class="${cls}" src="${CHAR_ART.get(id)}" alt="" draggable="false" decoding="async">`;
+
 /** v0.12.0: arte do Comandante do jogador (bárbaro, animação de respiração, WebP animado com fundo transparente). */
 export const LEADER_PLAYER_URL: string = leaderPlayerUrl;
 /** v0.12.1/v0.12.2: arte do Comandante adversário (minotauro com o machado no ombro, respiração, WebP animado transparente). */
@@ -25,7 +38,7 @@ export function enemyLeaderImg(): string {
  */
 export function enemyCommanderArt(card: { charId: string; stars: number } | null, cls: string, style = ''): string {
   if (!card) return `<img class="${cls}" src="${LEADER_ENEMY_URL}" alt="" draggable="false" style="${style}">`;
-  return `<span class="${cls} cmd-sprite" style="${style}">${unitSpriteSVG(getChar(card.charId), { stars: card.stars, side: 'enemy', flip: true })}</span>`;
+  return `<span class="${cls} cmd-sprite" style="${style}">${unitSpriteHTML(getChar(card.charId), { stars: card.stars, side: 'enemy', flip: true })}</span>`;
 }
 
 let leaderWarm: HTMLImageElement[] | null = null;
@@ -600,6 +613,25 @@ export function portraitImg(def: CharacterDef, opts: { stars?: number; layer?: '
   return `<img class="portrait tier-${t}" src="${src}" alt="" draggable="false">`;
 }
 
+/** v0.29.0: camada da carta — arte ilustrada (fundo inteiro; sem camada separada do personagem) ou o retrato SVG em cache. */
+export function cardArtImg(def: CharacterDef, opts: { stars?: number; layer?: 'all' | 'bg' | 'fg' } = {}): string {
+  if (!hasCharArt(def.id)) return portraitImg(def, opts);
+  const t = Math.max(1, Math.min(6, opts.stars ?? def.minStars));
+  return opts.layer === 'fg' ? '' : charArtImg(def.id, `portrait char-art tier-${t}`);
+}
+
+/** v0.29.0: unidade na arena / sprites das telas — retrato ilustrado emoldurado (virado para o inimigo) ou o lutador SVG. */
+export function unitSpriteHTML(def: CharacterDef, opts: { flip?: boolean; stars?: number; side?: Side } = {}): string {
+  if (!hasCharArt(def.id)) return unitSpriteSVG(def, opts);
+  const t = Math.max(1, Math.min(6, opts.stars ?? def.minStars));
+  return `<div class="unit-sprite art-sprite tier-${t}">${charArtImg(def.id, `art-img${opts.flip ? ' flip' : ''}`)}</div>`;
+}
+
+/** Retrato completo para telas grandes (evolução): arte ilustrada ou o SVG. */
+export function portraitHTML(def: CharacterDef, opts: { stars?: number } = {}): string {
+  return hasCharArt(def.id) ? charArtImg(def.id) : portraitSVG(def, opts);
+}
+
 /**
  * Pré-aquece o cache de retratos (e a decodificação das imagens) em tempo ocioso, para que
  * abrir a Coleção / Treinar / Batalha não precise gerar tudo no mesmo quadro do toque.
@@ -609,7 +641,8 @@ export function warmPortraits(list: { def: CharacterDef; stars: number; layers?:
   for (const { def, stars, layers } of list) {
     for (const layer of layers ?? (['bg', 'fg'] as const)) {
       queue.push(() => {
-        const html = portraitImg(def, { stars, layer });
+        const html = cardArtImg(def, { stars, layer });
+        if (!html) return;
         const src = html.slice(html.indexOf('src="') + 5, html.indexOf('" alt'));
         const img = new Image();
         img.src = src;

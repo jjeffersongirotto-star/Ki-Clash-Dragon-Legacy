@@ -5,7 +5,7 @@
 import { waitFor } from '../core/battle';
 import { PLAYABLE, RACE_INFO, getChar, isComingSoon } from '../core/characters';
 import { MAX_STEP, statsFor, stepOf, tierLabel } from '../core/progression';
-import { playerLeaderImg, unitSpriteSVG } from '../ui/art';
+import { playerLeaderImg, unitSpriteHTML } from '../ui/art';
 import { cardPower } from '../core/power';
 import { canEvolve, evolveLeader, leaderHp, leaderMaxLevel, nextRequirement } from '../core/leaders';
 import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from '../ui/components';
@@ -160,7 +160,7 @@ export function cardDetail(id: string, previewStars?: number) {
     <div class="detail-left">
       ${cardHTML({ charId: id, stars, plus }, { extraClass: 'detail-card', locked: !owned && previewStars == null, power: pow })}
       <div class="detail-sprite-box">
-        <div class="ds-sprite">${unitSpriteSVG(def, { stars, side: 'player' })}</div>
+        <div class="ds-sprite">${unitSpriteHTML(def, { stars, side: 'player' })}</div>
         <div class="ds-label">Visual na Arena (${tierLabel(stars, plus)})<br><small>ATQ ${st.atk} | VIDA ${st.hp}</small></div>
       </div>
     </div>

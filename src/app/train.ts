@@ -4,7 +4,7 @@
  */
 import { CATEGORY_INFO, STAR_COLORS, getChar } from '../core/characters';
 import { MAX_STEP, TIER_NAMES, XP_ITEMS, ascendCost, ascendCostFor, barFull, canAscend, cardBarXp, feedXp, isMaxTier, nextTier, statsFor, stepOf, stepXp, tierLabel, xpProgress, type XpItemId } from '../core/progression';
-import { portraitSVG, unitSpriteSVG } from '../ui/art';
+import { portraitHTML, unitSpriteHTML } from '../ui/art';
 import { abilityListHTML, gearHTML, orbHTML, cardHTML, categoryHTML, esc, raceHTML, starStyle, tierHTML } from '../ui/components';
 import { leaveBattleMode } from '../ui/orientation';
 import { GEAR_CATEGORIES, GEAR_DROP, GEAR_PER_STEP, GEAR_RARE_CHANCE, GEAR_RARITIES, GEAR_SETS, reqRarity, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor } from '../core/gear';
@@ -76,7 +76,7 @@ export function train() {
       <div class="train-visuals">
         <div class="train-art">${cardHTML(card)}</div>
         <div class="detail-sprite-box">
-          <div class="ds-sprite">${unitSpriteSVG(def, { stars: card.stars, side: 'player' })}</div>
+          <div class="ds-sprite">${unitSpriteHTML(def, { stars: card.stars, side: 'player' })}</div>
           <div class="ds-label">Lutador na Arena (${tierLabel(card.stars, plus)})</div>
         </div>
       </div>
@@ -145,8 +145,8 @@ export function evolutionReveal(charId: string, from: { stars: number; plus: num
   bg.innerHTML = `<div class="evo ${newColour ? '' : 'evo-plus'}">
     <div class="evo-title">${newColour ? 'DESPERTAR!' : `DESPERTAR ${'+'.repeat(to.plus)}`}</div>
     <div class="evo-stage" style="${starStyle(to.stars)}">
-      ${newColour ? `<div class="evo-old" style="${starStyle(from.stars)}">${portraitSVG(def, { stars: from.stars })}</div><div class="evo-flash"></div>` : ''}
-      <div class="evo-new ${newColour ? '' : 'static'}">${portraitSVG(def, { stars: to.stars })}</div>
+      ${newColour ? `<div class="evo-old" style="${starStyle(from.stars)}">${portraitHTML(def, { stars: from.stars })}</div><div class="evo-flash"></div>` : ''}
+      <div class="evo-new ${newColour ? '' : 'static'}">${portraitHTML(def, { stars: to.stars })}</div>
       <div class="evo-rays"></div>
     </div>
     <div class="evo-name">${esc(def.name)}</div>

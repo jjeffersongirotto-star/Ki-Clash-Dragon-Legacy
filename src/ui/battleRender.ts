@@ -3,7 +3,7 @@ import { effectiveAtk } from '../core/battle';
 import { getChar } from '../core/characters';
 import type { BattleState, RecordedEvent, Side, Snapshot } from '../core/types';
 import { INFO_DEFAULT, statusList } from './battleFx';
-import { unitSpriteSVG } from './art';
+import { unitSpriteHTML } from './art';
 import { esc, starStyle } from './components';
 import type { BattleView } from './battleView';
 
@@ -20,7 +20,7 @@ export function renderSnapshot(view: BattleView, snap: Snapshot, _ev?: RecordedE
       el.className = `unit side-${u.side} cat-${def.category} ${u.isMinion ? 'minion' : ''} appear`;
       el.setAttribute('style', `${starStyle(u.stars)};--ac:${def.palette.aura}`);
       el.innerHTML = `
-        <div class="u-portrait">${unitSpriteSVG(def, { flip: u.side === 'enemy', stars: u.stars, side: u.side })}</div>
+        <div class="u-portrait">${unitSpriteHTML(def, { flip: u.side === 'enemy', stars: u.stars, side: u.side })}</div>
         <div class="u-hp"><i></i></div>
         <div class="u-stat-plate"><span class="u-atk"></span><b class="u-sep">|</b><span class="u-hpn"></span></div>
         <div class="u-fx"></div>

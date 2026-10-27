@@ -1058,3 +1058,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Canto da carta (v0.28.7):** o canto direito de cima mostra o ícone colorido do **grupo** (Suporte ➕ verde, Tanque 🛡 azul, DPS ⚔ vermelho, Mago 🪄 roxo, Arqueiro 🏹 laranja, Assassino 💀 cinza). O degrau aparece só no texto da raridade ("Comum+", "Mítico++").
 - **Cartas futuras (v0.28.8):** o [CARTAS.md](CARTAS.md) é o **projeto** das 120 cartas (20 por tipo), com habilidades e números. **Ainda não estão no jogo**: entram depois que as artes forem feitas.
 - **Projeto das cartas (v0.28.9):** no CARTAS.md, todo tipo tem quem ataque atrás na mesma fileira (🔙 Golpe pelas Costas) e na diagonal de trás (↙ Golpe Reverso).
+
+## 30. Artes ilustradas dos personagens (v0.29.0)
+- Cada personagem com arte ilustrada (`src/assets/chars/<id>.webp`) usa essa imagem em todo o jogo: carta (fundo inteiro, sem camada separada do personagem), Coleção, Treinar/Despertar, tela inicial, Comandante da fase e unidade na batalha (retrato emoldurado na cor do lado: azul o seu, vermelho o inimigo). Quem não tem arte (Cria Sombria) continua com o desenho em SVG.
+- As artes vêm das cartas desenhadas pelo jogador com outra IA no modelo antigo; só a ilustração é aproveitada (o script `scripts/art/build_cards.py` apaga a gota, a pílula ⚡ e a estrela "Nv." e recorta). Os números, a raridade e o grupo são sempre os do jogo.

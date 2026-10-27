@@ -11,7 +11,7 @@
  * continuam com o visual animado completo.
  */
 import type { CharacterDef } from '../core/types';
-import { portraitImg, portraitSVG } from './art';
+import { charArtUrl, portraitImg, portraitSVG } from './art';
 
 /** proporção da arte da carta alta (`.card.ab .card-art { aspect-ratio: .72 }`, v0.14.2); nas cartas baixas (.82) o fundo é recortado com object-fit: cover */
 const ART_RATIO = 0.72;
@@ -27,6 +27,9 @@ export const gridKey = (def: CharacterDef, t: number, locked: boolean) => `${def
 /** HTML da arte de uma carta de grade: bitmap pronto se existir; senão, o SVG estático (troca sozinho quando ficar pronto). */
 export function gridArtHTML(def: CharacterDef, t: number, locked: boolean): { bg: string; fg: string; baked: boolean } {
   const key = gridKey(def, t, locked);
+  const art = charArtUrl(def.id);
+  // v0.29.0: arte ilustrada já é um bitmap pronto (WebP): não precisa assar
+  if (art) return { bg: `<img class="portrait char-art" data-gk="${key}|bg" src="${art}" alt="" draggable="false" decoding="async" loading="lazy">`, fg: '', baked: true };
   const b = BAKED.get(key);
   const img = (src: string, layer: string) => `<img class="portrait" data-gk="${key}|${layer}" src="${src}" alt="" draggable="false" decoding="async">`;
   if (b) return { bg: img(b.bg, 'bg'), fg: img(b.fg, 'fg'), baked: true };
@@ -176,7 +179,7 @@ export function bakeGridArt(list: { def: CharacterDef; stars: number; locked?: b
   const jobs = list.map(({ def, stars, locked }) => {
     const t = Math.max(1, Math.min(6, stars));
     const key = gridKey(def, t, !!locked);
-    if (BAKED.has(key)) return Promise.resolve();
+    if (BAKED.has(key) || charArtUrl(def.id)) return Promise.resolve();
     let p = PENDING.get(key);
     if (!p) {
       p = new Promise<void>((res) => {

@@ -5,7 +5,7 @@
 import type { Category } from '../core/types';
 import { CATEGORY_INFO, STAR_COLORS, getChar } from '../core/characters';
 import { TIER_NAMES, XP_ITEMS, type XpItemId } from '../core/progression';
-import { unitSpriteSVG } from '../ui/art';
+import { unitSpriteHTML } from '../ui/art';
 import { goldHTML, gearHTML, orbHTML, esc, starStyle } from '../ui/components';
 import { leaveBattleMode } from '../ui/orientation';
 import { GEAR_BY_ID, GEAR_CATEGORIES, GEAR_RARITIES, GEAR_SETS, gearCount, gearNeeded } from '../core/gear';
@@ -96,7 +96,7 @@ export function bannerHTML(b: Banner, gold: number): string {
   return `<div class="banner-box">
     <div class="banner-art">
       <div class="banner-sky"></div><div class="banner-mount"></div>
-      <div class="banner-feat">${feat.map((d) => `<div class="banner-hero" style="${starStyle(b.featuredRarity)}">${unitSpriteSVG(d, { stars: b.featuredRarity, side: 'player' })}<b>${esc(d.name)}</b></div>`).join('')}</div>
+      <div class="banner-feat">${feat.map((d) => `<div class="banner-hero" style="${starStyle(b.featuredRarity)}">${unitSpriteHTML(d, { stars: b.featuredRarity, side: 'player' })}<b>${esc(d.name)}</b></div>`).join('')}</div>
       <div class="banner-title"><h3>🎴 ${esc(b.name)}</h3><small>${esc(b.subtitle)}</small></div>
     </div>
     <div class="banner-odds">${odds}</div>

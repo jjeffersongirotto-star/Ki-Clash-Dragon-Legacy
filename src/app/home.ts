@@ -5,7 +5,7 @@
 import { PLAYABLE, getChar } from '../core/characters';
 import { STAGES } from '../core/campaign';
 import { XP_ITEMS } from '../core/progression';
-import { portraitImg } from '../ui/art';
+import { cardArtImg } from '../ui/art';
 import { goldHTML, orbHTML, esc, starStyle } from '../ui/components';
 import { gameAlert, gameConfirm, showDialog } from '../ui/dialog';
 import { leaveBattleMode } from '../ui/orientation';
@@ -34,7 +34,7 @@ export function home(): void {
       <div class="logo-ki">KI-CLASH</div>
       <div class="logo-sub">DRAGON LEGACY</div>
     </div>
-    <div class="home-heroes">${['kenji', 'vorax', 'nyx'].map((id) => `<div class="home-hero" style="${starStyle(getChar(id).maxStars)}">${portraitImg(getChar(id), { stars: getChar(id).maxStars })}</div>`).join('')}</div>
+    <div class="home-heroes">${['kenji', 'vorax', 'nyx'].map((id) => `<div class="home-hero" style="${starStyle(getChar(id).maxStars)}">${cardArtImg(getChar(id), { stars: getChar(id).maxStars })}</div>`).join('')}</div>
     <div class="res big">${resPills()}<span>✴ ${save.essencias} Essências</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
     <nav class="menu">
       <button class="btn primary" data-nav="adventure">⚔ Aventura <small>${next ? `Fase ${next.id}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
