@@ -693,7 +693,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 - Abas no **topo da tela, no centro**. A escolhida fica destacada e é lembrada.
 - As **mesmas 10 fases**, mesmo Comandante, mesmos feitiços e a mesma recompensa. **Fácil** é a campanha de sempre (seção 14). **Normal:** cartas inimigas com **+3 níveis**; **Difícil:** **+6 níveis** (sempre limitado ao nível máximo da cor de cada carta). Cada dificuldade também aceita **trocar 1 ou 2 cartas** do inimigo por fase (nenhuma troca configurada ainda).
 - **Valores provisórios:** o ajuste fino da dificuldade e da recompensa de cada uma fica para depois.
-- **Progresso separado** por dificuldade. O **Normal** abre ao vencer a **fase 10 no Fácil**; o **Difícil**, a **fase 10 no Normal** (aba com 🔒 até lá). Dentro de cada uma, vencer uma fase libera a próxima.
+- **Progresso separado** por dificuldade. **v0.28.0:** a **fase N do Normal** abre quando você venceu a **fase N no Fácil** e a **fase N−1 no Normal** (a fase 1 do Normal, só com a fase 1 do Fácil); o **Difícil** funciona igual em relação ao Normal. A aba fica com 🔒 até a fase 1 dela abrir. (Até a v0.27.0: o Normal abria só ao vencer a fase 10 no Fácil.)
 
 ### Jogar, Repetir e o limite de 5 por dia
 - **⚔ Jogar:** joga a batalha da fase. **⟲ Repetir:** não joga; dá na hora a **recompensa inteira** da fase (inclusive 🔮), como se tivesse vencido. **v0.21.0:** o Repetir só fica liberado nas fases com **3 ⭐** naquela dificuldade (seção 20).
@@ -720,13 +720,12 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 ## 20. ⭐ Estrelas por fase (v0.21.0)
 - Cada fase tem **3 ⭐**, uma por **objetivo**. Os objetivos podem ser cumpridos em **vitórias diferentes** (as estrelas somam e nunca se perdem):
   1. ⭐ **Vencer** a fase.
-  2. ⭐ Vencer com o **seu Comandante com 50% ou mais da vida**.
-  3. ⭐ Vencer em **até 15 turnos** (o turno mostrado no meio do HUD).
+  2. e 3. ⭐ **Dois objetivos da fase** (v0.28.0, ver seção 27). Até a v0.27.0 eram iguais em todas as fases: Comandante com 50% ou mais da vida e vencer em até 15 turnos.
 - As estrelas são **separadas por dificuldade** (a fase 3 pode ter 3 ⭐ no Fácil e 1 ⭐ no Normal).
 - **Onde aparecem:** embaixo da bolinha de cada fase vencida no mapa (★ cheia = conquistada, ★ apagada = falta), na janela da fase (lista dos 3 objetivos, marcados) e na tela de vitória (as estrelas novas aparecem com **"nova!"**).
 - **⟲ Repetir** só é liberado nas fases com **3 ⭐** (antes, em qualquer fase vencida). Sem as 3, a janela avisa: "Repetir libera com as 3 ⭐ desta fase". Jogar continua igual (com o limite de 5 por dia nas fases vencidas).
 - **Saves antigos:** toda fase vencida antes desta versão começa com **1 ⭐** (a de vencer); as outras são conquistadas jogando. A conta **ADM** tem 3 ⭐ em todas as fases e dificuldades.
-- **Observação:** no Auto, a fase 1 costuma terminar perto do turno 25–30; a estrela de "até 15 turnos" pede um jogo mais agressivo. Ajuste fino depois, se precisar.
+- **Saves antigos (v0.28.0):** as estrelas já ganhas continuam valendo, mesmo com os objetivos novos.
 
 ### "Raridade" no lugar de "cor"
 - As telas chamam o tier da carta de **raridade** ("nova raridade", "evolução por raridade", "Raridades das cartas e Despertar"). As cores continuam no visual. Ver a nota no início da seção 10.
@@ -999,4 +998,46 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
   - A cópia **não sobe a raridade** do seu personagem, mesmo se vier mais rara: vira só XP (de acordo com a raridade dela).
   - O XP entra na barra do degrau como os Orbes: o que passar da barra cheia **se perde**.
 - A tela de compra mostra as cartas aparecendo uma a uma (as Épicas e Lendárias brilham). Personagem novo entra direto no baralho se couber.
+
+## 27. Campanha: equilíbrio, liberação, Comandantes e estrelas (v0.28.0)
+### ⭐ Objetivos por fase
+- A **1ª ⭐** é sempre **vencer**. A **2ª e a 3ª** são **2 objetivos fixos** de cada fase, em cada dificuldade, tirados desta lista:
+  - ❤️ **Vida do Comandante:** vencer com 50% / 70% da vida, ou **sem levar dano** (100%).
+  - 🃏 **Poucas cartas:** vencer usando no máximo 8 / 10 / 12 cartas (personagens e feitiços contam).
+  - 🪄 **Feitiços:** vencer **sem usar feitiços**, ou usando **pelo menos 2**.
+  - 💀 **Abates:** derrotar pelo menos 6 / 8 / 10 personagens inimigos (a Cria Sombria não conta) e vencer.
+- O jogo conta, em cada partida, as cartas e os feitiços que você usou e os personagens inimigos derrotados.
+
+| Fase | Fácil | Normal | Difícil |
+|---|---|---|---|
+| 1 | ❤️ 50% · 🃏 ≤12 | ❤️ 70% · 🃏 ≤10 | ❤️ sem dano · 🃏 ≤8 |
+| 2 | ❤️ 70% · 🪄 sem feitiços | ❤️ sem dano · 🃏 ≤12 | ❤️ sem dano · 🃏 ≤10 |
+| 3 | 💀 6 · ❤️ 70% | 💀 8 · 🪄 sem feitiços | 💀 10 · 🃏 ≤10 |
+| 4 | 🃏 ≤12 · 🪄 sem feitiços | 🃏 ≤10 · ❤️ 70% | 🃏 ≤8 · ❤️ sem dano |
+| 5 | 💀 8 · ❤️ 70% | 💀 10 · 🪄 2 feitiços | 💀 10 · ❤️ sem dano |
+| 6 | 🪄 2 feitiços · ❤️ 50% | ❤️ 70% · 🃏 ≤12 | 🪄 2 feitiços · 🃏 ≤10 |
+| 7 | 💀 8 · 🃏 ≤12 | 💀 10 · 🪄 sem feitiços | 💀 10 · ❤️ sem dano |
+| 8 | ❤️ sem dano · 🪄 sem feitiços | ❤️ sem dano · 🃏 ≤10 | ❤️ sem dano · 🃏 ≤8 |
+| 9 | 💀 6 · 🪄 2 feitiços | 💀 8 · ❤️ 70% | ❤️ sem dano · 🪄 2 feitiços |
+| 10 | ❤️ sem dano · 🃏 ≤12 | 🪄 2 feitiços · 🃏 ≤10 | ❤️ sem dano · 🃏 ≤8 |
+
+- **Todos são possíveis:** no simulador (`scripts/balance/stars28.ts`), um jogador 1 degrau acima dos inimigos cumpre cada objetivo em pelo menos ~33% das partidas no Auto (econômico para os de poucas cartas). Os mais difíceis são os de 🃏 ≤8 e 💀 10 no Difícil.
+
+### 🔓 Liberação fase a fase
+- Vencer a fase N no Fácil libera a **mesma fase no Normal** (se a fase N−1 do Normal já foi vencida), e o mesmo do Normal para o Difícil. A tela de vitória avisa: "Fase N liberada no Normal!".
+
+### 👹 Comandante inimigo de cada fase
+- Cada fase mostra o **seu** Comandante (no mapa, na janela da fase e na batalha): nas fases 1 a 9, o personagem **mais forte** do baralho da fase que ainda **não foi Comandante** de outra fase (nenhum se repete); a **fase 10** continua com o **minotauro**. O Comandante do jogador não muda. A vida do Comandante é a da fase.
+- Hoje: 1 Riku · 2 Daichi · 3 Aiko · 4 Lyra · 5 Gorath · 6 Yume · 7 Zarek · 8 Kenji · 9 Nyx · 10 minotauro. No tutorial, o mais forte da batalha.
+
+### ⚖ Reequilíbrio do Fácil
+- Meta: vitória ao chegar **~90%** nas fases 1–3, **~75%** nas 4–7 e **~65%** nas 8–10, subindo a dificuldade aos poucos. Normal e Difícil continuam **+1 / +2 degraus**.
+- Mudanças: degraus dos inimigos 0 · 0,5 · 0,5 · 0,5 · 0 · 0 · 1,5 · 0 · 0 · 0 (antes 0 · 0,5 · 0 · 1 · 0,5 · 0 · 3 · 0 · 0,5 · 0,5); vida do Comandante inimigo 12 · 20 · 26 · 30 · 33 · 44 · 47 · 52 · 62 · 70 (antes 12 + 7 × fase); a fase 6 ficou sem feitiços e a fase 10 sem a Lâmina Giratória.
+- **Simulação** (100 jogadores no Fácil, vitória ao chegar; `scripts/balance/v28.ts`):
+
+| Fase | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| v0.27.0, só personagens | 93% | 92% | 94% | 63% | 62% | 61% | 55% | 57% | 59% | 57% |
+| **v0.28.0, só personagens** | 93% | 92% | 90% | 79% | 74% | 77% | 71% | 68% | 66% | 67% |
+| v0.28.0, com até 4 feitiços | 100% | 100% | 97% | 85% | 85% | 89% | 80% | 65% | 58% | 62% |
 

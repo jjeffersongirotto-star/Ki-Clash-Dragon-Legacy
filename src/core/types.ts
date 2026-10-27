@@ -154,6 +154,14 @@ export interface BattleState {
   log: string[];
   /** v0.18.0: gravação da partida (configuração inicial + jogadas do jogador) para refazer e verificar */
   record?: MatchRecord;
+  /** v0.28.0: contagem da partida por lado (estrelas): cartas usadas, feitiços usados e personagens inimigos derrotados */
+  stats?: Record<Side, BattleStats>;
+}
+
+export interface BattleStats {
+  cards: number;
+  spells: number;
+  kills: number;
 }
 
 /** v0.18.0: jogada do jogador gravada (ver match.ts). `auto` = a IA do Auto invocou/lançou pelo jogador. */

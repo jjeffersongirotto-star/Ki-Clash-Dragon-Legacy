@@ -4,6 +4,7 @@ import { fromStepIndex, stepIndex } from './progression';
 import { DECK_SLOTS } from './deck';
 import { LEADER_HP } from './leaders';
 import { getSpell } from './spells';
+import { cardPower } from './power';
 import type { OrbBag } from './progression';
 
 export interface Stage {
@@ -66,8 +67,14 @@ export const stagePack = (stageId: number): string[] => [UNLOCKS[stageId], PACK_
  * Assim o Comandante do jogador deixa de ser derrubado num turno só, sem a campanha ficar fácil.
  */
 export function enemyLeaderHp(i: number): number {
-  return 12 + 2 * i + Math.round((LEADER_HP[Math.min(i, LEADER_HP.length - 1)] - LEADER_HP[0]) / 2);
+  return ENEMY_HERO_HP[i] ?? 12 + 2 * i + Math.round((LEADER_HP[Math.min(i, LEADER_HP.length - 1)] - LEADER_HP[0]) / 2);
 }
+/**
+ * v0.28.0 — vida do Comandante inimigo por fase, reequilibrada no simulador (scripts/balance/v28.ts) junto com
+ * ENEMY_STEPS e ENEMY_SPELLS para a vitória ao chegar ficar ~90% nas fases 1–3, ~75% nas 4–7 e ~65% nas 8–10.
+ * Até a v0.27.0: 12 + 7·i (12, 19, 26, 33, 40, 47, 54, 61, 68, 75).
+ */
+export const ENEMY_HERO_HP = [12, 20, 26, 30, 33, 44, 47, 52, 62, 70];
 
 /**
  * v0.18.0 — feitiços da IA por fase (índice 0 = fase 1), 2 cópias de cada, somados aos 30 personagens.
@@ -80,11 +87,11 @@ export const ENEMY_SPELLS: string[][] = [
   ['f-raio'],
   [],
   ['f-raio'],
-  ['f-flecha-veneno', 'f-bola-fogo'],
+  [], // v0.28.0: sem feitiços (até a v0.27.0: Flecha Envenenada e Bola de Fogo)
   ['f-tremor', 'f-muralha'],
   [], // v0.23.0: sem feitiços (até a v0.22.0: Veneno e Sombras) — a fase já tem Raros, Épico e Lendário no piso da raridade
   ['f-raio', 'f-cura'],
-  ['f-bola-fogo', 'f-giratoria', 'f-anjo'],
+  ['f-bola-fogo', 'f-anjo'], // v0.28.0: sem a Lâmina Giratória
 ];
 export const ENEMY_SPELL_COPIES = 2;
 
@@ -95,9 +102,10 @@ export const ENEMY_SPELL_COPIES = 2;
  * Valor quebrado mistura: 0,5 = metade das cartas no degrau 0 e metade no 1. Fases com muitos personagens de raridade
  * alta (6, 8 e 10) já ficam fortes pelo piso da raridade e por isso têm degrau baixo.
  * Escolhidos no simulador (scripts/balance/v18.ts) para a vitória ao chegar ficar perto da v0.22.0.
- * Até a v0.22.0: NÍVEL por fase (1, 4, 4, 5, 6, 6, 11, 14, 17, 12).
+ * Até a v0.22.0: NÍVEL por fase (1, 4, 4, 5, 6, 6, 11, 14, 17, 12). v0.23.0–v0.27.0: 0, 0,5, 0, 1, 0,5, 0, 3, 0, 0,5, 0,5.
+ * v0.28.0: reequilíbrio (scripts/balance/v28.ts).
  */
-export const ENEMY_STEPS = [0, 0.5, 0, 1, 0.5, 0, 3, 0, 0.5, 0.5];
+export const ENEMY_STEPS = [0, 0.5, 0.5, 0.5, 0, 0, 1.5, 0, 0, 0];
 
 /**
  * Raridade e degrau do personagem da IA: degrau `target` (limitado à faixa dele) e mais `bonus` degraus
@@ -137,3 +145,26 @@ export const STAGES: Stage[] = NAMES.map((name, i) => ({
 
 /** Vida do Comandante do jogador no nível 1 (v0.13: sobe com o nível do Comandante — ver leaders.ts). */
 export const PLAYER_HERO_HP = LEADER_HP[0];
+
+/**
+ * v0.28.0 — Comandante inimigo de cada fase (só a arte; a vida continua `enemyHeroHp`). Fases 1 a 9: o personagem
+ * mais forte do baralho da fase (no Fácil) que ainda NÃO foi Comandante de uma fase anterior, então nenhum se repete.
+ * A fase 10 é o minotauro de sempre (`null`). O Comandante do jogador não muda.
+ */
+export const STAGE_COMMANDERS: (string | null)[] = (() => {
+  const used = new Set<string>();
+  return STAGES.map((st, i) => {
+    if (i === STAGES.length - 1) return null;
+    const best = st.enemyDeck
+      .filter((c) => !c.charId.startsWith('f-') && !used.has(c.charId))
+      .sort((a, b) => cardPower(b) - cardPower(a) || a.charId.localeCompare(b.charId))[0];
+    used.add(best.charId);
+    return best.charId;
+  });
+})();
+
+/** Carta do Comandante inimigo da fase (na raridade em que ele está no baralho dessa dificuldade), ou `null` = minotauro. */
+export function stageCommander(stage: Pick<Stage, 'id' | 'enemyDeck'>): CardInstance | null {
+  const id = stage.id >= 1 ? STAGE_COMMANDERS[stage.id - 1] : [...stage.enemyDeck].sort((a, b) => cardPower(b) - cardPower(a))[0]?.charId;
+  return (id && stage.enemyDeck.find((c) => c.charId === id)) || null;
+}

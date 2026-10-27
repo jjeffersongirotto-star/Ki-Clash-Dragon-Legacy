@@ -14,6 +14,8 @@ export interface SimResult {
   /** maior ataque efetivo de uma unidade inimiga em campo (antes da Fúria) */
   maxEnemyAtk: number;
   playerHpLeft: number;
+  /** v0.28.0: cartas usadas, feitiços usados e personagens inimigos derrotados pelo jogador */
+  stats: { cards: number; spells: number; kills: number };
 }
 
 export function simulate(playerDeck: CardInstance[], enemyDeck: CardInstance[], playerHp: number, enemyHp: number, seed: number): SimResult {
@@ -32,5 +34,5 @@ export function simulate(playerDeck: CardInstance[], enemyDeck: CardInstance[], 
     maxBurst = Math.max(maxBurst, dmg);
     for (const u of s.units) if (u.side === 'enemy') maxAtk = Math.max(maxAtk, u.atk);
   }
-  return { winner: (s.winner ?? 'empate') as SimResult['winner'], turns: s.turn, maxBurstOnPlayer: maxBurst, maxEnemyAtk: maxAtk, playerHpLeft: s.heroes.player.hp };
+  return { winner: (s.winner ?? 'empate') as SimResult['winner'], turns: s.turn, maxBurstOnPlayer: maxBurst, maxEnemyAtk: maxAtk, playerHpLeft: s.heroes.player.hp, stats: { ...s.stats!.player } };
 }

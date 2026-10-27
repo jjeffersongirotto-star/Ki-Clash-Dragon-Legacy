@@ -7,7 +7,8 @@ import type { BattleState, CardInstance, RecordedEvent, Side, Snapshot, Unit } f
 import type { Stage } from '../core/campaign';
 import { PLAYER_HERO_HP } from '../core/campaign';
 import { stepOf } from '../core/progression';
-import { enemyLeaderImg, playerLeaderImg, unitSpriteSVG } from './art';
+import { enemyCommanderArt, enemyLeaderImg, playerLeaderImg, unitSpriteSVG } from './art';
+import { stageCommander } from '../core/campaign';
 import { gameConfirm } from './dialog';
 import { requestLandscape } from './orientation';
 import { dropAction, ghostTransform, shouldStartDrag } from './drag';
@@ -17,7 +18,7 @@ export interface BattleCallbacks {
   speed: () => number;
   setSpeed: (s: number) => void;
   /** v0.21.0: também informa o fim da partida (vida do seu Comandante e turno) para as ⭐ da fase */
-  onFinish: (winner: Side | 'empate', end: { playerHp: number; playerMaxHp: number; turn: number }) => void;
+  onFinish: (winner: Side | 'empate', end: { playerHp: number; playerMaxHp: number; turn: number; stats?: { cards: number; spells: number; kills: number } }) => void;
   onExit: () => void;
   /** v0.13: vida do Comandante do jogador (nível do Comandante). Sem informar: nível 1 */
   playerHeroHp?: number;
@@ -110,7 +111,7 @@ export class BattleView {
           <div class="banner" id="banner"></div>
         </div>
         <div class="hero hero-e" id="hero-enemy">
-          <div class="hero-fig"><div class="hero-aura"></div>${enemyLeaderImg()}</div>
+          <div class="hero-fig"><div class="hero-aura"></div>${(() => { const c = stageCommander(this.stage); return c ? enemyCommanderArt(c, 'hero-svg hero-leader-enemy hero-cmd') : enemyLeaderImg(); })()}</div>
           <div class="hero-hp"><div class="bar"><i></i></div><span></span></div>
         </div>
       </div>
@@ -605,7 +606,7 @@ export class BattleView {
       this.autoMode = false;
       await sleep(600);
       if (this.disposed) return;
-      this.cb.onFinish(this.state.winner, { playerHp: this.state.heroes.player.hp, playerMaxHp: this.state.heroes.player.maxHp, turn: this.state.turn });
+      this.cb.onFinish(this.state.winner, { playerHp: this.state.heroes.player.hp, playerMaxHp: this.state.heroes.player.maxHp, turn: this.state.turn, stats: this.state.stats && { ...this.state.stats.player } });
     }
   }
 

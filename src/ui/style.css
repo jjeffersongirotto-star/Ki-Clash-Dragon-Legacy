@@ -1331,3 +1331,11 @@ body.native-landscape .rotate-prompt { display: none !important; }
 @keyframes pullIn { from { opacity: 0; transform: scale(.6) rotateY(90deg); } to { opacity: 1; transform: none; } }
 @keyframes pullGlow { 0%, 100% { box-shadow: 0 0 14px var(--rc); } 50% { box-shadow: 0 0 30px var(--rc), 0 0 50px var(--rc); } }
 @media (max-width: 520px) { .banner-art { height: 160px; } .banner-hero, .banner-hero svg { width: 84px; } .banner-hero svg { height: 104px; } .banner-title h3 { font-size: 18px; } }
+
+/* ---------- v0.28.0: Comandante inimigo de cada fase (sprite do personagem; fase 10 = minotauro) ---------- */
+.cmd-sprite { display: block; }
+.cmd-sprite svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.adv-cmd.cmd-sprite { width: 64px; top: -80px; left: 6px; filter: drop-shadow(0 0 6px rgba(255,61,110,.6)); }
+.stage-cmd.cmd-sprite { width: 84px; filter: drop-shadow(0 0 10px rgba(255,61,110,.6)); }
+.hero-cmd { display: block; }
+.hero-cmd svg { transform-origin: 50% 100%; }

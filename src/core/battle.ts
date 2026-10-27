@@ -90,6 +90,7 @@ export function createBattle(setup: BattleSetup): BattleState {
     maxTurns: setup.maxTurns ?? 40,
     fury: setup.fury ?? true,
     log: [],
+    stats: { player: { cards: 0, spells: 0, kills: 0 }, enemy: { cards: 0, spells: 0, kills: 0 } },
   };
   // v0.18.0: grava a configuração com a semente INICIAL (o sorteio muda state.seed a cada uso)
   state.record = { version: 1, setup: JSON.parse(JSON.stringify({ ...setup, seed: state.seed })), actions: [] };
@@ -541,6 +542,9 @@ function kill(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit) {
   victim.hp = 0;
   state.units = state.units.filter((x) => x !== victim);
   if (victim.slot != null) defeatCopy(state.decks[victim.side], victim.slot);
+  // v0.28.0: personagem derrotado conta para o outro lado (a Cria Sombria não conta)
+  const st = state.stats?.[enemyOf(victim.side)];
+  if (st && !victim.isMinion) st.kills++;
   ctx.emit(state, { type: 'death', uid: victim.uid, text: `✖ ${nameOf(victim)} foi derrotado.` });
   if (!killer) return;
   // v0.15.0: sem "passo da vitória" — quem derrota fica onde está.
@@ -787,6 +791,7 @@ export function deploy(state: BattleState, side: Side, handIndex: number, row: n
   if (!isDeployCell(state, side, row, col)) return { ok: false, reason: 'Fora da zona de invocação', events: [] };
   if (unitAt(state, row, col)) return { ok: false, reason: 'Casa ocupada', events: [] };
   playFromHand(state.decks[side], handIndex);
+  if (state.stats) state.stats[side].cards++;
   const u = placeUnit(state, { charId: card.charId, stars: card.stars, plus: stepOf(card) }, side, row, col);
   u.slot = card.slot;
   ctx.emit(state, { type: 'deploy', uid: u.uid, text: `${side === 'player' ? 'Você invoca' : 'Inimigo invoca'} ${def.name} (${tierLabel(card.stars, stepOf(card))}).` });
@@ -850,6 +855,10 @@ export function castSpell(state: BattleState, side: Side, handIndex: number, row
   const foe = enemyOf(side);
   const target = unitAt(state, row, col);
   castFromHand(state.decks[side], handIndex);
+  if (state.stats) {
+    state.stats[side].cards++;
+    state.stats[side].spells++;
+  }
   const atk = effectiveAtk(state, caster);
   ctx.emit(state, { type: 'cast', side, spellId: sp.id, caster: caster.uid, target: [row, col], text: `${sp.icon} ${nameOf(caster)} conjura ${sp.name}${sp.target === 'row' ? ` na fileira ${row + 1}` : target && sp.target !== 'none' ? ` em ${nameOf(target)}` : ''}!` });
   const src: DamageSource = { side, unit: caster, spell: true };
