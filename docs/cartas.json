@@ -35,6 +35,7 @@
         "thessa",
         "razorv",
         "corvin",
+        "grub",
         "morrigan"
       ]
     },
@@ -7275,11 +7276,12 @@
       "atk": 3,
       "hp": 6,
       "habs": [
+        "diagTras",
         "sangramento"
       ],
-      "lore": "Fera do pântano de presas tortas que deixam feridas abertas.",
+      "lore": "Fera do pântano que morde de lado quem tenta passar por ela, deixando feridas abertas.",
       "aparencia": "Monstrinho verde-lama de presas grandes, olhos amarelos, garras sujas.",
-      "padraoAtaque": "👊 Frente: corpo a corpo, o inimigo logo à frente",
+      "padraoAtaque": "👊 Frente: corpo a corpo, o inimigo logo à frente · ↘ Diagonal: prioriza a diagonal logo atrás",
       "status": [
         {
           "raridade": "Comum",
