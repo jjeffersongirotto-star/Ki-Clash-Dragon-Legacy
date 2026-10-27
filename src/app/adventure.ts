@@ -4,7 +4,7 @@
  */
 import { STAR_COLORS, getChar } from '../core/characters';
 import { STAGES, stageCommander, type Stage } from '../core/campaign';
-import { XP_ITEMS, playXp, feedXp, stepOf } from '../core/progression';
+import { XP_ITEMS, playXp, feedXp, stepOf, type OrbBag } from '../core/progression';
 import { leaderHp } from '../core/leaders';
 import { BattleView } from '../ui/battleView';
 import { energyHTML, goldHTML, gearHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, esc, raceHTML, starStyle, tierHTML } from '../ui/components';
@@ -164,12 +164,18 @@ export function grantedHTML(g: GrantResult): string {
     const joined = addToDeck(save, def.id) > 0;
     return `<div class="unlock" style="${starStyle(g.stars)}">${cardHTML(save.cards[def.id], { compact: true })}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${raceHTML(def)} ${categoryHTML(def, true)} · ${tierHTML(g.stars)}${joined ? '<br><small>Entrou direto no seu baralho.</small>' : ''}</div></div>`;
   }
-  return `<div class="unlock dup" style="${starStyle(g.stars)}">${cardHTML({ charId: g.charId, stars: g.stars }, { compact: true })}<div><b>Repetido:</b> ${esc(def.name)} ${tierHTML(g.stars)}<br>📈 virou <b>+${fmt(g.xp)} XP</b>${g.mult > 1 ? ` <b class="dup-luck">×${g.mult}!</b>` : ''}${g.filled ? '<br><small>Barra cheia: suba o degrau em Treinar.</small>' : g.wasted > 0 ? `<br><small>${fmt(g.wasted)} XP passaram da barra cheia.</small>` : ''}</div></div>`;
+  return `<div class="unlock dup" style="${starStyle(g.stars)}">${cardHTML({ charId: g.charId, stars: g.stars }, { compact: true })}<div><b>Repetido:</b> ${esc(def.name)} ${tierHTML(g.stars)}<br>📈 virou <b>+${fmt(g.xp)} XP</b>${g.mult > 1 ? ` <b class="dup-luck">×${g.mult}!</b>` : ''}${g.filled ? '<br><small>Barra cheia: suba o degrau em Treinar.</small>' : g.wasted > 0 ? `<br><small>${fmt(g.wasted)} XP passaram da barra cheia.</small>` : ''}${refundHTML(g.refund)}</div></div>`;
+}
+
+/** v0.28.3: Orbes devolvidos pelo XP que passou da barra cheia (25%). */
+function refundHTML(refund: OrbBag): string {
+  const n = Object.values(refund).reduce((a, k) => a + (k ?? 0), 0);
+  return n > 0 ? `<br><small>XP que passou: +${n} ${n === 1 ? 'Orbe' : 'Orbes'}</small> ${orbBagHTML(refund, '+')}` : '';
 }
 
 /** v0.25.0: dá os personagens do pacote (entram direto no baralho se couber). v0.27.0: o repetido vira XP. */
 export function grantPack(ids: string[]): string {
-  return ids.map((id) => grantedHTML(grantCard(save.cards, { charId: id, stars: getChar(id).minStars }))).join('');
+  return ids.map((id) => grantedHTML(grantCard(save.cards, { charId: id, stars: getChar(id).minStars }, Math.random, save.items))).join('');
 }
 
 /** Dá a recompensa inteira da fase na dificuldade (vitória ou Repetir; v0.22.0: Orbes pela dificuldade, com as chances do Difícil). */

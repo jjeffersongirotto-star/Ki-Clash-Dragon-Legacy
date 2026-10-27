@@ -74,7 +74,7 @@ export function shop() {
       const price = bannerPrice(banner, n);
       if (prof().gold < price) return;
       prof().gold -= price;
-      const got = pull(banner, n).map((c) => grantCard(save.cards, c));
+      const got = pull(banner, n).map((c) => grantCard(save.cards, c, Math.random, save.items));
       persist();
       const best = Math.max(...got.map((g) => g.stars));
       resultModalWith(

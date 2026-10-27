@@ -996,7 +996,8 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Kenji e Vorax** só existem no Lendário e **só saem no Banner** (não vêm em fase nem em pacote). Numa carta Lendária, **metade das vezes** sai um deles (≈0,75% cada por carta); na outra metade, outro personagem que pode ser Lendário (Yume, Zarek ou Nyx).
 - **Cópia repetida vira XP** (no Banner e nos pacotes de fase): o personagem que você já tem ganha o XP do **Orbe da raridade da carta repetida** (Comum 100 · Incomum 250 · Raro 400 · Épico 800 · Lendário 1.500 · Mítico 3.000), **+20% por "+"** da carta repetida, vezes a sorte: **12% ×2 · 5% ×5 · 1% ×10** (senão ×1).
   - A cópia **não sobe a raridade** do seu personagem, mesmo se vier mais rara: vira só XP (de acordo com a raridade dela).
-  - O XP entra na barra do degrau como os Orbes: o que passar da barra cheia **se perde**.
+  - O XP entra na barra do degrau como os Orbes. **v0.28.3:** do XP que passar da barra cheia, **25% volta como Orbes** na sua bolsa, convertido do Orbe maior para o menor (Mítico 3.000 … Comum 100); o resto abaixo de 100 XP é descartado (arredonda para baixo). A tela da carta mostra "XP que passou: +N Orbes".
+  - Isso vale **só para cópias repetidas**. Os Orbes continuam não entrando com a barra cheia (o botão fica desligado) e o XP por jogar mantém a regra dele (o que passar da barra se perde).
 - A tela de compra mostra as cartas aparecendo uma a uma (as Épicas e Lendárias brilham). Personagem novo entra direto no baralho se couber.
 
 ## 27. Campanha: equilíbrio, liberação, Comandantes e estrelas (v0.28.0)
@@ -1047,6 +1048,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
   - A batalha (`battle.ts`) foi dividida em regras de combate, movimento e feitiços; os efeitos visuais da batalha na tela foram para `battleFx.ts`.
   - Os testes foram agrupados por assunto em pastas (`batalha`, `baralho`, `campanha`, `economia`, `progressao`, `visual`), com os mesmos testes de antes.
   - **ESLint** confere o código (`npm run lint`) e roda na CI antes dos testes.
+- **v0.28.3:** a tela de batalha (`battleView.ts`, 913 linhas) também foi dividida: a mão do jogador (`battleHand.ts`), as janelas de detalhes de carta, unidade e feitiço (`battleModals.ts`), o desenho do tabuleiro (`battleRender.ts`) e a animação dos eventos (`battleEffects.ts`). O `battleView.ts` ficou com a montagem da tela, os botões e o fluxo dos turnos. Nada mudou no jogo.
 
 ## 29. Lista de melhorias (v0.28.2)
 - O [MELHORIAS.md](MELHORIAS.md) guarda **só o que ainda não foi feito**. Quando algo entra no jogo, sai de lá e vai para o CHANGELOG e este arquivo. Itens novos só entram quando o jogador pedir.

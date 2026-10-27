@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.28.3] — 27/10/2026 · PR #55 — Tela de batalha organizada e XP que sobra vira Orbe
+- **XP que sobra vira Orbe:** quando o XP de uma **cópia repetida** (Banner ou pacote de fase) passa da barra cheia, **25% do que passou volta como Orbes** na bolsa (do Orbe maior para o menor; o resto abaixo de 100 XP é descartado). A carta recebida mostra "XP que passou: +N Orbes". Orbes e XP por jogar mantêm a regra de antes.
+- **Tela de batalha organizada** (sem mudança no jogo): `battleView.ts` dividido em `battleHand.ts` (mão), `battleModals.ts` (janelas de detalhes), `battleRender.ts` (tabuleiro) e `battleEffects.ts` (animações); ficou com 467 linhas.
+- MELHORIAS.md: saem as duas pendências técnicas feitas.
+
 ## [0.28.2] — 27/10/2026 · PR #54 — MELHORIAS.md atualizado
 - Sem mudança no jogo. O [MELHORIAS.md](MELHORIAS.md) agora tem só o que falta fazer (novas fases e cartas, progressão final, arte dos Comandantes, modo online e pendências técnicas); tudo o que já entrou no jogo saiu de lá.
 

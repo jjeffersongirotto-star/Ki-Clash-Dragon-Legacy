@@ -6,8 +6,9 @@ import { PLAYABLE, STARTER_IDS, getChar } from '../../src/core/characters';
 import { STAGES, PLAYER_HERO_HP, enemyLeaderHp } from '../../src/core/campaign';
 import { statsFor } from '../../src/core/progression';
 import { defaultSave, loadSave, migrateV13 } from '../../src/ui/save';
-import battleSrc from '../../src/ui/battleView.ts?raw';
 // v0.28.1: as telas saíram do main.ts para src/app/ — o "código do app" é o main.ts mais essas telas
+// v0.28.3: a tela de batalha foi dividida em battleView.ts + battleHand/Modals/Render/Effects.ts
+const battleSrc = Object.values(import.meta.glob(['../../src/ui/battleView.ts', '../../src/ui/battle*.ts'], { query: '?raw', import: 'default', eager: true }) as Record<string, string>).join('\n');
 const mainSrc = Object.values(import.meta.glob(['../../src/main.ts', '../../src/app/*.ts'], { query: '?raw', import: 'default', eager: true }) as Record<string, string>).join('\n');
 
 const KEY = 'kicdl-save-v1';
