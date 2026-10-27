@@ -6,7 +6,7 @@ import type { Category } from '../core/types';
 import { CATEGORY_INFO, STAR_COLORS, getChar } from '../core/characters';
 import { TIER_NAMES, XP_ITEMS, type XpItemId } from '../core/progression';
 import { unitSpriteHTML } from '../ui/art';
-import { goldHTML, gearHTML, orbHTML, esc, starStyle } from '../ui/components';
+import { gemHTML, goldHTML, gearHTML, orbHTML, esc, starStyle } from '../ui/components';
 import { leaveBattleMode } from '../ui/orientation';
 import { GEAR_BY_ID, GEAR_CATEGORIES, GEAR_RARITIES, GEAR_SETS, gearCount, gearNeeded } from '../core/gear';
 import { BANNERS, PITY_EVERY, PITY_RARITY as PITY_RARITY_LABEL, bannerPrice, grantCard, pityCount, pull, type Banner } from '../core/banner';
@@ -73,33 +73,47 @@ export function shop() {
 }
 
 /**
+ * v0.33.0: como pagar `n` cartas: com 💠 Gemas se tiver `n` (1 gema = 1 carta), senão com Ouro de Dragão.
+ * `null` = não dá para comprar.
+ */
+export function payWith(banner: Banner, n: 1 | 10): { kind: 'gem' | 'gold'; cost: number } | null {
+  if ((save.gems ?? 0) >= n) return { kind: 'gem', cost: n };
+  const price = bannerPrice(banner, n);
+  return prof().gold >= price ? { kind: 'gold', cost: price } : null;
+}
+const payLabel = (banner: Banner, n: 1 | 10) => {
+  const p = payWith(banner, n);
+  return p?.kind === 'gem' ? gemHTML(p.cost) : goldHTML(fmt(bannerPrice(banner, n)));
+};
+
+/**
  * Compra 1 ou 10 cartas do banner e mostra o resultado.
  * v0.31.0: o resultado traz "Comprar 1" e "Comprar 10" (de novo, direto) e um ✕ embaixo, no meio, para sair.
+ * v0.33.0: paga com 💠 Gemas primeiro (se tiver a quantidade), senão com Ouro.
  */
-export function buyCards(banner: Banner, n: 1 | 10) {
-  const price = bannerPrice(banner, n);
-  if (prof().gold < price) return;
-  prof().gold -= price;
+export function buyCards(banner: Banner, n: 1 | 10, after: () => void = shop) {
+  const pay = payWith(banner, n);
+  if (!pay) return;
+  if (pay.kind === 'gem') save.gems = (save.gems ?? 0) - pay.cost;
+  else prof().gold -= pay.cost;
   const got = pull(banner, n, Math.random, (save.bannerPity ??= {})).map((c) => grantCard(save.cards, c, (save.dupes ??= {})));
   persist();
   const best = Math.max(...got.map((g) => g.stars));
-  const gold = prof().gold;
   const again = (k: 1 | 10) => {
-    const p = bannerPrice(banner, k);
-    const ok = gold >= p;
-    return `<button class="btn ${ok ? 'primary' : ''}" data-again="${k}" ${ok ? '' : 'disabled'} title="${ok ? '' : 'Ouro de Dragão insuficiente'}">Comprar ${k} ${goldHTML(fmt(p))}</button>`;
+    const ok = !!payWith(banner, k);
+    return `<button class="btn ${ok ? 'primary' : ''}" data-again="${k}" ${ok ? '' : 'disabled'} title="${ok ? '' : 'Gemas e Ouro de Dragão insuficientes'}">Comprar ${k} ${payLabel(banner, k)}</button>`;
   };
   modal(
     `<h2 class="win">🎴 ${esc(banner.name)}</h2><div class="pull-reveal pull-${n}" style="${starStyle(best)}">${got.map((g, i) => `<div class="pull-card r${g.stars}" style="animation-delay:${i * 0.12}s">${grantedHTML(g)}</div>`).join('')}</div>
-    <p class="hint pity-line">🎯 Lendária garantida: <b>${pityCount(banner, save.bannerPity)}/${PITY_EVERY}</b> · você tem ${goldHTML(fmt(gold))}</p>
+    <p class="hint pity-line">🎯 Lendária garantida: <b>${pityCount(banner, save.bannerPity)}/${PITY_EVERY}</b> · você tem ${save.gems ? `${gemHTML(fmt(save.gems))} ` : ''}${goldHTML(fmt(prof().gold))}</p>
     <div class="row pull-again">${again(1)}${again(10)}</div>
     <div class="row pull-exit"><button class="btn ghost pull-x" data-m="close" aria-label="Sair" title="Sair">✕</button></div>`,
     (m) => {
       m.querySelector('[data-m=close]')!.addEventListener('click', () => {
         closeModal();
-        shop();
+        after();
       });
-      m.querySelectorAll<HTMLElement>('[data-again]').forEach((el) => el.addEventListener('click', () => buyCards(banner, Number(el.dataset.again) as 1 | 10)));
+      m.querySelectorAll<HTMLElement>('[data-again]').forEach((el) => el.addEventListener('click', () => buyCards(banner, Number(el.dataset.again) as 1 | 10, after)));
     },
   );
 }
@@ -109,8 +123,8 @@ export function bannerHTML(b: Banner, gold: number): string {
   const feat = b.featured.map((id) => getChar(id));
   const odds = Object.entries(b.odds).map(([r, p]) => `<span style="${starStyle(Number(r))}">${TIER_NAMES[Number(r)]} ${String(Math.round(p * 1000) / 10).replace('.', ',')}%</span>`).join('');
   const btn = (n: 1 | 10) => {
-    const price = bannerPrice(b, n);
-    return `<button class="btn ${gold >= price ? 'primary' : ''}" data-banner="${b.id}" data-pull="${n}" ${gold >= price ? '' : 'disabled'}>${n === 1 ? 'Comprar 1 carta' : 'Comprar 10 cartas'} ${goldHTML(fmt(price))}</button>`;
+    const ok = !!payWith(b, n) || gold < 0;
+    return `<button class="btn ${ok ? 'primary' : ''}" data-banner="${b.id}" data-pull="${n}" ${ok ? '' : 'disabled'}>${n === 1 ? 'Comprar 1 carta' : 'Comprar 10 cartas'} ${payLabel(b, n)}</button>`;
   };
   return `<div class="banner-box">
     <div class="banner-art">
@@ -120,7 +134,7 @@ export function bannerHTML(b: Banner, gold: number): string {
     </div>
     <div class="banner-odds">${odds}</div>
     <div class="pity-mark" title="A cada ${PITY_EVERY} cartas compradas, 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor garantida (volta a 0 quando sai uma)">🎯 Lendária garantida <b>${pityCount(b, save.bannerPity)}/${PITY_EVERY}</b></div>
-    <p class="hint">Cada carta é um personagem na raridade sorteada. ${feat.map((d) => esc(d.name)).join(' e ')} saem só aqui, no ${TIER_NAMES[b.featuredRarity]}. No pacote de 10: pelo menos 1 ${TIER_NAMES[b.guarantee10]} ou melhor. A cada ${PITY_EVERY} cartas: 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor. Personagem repetido vira mais 1 cópia (no 🎒 Inventário: use no baralho ou desmanche em XP).</p>
+    <p class="hint">Cada carta é um personagem na raridade sorteada. ${feat.map((d) => esc(d.name)).join(' e ')} saem só aqui, no ${TIER_NAMES[b.featuredRarity]}. No pacote de 10: pelo menos 1 ${TIER_NAMES[b.guarantee10]} ou melhor. A cada ${PITY_EVERY} cartas: 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor. Personagem repetido vira mais 1 cópia (no 🎒 Inventário: use no baralho ou desmanche em XP). Com 💠 Gemas de Invocação, cada gema compra 1 carta (usadas antes do Ouro).</p>
     <div class="row">${btn(1)}${btn(10)}</div>
   </div>`;
 }

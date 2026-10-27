@@ -11,11 +11,12 @@
  * tentativas, maior dano num único turno inimigo (burst) e maior ataque de uma unidade inimiga.
  */
 import { simulate } from './sim';
-import { STAGES, stagePack } from '../../src/core/campaign';
+import { STAGES, STAGE_PACKS, stagePack } from '../../src/core/campaign';
+import { BANNERS, feedCopy, pull } from '../../src/core/banner';
 import { STARTER_IDS } from '../../src/core/characters';
-import { TUTORIAL_CHARS, TUTORIAL_REWARD, tutorialGear } from '../../src/core/tutorial';
+import { TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_REWARD, tutorialGear } from '../../src/core/tutorial';
 import { newOwned, feedXp, ascend, canAscend, ascendCost, barFull, isMaxTier, stepIndex, xpProgress, XP_ITEMS, playXp, type OwnedCard } from '../../src/core/progression';
-import { FIRST_WIN_XP_MULT, rewardsFor } from '../../src/core/adventure';
+import { FIRST_WIN_XP_MULT, gemsFor, rewardsFor } from '../../src/core/adventure';
 import { addGear, gearCount, gearNeeded, hasGearFor, spendGearFor, stageGearDrop, type GearBag } from '../../src/core/gear';
 import { FIRST_WIN_MULT, goldFor } from '../../src/core/profile';
 import { GEAR_PRICE } from '../../src/core/shop';
@@ -27,7 +28,7 @@ export interface Schedule { name: string; hp: number[]; thresholds: number[]; en
 
 const XP = Object.fromEntries(XP_ITEMS.map((i) => [i.id, i.xp])) as Record<string, number>;
 
-interface Player { cards: Record<string, OwnedCard>; items: Record<string, number>; ess: number; cleared: number; leader: number; gear: GearBag; gold: number }
+interface Player { cards: Record<string, OwnedCard>; items: Record<string, number>; ess: number; cleared: number; leader: number; gear: GearBag; gold: number; copies: Record<string, number>; rng: () => number }
 
 /** v0.25.0: SIM_OLD_START=1 começa como antes do tutorial (todos os de Comum, sem pacotes de Comum nas fases). */
 const SIM_OLD_START = process.env.SIM_OLD_START === '1';
@@ -51,8 +52,23 @@ const battleDeck = (p: Player, cleared: number): CardInstance[] => {
   const max = deckMaxFor(profileLevelFor(cleared));
   const owned = asDeck(team(p));
   const room = Math.max(0, max - 3 * owned.length);
-  return SIM_SPELLS ? autoDeck(owned, 3 * owned.length + Math.min(4, room), Math.min(4, room)) : autoDeck(owned, Math.min(max, 3 * owned.length), 0);
+  const deck = SIM_SPELLS ? autoDeck(owned, 3 * owned.length + Math.min(4, room), Math.min(4, room)) : autoDeck(owned, Math.min(max, 3 * owned.length), 0);
+  // v0.32.0: o baralho só usa as cópias que o jogador tem (até 3)
+  return deck.map((c) => (c.charId.startsWith('f-') ? c : { ...c, copies: Math.max(1, Math.min(c.copies ?? 3, p.copies[c.charId] ?? 3)) }));
 };
+
+/**
+ * v0.33.0: 💠 Gemas de Invocação → cartas do banner (1 por gema). Personagem novo entra com 1 cópia; repetido:
+ * até ter 3 cópias, guarda a cópia; depois desmancha (direcionado) em XP do próprio personagem.
+ */
+function pullCards(p: Player, n: number) {
+  for (let k = 0; k < n; k++)
+    for (const c of pull(BANNERS[0], 1, p.rng)) {
+      if (!p.cards[c.charId]) { p.cards[c.charId] = { ...newOwned(c.charId), stars: c.stars, plus: 0 }; p.copies[c.charId] = 1; }
+      else if ((p.copies[c.charId] ?? 1) < 3) p.copies[c.charId] = (p.copies[c.charId] ?? 1) + 1;
+      else feedCopy(p.cards[c.charId], c.stars, 0, p.rng, p.items);
+    }
+}
 
 /**
  * v0.26.0: 🏪 Loja (SIM_SHOP=0 desliga). Política simples: quando um personagem da equipe está com a barra cheia e
@@ -99,8 +115,10 @@ function reward(p: Player, i: number, first: boolean, repeatMult = 0.5) {
   if (f >= 1) for (const g of r.gear) addGear(p.gear, g.id, g.rarity); // v0.24.0: itens só com recompensa inteira
   p.gold += Math.floor(goldFor(i + 1, 'facil') * f * (first ? FIRST_WIN_MULT : 1)); // v0.26.0: Ouro de Dragão
   if (first) for (const g of stageGearDrop(i + 1, 'facil')) addGear(p.gear, g.id, g.rarity); // v0.24.1: bônus da 1ª vitória
-  // v0.25.0: pacote da primeira vitória (o desbloqueio de sempre + um personagem de Comum)
-  if (first) for (const id of stagePack(i + 1)) if (!p.cards[id]) p.cards[id] = newOwned(id);
+  // v0.25.0: pacote da primeira vitória (o desbloqueio de sempre + um personagem de Comum) — desligado na v0.33.0
+  if (first && STAGE_PACKS) for (const id of stagePack(i + 1)) if (!p.cards[id]) { p.cards[id] = newOwned(id); p.copies[id] = 3; }
+  // v0.33.0: 💠 Gemas na primeira vitória (fases 3, 6, 9 e 10) viram cartas do banner
+  if (first) pullCards(p, gemsFor(i + 1));
 }
 
 /** v0.22.0: XP por jogar — ao vencer jogando, a equipe ganha XP (SIM_PLAYXP=0 desliga, para comparar). */
@@ -127,7 +145,8 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
   const stats: StageStat[] = STAGES.map(() => ({ arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [], winStats: [] }));
   let seed = 7;
   for (let pi = 0; pi < players; pi++) {
-    const p: Player = { cards: {}, items: SIM_OLD_START ? { orbe1: 10, orbe3: 3 } : {}, ess: SIM_OLD_START ? 10 : 0, cleared: 0, leader: 1, gear: {}, gold: 0 };
+    let rs = 1000 + pi * 7919;
+    const p: Player = { cards: {}, items: SIM_OLD_START ? { orbe1: 10, orbe3: 3 } : {}, ess: SIM_OLD_START ? 10 : 0, cleared: 0, leader: 1, gear: {}, gold: 0, copies: {}, rng: () => ((rs = (rs * 16807) % 2147483647) / 2147483647) };
     if (SIM_OLD_START) for (const id of STARTER_IDS) p.cards[id] = newOwned(id);
     else {
       // v0.25.0: jogador que acabou o tutorial — Riku, Sora e Nara e a recompensa do tutorial
@@ -135,6 +154,8 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
       for (const [id, k] of Object.entries(TUTORIAL_REWARD.orbs)) p.items[id] = (p.items[id] ?? 0) + (k ?? 0);
       p.ess += TUTORIAL_REWARD.essencias;
       for (const [k, n] of Object.entries(tutorialGear())) p.gear[k] = (p.gear[k] ?? 0) + n;
+      // v0.33.0: o tutorial também dá 2 Gemas (2 cartas do banner)
+      pullCards(p, TUTORIAL_GEMS);
     }
     for (let i = 0; i < STAGES.length; i++) {
       if (i > 0) for (let k = 0; k < repeats; k++) reward(p, i - 1, false, repeatMult);

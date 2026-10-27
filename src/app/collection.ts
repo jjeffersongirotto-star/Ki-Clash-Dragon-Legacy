@@ -89,7 +89,7 @@ export function collection() {
   const owned = PLAYABLE.filter((d) => save.cards[d.id] && matchRace(d.id)).map((d) => d.id).sort(byPower);
   const lockOrder = (id: string) => (isComingSoon(getChar(id)) ? 999 : unlockStage(id) ?? 99);
   const locked = PLAYABLE.filter((d) => !save.cards[d.id] && matchRace(d.id)).sort((a, b) => lockOrder(a.id) - lockOrder(b.id));
-  const lockBadge = (id: string) => (isComingSoon(getChar(id)) ? '🎴 Banner' : `🔒 Fase ${unlockStage(id) ?? '?'}`);
+  const lockBadge = (id: string) => (unlockStage(id) ? `🔒 Fase ${unlockStage(id)}` : '🎴 Banner'); // v0.33.0: sem pacote de fase, tudo vem do Banner
   const count = deckCount(save);
   const max = deckMax(save);
   const issue = deckIssue(save);
@@ -117,7 +117,7 @@ export function collection() {
     <div class="card-grid spell-grid">${SPELLS.map((sp) => spellCardHTML(sp.id, { attrs: `data-card="${sp.id}"`, badge: save.deck.includes(sp.id) ? `✔ ×${copiesIn(save, sp.id)}` : undefined, extraClass: save.deck.includes(sp.id) ? 'in-deck' : '' })).join('')}</div>
     ${locked.length ? `<div class="divider"><span>🔒 Ainda não obtidos (${locked.length})</span></div>
     <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, stars: def.minStars }, { locked: true, grid: true, extraClass: isComingSoon(def) ? 'soon' : '', attrs: `data-card="${def.id}"`, badge: lockBadge(def.id) })).join('')}</div>
-    ${locked.some(isComingSoon) ? `<p class="hint soon-note">🎴 <b>Só no Banner:</b> ${locked.filter(isComingSoon).length > 3 ? `${locked.filter(isComingSoon).length} personagens` : locked.filter(isComingSoon).map((d) => esc(d.name)).join(' e ')} — compre cartas no Banner da 🏪 Loja.</p>` : ''}` : ''}
+    ${locked.length ? `<p class="hint soon-note">🎴 <b>No Banner:</b> ${locked.length > 3 ? `${locked.length} personagens` : locked.map((d) => esc(d.name)).join(' e ')} — compre cartas no Banner da 🏪 Loja (com Ouro de Dragão ou 💠 Gemas de Invocação).</p>` : ''}` : ''}
   </div>`;
   bindNav();
   app.querySelectorAll<HTMLElement>('[data-rf]').forEach((el) =>
@@ -160,7 +160,7 @@ export function cardDetail(id: string, previewStars?: number) {
   const actions = owned
     ? `<button class="act-tile primary" data-m="deck"><i>${inDeck ? '📤' : '🃏'}</i><span>${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</span></button><button class="act-tile" data-m="train"><i>🔥</i><span>Treinar</span></button>`
     : '';
-  const lockNote = owned ? '' : isComingSoon(def) ? `<p class="hint">🎴 Personagem ${tierLabel(def.minStars)}: sai só no <b>Banner</b> da 🏪 Loja.</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id) ?? '?'} pela primeira vez para desbloquear.</p>`;
+  const lockNote = owned ? '' : !unlockStage(id) ? `<p class="hint">🎴 Personagem ${tierLabel(def.minStars)}: sai no <b>Banner</b> da 🏪 Loja (com Ouro de Dragão ou 💠 Gemas de Invocação).</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id)} pela primeira vez para desbloquear.</p>`;
   modal(`<button class="modal-x" data-m="close" aria-label="Fechar" title="Fechar">✕</button><div class="detail" style="${starStyle(stars)}">
     <div class="detail-left">
       <div class="detail-acts">${actions}</div>

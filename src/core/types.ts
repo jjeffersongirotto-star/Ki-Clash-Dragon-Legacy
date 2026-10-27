@@ -200,6 +200,8 @@ export interface BattleState {
   stats?: Record<Side, BattleStats>;
   /** v0.30.0: cartas de personagem derrotadas por lado, na ordem (Ressurreição) */
   fallen?: Record<Side, CardInstance[]>;
+  /** v0.33.0: tutorial — as cartas não esperam na mão (ninguém fica travado pela espera) */
+  noWait?: boolean;
 }
 
 export interface BattleStats {

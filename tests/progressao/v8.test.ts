@@ -44,15 +44,16 @@ describe('progressão v0.8', () => {
     const order = Object.entries(UNLOCKS).sort((a, b) => +a[0] - +b[0]).map(([, id]) => getChar(id).minStars);
     for (let i = 1; i < order.length; i++) expect(order[i]).toBeGreaterThanOrEqual(order[i - 1]);
   });
-  it('toda fase tem baralho da IA com 10 personagens diferentes', () => {
+  it('baralho da IA: personagens diferentes, v0.33.0: 3 na fase 1 e +1 por fase até 10', () => {
     // v0.18.0: os feitiços da IA ficam fora da contagem de personagens
     const chars = (st: (typeof STAGES)[number]) => st.enemyDeck.filter((x) => !x.charId.startsWith('f-'));
-    for (const st of STAGES) {
-      expect(chars(st)).toHaveLength(10);
-      expect(new Set(chars(st).map((x) => x.charId)).size).toBe(10);
-    }
+    const want = [3, 4, 5, 6, 7, 8, 9, 10, 10, 10];
+    STAGES.forEach((st, i) => {
+      expect(chars(st)).toHaveLength(want[i]);
+      expect(new Set(chars(st).map((x) => x.charId)).size).toBe(want[i]);
+    });
     // as primeiras fases usam só personagens de 1★
-    for (const st of STAGES.slice(0, 2)) for (const x of chars(st)) expect(getChar(x.charId).minStars).toBe(1);
+    for (const st of STAGES.slice(0, 3)) for (const x of chars(st)) expect(getChar(x.charId).minStars).toBe(1);
   });
   it('migração de save antigo: mantém o que tinha (inclusive Kenji), ganha os novos de 1★ e completa a equipe até 10', () => {
     const old: SaveData = {

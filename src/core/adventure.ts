@@ -253,6 +253,10 @@ export function addStars(p: StarProgress, diff: Difficulty, stageId: number, mas
 /** v0.24.1: na primeira vitória de cada fase, os itens da fase saem 2 vezes e o XP por jogar vem multiplicado por isto. */
 export const FIRST_WIN_XP_MULT = 2;
 
+/** v0.33.0: 💠 Gemas de Invocação na PRIMEIRA vitória da fase (em cada dificuldade): fases 3, 6 e 9 = 1; fase 10 = 3. */
+export const GEMS_BY_STAGE: Record<number, number> = { 3: 1, 6: 1, 9: 1, 10: 3 };
+export const gemsFor = (stageId: number) => GEMS_BY_STAGE[stageId] ?? 0;
+
 /** Chances no Difícil, por vitória ou Repetir (independentes). */
 export const HARD_LEGENDARY_CHANCE = 0.1;
 export const HARD_MYTHIC_CHANCE = 0.02;

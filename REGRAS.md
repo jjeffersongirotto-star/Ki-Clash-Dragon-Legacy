@@ -1120,3 +1120,12 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
   - Nunca dá para desmanchar a **última cópia** nem as cópias que o **baralho está usando**.
 - **Mínimo do baralho:** 3 × personagens (até 20), mas nunca mais do que as cópias que você pode usar.
 - **Saves antigos:** cada personagem que você já tinha ganha **3 cópias** (2 guardadas, na raridade inicial dele), então o baralho não perde nada. Os 3 personagens do tutorial também terminam com 3 cópias cada. A conta ADM tem 9 cópias guardadas de cada personagem.
+
+## 35. 💠 Gemas de Invocação, começo da campanha e tutorial guiado (v0.33.0)
+- **💠 Gemas de Invocação:** cada gema compra **1 carta** no 🎴 Banner. A Loja usa as gemas **antes** do Ouro (Comprar 1 com 1 gema; Comprar 10 com 10 gemas). Gemas aparecem no topo quando você tem alguma.
+- **De onde vêm:** só na **primeira vitória** de cada dificuldade das fases: fases 3, 6 e 9 dão **1 gema**, a fase 10 dá **3 gemas**. O tutorial dá **2 gemas**. As fases **não dão mais pacotes** de cartas: personagens novos saem do Banner.
+- **Inimigos das fases:** a fase 1 usa **3 personagens diferentes**, e cada fase seguinte usa **+1** (até 10). Fase 1: Hana, Daichi, Kuro · fase 2: Kuro, Ren, Hana, Tobi · fase 3: Daichi, Tobi, Ren, Suri, Jin; da fase 4 em diante, os últimos personagens do grupo antigo da fase.
+- **Vida e força dos Comandantes inimigos** (fases 1–10): vida 16, 20, 18, 32, 22, 40, 47, 52, 56, 74; degraus de força 3,34 · 3,25 · 0,5 · 1,5 · 0 · 0 · 1,5 · 0 · 0 · 0. Simulação (100 jogadores, sem feitiços): vitória ao chegar na fase ≈ 98, 99, 87, 90, 72, 81, 77, 65, 64, 67%.
+- **Baralho com poucas cópias:** a batalha aceita baralho com qualquer número de cartas (o mínimo é conferido na tela do baralho), porque quem só tem 1 cópia de cada personagem tem menos cartas.
+- **Tutorial guiado:** as duas batalhas têm semente fixa e as cartas chegam prontas (sem espera). A tela escurece tudo menos o que deve ser tocado (carta, casa, LUTAR ou o aviso de girar a tela), com seta e texto do passo; o resto não responde ao toque. "Pular tutorial" sempre disponível.
+- **Fim do tutorial:** +2 💠 Gemas e um passo guiado no 🎴 Banner (Comprar 1 → Comprar 1 de novo → ✕). Se o jogo fechar antes, o passo volta ao abrir a Base enquanto houver gemas.
