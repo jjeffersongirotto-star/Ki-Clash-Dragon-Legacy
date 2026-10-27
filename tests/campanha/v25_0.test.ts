@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Ctx, createBattle, endPlayerTurn } from '../../src/core/battle';
 import { aiDeploy } from '../../src/core/ai';
-import { PLAYABLE, STARTER_IDS, getChar, isComingSoon } from '../../src/core/characters';
+import { STARTER_IDS, getChar } from '../../src/core/characters';
 import { PACK_COMMONS, STAGES, UNLOCKS, stagePack } from '../../src/core/campaign';
 import { DECK_MIN, deckMinFor, deckProblem } from '../../src/core/deck';
 import { hasGearFor } from '../../src/core/gear';
@@ -104,16 +104,14 @@ describe('v0.25.0 — tutorial', () => {
     expect(deckIssue(d)).toMatch(/6 de no mínimo 9/);
   });
 
-  it('pacote da primeira vitória de cada fase: o desbloqueio de sempre + um de Comum; todos os personagens obtêm-se uma vez', () => {
+  it('v0.33.0: as fases não dão mais pacote de personagens (os de antes continuam definidos, mas desligados)', () => {
     for (const st of STAGES) {
-      expect(st.pack).toEqual(stagePack(st.id));
-      if (st.unlock) expect(st.pack).toContain(st.unlock);
-      for (const id of st.pack) expect(isComingSoon(getChar(id))).toBe(false);
+      expect(st.pack).toEqual([]);
+      expect(st.unlock).toBeUndefined();
     }
-    for (let id = 1; id <= 9; id++) expect(STAGES[id - 1].pack.length).toBeGreaterThanOrEqual(1);
-    const all = [...TUTORIAL_CHARS, ...STAGES.flatMap((s) => s.pack)];
-    expect(new Set(all).size).toBe(all.length);
-    expect(all.sort()).toEqual(PLAYABLE.filter((c) => !isComingSoon(c)).map((c) => c.id).sort());
+    // o pacote antigo (v0.25.0) continua descrito: desbloqueio de sempre + um de Comum, sem repetir
+    const old = [...TUTORIAL_CHARS, ...STAGES.flatMap((s) => stagePack(s.id))];
+    expect(new Set(old).size).toBe(old.length);
     expect(Object.values(PACK_COMMONS).every((id) => getChar(id).minStars === 1)).toBe(true);
     expect(Object.keys(UNLOCKS).length).toBe(7);
   });

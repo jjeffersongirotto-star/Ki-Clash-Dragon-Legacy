@@ -1,7 +1,7 @@
 import { ABILITIES, MINION_CAP, RES_CAP, has } from './abilities';
 import { getChar } from './characters';
 import { statsFor, tierLabel, stepOf } from './progression';
-import { createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, returnFromNecropolis, HAND_SIZE } from './deck';
+import { DECK_ABS_MAX, createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, returnFromNecropolis, HAND_SIZE } from './deck';
 import { getSpell, isSpell } from './spells';
 import { nextRandom } from './rng';
 import type {
@@ -48,6 +48,8 @@ export interface BattleSetup {
   maxTurns?: number;
   /** Fúria de batalha ligada (padrão: sim) */
   fury?: boolean;
+  /** v0.33.0: tutorial — as cartas não esperam na mão (as dos dois lados ficam prontas na hora) */
+  noWait?: boolean;
 }
 
 /** Coletor de eventos: cada evento leva um retrato do estado para a UI animar. */
@@ -72,12 +74,14 @@ export const dir = (side: Side) => (side === 'player' ? 1 : -1);
 export const enemyOf = (side: Side): Side => (side === 'player' ? 'enemy' : 'player');
 
 /**
- * Cria a batalha. Cada baralho precisa de exatamente 10 cartas diferentes (regra v0.8);
+ * Cria a batalha. O baralho não pode ter entradas repetidas nem passar do máximo, e precisa de 1 personagem;
  * um baralho vazio só é aceito para cenários de teste (unidades colocadas à mão).
+ * v0.33.0: o MÍNIMO de cartas é conferido pela tela (`deckIssue`, que conhece as cópias que o jogador tem —
+ * v0.32.0); aqui o mínimo é 1, porque um personagem recém-ganho tem só 1 cópia.
  */
 export function createBattle(setup: BattleSetup): BattleState {
   for (const [who, cards] of [['jogador', setup.playerDeck], ['inimigo', setup.enemyDeck]] as const) {
-    const problem = cards.length ? deckProblem(cards) : null;
+    const problem = cards.length ? deckProblem(cards, DECK_ABS_MAX, 1) : null;
     if (problem) throw new Error(`Baralho do ${who} inválido: ${problem}`);
   }
   const state: BattleState = {
@@ -96,6 +100,7 @@ export function createBattle(setup: BattleSetup): BattleState {
     seed: setup.seed ?? Math.floor(Math.random() * 1e9),
     maxTurns: setup.maxTurns ?? 40,
     fury: setup.fury ?? true,
+    noWait: setup.noWait || undefined,
     log: [],
     stats: { player: { cards: 0, spells: 0, kills: 0 }, enemy: { cards: 0, spells: 0, kills: 0 } },
   };
@@ -104,7 +109,7 @@ export function createBattle(setup: BattleSetup): BattleState {
   state.decks.player = createDeck(setup.playerDeck, state);
   state.decks.enemy = createDeck(setup.enemyDeck, state);
   for (const side of ['player', 'enemy'] as const)
-    for (const h of drawOpening(state.decks[side], state)) h.wait = Math.max(0, waitFor(h.charId) - OPENING_HEADSTART);
+    for (const h of drawOpening(state.decks[side], state)) h.wait = state.noWait ? 0 : Math.max(0, waitFor(h.charId) - OPENING_HEADSTART);
   startTurn(state, new Ctx(), 'player');
   return state;
 }
@@ -117,7 +122,7 @@ export function refillCount(state: BattleState, side: Side): number {
   return Math.max(0, HAND_SIZE - state.decks[side].hand.length);
 }
 function drawCard(state: BattleState, side: Side) {
-  for (const h of drawStep(state.decks[side], state, refillCount(state, side))) h.wait = waitFor(h.charId);
+  for (const h of drawStep(state.decks[side], state, refillCount(state, side))) h.wait = state.noWait ? 0 : waitFor(h.charId);
 }
 /** Rodadas que faltam para a carta da mão poder ser invocada (0 = pronta). */
 export const waitOf = (card: { charId: string; wait?: number }) => card.wait ?? 0;

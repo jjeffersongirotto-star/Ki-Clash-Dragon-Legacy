@@ -6,7 +6,7 @@ import { getChar } from '../core/characters';
 import { STAGES } from '../core/campaign';
 import { deckPower } from '../core/power';
 import { getLeader } from '../core/leaders';
-import { energyHTML, goldHTML } from '../ui/components';
+import { energyHTML, gemHTML, goldHTML } from '../ui/components';
 import { getSpell, isSpell } from '../core/spells';
 import { gameAlert } from '../ui/dialog';
 import { rawSaveHas, deckMax, hasSave, loadSave, setSaveKey, writeSave, type SaveData } from '../ui/save';
@@ -80,7 +80,7 @@ export const fmt = (n: number) => n.toLocaleString('pt-BR');
 export const prof = (): ProfileState => (save.profile ??= newProfile());
 /** energia atual (já com a recuperação do tempo que passou) */
 export const energyNow = () => tickEnergy(prof()).energy;
-export const resPills = () => `<span class="res-energy">${energyHTML(energyNow(), energyMax(prof()))}</span><span>${goldHTML(fmt(prof().gold))}</span>`;
+export const resPills = () => `<span class="res-energy">${energyHTML(energyNow(), energyMax(prof()))}</span><span>${goldHTML(fmt(prof().gold))}</span>${save.gems ? `<span>${gemHTML(fmt(save.gems))}</span>` : ''}`;
 /** "4 min 12 s" até a próxima energia */
 export function nextEnergyText(): string {
   const ms = msToNextEnergy(prof());

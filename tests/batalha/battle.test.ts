@@ -17,7 +17,7 @@ import {
   ROWS,
 } from '../../src/core/battle';
 import { aiDeploy } from '../../src/core/ai';
-import { pileCount, totalCards } from '../../src/core/deck';
+import { deckProblem, pileCount, totalCards } from '../../src/core/deck';
 import type { BattleState, CardInstance } from '../../src/core/types';
 
 const c = (charId: string, _level = 1, stars = 1, plus = 0): CardInstance => ({ charId, stars, plus });
@@ -259,8 +259,10 @@ describe('mão e baralho', () => {
   });
   it('v0.17: só começa a batalha com baralho de 20 a 40 cartas, sem entradas repetidas (v0.25.0: mínimo 3 × personagens, até 20)', () => {
     const six = deck10.slice(0, 6).map((x) => ({ ...x, copies: 2 })); // 6 × 2 = 12 (mínimo 6 × 3 = 18)
-    expect(() => createBattle({ playerDeck: six, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow(/12 de no mínimo 18/);
-    expect(() => createBattle({ playerDeck: deck10, enemyDeck: six, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow();
+    // v0.33.0: o mínimo é conferido pela tela (deckIssue conhece as cópias que o jogador tem); a batalha aceita
+    expect(deckProblem(six)).toMatch(/12 de no mínimo 18/);
+    expect(() => createBattle({ playerDeck: six, enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).not.toThrow();
+    expect(() => createBattle({ playerDeck: deck10, enemyDeck: [...deck10.slice(0, 1), ...deck10.slice(0, 1)], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow(/repetidas/);
     expect(() => createBattle({ playerDeck: deck10.slice(0, 9).concat([c('riku')]), enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).toThrow(/repetidas/);
     expect(() => createBattle({ playerDeck: deck10.slice(0, 7), enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 1 })).not.toThrow();
   });

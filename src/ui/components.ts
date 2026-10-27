@@ -208,6 +208,9 @@ export const coinFace = () => `<span class="coin-face" aria-hidden="true"><span 
 /** Ouro de Dragão com quantidade (opcional). */
 export const goldHTML = (count?: number | string) =>
   `<span class="coin" title="Ouro de Dragão" aria-label="Ouro de Dragão">${coinFace()}${count != null ? `<b>${count}</b>` : ''}</span>`;
+/** v0.33.0: 💠 Gema de Invocação (ícone próprio: cristal lapidado roxo-azulado) com quantidade opcional. */
+export const gemHTML = (count?: number | string) =>
+  `<span class="sgem" title="Gema de Invocação" aria-label="Gema de Invocação"><i class="sgem-ico"></i>${count != null ? `<b>${count}</b>` : ''}</span>`;
 /** v0.26.0: energia ⚡ atual / máxima (acima do máximo fica dourada). */
 export const energyHTML = (cur: number, max: number) =>
   `<span class="energy${cur > max ? ' over' : ''}" title="Energia (Fácil 1 · Normal 3 · Difícil 6; recupera 1 a cada 6 min)">⚡<b>${cur}</b><small>/${max}</small></span>`;

@@ -65,6 +65,10 @@ export interface SaveData {
   genXp?: number;
   /** migração v0.32.0: saves antigos ganham 3 cópias de cada personagem (o baralho não perde nada) */
   v32?: boolean;
+  /** v0.33.0: 💠 Gemas de Invocação (1 gema = 1 carta do banner) */
+  gems?: number;
+  /** v0.33.0: falta o passo guiado do Banner no fim do tutorial */
+  tutBanner?: boolean;
 }
 
 /** Carta como era salva até a v0.22.0 (com nível numerado e `plus` verdadeiro/falso). */
@@ -140,6 +144,7 @@ export function defaultSave(): SaveData {
     v25: true,
     v26: true,
     v32: true,
+    gems: 0,
     dupes: {},
     genXp: 0,
     profile: newProfile(),
@@ -302,6 +307,7 @@ export function loadSave(): SaveData {
     merged.items = migrateOrbs(d.items as Record<string, unknown>);
     merged.gear = normalizeGear(d.gear); // v0.24.0: save sem itens de ascensão começa com a mochila vazia
     migrateV25(merged, d);
+    merged.gems = Math.max(0, Math.floor(Number(d.gems) || 0)); // v0.33.0
     return merged;
   } catch {
     return defaultSave();

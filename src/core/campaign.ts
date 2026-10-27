@@ -32,8 +32,8 @@ const NAMES = [
   'Trono do Dragão Ancestral',
 ];
 
-/** Baralho da IA em cada fase: sempre 10 personagens DIFERENTES (v0.8). */
-const POOLS: string[][] = [
+/** Baralho da IA em cada fase: até a v0.32.0, sempre 10 personagens DIFERENTES (v0.8). */
+const POOLS_V8: string[][] = [
   ['riku', 'nara', 'sora', 'tobi', 'kael', 'suri', 'hana', 'jin', 'ren', 'kuro'],
   ['riku', 'nara', 'toru', 'daichi', 'tobi', 'kael', 'suri', 'hana', 'jin', 'ren'],
   ['riku', 'nara', 'toru', 'daichi', 'sora', 'kael', 'jin', 'hana', 'kuro', 'aiko'],
@@ -45,6 +45,19 @@ const POOLS: string[][] = [
   ['nara', 'daichi', 'kael', 'aiko', 'lyra', 'mei', 'yume', 'zarek', 'nyx', 'kenji'],
   ['riku', 'toru', 'jin', 'aiko', 'gorath', 'mei', 'yume', 'zarek', 'nyx', 'vorax'],
 ];
+
+/**
+ * v0.33.0 — o jogador sai do tutorial com 3 personagens, e a IA também começa pequena: a fase 1 tem 3 personagens
+ * diferentes e cada fase libera +1 (fase 8 em diante: 10). Fases 1–3 só com personagens de Comum (os 3 iniciais do
+ * jogador levam vantagem); da fase 4 em diante, os personagens mais fortes do baralho de antes da fase.
+ */
+export const ENEMY_DISTINCT = [3, 4, 5, 6, 7, 8, 9, 10, 10, 10];
+const EARLY_POOLS: string[][] = [
+  ['hana', 'daichi', 'kuro'],
+  ['kuro', 'ren', 'hana', 'tobi'],
+  ['daichi', 'tobi', 'ren', 'suri', 'jin'],
+];
+export const POOLS: string[][] = POOLS_V8.map((pool, i) => EARLY_POOLS[i] ?? pool.slice(pool.length - ENEMY_DISTINCT[i]));
 
 /**
  * Desbloqueio pela progressão normal (primeira vitória na fase): Incomum, Raro e Épico.
@@ -59,6 +72,8 @@ export const UNLOCKS: Record<number, string> = { 1: 'aiko', 2: 'mei', 3: 'lyra',
  */
 export const PACK_COMMONS: Record<number, string> = { 1: 'daichi', 2: 'hana', 3: 'tobi', 4: 'kael', 5: 'toru', 6: 'jin', 7: 'suri', 8: 'ren', 9: 'kuro' };
 export const stagePack = (stageId: number): string[] => [UNLOCKS[stageId], PACK_COMMONS[stageId]].filter((id): id is string => !!id);
+/** v0.33.0: as fases não dão mais personagens garantidos (o pacote acabou); no lugar, 💠 Gemas de Invocação. */
+export const STAGE_PACKS = false;
 
 /**
  * v0.13.0 — vida do Comandante inimigo por fase (índice 0 = fase 1).
@@ -74,7 +89,9 @@ export function enemyLeaderHp(i: number): number {
  * ENEMY_STEPS e ENEMY_SPELLS para a vitória ao chegar ficar ~90% nas fases 1–3, ~75% nas 4–7 e ~65% nas 8–10.
  * Até a v0.27.0: 12 + 7·i (12, 19, 26, 33, 40, 47, 54, 61, 68, 75).
  */
-export const ENEMY_HERO_HP = [12, 20, 26, 30, 33, 44, 47, 52, 62, 70];
+export const ENEMY_HERO_HP = [16, 20, 18, 32, 22, 40, 47, 52, 56, 74];
+/* v0.33.0: com a IA menor nas primeiras fases (3 → 10 personagens) e sem pacotes de fase, reequilibrado no simulador
+   (scripts/balance/v28.ts, SIM_SPELLS=0). v0.28.0–v0.32.0: 12, 20, 26, 30, 33, 44, 47, 52, 62, 70. */
 
 /**
  * v0.18.0 — feitiços da IA por fase (índice 0 = fase 1), 2 cópias de cada, somados aos 30 personagens.
@@ -105,7 +122,8 @@ export const ENEMY_SPELL_COPIES = 2;
  * Até a v0.22.0: NÍVEL por fase (1, 4, 4, 5, 6, 6, 11, 14, 17, 12). v0.23.0–v0.27.0: 0, 0,5, 0, 1, 0,5, 0, 3, 0, 0,5, 0,5.
  * v0.28.0: reequilíbrio (scripts/balance/v28.ts).
  */
-export const ENEMY_STEPS = [0, 0.5, 0.5, 0.5, 0, 0, 1.5, 0, 0, 0];
+export const ENEMY_STEPS = [3.34, 3.25, 0.5, 1.5, 0, 0, 1.5, 0, 0, 0];
+/* v0.33.0: fases 1–2 com só 3–4 personagens de Comum ficam em Incomum (1 deles Incomum+); v0.28.0: 0, 0,5, 0,5, 0,5, 0, 0, 1,5, 0, 0, 0. */
 
 /**
  * Raridade e degrau do personagem da IA: degrau `target` (limitado à faixa dele) e mais `bonus` degraus
@@ -119,9 +137,9 @@ export function enemyCard(charId: string, target: number, bonus = 0): CardInstan
   return { charId, ...fromStepIndex(g) };
 }
 
-/** Baralho da IA na fase `i`: os 10 personagens com 3 cópias (no degrau da fase + `bonus`) e os feitiços da fase com 2 cópias. */
+/** Baralho da IA na fase `i`: os personagens da fase (v0.33.0: 3 a 10) com 3 cópias (no degrau da fase + `bonus`) e os feitiços da fase com 2 cópias. */
 export function enemyDeckFor(i: number, target = ENEMY_STEPS[i], spellIds = ENEMY_SPELLS[i], bonus = 0): CardInstance[] {
-  if (new Set(POOLS[i]).size !== DECK_SLOTS) throw new Error(`Fase ${i + 1}: a IA precisa de ${DECK_SLOTS} personagens diferentes`);
+  if (new Set(POOLS[i]).size !== POOLS[i].length || POOLS[i].length > DECK_SLOTS) throw new Error(`Fase ${i + 1}: a IA precisa de até ${DECK_SLOTS} personagens diferentes`);
   const frac = target - Math.floor(target);
   // degrau quebrado: espalha o degrau a mais entre as cartas (k-ésima carta sobe quando a conta "vira")
   const deck = POOLS[i].map((charId, k) => enemyCard(charId, Math.floor(target) + (Math.floor((k + 1) * frac) > Math.floor(k * frac) ? 1 : 0), bonus));
@@ -139,8 +157,8 @@ export const STAGES: Stage[] = NAMES.map((name, i) => ({
   enemyDeck: enemyDeckFor(i),
   // v0.22.0: mesmo XP de antes em Orbes — o antigo 📜 (4 + 2i) vira Orbes Comuns; 💎 (1 + i/2) e 🔮 (fase 6+) viram Orbes Incomuns
   rewards: { essencias: 6 + i * 3, orbs: { orbe1: 4 + i * 2, orbe2: Math.round(((1 + Math.floor(i / 2)) * 400 + (i >= 5 ? 1500 : 0)) / 250) } },
-  unlock: UNLOCKS[i + 1],
-  pack: stagePack(i + 1),
+  unlock: STAGE_PACKS ? UNLOCKS[i + 1] : undefined,
+  pack: STAGE_PACKS ? stagePack(i + 1) : [],
 }));
 
 /** Vida do Comandante do jogador no nível 1 (v0.13: sobe com o nível do Comandante — ver leaders.ts). */

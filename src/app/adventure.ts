@@ -7,13 +7,13 @@ import { STAGES, stageCommander, type Stage } from '../core/campaign';
 import { XP_ITEMS, playXp, feedXp, stepOf } from '../core/progression';
 import { leaderHp } from '../core/leaders';
 import { BattleView } from '../ui/battleView';
-import { energyHTML, goldHTML, gearHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, esc, raceHTML, starStyle, tierHTML } from '../ui/components';
+import { energyHTML, gemHTML, goldHTML, gearHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, esc, raceHTML, starStyle, tierHTML } from '../ui/components';
 import { getSpell, isSpell } from '../core/spells';
 import { gameAlert, showDialog } from '../ui/dialog';
 import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
 import { MAX_COPIES, addToDeck, deckMin, deckCards, deckCount, deckIssue, deckMax, teamReady } from '../ui/save';
 import { GEAR_DROP, GEAR_RARE_CHANCE, STAGE_GEAR, addGear, stageGearDrop } from '../core/gear';
-import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from '../core/adventure';
+import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, gemsFor, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from '../core/adventure';
 import { enemyCommanderArt } from '../ui/art';
 import { grantCard, type GrantResult } from '../core/banner';
 import { ENERGY_COST, energyMax, goldFor, profileXpFor, spendEnergy } from '../core/profile';
@@ -131,7 +131,7 @@ export function stageDialog(stageId: number) {
       ${enemyCommanderArt(stageCommander(st), 'stage-cmd')}
       <p class="stage-diff">Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
       <p class="stage-line">Comandante inimigo ❤${st.enemyHeroHp} · Inimigos até ${(() => { const top = foes.reduce((a, c) => (c.stars * 3 + stepOf(c) > a.stars * 3 + stepOf(a) ? c : a)); return tierHTML(top.stars, stepOf(top)); })()}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</p>
-      <p class="stage-line">Recompensa: ✴${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && st.pack.some((id) => !save.cards[id]) ? ` · 🎁 pacote: <b>${st.pack.filter((id) => !save.cards[id]).map((id) => esc(getChar(id).name)).join(', ')}</b>` : ''}</p>
+      <p class="stage-line">Recompensa: ✴${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && gemsFor(st.id) ? ` · 1ª vitória: ${gemHTML(`+${gemsFor(st.id)}`)} ${gemsFor(st.id) > 1 ? 'Gemas' : 'Gema'} de Invocação` : ''}</p>
       <p class="stage-line">Itens: ${STAGE_GEAR[stageId - 1].map((id) => gearHTML(id, GEAR_DROP[diff][0])).join(' ')} <small>${100 - GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[GEAR_DROP[diff][0]].label} · ${GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[GEAR_DROP[diff][1]].label}</small></p>
       <ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}</li>`).join('')}</ul>
       <p class="stage-line">Por vitória ou Repetir: ${goldHTML(goldFor(stageId, diff))} · 👤 +${profileXpFor(stageId, diff)} XP de perfil${done ? '' : ' <small>(em dobro na primeira vitória)</small>'} · você tem ${energyHTML(energyNow(), energyMax(prof()))}</p>
@@ -282,8 +282,10 @@ export function finishBattle(stageId: number, diff: Difficulty, winner: string, 
     const fresh = addStars(save, diff, stageId, end ? starsForWin(end, diff, stageId) : 1);
     const mask = starsOf(save, diff, stageId);
     const starsLine = `<div class="win-stars">${starsHTML(mask, fresh)}</div><ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}${fresh & (1 << i) ? ' <b class="new-tag">nova!</b>' : ''}</li>`).join('')}</ul>${fresh && starCount(mask) === STAR_COUNT ? '<p class="hint">⟲ Repetir liberado nesta fase!</p>' : ''}`;
-    // v0.25.0: pacote da primeira vitória — o desbloqueio da fase e um personagem de Comum
-    const unlocked = grantPack(stage.pack);
+    // v0.33.0: no lugar do pacote de personagens, 💠 Gemas de Invocação na primeira vitória (fases 3, 6, 9 e 10)
+    const gems = first ? gemsFor(stageId) : 0;
+    save.gems = (save.gems ?? 0) + gems;
+    const unlocked = gems ? `<div class="res big"><span>${gemHTML(`+${gems}`)} ${gems > 1 ? 'Gemas' : 'Gema'} de Invocação</span></div><p class="hint">Use na 🏪 Loja: cada gema compra 1 carta do 🎴 Banner.</p>` : '';
     // v0.28.0: vencer a fase N libera a mesma fase na dificuldade seguinte (se a anterior dela já foi vencida)
     const nextDiff = DIFFICULTIES[DIFFICULTIES.indexOf(diff) + 1];
     const opened = first && nextDiff && stageUnlocked(save, nextDiff, stageId) ? nextDiff : undefined;

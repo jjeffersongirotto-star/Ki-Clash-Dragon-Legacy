@@ -6,17 +6,19 @@ import { getChar } from '../core/characters';
 import { stepOf, type XpItemId } from '../core/progression';
 import { leaderHp } from '../core/leaders';
 import { BattleView } from '../ui/battleView';
-import { gearHTML, orbBagHTML, cardHTML, esc } from '../ui/components';
+import { gemHTML, gearHTML, orbBagHTML, cardHTML, esc } from '../ui/components';
 import { gameConfirm } from '../ui/dialog';
 import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
 import { MAX_COPIES, addToDeck, setCopies } from '../ui/save';
 import { addDupe, dupeCount } from '../core/banner';
-import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_PACK, TUTORIAL_REWARD, TUTORIAL_STARTER, TUTORIAL_TIPS, TUT_BATTLE1, TUT_BATTLE2, TUT_DONE, TUT_PACK, tutorialGear } from '../core/tutorial';
+import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_PACK, TUTORIAL_REWARD, TUTORIAL_SEEDS, TUTORIAL_STARTER, TUT_BATTLE1, TUT_BATTLE2, TUT_DONE, TUT_PACK, guideStep, guideText, newGuideMemo, tutorialGear } from '../core/tutorial';
+import { clearSpotlight, spotlight } from '../ui/spotlight';
 import { app, accounts, save, persist, activeLeader, leaderLevel } from './state';
 import { resultModalWith, closeModal } from './ui';
 import { home, accountDialog } from './home';
 import { grantPack } from './adventure';
 import { train } from './train';
+import { shop } from './shop';
 
 // ---------------- TUTORIAL (v0.25.0) ----------------
 /** Tela do tutorial (o jogador novo cai aqui até terminar; a Base só abre depois). */
@@ -43,11 +45,7 @@ export function tutorial(): void {
   app.querySelector('[data-act=acc]')?.addEventListener('click', accountDialog);
   app.querySelector('[data-act=go]')?.addEventListener('click', () => tutorialBattle(t === TUT_BATTLE1 ? 0 : 1));
   app.querySelector('[data-act=pack]')?.addEventListener('click', openTutorialPack);
-  app.querySelector('[data-act=skip]')!.addEventListener('click', async () => {
-    if (!(await gameConfirm('Pular tutorial?', 'Você recebe os personagens e a recompensa do tutorial do mesmo jeito.', 'Pular'))) return;
-    grantPack(TUTORIAL_PACK);
-    finishTutorial();
-  });
+  app.querySelector('[data-act=skip]')!.addEventListener('click', () => void skipTutorial());
 }
 
 export function openTutorialPack() {
@@ -57,23 +55,35 @@ export function openTutorialPack() {
   resultModalWith(`<h2 class="win">🎁 Pacote aberto!</h2>${got}<p class="hint">Eles já entraram no seu baralho.</p>`, [{ label: 'Continuar', primary: true, run: tutorial }]);
 }
 
-/** Batalha do tutorial: baralho só com os personagens do tutorial (3 cópias), com as caixinhas de dica. */
+/**
+ * Batalha do tutorial: baralho só com os personagens do tutorial (3 cópias).
+ * v0.33.0: GUIADA — o tutorial aponta cada movimento (carta, casa, LUTAR), escurece o resto e espera o jogador
+ * fazer; a partida é sempre igual (semente fixa) e as cartas não esperam na mão (ninguém fica travado).
+ */
 export function tutorialBattle(i: 0 | 1) {
   const stage = TUTORIAL_BATTLES[i];
   const ids = i === 0 ? [TUTORIAL_STARTER] : TUTORIAL_CHARS;
   const deck = ids.filter((id) => save.cards[id]).map((id) => ({ charId: id, stars: save.cards[id].stars, plus: stepOf(save.cards[id]), copies: MAX_COPIES }));
   window.scrollTo(0, 0);
   enterBattleMode();
-  app.innerHTML = '<div class="screen battle-screen" id="bs"></div>';
-  new BattleView(app.querySelector('#bs')!, stage, deck, {
+  app.innerHTML = '<div class="screen battle-screen tut-battle" id="bs"></div>';
+  let timer = 0;
+  const stop = () => {
+    window.clearInterval(timer);
+    clearSpotlight();
+  };
+  const view = new BattleView(app.querySelector('#bs')!, stage, deck, {
     speed: () => save.speed || 1,
     setSpeed: (n) => {
       save.speed = n;
       persist();
     },
-    onExit: () => tutorial(),
+    onExit: () => {
+      stop();
+      tutorial();
+    },
     onFinish: (winner) => {
-      document.querySelector('.tut-tip')?.remove();
+      stop();
       if (winner !== 'player') return resultModalWith(`<h2 class="lose">${winner === 'empate' ? '⏱ Empate' : '💀 Derrota'}</h2><p>Quase! Tente de novo.</p>`, [{ label: 'Tentar de novo', primary: true, run: () => tutorialBattle(i) }]);
       if (i === 0) {
         save.tutorial = TUT_PACK;
@@ -83,8 +93,45 @@ export function tutorialBattle(i: 0 | 1) {
       finishTutorial();
     },
     playerHeroHp: leaderHp(activeLeader(), leaderLevel()),
+    seed: TUTORIAL_SEEDS[i],
+    noWait: true,
   });
-  showTips(TUTORIAL_TIPS[i]);
+  const memo = newGuideMemo();
+  const skip = () => {
+    stop();
+    view.disposed = true;
+    void skipTutorial();
+  };
+  timer = window.setInterval(() => {
+    if (view.disposed || !document.body.contains(view.root)) return stop();
+    if (view.state.winner) return clearSpotlight();
+    const battleEl = view.root.querySelector('.battle');
+    const rp = view.root.querySelector<HTMLElement>('.rotate-prompt');
+    if (rp && getComputedStyle(rp).display !== 'none') return spotlight(rp.querySelector('.rp-box') ?? rp, 'Escolha como jogar: <b>deitado</b> (tela cheia) ou <b>em pé</b>.', { onSkip: skip });
+    battleEl?.classList.remove('has-info', 'log-open'); // nada cobre o alvo durante o tutorial
+    if (view.busy || document.querySelector('.modal-bg, .battle-card-modal-bg')) return spotlight(null, guideText(i, { kind: 'watch' }, view.state), { onSkip: skip });
+    const a = guideStep(i, view.state, view.selected, memo);
+    const target =
+      a.kind === 'card'
+        ? view.root.querySelector(`.hand [data-i="${a.hand}"]`)
+        : a.kind === 'cell'
+          ? view.root.querySelector(`.cell[data-r="${a.r}"][data-c="${a.c}"]`)
+          : a.kind === 'fight'
+            ? view.root.querySelector('#fightBtn')
+            : null;
+    spotlight(target, guideText(i, a, view.state), { onSkip: skip });
+  }, 150);
+}
+
+/** Pular o tutorial: recebe o pacote e a recompensa do mesmo jeito. */
+async function skipTutorial() {
+  if (!(await gameConfirm('Pular tutorial?', 'Você recebe os personagens e a recompensa do tutorial do mesmo jeito.', 'Pular'))) {
+    const t = save.tutorial ?? TUT_DONE;
+    return t === TUT_BATTLE1 || t === TUT_BATTLE2 ? tutorialBattle(t === TUT_BATTLE1 ? 0 : 1) : tutorial();
+  }
+  leaveBattleMode();
+  if (!save.cards[TUTORIAL_PACK[0]]) grantPack(TUTORIAL_PACK);
+  finishTutorial();
 }
 
 /** Caixinha de dica por cima da batalha, uma por vez (dá para fechar todas). */
@@ -116,14 +163,47 @@ export function finishTutorial() {
     if (save.deck.includes(id)) setCopies(save, id, MAX_COPIES);
     else addToDeck(save, id);
   }
+  // v0.33.0: + 2 💠 Gemas de Invocação, gastas no passo guiado do Banner logo a seguir
+  save.gems = (save.gems ?? 0) + TUTORIAL_GEMS;
+  save.tutBanner = true;
   save.tutorial = TUT_DONE;
   persist();
   const items = Object.keys(gear).map((k) => { const [id, r] = k.split(':'); return gearHTML(id, Number(r), `+${gear[k]}`); }).join('');
   resultModalWith(
-    `<h2 class="win">🎓 Tutorial concluído!</h2><p>Recompensa:</p><div class="res big"><span>✴ +${TUTORIAL_REWARD.essencias}</span>${orbBagHTML(TUTORIAL_REWARD.orbs)}${items}</div>
-    <p class="hint">Em <b>🔥 Treinar</b>, use os Orbes para encher a barra de XP e depois <b>Desperte</b> cada personagem para o "+" com os itens. Depois, vá para a <b>⚔ Aventura</b>: cada fase vencida pela primeira vez dá um pacote com personagens novos.</p>`,
-    [{ label: '🔥 Treinar', primary: true, run: () => train() }, { label: 'Base', run: home }],
+    `<h2 class="win">🎓 Batalhas concluídas!</h2><p>Recompensa:</p><div class="res big"><span>✴ +${TUTORIAL_REWARD.essencias}</span>${orbBagHTML(TUTORIAL_REWARD.orbs)}${items}<span>${gemHTML(`+${TUTORIAL_GEMS}`)} Gemas</span></div>
+    <p class="hint">Com as <b>💠 Gemas de Invocação</b> você compra cartas novas no <b>🎴 Banner</b>. Vamos usar as 2 agora!</p>`,
+    [{ label: '🎴 Ir ao Banner', primary: true, run: bannerGuide }],
   );
+}
+
+/**
+ * v0.33.0: último passo do tutorial — guiado no 🎴 Banner: compra 1 carta com uma Gema, depois mais 1 com a outra,
+ * e sai pelo ✕. Depois, a mensagem final (Treinar / Base).
+ */
+export function bannerGuide() {
+  if (!save.tutBanner) return home();
+  shop();
+  let timer = 0;
+  const done = () => {
+    window.clearInterval(timer);
+    clearSpotlight();
+    save.tutBanner = false;
+    persist();
+    resultModalWith(
+      `<h2 class="win">🎓 Tutorial concluído!</h2><p class="hint">Em <b>🔥 Treinar</b>, use os Orbes para encher a barra de XP e depois <b>Desperte</b> cada personagem para o "+" com os itens. Depois, vá para a <b>⚔ Aventura</b>. Personagens novos vêm do <b>🎴 Banner</b> (com Ouro de Dragão ou 💠 Gemas, que as fases 3, 6, 9 e 10 dão na primeira vitória).</p>`,
+      [{ label: '🔥 Treinar', primary: true, run: () => train() }, { label: 'Base', run: home }],
+    );
+  };
+  document.querySelector('.banner-box')?.scrollIntoView({ block: 'center' });
+  timer = window.setInterval(() => {
+    const modalOpen = document.querySelector('.modal-bg');
+    const gems = save.gems ?? 0;
+    if (!modalOpen && gems <= 0) return done();
+    if (!modalOpen && !document.querySelector('[data-pull="1"]')) return; // ainda montando a Loja
+    if (!modalOpen) return spotlight(document.querySelector('[data-pull="1"]'), 'Este é o <b>🎴 Banner</b>. Cada <b>💠 Gema</b> compra 1 carta (um personagem numa raridade sorteada). Toque em <b>Comprar 1 carta</b>.', { onSkip: done });
+    if (gems > 0) return spotlight(document.querySelector('[data-again="1"]'), 'Personagem novo entra na sua coleção; repetido vira mais 1 cópia (até 3 no baralho). Use a outra Gema: toque em <b>Comprar 1</b>.', { onSkip: done });
+    spotlight(document.querySelector('.pull-x'), 'Pronto! Toque no <b>✕</b> para sair do Banner.', { onSkip: done });
+  }, 150);
 }
 
 /** Janela de resultado com botões próprios. */

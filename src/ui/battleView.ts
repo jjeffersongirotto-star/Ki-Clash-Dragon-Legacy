@@ -23,6 +23,9 @@ export interface BattleCallbacks {
   onExit: () => void;
   /** v0.13: vida do Comandante do jogador (nível do Comandante). Sem informar: nível 1 */
   playerHeroHp?: number;
+  /** v0.33.0: tutorial guiado — semente fixa (sempre igual) e cartas sem espera na mão */
+  seed?: number;
+  noWait?: boolean;
 }
 
 /**
@@ -52,7 +55,7 @@ export class BattleView {
     this.root = root;
     this.cb = cb;
     this.stage = stage;
-    this.state = createBattle({ playerDeck, enemyDeck: stage.enemyDeck, playerHeroHp: cb.playerHeroHp ?? PLAYER_HERO_HP, enemyHeroHp: stage.enemyHeroHp });
+    this.state = createBattle({ playerDeck, enemyDeck: stage.enemyDeck, playerHeroHp: cb.playerHeroHp ?? PLAYER_HERO_HP, enemyHeroHp: stage.enemyHeroHp, seed: cb.seed, noWait: cb.noWait });
     this.mount();
     this.renderSnapshot(this.snap());
     this.renderHand();

@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.33.0] — 27/10/2026 · PR #68 — Gemas de Invocação, começo da campanha e tutorial guiado
+- **💠 Gemas de Invocação:** cada gema compra 1 carta no Banner (usadas antes do Ouro). Vêm da primeira vitória das fases 3, 6, 9 (1 gema) e 10 (3 gemas) e do tutorial (2 gemas). As fases não dão mais pacotes de cartas.
+- **Inimigos:** fase 1 com 3 personagens diferentes, +1 por fase; vida e força dos Comandantes reajustadas para as cópias novas (fases 1–3 ≈ 90–99% de vitória na simulação).
+- **Tutorial guiado:** batalhas com semente fixa, cartas sem espera e destaque na tela (escurece tudo menos a carta, a casa ou o LUTAR do passo, com seta e texto). No fim, +2 Gemas e um passo guiado no Banner.
+- A batalha aceita baralho pequeno (quem tem só 1 cópia de cada personagem).
+
 ## [0.32.0] — 27/10/2026 · PR #67 — Cópias, Inventário e Desmanchar
 - **Cópias:** ganhar um personagem dá 1 cópia; o baralho só usa as cópias que você tem (até 3). Repetido vira +1 cópia guardada (não vira mais XP sozinho).
 - **🎒 Inventário** novo na Base: abas **Itens** e **Personagens repetidos**.

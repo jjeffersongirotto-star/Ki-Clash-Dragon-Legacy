@@ -15,7 +15,7 @@ import { PROFILE_MAX, totalXpFor, xpToNext } from '../core/profile';
 import { createAccount, login, logout, NAME_MAX, PASS_MIN } from '../ui/accounts';
 import { app, accounts, openAccountSave, save, setSave, firstChar, setTrainSel, persist, fmt, prof, resPills } from './state';
 import { bindNav } from './ui';
-import { tutorial } from './tutorial';
+import { bannerGuide, tutorial } from './tutorial';
 
 // ---------------- BASE ----------------
 /** v0.32.0: cópias repetidas guardadas (todas as raridades) */
@@ -23,6 +23,7 @@ const dupesTotal = () => Object.values(save.dupes ?? {}).reduce((n, row) => n + 
 
 export function home(): void {
   if (!tutorialDone(save)) return tutorial(); // v0.25.0: o jogador novo começa pelo tutorial
+  if (save.tutBanner && (save.gems ?? 0) > 0) return bannerGuide(); // v0.33.0: passo guiado do Banner
   leaveBattleMode();
   const next = STAGES.find((s) => !save.cleared.includes(s.id));
   const acc = accounts.current ? accounts.accounts[accounts.current] : null;
