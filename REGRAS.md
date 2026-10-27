@@ -1052,3 +1052,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 ## 29. Lista de melhorias (v0.28.2)
 - O [MELHORIAS.md](MELHORIAS.md) guarda **só o que ainda não foi feito**. Quando algo entra no jogo, sai de lá e vai para o CHANGELOG e este arquivo. Itens novos só entram quando o jogador pedir.
+- **Tipo do personagem (v0.28.4):** hoje o tipo (Humano, Extraterrestre, Monstro, Mago Arcano, Androide, Necromante) é só visual (desenho, cor, ícone) e filtro da Coleção; não muda a batalha. Ideias para dar função a ele estão no MELHORIAS.md.

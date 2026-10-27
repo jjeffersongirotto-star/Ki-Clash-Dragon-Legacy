@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.28.4] — 27/10/2026 · PR #56 — Ideias do tipo do personagem anotadas
+- Sem mudança no jogo. O [MELHORIAS.md](MELHORIAS.md) ganhou duas ideias para o tipo do personagem: bônus de equipe (3 ou mais do mesmo tipo) e objetivos/missões por tipo.
+
 ## [0.28.3] — 27/10/2026 · PR #55 — Tela de batalha organizada e XP que sobra vira Orbe
 - **XP que sobra vira Orbe:** quando o XP de uma **cópia repetida** (Banner ou pacote de fase) passa da barra cheia, **25% do que passou volta como Orbes** na bolsa (do Orbe maior para o menor; o resto abaixo de 100 XP é descartado). A carta recebida mostra "XP que passou: +N Orbes". Orbes e XP por jogar mantêm a regra de antes.
 - **Tela de batalha organizada** (sem mudança no jogo): `battleView.ts` dividido em `battleHand.ts` (mão), `battleModals.ts` (janelas de detalhes), `battleRender.ts` (tabuleiro) e `battleEffects.ts` (animações); ficou com 467 linhas.
