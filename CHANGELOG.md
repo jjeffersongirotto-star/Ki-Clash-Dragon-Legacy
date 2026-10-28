@@ -6,6 +6,7 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
 - **Invocar no tutorial:** antes só uma casa ficava clara e o texto falava em "3 colunas da esquerda". Agora as **6 casas da sua zona** ficam destacadas juntas (moldura azul) e **dá para colocar o personagem em qualquer uma**.
 - Na **1ª invocação**, o tutorial primeiro mostra os 6 quadrados: "Você pode colocar o Riku em qualquer um dos 6 quadrados destacados: essa é a sua zona de invocação." Depois **circula uma casa** (com a manopla apontando) e pede para colocar ali.
 - Textos revistos: dica "Invocar", passos da Batalha 2 ("casa circulada"), aviso do registro da batalha e o Como jogar não falam mais em "3 colunas da esquerda".
+- **Ícone novo da raça Humano:** artista marcial original (rabo de cavalo, roupa verde com dragão dourado, espiral de ki na mão), no lugar do 🌍. O gerador de ícones agora tira sozinho o fundo branco de imagens JPG.
 - Testado no simulador: colocando os personagens em casas sorteadas da zona, as 2 batalhas do tutorial continuam sendo vencidas (300 de 300 em cada).
 
 ## [0.42.0] — 28/10/2026 · PR #78 — Ícones desenhados

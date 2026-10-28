@@ -8,6 +8,7 @@ As imagens de origem NÃO vão para o repositório.
 Uso: python3 scripts/art/build_icons.py <pasta-com-as-imagens>
 - Ícones: 512×512 com transparência → ICON_PX×ICON_PX. Buracos fechados pintados de branco puro (dentro do anel, do arco,
   do cadeado…) viram transparentes (HOLES).
+- Ícone sem transparência (JPG com fundo branco): o fundo ligado às bordas vira transparente (white_bg).
 - SKIP: imagens que ficaram de fora (lembram personagens de marcas existentes) — o jogo mantém o ícone antigo.
 """
 import os, re, sys
@@ -20,7 +21,7 @@ ICON_PX = 128
 REGION_PX = 192
 QUALITY = 82
 HOLES = {20, 32, 35, 53, 103, 114, 150, 163}
-SKIP = {43, 121}
+SKIP = {121}
 
 ABILITIES = ('diagFrente diagTras guarda salto longoAlcance flechaDupla perfurante retaguarda menorVida prole contraGolpe sifao lotus '
              'inabalavel disparoSombrio espinhos sopro tambor brasa mare precisao olhoAguia cacaMagos surpresa vigia renascer anjo '
@@ -65,6 +66,19 @@ def fill_holes(im):
     return Image.fromarray(a.astype('uint8'))
 
 
+def white_bg(im):
+    """Fundo branco ligado às bordas → transparente (borda suavizada em 2 px)."""
+    a = np.array(im.convert('RGBA')).astype(int)
+    rgb = a[..., :3]
+    white = (rgb.min(-1) > 238) & ((rgb.max(-1) - rgb.min(-1)) < 18)
+    lab, _ = ndimage.label(white)
+    edge = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}
+    bg = np.isin(lab, list(edge))
+    soft = ndimage.binary_dilation(bg, iterations=2) & (rgb.min(-1) > 200)
+    a[..., 3] = np.where(bg | soft, 0, 255)
+    return Image.fromarray(a.astype('uint8'))
+
+
 def main(src):
     found = {}
     for d, _, fs in os.walk(src):
@@ -90,7 +104,7 @@ def main(src):
         elif name == 'banner-fundo':
             im.convert('RGB').resize((1200, 400), Image.LANCZOS).save(os.path.join(ROOT, 'src', 'assets', 'banner-fundo.webp'), quality=76, method=6)
         else:
-            im = im.convert('RGBA')
+            im = white_bg(im) if im.mode == 'RGB' else im.convert('RGBA')
             if n in HOLES:
                 im = fill_holes(im)
             px = REGION_PX if name.startswith('regiao-') else ICON_PX
