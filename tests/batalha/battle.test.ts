@@ -27,17 +27,17 @@ function emptyBattle(): BattleState {
 }
 
 describe('arena', () => {
-  it('tem 2 fileiras × 12 colunas (v0.16.0)', () => {
+  it('tem 2 fileiras × 10 colunas (v0.36.0; 12 até a v0.35)', () => {
     const s = createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
-    expect([ROWS, COLS]).toEqual([2, 12]);
-    expect([s.rows, s.cols]).toEqual([2, 12]);
+    expect([ROWS, COLS]).toEqual([2, 10]);
+    expect([s.rows, s.cols]).toEqual([2, 10]);
   });
   it('zona de invocação = 3 primeiras colunas de cada lado', () => {
     const s = createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
     expect(DEPLOY_DEPTH).toBe(3);
-    for (let col = 0; col < 12; col++) {
+    for (let col = 0; col < 10; col++) {
       expect(isDeployCell(s, 'player', 0, col)).toBe(col <= 2);
-      expect(isDeployCell(s, 'enemy', 1, col)).toBe(col >= 9);
+      expect(isDeployCell(s, 'enemy', 1, col)).toBe(col >= 7);
     }
   });
 });

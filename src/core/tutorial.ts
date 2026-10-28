@@ -31,8 +31,9 @@ const enemy = (charId: string, copies = 3): CardInstance => ({ charId, stars: 1,
 /** As 2 batalhas do tutorial (id 0: não contam como fase da Aventura). */
 export const TUTORIAL_BATTLES: Stage[] = [
   // v0.33.0: guiado e sem espera na mão — o inimigo invoca tudo o que tem, então tem menos cartas
+  // v0.36.0: arena de 10 colunas (o inimigo chega mais rápido): 1 Tobi a menos na Batalha 2
   { id: 0, name: 'Tutorial · Batalha 1', enemyHeroHp: 6, enemyDeck: [enemy('kuro', 1)], rewards: { essencias: 0, orbs: {} }, pack: [] },
-  { id: 0, name: 'Tutorial · Batalha 2', enemyHeroHp: 10, enemyDeck: [enemy('daichi', 2), enemy('hana', 1), enemy('tobi', 2)], rewards: { essencias: 0, orbs: {} }, pack: [] },
+  { id: 0, name: 'Tutorial · Batalha 2', enemyHeroHp: 10, enemyDeck: [enemy('daichi', 2), enemy('hana', 1), enemy('tobi', 1)], rewards: { essencias: 0, orbs: {} }, pack: [] },
 ];
 
 /**

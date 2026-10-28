@@ -89,7 +89,9 @@ export function enemyLeaderHp(i: number): number {
  * ENEMY_STEPS e ENEMY_SPELLS para a vitória ao chegar ficar ~90% nas fases 1–3, ~75% nas 4–7 e ~65% nas 8–10.
  * Até a v0.27.0: 12 + 7·i (12, 19, 26, 33, 40, 47, 54, 61, 68, 75).
  */
-export const ENEMY_HERO_HP = [16, 20, 18, 32, 22, 40, 47, 52, 56, 74];
+export const ENEMY_HERO_HP = [14, 14, 18, 32, 30, 37, 56, 62, 72, 106];
+/* v0.36.0: arena de 10 colunas (os dois lados chegam mais rápido), reequilibrado no simulador (scripts/balance/v28.ts,
+   SIM_COLS=10 SIM_SPELLS=0). v0.33.0–v0.35.0: 16, 20, 18, 32, 22, 40, 47, 52, 56, 74. */
 /* v0.33.0: com a IA menor nas primeiras fases (3 → 10 personagens) e sem pacotes de fase, reequilibrado no simulador
    (scripts/balance/v28.ts, SIM_SPELLS=0). v0.28.0–v0.32.0: 12, 20, 26, 30, 33, 44, 47, 52, 62, 70. */
 
@@ -122,7 +124,8 @@ export const ENEMY_SPELL_COPIES = 2;
  * Até a v0.22.0: NÍVEL por fase (1, 4, 4, 5, 6, 6, 11, 14, 17, 12). v0.23.0–v0.27.0: 0, 0,5, 0, 1, 0,5, 0, 3, 0, 0,5, 0,5.
  * v0.28.0: reequilíbrio (scripts/balance/v28.ts).
  */
-export const ENEMY_STEPS = [3.34, 3.25, 0.5, 1.5, 0, 0, 1.5, 0, 0, 0];
+export const ENEMY_STEPS = [2.8, 1, 0.5, 1.5, 1.5, 0, 1.5, 0, 0, 0];
+/* v0.36.0 (arena de 10 colunas). v0.33.0–v0.35.0: 3,34, 3,25, 0,5, 1,5, 0, 0, 1,5, 0, 0, 0. */
 /* v0.33.0: fases 1–2 com só 3–4 personagens de Comum ficam em Incomum (1 deles Incomum+); v0.28.0: 0, 0,5, 0,5, 0,5, 0, 0, 1,5, 0, 0, 0. */
 
 /**

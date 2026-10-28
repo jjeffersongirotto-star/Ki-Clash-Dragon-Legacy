@@ -27,24 +27,24 @@ beforeEach(() => {
   setSaveKey('kicdl-save-v1');
 });
 
-describe('v0.16.0 — arena 2 × 12', () => {
-  it('2 fileiras × 12 colunas; cada lado invoca nas suas 3 colunas das pontas', () => {
+describe('v0.16.0 — arena (2 × 10 desde a v0.36.0)', () => {
+  it('2 fileiras × 10 colunas; cada lado invoca nas suas 3 colunas das pontas', () => {
     const s = empty();
-    expect([ROWS, COLS, s.rows, s.cols]).toEqual([2, 12, 2, 12]);
+    expect([ROWS, COLS, s.rows, s.cols]).toEqual([2, 10, 2, 10]); // v0.36.0: 2 × 10
     const p = [], e = [];
-    for (let r = 0; r < 2; r++) for (let col = 0; col < 12; col++) {
+    for (let r = 0; r < 2; r++) for (let col = 0; col < 10; col++) {
       if (isDeployCell(s, 'player', r, col)) p.push(col);
       if (isDeployCell(s, 'enemy', r, col)) e.push(col);
     }
     expect([...new Set(p)]).toEqual([0, 1, 2]);
-    expect([...new Set(e)]).toEqual([9, 10, 11]);
+    expect([...new Set(e)]).toEqual([7, 8, 9]);
     expect(DEPLOY_DEPTH).toBe(3);
   });
-  it('o Comandante inimigo fica logo depois da coluna 12 (última coluna ataca corpo a corpo)', () => {
+  it('o Comandante inimigo fica logo depois da última coluna (última coluna ataca corpo a corpo)', () => {
     const s = empty();
-    const u = placeUnit(s, c('nara'), 'player', 0, 11);
+    const u = placeUnit(s, c('nara'), 'player', 0, s.cols - 1);
     expect(findTarget(s, u)).toBe('hero');
-    u.col = 10;
+    u.col = s.cols - 2;
     expect(findTarget(s, u)).toBeNull();
   });
 });

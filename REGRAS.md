@@ -1139,3 +1139,16 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Na batalha**, tocar/clicar numa carta da mão ou numa unidade só escolhe ou joga. A **descrição** abre ao **segurar** (cerca de 0,45 s) e, no PC, também com o **botão direito**. Arrastar a carta continua invocando.
 - O **tutorial** (Batalha 2) tem um passo que pede para segurar a carta do Riku; o texto é "toque e segure" no celular e "clique e segure (ou botão direito)" no PC.
 - **Comandantes:** nenhum recorte pode ter parte do corpo, arma ou efeito pela metade. Quando o efeito da arte não dá para recortar inteiro, o jogo desenha o efeito (ex.: o redemoinho girando da Nyx; tabela `COMMANDER_LOOK.fx` em `src/ui/art.ts`). Script: `scripts/art/build_cutouts.py` (`--retrato` para o modelo de retrato; tabelas `PORTRAIT` e `FILL`).
+
+## 38. Arena de 10 casas (v0.36.0)
+- A arena tem **2 fileiras × 10 colunas** (até a v0.35.0 eram 12). Cada lado invoca nas **3 colunas** da sua ponta (você: 1–3; inimigo: 8–10). O número de colunas é uma constante só (`COLS` em `src/core/battle.ts`).
+- A vida e os degraus do inimigo de cada fase foram reequilibrados para a arena nova (tabela `ENEMY_HERO_HP` e `ENEMY_STEPS`).
+- Comparação no simulador (Fácil, jogador só com personagens, 60 jogadores; `scripts/balance/arena.ts`, `SIM_SPELLS=0`), com a campanha de antes:
+
+| Casas | Turnos por batalha | Golpes entre personagens por batalha | Dano no Comandante inimigo / no seu | Vitória ao chegar (fases 1–10) |
+|---|---|---|---|---|
+| 12 | 10,3 | 33,4 | 35,5 / 9,2 | 98 · 99 · 87 · 91 · 69 · 82 · 77 · 67 · 63 · 67% |
+| 10 | 9,6 | 32,6 | 36,8 / 7,7 | 89 · 70 · 89 · 89 · 93 · 76 · 84 · 76 · 77 · 82% |
+| 7 | 6,2 | 15,1 | 39,2 / 5,2 | 100 · 93 · 99 · 93 · 100 · 97 · 97 · 96 · 95 · 95% |
+
+  Com 10 casas e a campanha reequilibrada: 95 · 97 · 89 · 91 · 83 · 78 · 78 · 67 · 67 · 69%.
