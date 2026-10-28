@@ -6,6 +6,7 @@ import type { Stage } from '../core/campaign';
 import { PLAYER_HERO_HP } from '../core/campaign';
 import { INFO_DEFAULT, attackFX, floatText, moveTrail, spark, sleep } from './battleFx';
 import { enemyCommanderBattle, playerLeaderImg } from './art';
+import { stageLabel } from '../core/world';
 import { stageCommander } from '../core/campaign';
 import { gameConfirm } from './dialog';
 import { requestLandscape } from './orientation';
@@ -61,7 +62,7 @@ export class BattleView {
     this.mount();
     this.renderSnapshot(this.snap());
     this.renderHand();
-    this.log(`⚔ ${stage.id ? `Fase ${stage.id}: ` : ''}${stage.name}. Invoque cartas na sua zona (3 colunas da esquerda) e toque em LUTAR!`, 'sys');
+    this.log(`⚔ ${stage.id ? `Fase ${stageLabel(stage.id)}: ` : ''}${stage.name}. Invoque cartas na sua zona (3 colunas da esquerda) e toque em LUTAR!`, 'sys');
   }
 
   snap(): Snapshot {

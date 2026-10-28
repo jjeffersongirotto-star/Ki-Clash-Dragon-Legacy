@@ -3,7 +3,7 @@ import {
   DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_RULES, brasiliaDay, canPlay, canRepeat, dailyLeft, difficultyUnlocked,
   freshDaily, isCleared, markCleared, stageFor, stageUnlocked, useDaily, type AdventureProgress,
 } from '../../src/core/adventure';
-import { STAGES } from '../../src/core/campaign';
+import { STAGES, WORLD_STAGES } from '../../src/core/campaign';
 import { createBattle } from '../../src/core/battle';
 import { stepIndex, stepOf } from '../../src/core/progression';
 import { getChar } from '../../src/core/characters';
@@ -121,7 +121,9 @@ describe('v0.20.0 — save', () => {
   });
   it('a conta ADM tem todas as fases vencidas nas 3 dificuldades', () => {
     const a = adminSave();
-    expect(a.cleared).toEqual(all);
-    expect(a.clearedDiff).toEqual({ normal: all, dificil: all });
+    // v0.39.0: as 100 fases do mundo
+    const world = WORLD_STAGES.map((s) => s.id);
+    expect(a.cleared).toEqual(world);
+    expect(a.clearedDiff).toEqual({ normal: world, dificil: world });
   });
 });

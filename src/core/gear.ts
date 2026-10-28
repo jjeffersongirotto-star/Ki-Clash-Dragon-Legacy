@@ -134,10 +134,18 @@ export const GEAR_DROP: Record<Difficulty, [number, number]> = { facil: [1, 2], 
 /** v0.24.1: Fácil 60/40 (antes 80/20); Normal e Difícil 80/20. */
 export const GEAR_RARE_CHANCE: Record<Difficulty, number> = { facil: 0.4, normal: 0.2, dificil: 0.2 };
 
+/** v0.39.0: os 3 itens da fase pelo número dela na região (a fase 3 de toda região dá os itens da fase 3). */
+export const stageGearIds = (stageId: number): string[] => STAGE_GEAR[(stageId - 1) % STAGE_GEAR.length] ?? [];
+/** v0.39.0: cores dos itens na fase — as da dificuldade (GEAR_DROP), +1 raridade a cada 2 regiões (até Lendário). */
+export function stageGearRarity(stageId: number, diff: Difficulty): [number, number] {
+  const up = Math.floor(Math.ceil(stageId / STAGE_GEAR.length) / 2);
+  const [low, high] = GEAR_DROP[diff];
+  return [Math.min(GEAR_MAX_RARITY, low + up), Math.min(GEAR_MAX_RARITY, high + up)];
+}
 /** Itens que a fase dá numa vitória ou Repetir: os 3 da fase, cada um com a cor sorteada (GEAR_RARE_CHANCE). */
 export function stageGearDrop(stageId: number, diff: Difficulty, rng: () => number = Math.random): { id: string; rarity: number }[] {
-  const [low, high] = GEAR_DROP[diff];
-  return (STAGE_GEAR[stageId - 1] ?? []).map((id) => ({ id, rarity: rng() < GEAR_RARE_CHANCE[diff] ? high : low }));
+  const [low, high] = stageGearRarity(stageId, diff);
+  return stageGearIds(stageId).map((id) => ({ id, rarity: rng() < GEAR_RARE_CHANCE[diff] ? high : low }));
 }
 
 /** Confere uma mochila salva (chaves válidas e quantidades inteiras ≥ 0). */

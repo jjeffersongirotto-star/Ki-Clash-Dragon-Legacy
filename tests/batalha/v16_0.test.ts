@@ -3,7 +3,7 @@ import { COLS, Ctx, DEPLOY_DEPTH, OPENING_HEADSTART, ROWS, createBattle, deploy,
 import { aiDeploy } from '../../src/core/ai';
 import { PLAYABLE, getChar } from '../../src/core/characters';
 import { LEADERS } from '../../src/core/leaders';
-import { STAGES } from '../../src/core/campaign';
+import { WORLD_STAGES } from '../../src/core/campaign';
 import { cardHTML } from '../../src/ui/components';
 import { ADMIN_NAME, ADMIN_PASS, adminSave, createAccount, loadAccounts, login, logout, saveKeyFor, weakHash } from '../../src/ui/accounts';
 import { defaultSave, loadSave, setSaveKey, writeSave } from '../../src/ui/save';
@@ -190,7 +190,7 @@ describe('v0.16.0 — contas locais e ADM', () => {
     expect(d.deck.filter((id) => !id.startsWith('f-')).length).toBeGreaterThanOrEqual(10);
     expect(d.deck.some((id) => id.startsWith('f-'))).toBe(true);
     expect(d.deck.reduce((n, id) => n + (d.copies?.[id] ?? 3), 0)).toBe(40);
-    expect(d.cleared).toEqual(STAGES.map((s) => s.id));
+    expect(d.cleared).toEqual(WORLD_STAGES.map((s) => s.id)); // v0.39.0: as 100 fases do mundo
     for (const l of LEADERS) expect(d.leaders![l.id].level).toBe(l.hpByLevel.length);
     setSaveKey(saveKeyFor('adm')); writeSave(d);
     expect(loadSave().cards.kenji).toMatchObject({ stars: getChar('kenji').maxStars, plus: 2 });

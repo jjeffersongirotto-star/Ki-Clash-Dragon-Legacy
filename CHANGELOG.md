@@ -2,6 +2,14 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.39.0] — 28/10/2026 · PR #75 — Mapa do mundo: 100 fases
+- **Mapa do mundo:** a Aventura abre num caminho pontilhado com **10 regiões** (Vale Sereno, Costa do Coral Partido, Selva das Mil Raízes, Dunas de Âmbar, Cordilheira Trovejante, Pântano das Velas Mortas, Cidadela das Engrenagens, Ilhas Flutuantes de Éter, Abismo Estelar e Coroa do Dragão Eterno). Cada uma abre o mapa vertical de 10 fases; a região 1 são as fases de sempre.
+- **90 fases novas** com nomes próprios, baralhos inimigos com os 120 personagens (raça da região em maioria), dificuldade, vida do Comandante e nível da IA subindo; Comandantes com recorte limpo, sem repetir dentro da região.
+- **A região seguinte abre** ao vencer a fase 10 da anterior, em cada dificuldade. Objetivos ⭐ da mesma lista, mais apertados no Normal, no Difícil e da região 6 em diante.
+- **Recompensas crescem** por região (Orbes e itens de raridade maior); **💠 Gemas** nas fases 3, 6, 9 (1) e 10 (3) de cada região.
+- **Curva testada** num jogador simulado de longo prazo (32 jogadores, `scripts/balance/world.ts`): vitória ao chegar 83 · 77 · 75 · 74 · 69 · 63 · 60 · 58 · 53 · 52% (regiões 1 a 10).
+- Save antigo continua igual (é a região 1); a conta de teste ADM tem as 100 fases vencidas.
+
 ## [0.38.0] — 28/10/2026 · PR #74 — Comandantes sem cortes
 - **Triagem das 120 artes:** cada recorte foi conferido lado a lado com a arte. **79 servem** de Comandante (corpo, arma e efeito inteiros) e **41 não** — o motivo de cada uma fica em `src/core/commanders.ts` (ex.: Nyx com o redemoinho pela metade, Zarek com o buraco negro cortado, Masao com a espada de fogo cortada, Quorr sem o escudo e o braço).
 - **Comandantes novos:** a fase 7 passa a ter a **Mei** (antes Zarek) e a fase 9 a **Lyra** (antes Nyx). O redemoinho desenhado por cima da Nyx saiu.
