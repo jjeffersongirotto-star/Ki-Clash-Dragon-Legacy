@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.38.0] — 28/10/2026 · PR #74 — Comandantes sem cortes
+- **Triagem das 120 artes:** cada recorte foi conferido lado a lado com a arte. **79 servem** de Comandante (corpo, arma e efeito inteiros) e **41 não** — o motivo de cada uma fica em `src/core/commanders.ts` (ex.: Nyx com o redemoinho pela metade, Zarek com o buraco negro cortado, Masao com a espada de fogo cortada, Quorr sem o escudo e o braço).
+- **Comandantes novos:** a fase 7 passa a ter a **Mei** (antes Zarek) e a fase 9 a **Lyra** (antes Nyx). O redemoinho desenhado por cima da Nyx saiu.
+- **63 recortes novos** de corpo inteiro, prontos para as próximas fases, cada um com a **altura aparente realista** (gigantes maiores, sentados e agachados menores, ninguém esticado). Saíram os recortes cortados de Nyx, Zarek, Riku, Hana e Ren.
+
 ## [0.37.0] — 28/10/2026 · PR #73 — Adversário esperto
 - **IA esperta (níveis 1–3):** antes de cada jogada o inimigo copia a batalha, testa cada carta pronta em cada casa da zona e cada feitiço em cada alvo, deixa o motor rodar alguns turnos à frente (com a sua resposta prevista) e fica com a jogada de nota mais alta. A nota pesa vida dos Comandantes (com modo PERIGO quando o próprio está baixo → defende), vida/ataque/habilidades das unidades, unidades-chave (curandeiros, auras, guardiões), avanço e ameaças. Assim ele combina habilidades, protege quem importa e escolhe entre atacar e defender.
 - **Treino contra ela mesma:** os pesos da nota foram ajustados por evolução em partidas espelhadas (`scripts/balance/train_ai.ts` → `src/core/aiWeights.ts`).

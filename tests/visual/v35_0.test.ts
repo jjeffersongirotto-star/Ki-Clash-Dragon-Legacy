@@ -17,7 +17,8 @@ describe('v0.35.0 — textos limpos, segurar para ver e Comandantes inteiros', (
       expect(h).not.toContain('ab-scale');
     }
   });
-  it('a Nyx tem o redemoinho desenhado pelo jogo (o da arte saía pela metade)', () => {
-    expect(COMMANDER_LOOK.nyx.fx?.kind).toBe('swirl');
+  // v0.38.0: em vez de desenhar o redemoinho por cima, a Nyx deixou de ser Comandante (ver v38_0.test.ts)
+  it('a Nyx não está mais na tabela de Comandantes (o redemoinho da arte saía pela metade)', () => {
+    expect(COMMANDER_LOOK.nyx).toBeUndefined();
   });
 });
