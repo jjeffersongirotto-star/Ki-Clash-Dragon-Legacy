@@ -61,7 +61,7 @@ export function distanceToEnemyHero(state: BattleState, u: Unit): number {
 }
 
 /**
- * Mira. Regras (arena 2 × 12):
+ * Mira. Regras (arena 2 × 10):
  * - Ninguém ataca unidades da OUTRA fileira, exceto as habilidades diagonais (Corte Diagonal / Golpe Reverso)
  *   e o respingo lateral da Explosão de Brasas.
  * - Básico: inimigo na casa logo à frente (alcance 1). Longo alcance: o inimigo MAIS PRÓXIMO até 4 casas à frente (v0.16.0).

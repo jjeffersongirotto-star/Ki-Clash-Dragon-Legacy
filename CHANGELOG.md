@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.36.0] — 28/10/2026 · PR #72 — Arena de 10 casas
+- **Arena 2 × 10** (antes 2 × 12): cada lado continua invocando nas 3 colunas da sua ponta; as batalhas ficam mais curtas e mais diretas.
+- **Campanha reequilibrada** no simulador para a arena nova (vida e degraus do inimigo por fase): vitória ao chegar 95/97/89/91/83/78/78/67/67/69% (antes 98/99/87/90/72/81/77/65/64/67%).
+- **Tutorial:** a Batalha 2 tem 1 Tobi a menos (com a arena menor o inimigo chegava rápido demais); continua sempre igual e vencível.
+- Simulador novo `scripts/balance/arena.ts` compara tamanhos de arena (12, 10, 7 casas).
+
 ## [0.35.0] — 28/10/2026 · PR #71 — Textos limpos, segurar para ver a descrição e Comandantes inteiros
 - **Textos das habilidades:** saíram as notas técnicas (ex.: "(v0.17.0: a resistência é habilidade…)") e a linha "🎨 Por raridade" embaixo de cada habilidade. Fica o nome, o que faz e o valor de agora.
 - **Batalha:** tocar numa carta ou unidade só escolhe/joga; a **descrição abre só ao segurar** (~0,45 s, toque ou clique) e, no PC, também com o **botão direito**.

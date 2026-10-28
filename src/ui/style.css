@@ -7,7 +7,7 @@
   --gold: #ffcf4a;
   --p: #2fb8ff;
   --e: #ff3d6e;
-  --ncols: 12;
+  --ncols: 10;
   --cell: clamp(24px, min(calc((100vw - 120px) / var(--ncols)), calc((100dvh - 340px) / 2)), 98px);
   font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
   color: var(--text);

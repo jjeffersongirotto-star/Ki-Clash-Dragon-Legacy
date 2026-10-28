@@ -24,7 +24,7 @@ export { rangeOf, hasRangeBonus, auraPenalty, FURY_START, FURY_EVERY, furyBonus,
 export { SALTO_MOVE, moveRange, leapLanding, moveUnit } from './battleMove';
 
 export const ROWS = 2;
-export const COLS = 12;
+export const COLS = 10; // v0.36.0: arena 2 × 10 (antes 2 × 12)
 export const DEPLOY_DEPTH = 3;
 export const HAND_MAX = HAND_SIZE;
 /**

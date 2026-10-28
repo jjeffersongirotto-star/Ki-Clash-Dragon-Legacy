@@ -120,8 +120,8 @@ describe('v0.28.0 — Comandante inimigo de cada fase', () => {
 
 describe('v0.28.0 — reequilíbrio do Fácil', () => {
   it('degraus, vida do Comandante e feitiços da tabela nova (v0.33.0: reequilibrada de novo)', () => {
-    expect(ENEMY_STEPS).toEqual([3.34, 3.25, 0.5, 1.5, 0, 0, 1.5, 0, 0, 0]);
-    expect(ENEMY_HERO_HP).toEqual([16, 20, 18, 32, 22, 40, 47, 52, 56, 74]);
+    expect(ENEMY_STEPS).toEqual([2.8, 1, 0.5, 1.5, 1.5, 0, 1.5, 0, 0, 0]); // v0.36.0: arena de 10 colunas
+    expect(ENEMY_HERO_HP).toEqual([14, 14, 18, 32, 30, 37, 56, 62, 72, 106]);
     expect(STAGES.map((s) => s.enemyHeroHp)).toEqual(ENEMY_HERO_HP);
   });
 });
