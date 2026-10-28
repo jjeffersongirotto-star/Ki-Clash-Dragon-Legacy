@@ -6,6 +6,9 @@ import { dropAction, ghostTransform, shouldStartDrag } from './drag';
 import { cardHTML, spellCardHTML } from './components';
 import type { BattleView } from './battleView';
 
+/** v0.35.0: tempo segurando (toque ou clique) para abrir a descrição da carta/unidade. */
+export const HOLD_MS = 450;
+
 export function renderHand(view: BattleView) {
   const s = view.state;
   const hand = view.root.querySelector('#hand')!;
@@ -20,8 +23,8 @@ export function renderHand(view: BattleView) {
     .join('') || '<div class="empty-hand">Sem cartas na mão</div>';
   hand.querySelectorAll<HTMLElement>('.hand-card').forEach((el) => {
     const i = +el.dataset.i!;
-    // segurar a carta (~0,5 s) abre os detalhes; tocar seleciona; tocar de novo tira a seleção;
-    // v0.14.4: ARRASTAR a carta até uma casa da sua zona também invoca (toque e mouse)
+    // v0.35.0: tocar só seleciona (tocar de novo tira a seleção); a descrição abre só ao SEGURAR (~0,45 s)
+    // ou com o botão direito no PC. v0.14.4: ARRASTAR a carta até uma casa da sua zona também invoca.
     let timer: ReturnType<typeof setTimeout> | undefined;
     const cancel = () => clearTimeout(timer);
     let drag: { id: number; x0: number; y0: number; gx: number; gy: number; ghost?: HTMLElement; over?: HTMLElement | null } | null = null;
@@ -29,12 +32,12 @@ export function renderHand(view: BattleView) {
       cancel();
       view.suppressClick = false;
       timer = setTimeout(() => {
-        const c = s.decks.player.hand[i];
-        if (!c || drag?.ghost) return;
+        if (!s.decks.player.hand[i] || drag?.ghost) return;
         drag = null;
         view.suppressClick = true;
-        view.openCardModal(c, 'player');
-      }, 500);
+        view.showCardInfo(i);
+        view.onInfo?.('card', i);
+      }, HOLD_MS);
       drag = null;
       if (view.busy || s.winner || s.active !== 'player' || (ev.pointerType === 'mouse' && ev.button !== 0)) return;
       const r = el.getBoundingClientRect();
@@ -86,7 +89,14 @@ export function renderHand(view: BattleView) {
     el.addEventListener('pointerleave', () => {
       if (!drag?.ghost) cancel();
     });
-    el.addEventListener('contextmenu', (e) => e.preventDefault());
+    el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      cancel();
+      if (!s.decks.player.hand[i] || drag?.ghost) return;
+      drag = null;
+      view.showCardInfo(i);
+      view.onInfo?.('card', i);
+    });
     el.addEventListener('click', () => {
       if (view.suppressClick) {
         view.suppressClick = false;
@@ -97,7 +107,6 @@ export function renderHand(view: BattleView) {
         return;
       }
       view.selected = i;
-      view.showCardInfo(i);
       view.renderHand();
       view.highlight();
     });

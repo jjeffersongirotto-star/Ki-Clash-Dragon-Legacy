@@ -381,7 +381,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .divider::before, .divider::after { content: ''; flex: 1; height: 2px; background: linear-gradient(90deg, transparent, #3a4580, transparent); }
 .cat-tag { display: inline-block; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 6px; padding: 1px 6px; font-size: 12px; font-weight: 700; vertical-align: middle; }
 .ab-now { display: inline-block; margin-left: 4px; color: #7dff9a; font-size: 12px; font-weight: 700; }
-.ab-scale { color: var(--muted); font-size: 12px; margin-top: 1px; }
 .slot em { position: absolute; top: 2px; right: 3px; font-style: normal; font-size: 13px; }
 .mini-card .mc-cat { position: absolute; top: 2px; right: 2px; font-style: normal; font-size: 12px; }
 .float.heal { color: #7dff9a; }
@@ -1402,9 +1401,23 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .hero-cut.flip img { animation-name: cutBreathFlip; }
 @keyframes cutBreath { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.012, 1.03); } }
 @keyframes cutBreathFlip { 0%, 100% { transform: scale(-1, 1); } 50% { transform: scale(-1.012, 1.03); } }
+/* v0.35.0: Comandante com efeito do jogo (ex.: redemoinho da Nyx): o recorte e o efeito ficam juntos numa caixa
+   do tamanho da imagem; o espelho vale para os dois e o efeito gira atrás da mão */
+.hero-cut.has-fx { display: flex; justify-content: center; align-items: flex-end; }
+.hero-cut.has-fx .cut-in { position: relative; height: 100%; max-width: 100%; }
+.hero-cut.has-fx.flip .cut-in { transform: scaleX(-1); }
+.hero-cut.has-fx.flip img { animation-name: cutBreath; }
+.cmd-swirl { position: absolute; transform: translate(-50%, -50%); aspect-ratio: 1; overflow: visible; pointer-events: none; z-index: 2;
+  mix-blend-mode: screen; animation: cmdSwirl 2.4s linear infinite; }
+.cmd-swirl .sw-glow { stroke: var(--fx); stroke-width: 9; opacity: .35; filter: blur(2.5px); }
+.cmd-swirl .sw-core { stroke: color-mix(in srgb, var(--fx) 55%, #fff); stroke-width: 3.2; filter: drop-shadow(0 0 3px var(--fx)); }
+.cmd-swirl circle { fill: color-mix(in srgb, var(--fx) 40%, #fff); filter: drop-shadow(0 0 6px var(--fx)) drop-shadow(0 0 12px var(--fx)); }
+@keyframes cmdSwirl { to { transform: translate(-50%, -50%) rotate(-360deg); } }
 @media (prefers-reduced-motion: reduce) {
   .hero-cut img { animation: none; }
   .hero-cut.flip img { transform: scaleX(-1); }
+  .hero-cut.has-fx.flip img { transform: none; }
+  .cmd-swirl { animation: none; }
 }
 
 /* v0.31.0: janela de detalhes da carta — ✕ no canto, ações em "cards" ao lado da carta, sem rolar no celular em pé */

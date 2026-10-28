@@ -46,6 +46,8 @@ export class BattleView {
   infoUid: number | null = null;
   /** long-press abriu os detalhes: ignora o clique que vem logo depois */
   suppressClick = false;
+  /** v0.35.0: avisa quando a descrição foi aberta segurando (o tutorial usa) */
+  onInfo?: (kind: 'card' | 'unit', id: number) => void;
   /** v0.10.1: saiu da batalha — animações/turnos pendentes param e o fim da luta não é mais anunciado */
   disposed = false;
   cb: BattleCallbacks;
@@ -335,18 +337,16 @@ export class BattleView {
   async onCell(r: number, c: number) {
     if (this.busy) return;
     const u = unitAt(this.state, r, c);
-    if (this.selected == null) {
-      if (u) this.showUnitInfo(u);
-      return;
-    }
+    // v0.35.0: tocar numa casa/unidade sem carta escolhida não abre mais a descrição (só segurando)
+    if (this.selected == null) return;
     const res = this.useCard(this.selected, r, c);
     if (!res.ok) {
+      this.toast(res.reason ?? 'Inválido');
       if (u) {
-        this.showUnitInfo(u);
         this.selected = null;
         this.renderHand();
         this.highlight();
-      } else this.toast(res.reason ?? 'Inválido');
+      }
       return;
     }
     this.selected = null;

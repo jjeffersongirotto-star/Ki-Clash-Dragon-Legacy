@@ -60,7 +60,7 @@ export const TUTORIAL_TIPS: { icon: string; title: string; text: string }[][] = 
     { icon: '❤', title: 'Vida do Comandante', text: 'As barras lá em cima mostram a vida dos dois Comandantes. Se a sua chegar a 0, você perde.' },
   ],
   [
-    { icon: '✨', title: 'Habilidades', text: 'Cada personagem tem habilidades. Segure uma carta (ou toque numa unidade) para ver o que ela faz.' },
+    { icon: '✨', title: 'Habilidades', text: 'Cada personagem tem habilidades. Segure uma carta ou unidade para ver o que ela faz.' },
     { icon: '➕', title: 'Sora', text: 'A Sora ataca de longe (até 4 casas na fileira dela) e cura o aliado mais ferido da fileira. Deixe-a atrás dos outros.' },
     { icon: '🌙', title: 'Nara', text: 'A Nara também acerta o inimigo na diagonal logo à frente (na outra fileira).' },
     { icon: '👀', title: 'Inimigos', text: 'Daichi devolve dano a quem o ataca de frente, Hana atira de longe e Tobi dá ataque aos vizinhos. Derrube a Hana e o Tobi primeiro!' },
@@ -77,14 +77,16 @@ export const POST_TUTORIAL_CHARS = TUTORIAL_CHARS.length;
 export const TUTORIAL_SEEDS = [20261027, 20261028];
 
 /** O que o tutorial pede agora: tocar numa carta da mão, numa casa, em LUTAR, ou só assistir. */
-export type GuideAction = { kind: 'card'; hand: number; charId: string } | { kind: 'cell'; r: number; c: number; charId: string } | { kind: 'fight' } | { kind: 'watch' };
+export type GuideAction = { kind: 'hold'; hand: number; charId: string } | { kind: 'card'; hand: number; charId: string } | { kind: 'cell'; r: number; c: number; charId: string } | { kind: 'fight' } | { kind: 'watch' };
 
 /** Memória do roteiro: turno atual e quantas cartas já tinham sido usadas no começo dele. */
 export interface GuideMemo {
   turn: number;
   cardsAtTurn: number;
+  /** v0.35.0: já segurou uma carta para ver a descrição (passo da Batalha 2) */
+  held: boolean;
 }
-export const newGuideMemo = (): GuideMemo => ({ turn: -1, cardsAtTurn: 0 });
+export const newGuideMemo = (): GuideMemo => ({ turn: -1, cardsAtTurn: 0, held: false });
 
 /** Batalha 2: ordem das primeiras invocações e a casa de cada uma (fileira, coluna). */
 const PLAN2: { id: string; r: number; c: number }[] = [
@@ -112,6 +114,8 @@ export function guideStep(i: 0 | 1, s: BattleState, selected: number | null, mem
     const n = cardsUsed(s);
     const plan = i === 1 ? PLAN2[n] : undefined;
     const pick = (plan && ready.find(({ h }) => h.charId === plan.id)) || ready[0];
+    // v0.35.0: antes da 1ª invocação da Batalha 2, ensina a SEGURAR a carta para ver a descrição
+    if (i === 1 && n === 0 && !memo.held) return { kind: 'hold', hand: pick.k, charId: pick.h.charId };
     if (selected !== pick.k) return { kind: 'card', hand: pick.k, charId: pick.h.charId };
     const want = plan && pick.h.charId === plan.id && cells.some(([r, c]) => r === plan.r && c === plan.c) ? [plan.r, plan.c] : [...cells].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
     return { kind: 'cell', r: want[0], c: want[1], charId: pick.h.charId };
@@ -119,9 +123,13 @@ export function guideStep(i: 0 | 1, s: BattleState, selected: number | null, mem
   return { kind: 'fight' };
 }
 
-/** Texto do passo (muda conforme o que já foi feito). */
-export function guideText(i: 0 | 1, a: GuideAction, s: BattleState): string {
+/** Texto do passo (muda conforme o que já foi feito). `touch` = celular/tablet (toque) ou PC (mouse). */
+export function guideText(i: 0 | 1, a: GuideAction, s: BattleState, touch = true): string {
   const n = cardsUsed(s);
+  if (a.kind === 'hold')
+    return touch
+      ? 'Para ver o que uma carta faz, <b>toque e segure</b> a carta do <b>Riku</b> até aparecer a descrição.'
+      : 'Para ver o que uma carta faz, <b>clique e segure</b> a carta do <b>Riku</b> (ou clique com o <b>botão direito</b>) até aparecer a descrição.';
   if (a.kind === 'watch') return s.winner ? '' : 'Veja o que acontece: seus personagens andam e atacam, depois o inimigo joga.';
   if (i === 0) {
     if (a.kind === 'card') return n === 0 ? 'Esta é a sua <b>mão</b>. Toque na carta do <b>Riku</b> para escolhê-la.' : 'Chegou carta nova na mão. Toque nela para invocar mais um <b>Riku</b>.';
@@ -131,7 +139,7 @@ export function guideText(i: 0 | 1, a: GuideAction, s: BattleState): string {
     return 'Continue! Toque em <b>LUTAR</b> até derrubar o Comandante inimigo.';
   }
   if (a.kind === 'card') {
-    if (n === 0) return 'Agora você tem 3 personagens. Comece pelo <b>Riku</b>: toque na carta dele.';
+    if (n === 0) return 'Isso! A descrição mostra as habilidades (vale também para as unidades em campo). Agora <b>toque</b> (sem segurar) na carta do <b>Riku</b> para escolhê-la.';
     if (n === 1) return 'A <b>Sora</b> ataca de longe (até 4 casas) e cura o aliado mais ferido da fileira. Toque na carta da Sora.';
     if (n === 2) return 'A <b>Nara</b> também acerta o inimigo na <b>diagonal</b> logo à frente. Toque na carta da Nara.';
     return 'Invoque a carta pronta: toque nela e depois na casa destacada.';
@@ -143,5 +151,5 @@ export function guideText(i: 0 | 1, a: GuideAction, s: BattleState): string {
     return 'Toque na casa destacada.';
   }
   if (n >= 3 && s.turn <= 4) return 'Os inimigos também têm habilidades: <b>Daichi</b> devolve dano, <b>Hana</b> atira de longe e <b>Tobi</b> dá ataque aos vizinhos. Toque em <b>LUTAR</b>.';
-  return 'Toque em <b>LUTAR</b>. Dica: fora do tutorial, segure uma carta para ver as habilidades dela e use o <b>Auto</b> para jogar mais rápido.';
+  return 'Toque em <b>LUTAR</b>. Dica: segure uma carta ou unidade para ver as habilidades e use o <b>Auto</b> para jogar mais rápido.';
 }

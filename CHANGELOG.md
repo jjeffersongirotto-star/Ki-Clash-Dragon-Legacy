@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.35.0] — 28/10/2026 · PR #71 — Textos limpos, segurar para ver a descrição e Comandantes inteiros
+- **Textos das habilidades:** saíram as notas técnicas (ex.: "(v0.17.0: a resistência é habilidade…)") e a linha "🎨 Por raridade" embaixo de cada habilidade. Fica o nome, o que faz e o valor de agora.
+- **Batalha:** tocar numa carta ou unidade só escolhe/joga; a **descrição abre só ao segurar** (~0,45 s, toque ou clique) e, no PC, também com o **botão direito**.
+- **Tutorial:** a Batalha 2 começa ensinando a segurar a carta do Riku, com texto próprio para celular ("toque e segure") e PC ("clique e segure, ou botão direito").
+- **Comandantes inteiros:** recortes revisados um por um. Nyx: o pedaço solto do redemoinho saiu e o jogo desenha um **redemoinho girando** na mão dela. Zarek: o anel de eclipse, que saía pela metade, agora vem inteiro. Daichi: o pé esquerdo, que tinha sido recortado só como contorno, voltou inteiro (e saíram as rachaduras soltas do chão).
+
 ## [0.34.1] — 27/10/2026 · PR #70 — Tela inicial centralizada
 - **Celular em pé:** o conteúdo da tela inicial fica centralizado na altura, com a mesma faixa vazia em cima e embaixo (antes ficava colado em cima e sobrava espaço embaixo).
 
