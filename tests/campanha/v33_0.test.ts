@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createBattle, PLAYER_HERO_HP_FOR_TEST } from './v33_helpers';
 import { playerEndTurn, playerUse } from '../../src/core/match';
-import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_SEEDS, TUTORIAL_STARTER, guideStep, guideText, newGuideMemo } from '../../src/core/tutorial';
+import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_SEEDS, TUTORIAL_SPELL, TUTORIAL_SPELL_COPIES, TUTORIAL_STARTER, guideStep, guideText, newGuideMemo } from '../../src/core/tutorial';
 import { GEMS_BY_STAGE, gemsFor } from '../../src/core/adventure';
 import { STAGES } from '../../src/core/campaign';
 
@@ -9,7 +9,8 @@ import { STAGES } from '../../src/core/campaign';
 function playGuided(i: 0 | 1) {
   const ids = i === 0 ? [TUTORIAL_STARTER] : TUTORIAL_CHARS;
   const s = createBattle({
-    playerDeck: ids.map((charId) => ({ charId, stars: 1, plus: 0, copies: 3 })),
+    // v0.41.0: a Batalha 2 tem o feitiço do pacote do tutorial
+    playerDeck: [...ids.map((charId) => ({ charId, stars: 1, plus: 0, copies: 3 })), ...(i === 1 ? [{ charId: TUTORIAL_SPELL, stars: 1, copies: TUTORIAL_SPELL_COPIES }] : [])],
     enemyDeck: TUTORIAL_BATTLES[i].enemyDeck,
     playerHeroHp: PLAYER_HERO_HP_FOR_TEST,
     enemyHeroHp: TUTORIAL_BATTLES[i].enemyHeroHp,

@@ -14,6 +14,7 @@ import { STAGES_PER_REGION, localOf, regionOf } from './world';
 import type { CardInstance } from './types';
 import { bagXp, orbXp, type OrbBag, type XpItemId } from './progression';
 import { stageGearDrop } from './gear';
+import { spellsAt } from './spells';
 
 export type Difficulty = 'facil' | 'normal' | 'dificil';
 export const DIFFICULTIES: Difficulty[] = ['facil', 'normal', 'dificil'];
@@ -286,6 +287,24 @@ export const FIRST_WIN_XP_MULT = 2;
 /** v0.33.0: 💠 Gemas de Invocação na PRIMEIRA vitória da fase (em cada dificuldade): fases 3, 6 e 9 = 1; fase 10 = 3. v0.39.0: em cada região. */
 export const GEMS_BY_STAGE: Record<number, number> = { 3: 1, 6: 1, 9: 1, 10: 3 };
 export const gemsFor = (stageId: number) => GEMS_BY_STAGE[localOf(stageId)] ?? 0;
+
+/**
+ * v0.41.0: ✦ carta de feitiço na PRIMEIRA vitória das fases 2, 5 e 8 de cada região (em cada dificuldade).
+ * A raridade sobe com a região e a dificuldade: Fácil = Comum nas regiões 1–3, Incomum nas 4–6, Raro nas 7–9 e
+ * Épico na 10; o Normal começa 1 raridade acima e o Difícil 2 (até Épico). Dentro da raridade, os feitiços se
+ * revezam em ordem (o mesmo feitiço pode vir de novo: a cópia a mais vale no baralho, até 3).
+ */
+export const SPELL_REWARD_STAGES = [2, 5, 8];
+export const SPELL_REWARD_BASE: Record<Difficulty, number> = { facil: 1, normal: 2, dificil: 3 };
+export function spellRewardRarity(stageId: number, diff: Difficulty): number {
+  return Math.min(4, SPELL_REWARD_BASE[diff] + Math.floor((regionOf(stageId) - 1) / 3));
+}
+export function spellRewardFor(stageId: number, diff: Difficulty): string | undefined {
+  const k = SPELL_REWARD_STAGES.indexOf(localOf(stageId));
+  if (k < 0) return undefined;
+  const ids = spellsAt(spellRewardRarity(stageId, diff));
+  return ids[(k + SPELL_REWARD_STAGES.length * (regionOf(stageId) - 1)) % ids.length];
+}
 
 /** Chances no Difícil, por vitória ou Repetir (independentes). */
 export const HARD_LEGENDARY_CHANCE = 0.1;

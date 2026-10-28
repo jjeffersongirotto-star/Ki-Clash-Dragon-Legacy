@@ -12,11 +12,12 @@
  */
 import { simulate } from './sim';
 import { STAGES as CAMPAIGN, STAGE_PACKS, stagePack, type Stage } from '../../src/core/campaign';
-import { BANNERS, feedCopy, pull } from '../../src/core/banner';
+import { BANNERS, bankXp, feedCopy, generalXp, pull } from '../../src/core/banner';
+import { isSpell } from '../../src/core/spells';
 import { STARTER_IDS } from '../../src/core/characters';
-import { TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_REWARD, tutorialGear } from '../../src/core/tutorial';
+import { TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_REWARD, TUTORIAL_SPELL, TUTORIAL_SPELL_COPIES, tutorialGear } from '../../src/core/tutorial';
 import { newOwned, feedXp, ascend, canAscend, ascendCost, barFull, isMaxTier, stepIndex, xpProgress, XP_ITEMS, playXp, type OwnedCard } from '../../src/core/progression';
-import { FIRST_WIN_XP_MULT, gemsFor, rewardsFor } from '../../src/core/adventure';
+import { FIRST_WIN_XP_MULT, gemsFor, rewardsFor, spellRewardFor } from '../../src/core/adventure';
 import { addGear, gearCount, gearNeeded, hasGearFor, spendGearFor, stageGearDrop, type GearBag } from '../../src/core/gear';
 import { FIRST_WIN_MULT, goldFor } from '../../src/core/profile';
 import { GEAR_PRICE } from '../../src/core/shop';
@@ -28,7 +29,7 @@ export interface Schedule { name: string; hp: number[]; thresholds: number[]; en
 
 const XP = Object.fromEntries(XP_ITEMS.map((i) => [i.id, i.xp])) as Record<string, number>;
 
-interface Player { cards: Record<string, OwnedCard>; items: Record<string, number>; ess: number; cleared: number; leader: number; gear: GearBag; gold: number; copies: Record<string, number>; rng: () => number }
+interface Player { cards: Record<string, OwnedCard>; items: Record<string, number>; ess: number; cleared: number; leader: number; gear: GearBag; gold: number; copies: Record<string, number>; spells: Record<string, number>; bank: { xp: number }; rng: () => number }
 
 /** v0.25.0: SIM_OLD_START=1 começa como antes do tutorial (todos os de Comum, sem pacotes de Comum nas fases). */
 const SIM_OLD_START = process.env.SIM_OLD_START === '1';
@@ -46,13 +47,18 @@ const asDeck = (t: OwnedCard[]): CardInstance[] => t.map((c) => ({ charId: c.cha
  * (1 + fases vencidas) abre espaço além de 30, até 4 cartas de feitiço (2 feitiços × 2) que combinam com a equipe.
  * (Encher o resto do espaço dilui as melhores cartas: no simulador até uma 11ª carta de personagem piora.)
  * SIM_SPELLS=0 desliga os feitiços (para comparar).
+ * v0.41.0: só os feitiços que o jogador tem (tutorial, fases 2/5/8 e Banner), com até 2 cópias e não mais do que tem.
+ * SIM_ALL_SPELLS=1 volta ao jeito antigo (todos os feitiços liberados). SIM_TUT_SPELL=<id> troca o feitiço do
+ * tutorial (SIM_TUT_SPELL=none: sem feitiço no tutorial).
  */
 const SIM_SPELLS = process.env.SIM_SPELLS !== '0';
+const SIM_ALL_SPELLS = process.env.SIM_ALL_SPELLS === '1';
+const SIM_TUT_SPELL = process.env.SIM_TUT_SPELL ?? TUTORIAL_SPELL;
 const battleDeck = (p: Player, cleared: number): CardInstance[] => {
   const max = deckMaxFor(profileLevelFor(cleared));
   const owned = asDeck(team(p));
   const room = Math.max(0, max - 3 * owned.length);
-  const deck = SIM_SPELLS ? autoDeck(owned, 3 * owned.length + Math.min(4, room), Math.min(4, room)) : autoDeck(owned, Math.min(max, 3 * owned.length), 0);
+  const deck = SIM_SPELLS ? autoDeck(owned, 3 * owned.length + Math.min(4, room), Math.min(4, room), SIM_ALL_SPELLS ? undefined : p.spells) : autoDeck(owned, Math.min(max, 3 * owned.length), 0);
   // v0.32.0: o baralho só usa as cópias que o jogador tem (até 3)
   return deck.map((c) => (c.charId.startsWith('f-') ? c : { ...c, copies: Math.max(1, Math.min(c.copies ?? 3, p.copies[c.charId] ?? 3)) }));
 };
@@ -64,6 +70,12 @@ const battleDeck = (p: Player, cleared: number): CardInstance[] => {
 function pullCards(p: Player, n: number) {
   for (let k = 0; k < n; k++)
     for (const c of pull(BANNERS[0], 1, p.rng)) {
+      // v0.41.0: feitiço do banner — até 3 cópias; a partir daí, desmancha (geral) em Orbes
+      if (isSpell(c.charId)) {
+        if ((p.spells[c.charId] ?? 0) < 3) p.spells[c.charId] = (p.spells[c.charId] ?? 0) + 1;
+        else bankXp(p.bank, generalXp(c.stars), p.items);
+        continue;
+      }
       if (!p.cards[c.charId]) { p.cards[c.charId] = { ...newOwned(c.charId), stars: c.stars, plus: 0 }; p.copies[c.charId] = 1; }
       else if ((p.copies[c.charId] ?? 1) < 3) p.copies[c.charId] = (p.copies[c.charId] ?? 1) + 1;
       else feedCopy(p.cards[c.charId], c.stars, 0, p.rng, p.items);
@@ -128,6 +140,9 @@ function reward(p: Player, i: number, first: boolean, repeatMult = 0.5) {
   if (first && STAGE_PACKS) for (const id of stagePack(i + 1)) if (!p.cards[id]) { p.cards[id] = newOwned(id); p.copies[id] = 3; }
   // v0.33.0: 💠 Gemas na primeira vitória (fases 3, 6, 9 e 10) viram cartas do banner
   if (first) pullCards(p, gemsFor(i + 1));
+  // v0.41.0: ✦ feitiço na primeira vitória das fases 2, 5 e 8 de cada região
+  const sp = first ? spellRewardFor(i + 1, 'facil') : undefined;
+  if (sp) p.spells[sp] = (p.spells[sp] ?? 0) + 1;
 }
 
 /** v0.22.0: XP por jogar — ao vencer jogando, a equipe ganha XP (SIM_PLAYXP=0 desliga, para comparar). */
@@ -158,13 +173,15 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
   for (let pi = opts.firstPlayer ?? 0; pi < (opts.firstPlayer ?? 0) + players; pi++) {
     opts.onPlayer?.(pi);
     let rs = 1000 + pi * 7919;
-    const p: Player = { cards: {}, items: SIM_OLD_START ? { orbe1: 10, orbe3: 3 } : {}, ess: SIM_OLD_START ? 10 : 0, cleared: 0, leader: 1, gear: {}, gold: 0, copies: {}, rng: () => ((rs = (rs * 16807) % 2147483647) / 2147483647) };
+    const p: Player = { cards: {}, items: SIM_OLD_START ? { orbe1: 10, orbe3: 3 } : {}, ess: SIM_OLD_START ? 10 : 0, cleared: 0, leader: 1, gear: {}, gold: 0, copies: {}, spells: {}, bank: { xp: 0 }, rng: () => ((rs = (rs * 16807) % 2147483647) / 2147483647) };
     if (SIM_OLD_START) for (const id of STARTER_IDS) p.cards[id] = newOwned(id);
     else {
       // v0.25.0: jogador que acabou o tutorial — Riku, Sora e Nara e a recompensa do tutorial
       for (const id of TUTORIAL_CHARS) p.cards[id] = newOwned(id);
       for (const [id, k] of Object.entries(TUTORIAL_REWARD.orbs)) p.items[id] = (p.items[id] ?? 0) + (k ?? 0);
       p.ess += TUTORIAL_REWARD.essencias;
+      // v0.41.0: o feitiço do pacote do tutorial
+      if (SIM_TUT_SPELL !== 'none') p.spells[SIM_TUT_SPELL] = TUTORIAL_SPELL_COPIES;
       for (const [k, n] of Object.entries(tutorialGear())) p.gear[k] = (p.gear[k] ?? 0) + n;
       // v0.33.0: o tutorial também dá 2 Gemas (2 cartas do banner)
       pullCards(p, TUTORIAL_GEMS);

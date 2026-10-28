@@ -28,7 +28,13 @@ describe('v0.32.0 — cópias guardadas, baralho com as cópias que você tem e 
     expect(maxCopiesFor(d, 'sora')).toBe(3);
     expect(setCopies(d, 'sora', 3)).toBe(3);
     expect(copiesIn(d, 'sora')).toBe(3);
-    expect(maxCopiesFor(d, 'f-chuva')).toBe(3); // feitiço: sempre até 3
+    // v0.41.0: feitiço também só até as cópias que você tem
+    expect(maxCopiesFor(d, 'f-chuva')).toBe(1);
+    expect(addToDeck(d, 'f-chuva')).toBe(0); // não tem
+    d.spells = { 'f-chuva': 2 };
+    expect(maxCopiesFor(d, 'f-chuva')).toBe(2);
+    d.spells['f-chuva'] = 7;
+    expect(maxCopiesFor(d, 'f-chuva')).toBe(3);
   });
 
   it('mínimo do baralho conta as cópias que dá para usar', () => {

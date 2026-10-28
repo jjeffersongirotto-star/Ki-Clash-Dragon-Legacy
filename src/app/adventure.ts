@@ -8,13 +8,13 @@ import { REGIONS, REGION_COUNT, STAGES_PER_REGION, localOf, regionOf, regionStag
 import { XP_ITEMS, playXp, feedXp, stepOf } from '../core/progression';
 import { leaderHp } from '../core/leaders';
 import { BattleView } from '../ui/battleView';
-import { energyHTML, gemHTML, goldHTML, gearHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, esc, raceHTML, starStyle, tierHTML } from '../ui/components';
+import { energyHTML, gemHTML, goldHTML, gearHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, esc, raceHTML, spellCardHTML, spellCastersLabel, starStyle, tierHTML } from '../ui/components';
 import { getSpell, isSpell } from '../core/spells';
 import { gameAlert, showDialog } from '../ui/dialog';
 import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
-import { MAX_COPIES, addToDeck, deckMin, deckCards, deckCount, deckIssue, deckMax, teamReady } from '../ui/save';
+import { MAX_COPIES, addToDeck, copiesIn, maxCopiesFor, setCopies, deckMin, deckCards, deckCount, deckIssue, deckMax, teamReady } from '../ui/save';
 import { GEAR_RARE_CHANCE, addGear, stageGearDrop, stageGearIds, stageGearRarity } from '../core/gear';
-import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, gemsFor, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, regionUnlocked, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from '../core/adventure';
+import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, gemsFor, spellRewardFor, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, regionUnlocked, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from '../core/adventure';
 import { enemyCommanderArt } from '../ui/art';
 import { grantCard, type GrantResult } from '../core/banner';
 import { ENERGY_COST, energyMax, goldFor, profileXpFor, spendEnergy } from '../core/profile';
@@ -221,7 +221,7 @@ export function stageDialog(stageId: number) {
       ${enemyCommanderArt(stageCommander(st), 'stage-cmd')}
       <p class="stage-diff">${REGIONS[regionOf(st.id) - 1].icon} ${esc(REGIONS[regionOf(st.id) - 1].name)} · Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
       <p class="stage-line">Comandante inimigo ❤${st.enemyHeroHp} · Inimigos até ${(() => { const top = foes.reduce((a, c) => (c.stars * 3 + stepOf(c) > a.stars * 3 + stepOf(a) ? c : a)); return tierHTML(top.stars, stepOf(top)); })()}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</p>
-      <p class="stage-line">Recompensa: ✴${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && gemsFor(st.id) ? ` · 1ª vitória: ${gemHTML(`+${gemsFor(st.id)}`)} ${gemsFor(st.id) > 1 ? 'Gemas' : 'Gema'} de Invocação` : ''}</p>
+      <p class="stage-line">Recompensa: ✴${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && gemsFor(st.id) ? ` · 1ª vitória: ${gemHTML(`+${gemsFor(st.id)}`)} ${gemsFor(st.id) > 1 ? 'Gemas' : 'Gema'} de Invocação` : ''}${!done && spellRewardFor(st.id, diff) ? (() => { const sp = getSpell(spellRewardFor(st.id, diff)!); return ` · 1ª vitória: <span class="spell-pill" style="${starStyle(sp.rarity)}">✦ ${sp.icon} ${esc(sp.name)}</span> <small>(feitiço ${STAR_COLORS[sp.rarity].label})</small>`; })() : ''}</p>
       <p class="stage-line">Itens: ${(() => { const [lo, hi] = stageGearRarity(stageId, diff); return `${stageGearIds(stageId).map((id) => gearHTML(id, lo)).join(' ')} <small>${hi > lo ? `${100 - GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[lo].label} · ${GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[hi].label}` : `100% ${STAR_COLORS[lo].label}`}</small>`; })()}</p>
       <ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}</li>`).join('')}</ul>
       <p class="stage-line">Por vitória ou Repetir: ${goldHTML(goldFor(stageId, diff))} · 👤 +${profileXpFor(stageId, diff)} XP de perfil${done ? '' : ' <small>(em dobro na primeira vitória)</small>'} · você tem ${energyHTML(energyNow(), energyMax(prof()))}</p>
@@ -247,8 +247,19 @@ export function stageDialog(stageId: number) {
   });
 }
 
-/** v0.27.0: mostra uma carta recebida (personagem novo ou cópia repetida guardada, v0.32.0). */
+/** v0.27.0: mostra uma carta recebida (personagem novo ou cópia repetida guardada, v0.32.0; v0.41.0: feitiço). */
 export function grantedHTML(g: GrantResult): string {
+  if (isSpell(g.charId)) {
+    const sp = getSpell(g.charId);
+    if (g.isNew) {
+      // só entra sozinho no baralho se já houver lá quem conjure (senão ficaria parado na mão)
+      const caster = save.deck.some((id) => !isSpell(id) && save.cards[id] && sp.categories.includes(getChar(id).category));
+      const joined = caster && addToDeck(save, sp.id) > 0;
+      return `<div class="unlock" style="${starStyle(g.stars)}">${spellCardHTML(sp.id, { compact: true })}<div><b>Novo feitiço!</b><br>${sp.icon} ${esc(sp.name)} · ${tierHTML(g.stars)}<br><small>Conjurador: ${esc(spellCastersLabel(sp))}${joined ? ' · entrou direto no seu baralho' : caster ? '' : ' · coloque no baralho (Coleção) quando tiver quem conjure'}</small></div></div>`;
+    }
+    const joined = save.deck.includes(sp.id) && g.copies <= MAX_COPIES && setCopiesIfRoom(sp.id);
+    return `<div class="unlock dup" style="${starStyle(g.stars)}">${spellCardHTML(sp.id, { compact: true })}<div><b>Repetido:</b> ${sp.icon} ${esc(sp.name)} ${tierHTML(g.stars)}<br>🃏 <b>+1 cópia</b> · agora você tem <b>${g.copies}</b><br><small>${joined ? 'A cópia entrou no seu baralho.' : g.copies > MAX_COPIES ? 'Sobra guardada no 🎒 Inventário (Desmanchar).' : 'Ajuste as cópias no baralho na Coleção.'}</small></div></div>`;
+  }
   const def = getChar(g.charId);
   if (g.isNew) {
     const joined = addToDeck(save, def.id) > 0;
@@ -258,9 +269,20 @@ export function grantedHTML(g: GrantResult): string {
   return `<div class="unlock dup" style="${starStyle(g.stars)}">${cardHTML({ charId: g.charId, stars: g.stars }, { compact: true })}<div><b>Repetido:</b> ${esc(def.name)} ${tierHTML(g.stars)}<br>🃏 <b>+1 cópia</b> · agora você tem <b>${g.copies}</b><br><small>Guardada no 🎒 Inventário (Desmanchar).</small></div></div>`;
 }
 
-/** v0.25.0: dá os personagens do pacote (entram direto no baralho se couber). v0.32.0: o repetido vira mais 1 cópia guardada. */
+/** v0.41.0: feitiço repetido que já está no baralho ganha +1 cópia nele, se couber. */
+function setCopiesIfRoom(id: string): boolean {
+  const cur = copiesIn(save, id);
+  return cur < maxCopiesFor(save, id) && setCopies(save, id, cur + 1) > cur;
+}
+
+/** Entrega uma carta (personagem ou, v0.41.0, feitiço) na raridade inicial dela e mostra o que veio. */
+export function grantOne(id: string): string {
+  return grantedHTML(grantCard(save.cards, { charId: id, stars: isSpell(id) ? getSpell(id).rarity : getChar(id).minStars }, (save.dupes ??= {}), (save.spells ??= {})));
+}
+
+/** v0.25.0: dá as cartas do pacote (entram direto no baralho se couber). v0.32.0: o repetido vira mais 1 cópia guardada. */
 export function grantPack(ids: string[]): string {
-  return ids.map((id) => grantedHTML(grantCard(save.cards, { charId: id, stars: getChar(id).minStars }, (save.dupes ??= {})))).join('');
+  return ids.map(grantOne).join('');
 }
 
 /** Dá a recompensa inteira da fase na dificuldade (vitória ou Repetir; v0.22.0: Orbes pela dificuldade, com as chances do Difícil). */
@@ -375,7 +397,10 @@ export function finishBattle(stageId: number, diff: Difficulty, winner: string, 
     // v0.33.0: no lugar do pacote de personagens, 💠 Gemas de Invocação na primeira vitória (fases 3, 6, 9 e 10)
     const gems = first ? gemsFor(stageId) : 0;
     save.gems = (save.gems ?? 0) + gems;
-    const unlocked = gems ? `<div class="res big"><span>${gemHTML(`+${gems}`)} ${gems > 1 ? 'Gemas' : 'Gema'} de Invocação</span></div><p class="hint">Use na 🏪 Loja: cada gema compra 1 carta do 🎴 Banner.</p>` : '';
+    const gemLine = gems ? `<div class="res big"><span>${gemHTML(`+${gems}`)} ${gems > 1 ? 'Gemas' : 'Gema'} de Invocação</span></div><p class="hint">Use na 🏪 Loja: cada gema compra 1 carta do 🎴 Banner.</p>` : '';
+    // v0.41.0: ✦ carta de feitiço na primeira vitória das fases 2, 5 e 8 de cada região
+    const spell = first ? spellRewardFor(stageId, diff) : undefined;
+    const unlocked = gemLine + (spell ? grantOne(spell) : '');
     // v0.28.0: vencer a fase N libera a mesma fase na dificuldade seguinte (se a anterior dela já foi vencida)
     const nextDiff = DIFFICULTIES[DIFFICULTIES.indexOf(diff) + 1];
     const opened = first && nextDiff && stageUnlocked(save, nextDiff, stageId) ? nextDiff : undefined;
