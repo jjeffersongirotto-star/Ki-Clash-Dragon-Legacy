@@ -1,3 +1,4 @@
+import { ico } from './icons';
 import { esc } from './components';
 
 /**
@@ -10,12 +11,15 @@ export interface DialogButton {
   kind?: 'primary' | 'danger' | 'ghost';
 }
 
+/** v0.42.0: emojis dos avisos que têm ícone desenhado (src/assets/icons). */
+const DIALOG_ICON: Record<string, string> = { '⚠️': 'aviso', '❔': 'ajuda', 'ℹ️': 'detalhes', '🔒': 'bloqueado', '🃏': 'colecao', '✅': 'sucesso', '⚡': 'energia', '🎉': 'celebracao', '📶': 'offline', '📡': 'offline' };
+
 export function showDialog(opts: { title: string; message?: string; html?: string; icon?: string; buttons: DialogButton[]; onMount?: (root: HTMLElement, close: (v: string) => void) => void }): Promise<string> {
   return new Promise((resolve) => {
     const bg = document.createElement('div');
     bg.className = 'dialog-bg';
     bg.innerHTML = `<div class="dialog" role="dialog" aria-modal="true">
-      ${opts.icon ? `<div class="dialog-icon">${opts.icon}</div>` : ''}
+      ${opts.icon ? `<div class="dialog-icon">${ico(DIALOG_ICON[opts.icon] ?? '', opts.icon)}</div>` : ''}
       <h3 class="dialog-title">${esc(opts.title)}</h3>
       ${opts.message ? `<p class="dialog-msg">${esc(opts.message)}</p>` : ''}
       ${opts.html ?? ''}

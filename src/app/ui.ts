@@ -4,7 +4,8 @@
  */
 import { PLAYABLE } from '../core/characters';
 import { XP_ITEMS } from '../core/progression';
-import { orbHTML } from '../ui/components';
+import { orbHTML, essIcon } from '../ui/components';
+import { ico } from '../ui/icons';
 import { bakeGridArt } from '../ui/gridArt';
 import { app, save, resPills } from './state';
 import { home } from './home';
@@ -17,9 +18,9 @@ import { inventory } from './inventory';
 
 export function topbar(title: string, back = true) {
   return `<header class="topbar">
-    ${back ? '<button class="btn small ghost" data-nav="home">← Base</button>' : '<span></span>'}
+    ${back ? `<button class="btn small ghost" data-nav="home">${ico('voltar', '←')} Base</button>` : '<span></span>'}
     <h2>${title}</h2>
-    <div class="res">${resPills()}<span title="Essências Estelares">✴ ${save.essencias}</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
+    <div class="res">${resPills()}<span title="Essências Estelares">${essIcon()} ${save.essencias}</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
   </header>`;
 }
 

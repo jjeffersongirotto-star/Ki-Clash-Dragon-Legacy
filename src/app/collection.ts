@@ -8,7 +8,8 @@ import { MAX_STEP, TIER_NAMES, statsFor, stepOf, tierLabel } from '../core/progr
 import { playerLeaderImg, unitSpriteHTML } from '../ui/art';
 import { cardPower } from '../core/power';
 import { canEvolve, evolveLeader, leaderHp, leaderMaxLevel, nextRequirement } from '../core/leaders';
-import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from '../ui/components';
+import { abilityListHTML, cardHTML, raceIcon, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from '../ui/components';
+import { ico } from '../ui/icons';
 import { SPELLS, getSpell, isSpell } from '../core/spells';
 import { gameAlert, showDialog } from '../ui/dialog';
 import { leaveBattleMode } from '../ui/orientation';
@@ -38,7 +39,7 @@ export function leaderPanelHTML(): string {
       ${req != null
         ? `<div class="lp-req"><div class="lp-bar"><i style="width:${pct.toFixed(1)}%"></i></div><small>${ready ? `Pronto! Requisito do Nv.${lv + 1}: ⚡ ${fmt(req)}` : `Próximo nível: ⚡ ${fmt(req)} <span class="warn">(faltam ${fmt(req - power)})</span>`}</small></div>`
         : '<div class="lp-req"><small>Nível máximo!</small></div>'}
-      <button class="btn small ${ready ? 'primary' : ''}" id="lpEvolve" ${req == null ? 'disabled' : ''}>⬆ Evoluir</button>
+      <button class="btn small ${ready ? 'primary' : ''}" id="lpEvolve" ${req == null ? 'disabled' : ''}>${ico('evoluir', '⬆')} Evoluir</button>
     </div>
   </section>`;
 }
@@ -111,7 +112,7 @@ export function collection() {
     </section>
     <div class="race-filters">
       <button class="rf-btn ${raceFilter === 'all' ? 'active' : ''}" data-rf="all">🌟 Todos (${PLAYABLE.length})</button>
-      ${Object.entries(RACE_INFO).map(([k, r]) => `<button class="rf-btn ${raceFilter === k ? 'active' : ''}" data-rf="${k}" style="--race-c:${r.color}">${r.icon} ${r.label}</button>`).join('')}
+      ${Object.entries(RACE_INFO).map(([k, r]) => `<button class="rf-btn ${raceFilter === k ? 'active' : ''}" data-rf="${k}" style="--race-c:${r.color}">${raceIcon(k)} ${r.label}</button>`).join('')}
     </div>
     <p class="hint">Toque numa carta para inspecionar a evolução visual de raridade em raridade (Comum → Mítico), ver o sprite de arena e editar a equipe.</p>
     <h3 class="sec-title">Seus personagens <small>(${owned.length})</small></h3>
@@ -164,10 +165,10 @@ export function cardDetail(id: string, previewStars?: number) {
   }
   // v0.31.0: ações em "cards" ao lado da carta (Colocar no baralho / Treinar) e ✕ no canto; sem botões embaixo
   const actions = owned
-    ? `<button class="act-tile primary" data-m="deck"><i>${inDeck ? '📤' : '🃏'}</i><span>${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</span></button><button class="act-tile" data-m="train"><i>🔥</i><span>Treinar</span></button>`
+    ? `<button class="act-tile primary" data-m="deck"><i>${inDeck ? ico('tirar', '📤') : ico('colecao', '🃏')}</i><span>${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</span></button><button class="act-tile" data-m="train"><i>🔥</i><span>Treinar</span></button>`
     : '';
   const lockNote = owned ? '' : !unlockStage(id) ? `<p class="hint">🎴 Personagem ${tierLabel(def.minStars)}: sai no <b>Banner</b> da 🏪 Loja (com Ouro de Dragão ou 💠 Gemas de Invocação).</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id)} pela primeira vez para desbloquear.</p>`;
-  modal(`<button class="modal-x" data-m="close" aria-label="Fechar" title="Fechar">✕</button><div class="detail" style="${starStyle(stars)}">
+  modal(`<button class="modal-x" data-m="close" aria-label="Fechar" title="Fechar">${ico('fechar', '✕')}</button><div class="detail" style="${starStyle(stars)}">
     <div class="detail-left">
       <div class="detail-acts">${actions}</div>
       ${cardHTML({ charId: id, stars, plus }, { extraClass: 'detail-card', locked: !owned && previewStars == null, power: pow })}
@@ -181,7 +182,7 @@ export function cardDetail(id: string, previewStars?: number) {
       <h2>${esc(def.name)}</h2><div class="subtitle">${esc(def.title)}</div>
       <div><small>Faixa: ${tierLabel(def.minStars)} a ${tierLabel(def.maxStars, MAX_STEP)}</small></div>
       <div class="star-preview-bar">
-        <span class="sp-label">👁 Ver evolução por raridade (roupa/poder):</span>
+        <span class="sp-label">${ico('seta-evolucao', '👁')} Ver evolução por raridade (roupa/poder):</span>
         <div class="sp-tabs">${starTabs.join('')}</div>
       </div>
       <div class="stat-row"><span class="pow-stat" title="Poder = 10 × peso da habilidade × √(ataque × vida)">Poder <b>⚡ ${fmt(pow)}</b></span><span title="Rodadas que a carta espera na mão até poder ser invocada">Espera <b>⏳ ${waitFor(def.id)}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${reachLabel(def)}</b></span><span>Movimento <b>${def.move}</b></span></div>

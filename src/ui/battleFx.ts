@@ -83,14 +83,16 @@ export function spark(fx: Element, x: number, y: number, type: string) {
 }
 
 /** Selos de estado da unidade (aura, dreno e efeitos com duração) para a arena e o painel de informações. */
-export function statusList(state: BattleState, u: Unit): { icon: string; label: string; key: string }[] {
-  const out: { icon: string; label: string; key: string }[] = [];
+export function statusList(state: BattleState, u: Unit): { icon: string; img: string; label: string; key: string }[] {
+  const out: { icon: string; img: string; label: string; key: string }[] = [];
   const buff = allyBuff(state, u);
   const pen = auraPenalty(state, u);
-  if (buff > 0) out.push({ icon: '🥁', label: `aura +${buff} ATQ`, key: `b${buff}` });
-  if (pen > 0) out.push({ icon: '🌀', label: `drenado −${pen} ATQ`, key: `p${pen}` });
+  if (buff > 0) out.push({ icon: '🥁', img: 'ab-tambor', label: `aura +${buff} ATQ`, key: `b${buff}` });
+  if (pen > 0) out.push({ icon: '🌀', img: 'ab-sifao', label: `drenado −${pen} ATQ`, key: `p${pen}` });
+  // v0.42.0: ícone desenhado de cada efeito (src/assets/icons)
+  const IMG = { veneno: 'ab-veneno', queimadura: 'ab-queimadura', atordoado: 'ab-atordoar', escudo: 'escudo-temp', anjo: 'ab-anjo', sangramento: 'ab-sangramento', lento: 'ab-lentidao', congelado: 'ab-congelar', maldicao: 'ab-maldicao', imune: 'ab-ultimaResistencia' } as const;
   const ICON = { veneno: '🧪', queimadura: '🔥', atordoado: '💫', escudo: '🛡', anjo: '👼', sangramento: '🩸', lento: '🐌', congelado: '❄️', maldicao: '🕯️', imune: '⏳' } as const;
-  if (u.atkMod) out.push({ icon: u.atkMod > 0 ? '📈' : '🌀', label: `${u.atkMod > 0 ? '+' : '−'}${Math.abs(u.atkMod)} ATQ (habilidade)`, key: `m${u.atkMod}` });
+  if (u.atkMod) out.push({ icon: u.atkMod > 0 ? '📈' : '🌀', img: u.atkMod > 0 ? 'ab-furia' : 'ab-dominio', label: `${u.atkMod > 0 ? '+' : '−'}${Math.abs(u.atkMod)} ATQ (habilidade)`, key: `m${u.atkMod}` });
   for (const e of u.effects ?? []) {
     if (e.turns <= 0) continue;
     const label =
@@ -104,7 +106,7 @@ export function statusList(state: BattleState, u: Unit): { icon: string; label: 
       : e.kind === 'imune' ? 'imune até o fim do turno'
       : e.kind === 'escudo' ? (e.turns >= 99 ? `escudo ${e.amount}` : `escudo ${e.amount} (${e.turns})`)
       : 'Anjo da Guarda';
-    out.push({ icon: ICON[e.kind], label, key: `${e.kind}${e.amount}` });
+    out.push({ icon: ICON[e.kind], img: IMG[e.kind], label, key: `${e.kind}${e.amount}` });
   }
   return out;
 }

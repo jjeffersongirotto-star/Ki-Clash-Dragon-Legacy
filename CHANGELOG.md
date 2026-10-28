@@ -2,6 +2,21 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.42.0] — 28/10/2026 · PR #78 — Ícones desenhados
+- **Ícones novos em todo o jogo** (as 212 imagens da lista de ícones, no mesmo estilo anime com dragão dourado), no lugar dos emojis:
+  - **Recursos:** energia, Ouro de Dragão, Essências, Gemas de Invocação, nível de perfil e Poder da carta.
+  - **Orbes** (6 cores), **itens de ascensão** (os 30; a cor da raridade continua no fundo), **raças** e **grupos** (inclusive o canto da carta).
+  - **As 66 habilidades** (na fileira da carta e nas listas) e os **selos de efeito** na batalha (veneno, queimadura, atordoado, escudo…).
+  - **Feitiços:** arte própria em cada carta de feitiço e ícone do alvo (1 inimigo, 1 aliado, 1 fileira, sem alvo).
+  - **Aventura:** as 10 regiões no mapa do mundo, dificuldades, estrelas de objetivo (cheia e vazia), fase concluída e cadeado.
+  - **Menus e botões:** Aventura, Coleção, Treinar, Loja, Inventário, Como jogar, Baixar, Atualizar, Voltar, Fechar, Evoluir, Desmanchar, Escada de Despertar, Lendária garantida e outros.
+  - **Batalha:** monte do baralho com o **verso da carta** novo, Necropolis, Registro, Auto, Velocidade, LUTAR, aviso de girar o celular, Vitória/Derrota/Empate.
+  - **Loja:** fundo novo do Banner (dragão dourado no céu). **Tutorial:** a seta virou a manopla dourada. **Avisos:** ícones de aviso, sucesso, sem conexão etc.
+- **Ajustes nas imagens:** 8 ícones vinham com o "buraco" do meio pintado de branco (Amuleto, Anel, Arco, Arqueiro, Vampirismo, Raio em Cadeia, Cadeado e Atualizar); o buraco ficou transparente.
+- **Ficaram de fora por enquanto:** a raça **Humano** e a arte do feitiço **Investida de Ki** lembram personagens conhecidos de outras marcas; seguem com o ícone antigo até chegar uma versão nova.
+- Os emblemas de **custo (gota), ataque e vida** da carta continuam os de antes (o número fica em cima deles).
+- Imagens em WebP leve (ícones 128 px, regiões 192 px); gerador: `scripts/art/build_icons.py`.
+
 ## [0.41.0] — 28/10/2026 · PR #77 — Feitiços colecionáveis e ícone novo
 - **Feitiços viraram cartas colecionáveis:** antes todos vinham liberados; agora cada um tem raridade (Comum, Incomum, Raro ou Épico) e você ganha cópias como nos personagens. O baralho usa até 3 cópias, só as que você tem.
   - Comum: Muralha, Flecha Envenenada, Cura em Massa · Incomum: Veneno Mortal, Chuva de Flechas, Investida de Ki · Raro: Lâmina Giratória, Tremor, Bola de Fogo, Raio Paralisante · Épico: Golpe nas Sombras, Anjo da Guarda, Chamado da Necropolis.

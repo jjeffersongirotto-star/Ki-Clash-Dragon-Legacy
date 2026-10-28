@@ -5,8 +5,9 @@ import { RACE_INFO, getChar } from '../core/characters';
 import type { CardInstance, Side, Unit } from '../core/types';
 import { stepOf } from '../core/progression';
 import { statusList } from './battleFx';
-import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from './components';
+import { abilityListHTML, cardHTML, raceIcon, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from './components';
 import type { BattleView } from './battleView';
+import { ico } from './icons';
 
 export function showCardInfo(view: BattleView, i: number) {
   const c = view.state.decks.player.hand[i];
@@ -34,7 +35,7 @@ export function showUnitInfo(view: BattleView, u: Unit) {
   const def = getChar(u.charId);
   const fx = statusList(view.state, u);
   view.setInfo(
-    `<div class="info-head"><span><b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${tierHTML(u.stars, u.plus)} · ${raceHTML(def)} · ❤ ${u.hp}/${u.maxHp} · ATQ ${effectiveAtk(view.state, u)} (${dmgLabel(def)}) · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-unit="${u.uid}">🔍 Ver Carta</button></div>${fx.length ? `<div class="u-status-list">${fx.map((f) => `<span>${f.icon} ${esc(f.label)}</span>`).join('')}</div>` : ''}${abilityListHTML(def, u.stars, u.plus)}`,
+    `<div class="info-head"><span><b>${esc(def.name)}</b> ${u.side === 'enemy' ? '<span class="tag-e">inimigo</span>' : ''} ${tierHTML(u.stars, u.plus)} · ${raceHTML(def)} · ${ico('vida', '❤')} ${u.hp}/${u.maxHp} · ATQ ${effectiveAtk(view.state, u)} (${dmgLabel(def)}) · alcance ${reachLabel(def)}</span><button class="btn small ghost info-inspect" data-inspect-unit="${u.uid}">🔍 Ver Carta</button></div>${fx.length ? `<div class="u-status-list">${fx.map((f) => `<span>${ico(f.img, f.icon)} ${esc(f.label)}</span>`).join('')}</div>` : ''}${abilityListHTML(def, u.stars, u.plus)}`,
   );
   view.root.querySelector('[data-inspect-unit]')?.addEventListener('click', () =>
     view.openCardModal({ charId: u.charId, stars: u.stars, plus: u.plus }, u.side),
@@ -59,7 +60,7 @@ export function openCardModal(view: BattleView, card: CardInstance, side: Side) 
       <div class="bcm-right">
         <div class="bcm-leader">Comandante: ${side === 'player' ? 'Você' : esc(view.stage.name)}</div>
         <h3 class="bcm-title">${esc(def.name)}</h3>
-        <div class="bcm-sub">${esc(def.title)} · ${race.icon} ${race.label}</div>
+        <div class="bcm-sub">${esc(def.title)} · ${raceIcon(def.race)} ${race.label}</div>
         <div class="bcm-tags">${categoryHTML(def, true)} ${tierHTML(card.stars, stepOf(card))}</div>
         <div class="bcm-sec">Habilidades & Atributos</div>
         <div class="bcm-stats">Alcance: <b>${reachLabel(def)}</b> · Movimento: <b>${def.move} casas</b> · Dano: <b>${dmgLabel(def)}</b></div>

@@ -6,7 +6,8 @@ import type { Category } from '../core/types';
 import { CATEGORY_INFO, STAR_COLORS, getChar } from '../core/characters';
 import { TIER_NAMES, XP_ITEMS, type XpItemId } from '../core/progression';
 import { unitSpriteHTML } from '../ui/art';
-import { gemHTML, goldHTML, gearHTML, orbHTML, esc, starStyle } from '../ui/components';
+import { ico } from '../ui/icons';
+import { catIcon, gemHTML, goldHTML, gearHTML, orbHTML, esc, starStyle } from '../ui/components';
 import { leaveBattleMode } from '../ui/orientation';
 import { GEAR_BY_ID, GEAR_CATEGORIES, GEAR_RARITIES, GEAR_SETS, gearCount, gearNeeded } from '../core/gear';
 import { BANNERS, PITY_EVERY, PITY_RARITY as PITY_RARITY_LABEL, bannerPrice, grantCard, pityCount, pull, type Banner } from '../core/banner';
@@ -46,14 +47,14 @@ export function shop() {
   <div class="shop">
     <p class="hint">Compre com ${goldHTML()} <b>Ouro de Dragão</b>, que vem de cada vitória e Repetir (em dobro na primeira vitória de cada fase).</p>
     ${BANNERS.map((b) => bannerHTML(b, gold)).join('')}
-    <h3>🎒 Itens de ascensão</h3>
+    <h3>${ico('inventario', '🎒')} Itens de ascensão</h3>
     <div class="shop-tabs">
-      <button class="btn small ${shopCat === 'need' ? 'on primary' : ''}" data-cat="need">⭐ Faltando no baralho${need.size ? ` (${need.size})` : ''}</button>
-      ${GEAR_CATEGORIES.map((c) => `<button class="btn small ${shopCat === c ? 'on primary' : ''}" data-cat="${c}">${CATEGORY_INFO[c].icon} ${CATEGORY_INFO[c].label}</button>`).join('')}
+      <button class="btn small ${shopCat === 'need' ? 'on primary' : ''}" data-cat="need">${ico('faltando', '⭐')} Faltando no baralho${need.size ? ` (${need.size})` : ''}</button>
+      ${GEAR_CATEGORIES.map((c) => `<button class="btn small ${shopCat === c ? 'on primary' : ''}" data-cat="${c}">${catIcon(c)} ${CATEGORY_INFO[c].label}</button>`).join('')}
     </div>
     ${shopCat === 'need' ? '' : `<div class="shop-tabs">${GEAR_RARITIES.map((r) => `<button class="btn small ${shopRarity === r ? 'on primary' : ''}" data-rar="${r}">${gearHTML(GEAR_SETS[shopCat as Category][0].id, r)} ${STAR_COLORS[r].label} · ${goldHTML(fmt(GEAR_PRICE[r]))}</button>`).join('')}</div>`}
     <div class="shop-grid">${list}</div>
-    <h3>🔮 Orbes</h3>
+    <h3>${ico('orbe3', '🔮')} Orbes</h3>
     <div class="shop-grid">${XP_ITEMS.map((o) => `<div class="shop-item">${orbHTML(o.id)}<span>${esc(o.name)}</span><small>+${fmt(o.xp)} XP · tem ${save.items[o.id]}</small><button class="btn small ${gold >= ORB_PRICE[o.id] ? 'primary' : ''}" data-orb="${o.id}" ${gold >= ORB_PRICE[o.id] ? '' : 'disabled'}>Comprar ${goldHTML(fmt(ORB_PRICE[o.id]))}</button></div>`).join('')}</div>
   </div></div>`;
   bindNav();
@@ -104,10 +105,10 @@ export function buyCards(banner: Banner, n: 1 | 10, after: () => void = shop) {
     return `<button class="btn ${ok ? 'primary' : ''}" data-again="${k}" ${ok ? '' : 'disabled'} title="${ok ? '' : 'Gemas e Ouro de Dragão insuficientes'}">Comprar ${k} ${payLabel(banner, k)}</button>`;
   };
   modal(
-    `<h2 class="win">🎴 ${esc(banner.name)}</h2><div class="pull-reveal pull-${n}" style="${starStyle(best)}">${got.map((g, i) => `<div class="pull-card r${g.stars}" style="animation-delay:${i * 0.12}s">${grantedHTML(g)}</div>`).join('')}</div>
-    <p class="hint pity-line">🎯 Lendária garantida: <b>${pityCount(banner, save.bannerPity)}/${PITY_EVERY}</b> · você tem ${save.gems ? `${gemHTML(fmt(save.gems))} ` : ''}${goldHTML(fmt(prof().gold))}</p>
+    `<h2 class="win">${ico('pacote', '🎴')} ${esc(banner.name)}</h2><div class="pull-reveal pull-${n}" style="${starStyle(best)}">${got.map((g, i) => `<div class="pull-card r${g.stars}" style="animation-delay:${i * 0.12}s">${grantedHTML(g)}</div>`).join('')}</div>
+    <p class="hint pity-line">${ico('pity', '🎯')} Lendária garantida: <b>${pityCount(banner, save.bannerPity)}/${PITY_EVERY}</b> · você tem ${save.gems ? `${gemHTML(fmt(save.gems))} ` : ''}${goldHTML(fmt(prof().gold))}</p>
     <div class="row pull-again">${again(1)}${again(10)}</div>
-    <div class="row pull-exit"><button class="btn ghost pull-x" data-m="close" aria-label="Sair" title="Sair">✕</button></div>`,
+    <div class="row pull-exit"><button class="btn ghost pull-x" data-m="close" aria-label="Sair" title="Sair">${ico('fechar', '✕')}</button></div>`,
     (m) => {
       m.querySelector('[data-m=close]')!.addEventListener('click', () => {
         closeModal();
@@ -130,10 +131,10 @@ export function bannerHTML(b: Banner, gold: number): string {
     <div class="banner-art">
       <div class="banner-sky"></div><div class="banner-mount"></div>
       <div class="banner-feat">${feat.map((d) => `<div class="banner-hero" style="${starStyle(b.featuredRarity)}">${unitSpriteHTML(d, { stars: b.featuredRarity, side: 'player' })}<b>${esc(d.name)}</b></div>`).join('')}</div>
-      <div class="banner-title"><h3>🎴 ${esc(b.name)}</h3><small>${esc(b.subtitle)}</small></div>
+      <div class="banner-title"><h3>${ico('banner', '🎴')} ${esc(b.name)}</h3><small>${esc(b.subtitle)}</small></div>
     </div>
     <div class="banner-odds">${odds}</div>
-    <div class="pity-mark" title="A cada ${PITY_EVERY} cartas compradas, 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor garantida (volta a 0 quando sai uma)">🎯 Lendária garantida <b>${pityCount(b, save.bannerPity)}/${PITY_EVERY}</b></div>
+    <div class="pity-mark" title="A cada ${PITY_EVERY} cartas compradas, 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor garantida (volta a 0 quando sai uma)">${ico('pity', '🎯')} Lendária garantida <b>${pityCount(b, save.bannerPity)}/${PITY_EVERY}</b></div>
     <p class="hint">Cada carta é um personagem ou um ✦ feitiço na raridade sorteada (feitiços de Comum a Épico). ${feat.map((d) => esc(d.name)).join(' e ')} saem só aqui, no ${TIER_NAMES[b.featuredRarity]}. No pacote de 10: pelo menos 1 ${TIER_NAMES[b.guarantee10]} ou melhor. A cada ${PITY_EVERY} cartas: 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor. Carta repetida vira mais 1 cópia (no 🎒 Inventário: use no baralho ou desmanche). Com 💠 Gemas de Invocação, cada gema compra 1 carta (usadas antes do Ouro).</p>
     <div class="row">${btn(1)}${btn(10)}</div>
   </div>`;

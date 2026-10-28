@@ -16,7 +16,8 @@ import { GEAR_CATEGORIES, GEAR_RARITIES, GEAR_SETS, gearCount } from '../core/ge
 import { CATEGORY_INFO } from '../core/characters';
 import { bankXp, feedCopy, generalXp, spareCopies, spareSpells, takeDupe, dupBaseXp, type CopyXp } from '../core/banner';
 import { SPELLS, getSpell, isSpell } from '../core/spells';
-import { cardHTML, esc, gearHTML, orbBagHTML, orbHTML, spellCardHTML, starStyle } from '../ui/components';
+import { cardHTML, catIcon, esc, gearHTML, orbBagHTML, orbHTML, spellCardHTML, starStyle, essIcon } from '../ui/components';
+import { ico } from '../ui/icons';
 import { leaveBattleMode } from '../ui/orientation';
 import { copiesIn, ownedCopies } from '../ui/save';
 import { app, save, persist, fmt } from './state';
@@ -37,7 +38,7 @@ export function inventory() {
   app.innerHTML = `<div class="screen inventory">${topbar('🎒 Inventário')}
     <div class="inv-tabs">
       <button class="btn ${tab === 'itens' ? 'primary on' : ''}" data-tab="itens">🎒 Itens</button>
-      <button class="btn ${tab === 'repetidos' ? 'primary on' : ''}" data-tab="repetidos">🃏 Cartas repetidas</button>
+      <button class="btn ${tab === 'repetidos' ? 'primary on' : ''}" data-tab="repetidos">${ico('colecao', '🃏')} Cartas repetidas</button>
     </div>
     ${body}
   </div>`;
@@ -67,9 +68,9 @@ function itemsHTML(): string {
   const orbs = XP_ITEMS.map((o) => `<div class="inv-item">${orbHTML(o.id)}<b>${fmt(save.items[o.id] ?? 0)}</b><small>${esc(o.name)} · +${fmt(o.xp)} XP</small></div>`).join('');
   const gear = GEAR_CATEGORIES.map((cat) => {
     const owned = GEAR_SETS[cat].flatMap((g) => GEAR_RARITIES.filter((r) => gearCount(bag, g.id, r) > 0).map((r) => gearHTML(g.id, r, gearCount(bag, g.id, r))));
-    return `<div class="gear-cat">${CATEGORY_INFO[cat].icon} ${CATEGORY_INFO[cat].label}</div><div class="gear-bag">${owned.join('') || '<small>nenhum ainda</small>'}</div>`;
+    return `<div class="gear-cat">${catIcon(cat)} ${CATEGORY_INFO[cat].label}</div><div class="gear-bag">${owned.join('') || '<small>nenhum ainda</small>'}</div>`;
   }).join('');
-  return `<div class="inv-section"><h3>✴ Essências: ${fmt(save.essencias)}</h3></div>
+  return `<div class="inv-section"><h3>${essIcon()} Essências: ${fmt(save.essencias)}</h3></div>
     <div class="inv-section"><h3>🔮 Orbes</h3><div class="inv-grid">${orbs}</div>
       <p class="hint">XP guardado do Desmanchar geral: <b>${fmt(save.genXp ?? 0)}</b> (vira Orbe ao completar 100).</p></div>
     <div class="inv-section"><h3>🎒 Itens de ascensão</h3>${gear}</div>`;
@@ -115,8 +116,8 @@ function dupesHTML(dupes: NonNullable<typeof save.dupes>): string {
     })
     .join('');
   return `<div class="inv-tabs inv-modes">
-      <button class="btn small ${mode === 'direcionado' ? 'primary on' : ''}" data-mode="direcionado">🎯 Desmanchar direcionado</button>
-      <button class="btn small ${mode === 'geral' ? 'primary on' : ''}" data-mode="geral">♻ Desmanchar geral</button>
+      <button class="btn small ${mode === 'direcionado' ? 'primary on' : ''}" data-mode="direcionado">${ico('desmanche-dir', '🎯')} Desmanchar direcionado</button>
+      <button class="btn small ${mode === 'geral' ? 'primary on' : ''}" data-mode="geral">${ico('desmanchar', '♻')} Desmanchar geral</button>
     </div>
     <p class="hint">${explain} O baralho usa até 3 cópias de cada personagem; a última cópia e as que estão no baralho não podem ser desmanchadas.</p>
     ${rows || '<p class="hint">Nenhuma cópia repetida guardada. Personagens repetidos do 🎴 Banner aparecem aqui.</p>'}
@@ -215,9 +216,9 @@ function resultDialog(r: DisResult, after: () => void) {
     const refund: OrbBag = {};
     for (const x of r.xp) for (const [k, v] of Object.entries(x.refund)) refund[k as keyof OrbBag] = (refund[k as keyof OrbBag] ?? 0) + (v ?? 0);
     const wasted = r.xp.reduce((a, x) => a + x.wasted, 0);
-    html = `<h2 class="win">🎯 ${esc(name)}</h2><p>${r.n} ${r.n === 1 ? 'cópia virou' : 'cópias viraram'} <b>+${fmt(xp)} XP</b>${lucky.length ? ` <b class="dup-luck">${lucky.join(' ')}!</b>` : ''}.</p>${r.xp.some((x) => x.filled) ? '<p class="hint">Barra cheia: suba o degrau em 🔥 Treinar.</p>' : ''}${wasted > 0 ? `<p class="hint">${fmt(wasted)} XP passaram da barra cheia${Object.keys(refund).length ? `: ${orbBagHTML(refund, '+')}` : ''}.</p>` : ''}`;
+    html = `<h2 class="win">${ico('desmanche-dir', '🎯')} ${esc(name)}</h2><p>${r.n} ${r.n === 1 ? 'cópia virou' : 'cópias viraram'} <b>+${fmt(xp)} XP</b>${lucky.length ? ` <b class="dup-luck">${lucky.join(' ')}!</b>` : ''}.</p>${r.xp.some((x) => x.filled) ? '<p class="hint">Barra cheia: suba o degrau em 🔥 Treinar.</p>' : ''}${wasted > 0 ? `<p class="hint">${fmt(wasted)} XP passaram da barra cheia${Object.keys(refund).length ? `: ${orbBagHTML(refund, '+')}` : ''}.</p>` : ''}`;
   } else {
-    html = `<h2 class="win">♻ Desmanchado</h2><p>${r.n} ${r.n === 1 ? 'cópia' : 'cópias'} de ${esc(name)} → <b>${fmt(r.xp)} XP</b> guardado.</p>${Object.keys(r.orbs).length ? `<div class="res big">${orbBagHTML(r.orbs, '+')}</div>` : ''}<p class="hint">XP guardado agora: <b>${fmt(save.genXp ?? 0)}</b> (cada 100 vira um Orbe).</p>`;
+    html = `<h2 class="win">${ico('desmanchar', '♻')} Desmanchado</h2><p>${r.n} ${r.n === 1 ? 'cópia' : 'cópias'} de ${esc(name)} → <b>${fmt(r.xp)} XP</b> guardado.</p>${Object.keys(r.orbs).length ? `<div class="res big">${orbBagHTML(r.orbs, '+')}</div>` : ''}<p class="hint">XP guardado agora: <b>${fmt(save.genXp ?? 0)}</b> (cada 100 vira um Orbe).</p>`;
   }
   modal(`${html}<div class="row"><button class="btn primary" data-m="ok">OK</button></div>`, (m) =>
     m.querySelector('[data-m=ok]')!.addEventListener('click', () => {

@@ -5,6 +5,7 @@
  * de texto do passo. Só o alvo recebe toques: 4 painéis escuros em volta dele bloqueiam o resto.
  * Sem alvo (ex.: enquanto a batalha anima), a tela toda fica bloqueada e só a caixa de texto aparece.
  */
+import { ico } from './icons';
 let root: HTMLElement | null = null;
 let lastHtml = '';
 
@@ -70,7 +71,9 @@ export function spotlight(target: Element | null, html: string, opts: SpotOption
   place(frame, x0, y0, x1 - x0, y1 - y0);
   // seta acima do alvo (ou abaixo, se não couber) e caixa de texto do outro lado da tela
   const above = y0 > 70;
-  arrow.textContent = above ? '👇' : '👆';
+  // v0.42.0: a manopla dourada (aponta para baixo; virada quando fica embaixo do alvo)
+  arrow.innerHTML = ico('seta-tutorial', above ? '👇' : '👆');
+  arrow.classList.toggle('up', !above);
   arrow.style.left = `${(x0 + x1) / 2 - 18}px`;
   arrow.style.top = `${above ? y0 - 46 : y1 + 6}px`;
   const tipBelow = (y0 + y1) / 2 < vh / 2;
