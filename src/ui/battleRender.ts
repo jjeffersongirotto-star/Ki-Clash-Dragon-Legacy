@@ -6,6 +6,7 @@ import { INFO_DEFAULT, statusList } from './battleFx';
 import { unitSpriteHTML } from './art';
 import { esc, starStyle } from './components';
 import type { BattleView } from './battleView';
+import { HOLD_MS } from './battleHand';
 
 export function renderSnapshot(view: BattleView, snap: Snapshot, _ev?: RecordedEvent) {
   const layer = view.root.querySelector('.units') as HTMLElement;
@@ -25,14 +26,39 @@ export function renderSnapshot(view: BattleView, snap: Snapshot, _ev?: RecordedE
         <div class="u-stat-plate"><span class="u-atk"></span><b class="u-sep">|</b><span class="u-hpn"></span></div>
         <div class="u-fx"></div>
       `;
+      // v0.35.0: tocar na unidade não abre mais a descrição; ela abre ao SEGURAR (ou com o botão direito no PC)
+      const cur = () => view.state.units.find((x) => x.uid === u.uid);
+      const info = () => {
+        const c = cur();
+        if (!c) return;
+        view.showUnitInfo(c);
+        view.onInfo?.('unit', c.uid);
+      };
+      let hold: ReturnType<typeof setTimeout> | undefined;
+      let held = false;
+      el.addEventListener('pointerdown', (ev) => {
+        held = false;
+        clearTimeout(hold);
+        if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+        hold = setTimeout(() => {
+          held = true;
+          info();
+        }, HOLD_MS);
+      });
+      for (const t of ['pointerup', 'pointercancel', 'pointerleave'] as const) el.addEventListener(t, () => clearTimeout(hold));
+      el.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        clearTimeout(hold);
+        info();
+      });
       el.addEventListener('click', (e) => {
         e.stopPropagation();
-        const cur = view.state.units.find((x) => x.uid === u.uid);
-        if (view.selected != null) {
-          view.onCell(cur?.row ?? u.row, cur?.col ?? u.col);
+        if (held) {
+          held = false;
           return;
         }
-        if (cur) view.showUnitInfo(cur);
+        const c = cur();
+        if (view.selected != null) view.onCell(c?.row ?? u.row, c?.col ?? u.col);
       });
       layer.appendChild(el);
       view.tokens.set(u.uid, el);

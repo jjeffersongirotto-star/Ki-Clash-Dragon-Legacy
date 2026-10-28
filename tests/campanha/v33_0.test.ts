@@ -24,7 +24,8 @@ function playGuided(i: 0 | 1) {
     const a = guideStep(i, s, sel, memo);
     expect(guideText(i, a, s).length).toBeGreaterThan(0);
     steps.push(a.kind);
-    if (a.kind === 'card') sel = a.hand;
+    if (a.kind === 'hold') memo.held = true; // v0.35.0: o jogador segura a carta para ver a descrição
+    else if (a.kind === 'card') sel = a.hand;
     else if (a.kind === 'cell') {
       expect(playerUse(s, sel!, a.r, a.c).ok).toBe(true);
       sel = null;
@@ -44,7 +45,8 @@ describe('v0.33.0 — tutorial guiado, sempre igual', () => {
       const b = playGuided(i);
       expect(a.s.winner).toBe('player');
       expect(a.steps).toEqual(b.steps); // sempre igual
-      expect(a.steps.slice(0, 3)).toEqual(['card', 'cell', 'fight']);
+      // v0.35.0: a Batalha 2 começa ensinando a segurar a carta (descrição)
+      expect(a.steps.slice(0, i === 1 ? 4 : 3)).toEqual(i === 1 ? ['hold', 'card', 'cell', 'fight'] : ['card', 'cell', 'fight']);
       expect(a.enemyIdleTurns).toBe(0);
     }
   });
@@ -59,5 +61,14 @@ describe('v0.33.0 — tutorial guiado, sempre igual', () => {
     expect(GEMS_BY_STAGE).toEqual({ 3: 1, 6: 1, 9: 1, 10: 3 });
     expect(STAGES.map((st) => gemsFor(st.id))).toEqual([0, 0, 1, 0, 0, 1, 0, 0, 1, 3]);
     for (const st of STAGES) expect(st.pack).toEqual([]);
+  });
+
+  it('v0.35.0: passo de segurar a carta com texto diferente no celular e no PC', () => {
+    const s = createBattle({ playerDeck: TUTORIAL_CHARS.map((id) => ({ charId: id, stars: 1, plus: 0, copies: 3 })), enemyDeck: TUTORIAL_BATTLES[1].enemyDeck, playerHeroHp: 30, enemyHeroHp: 10, seed: TUTORIAL_SEEDS[1], noWait: true });
+    const a = guideStep(1, s, null, newGuideMemo());
+    expect(a.kind).toBe('hold');
+    expect(guideText(1, a, s, true)).toContain('toque e segure');
+    expect(guideText(1, a, s, false)).toContain('clique e segure');
+    expect(guideText(1, a, s, false)).toContain('botão direito');
   });
 });

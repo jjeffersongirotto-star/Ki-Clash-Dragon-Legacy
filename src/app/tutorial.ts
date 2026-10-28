@@ -97,6 +97,11 @@ export function tutorialBattle(i: 0 | 1) {
     noWait: true,
   });
   const memo = newGuideMemo();
+  // v0.35.0: passo "segure a carta" — o texto muda no celular (toque) e no PC (mouse)
+  const touch = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
+  view.onInfo = () => {
+    memo.held = true;
+  };
   const skip = () => {
     stop();
     view.disposed = true;
@@ -108,18 +113,20 @@ export function tutorialBattle(i: 0 | 1) {
     const battleEl = view.root.querySelector('.battle');
     const rp = view.root.querySelector<HTMLElement>('.rotate-prompt');
     if (rp && getComputedStyle(rp).display !== 'none') return spotlight(rp.querySelector('.rp-box') ?? rp, 'Escolha como jogar: <b>deitado</b> (tela cheia) ou <b>em pé</b>.', { onSkip: skip });
-    battleEl?.classList.remove('has-info', 'log-open'); // nada cobre o alvo durante o tutorial
+    // nada cobre o alvo durante o tutorial (menos a descrição logo depois do passo de segurar, até escolher a carta)
+    if (!(memo.held && view.selected == null && (view.state.stats?.player.cards ?? 0) === 0)) battleEl?.classList.remove('has-info');
+    battleEl?.classList.remove('log-open');
     if (view.busy || document.querySelector('.modal-bg, .battle-card-modal-bg')) return spotlight(null, guideText(i, { kind: 'watch' }, view.state), { onSkip: skip });
     const a = guideStep(i, view.state, view.selected, memo);
     const target =
-      a.kind === 'card'
+      a.kind === 'card' || a.kind === 'hold'
         ? view.root.querySelector(`.hand [data-i="${a.hand}"]`)
         : a.kind === 'cell'
           ? view.root.querySelector(`.cell[data-r="${a.r}"][data-c="${a.c}"]`)
           : a.kind === 'fight'
             ? view.root.querySelector('#fightBtn')
             : null;
-    spotlight(target, guideText(i, a, view.state), { onSkip: skip });
+    spotlight(target, guideText(i, a, view.state, touch), { onSkip: skip });
   }, 150);
 }
 

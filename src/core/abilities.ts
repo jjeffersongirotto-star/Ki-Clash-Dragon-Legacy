@@ -109,7 +109,7 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   guarda: {
     id: 'guarda',
     name: 'Postura de Guarda',
-    description: 'Resistência física: reduz o dano de cada golpe físico (v0.17.0: a resistência é habilidade, não status de toda carta).',
+    description: 'Resistência física: reduz o dano de cada golpe físico.',
     icon: '🛡',
     scaling: 'Resistência física 1 (Comum–Incomum) · 2 (Raro) · 3 (Épico, máx.).',
     resBonus: (s) => ({ phys: s >= 4 ? 3 : s >= 3 ? 2 : 1, mag: 0 }),

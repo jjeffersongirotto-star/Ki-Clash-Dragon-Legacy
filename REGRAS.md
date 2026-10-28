@@ -1133,3 +1133,9 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - Os **Comandantes** usam recortes de **corpo inteiro** dessas artes (sem perna ou braço faltando), com a altura aparente da tabela da seção 32.
 - Script: `scripts/art/build_clean.py` (cartas) e `scripts/art/build_cutouts.py --limpas` (recortes).
 - **Tela inicial em pé (v0.34.1):** o conteúdo fica centralizado na altura da tela, com faixas vazias iguais em cima e embaixo.
+
+## 37. Textos limpos, segurar para ver a descrição e Comandantes inteiros (v0.35.0)
+- As descrições das habilidades e feitiços mostram só o nome, o que fazem e o valor de agora ("agora: …"); não há mais notas de versão nem a linha "Por raridade".
+- **Na batalha**, tocar/clicar numa carta da mão ou numa unidade só escolhe ou joga. A **descrição** abre ao **segurar** (cerca de 0,45 s) e, no PC, também com o **botão direito**. Arrastar a carta continua invocando.
+- O **tutorial** (Batalha 2) tem um passo que pede para segurar a carta do Riku; o texto é "toque e segure" no celular e "clique e segure (ou botão direito)" no PC.
+- **Comandantes:** nenhum recorte pode ter parte do corpo, arma ou efeito pela metade. Quando o efeito da arte não dá para recortar inteiro, o jogo desenha o efeito (ex.: o redemoinho girando da Nyx; tabela `COMMANDER_LOOK.fx` em `src/ui/art.ts`). Script: `scripts/art/build_cutouts.py` (`--retrato` para o modelo de retrato; tabelas `PORTRAIT` e `FILL`).
