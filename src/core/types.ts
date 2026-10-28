@@ -202,6 +202,8 @@ export interface BattleState {
   fallen?: Record<Side, CardInstance[]>;
   /** v0.33.0: tutorial — as cartas não esperam na mão (ninguém fica travado pela espera) */
   noWait?: boolean;
+  /** v0.37.0: nível da IA inimiga (0 = simples; 1–3 = esperta, ver aiSmart.ts) */
+  aiLevel?: number;
 }
 
 export interface BattleStats {
@@ -229,6 +231,8 @@ export interface MatchRecord {
     cols?: number;
     maxTurns?: number;
     fury?: boolean;
+    noWait?: boolean;
+    aiLevel?: number;
   };
   actions: PlayerAction[];
 }

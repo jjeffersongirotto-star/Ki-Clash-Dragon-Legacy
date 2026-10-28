@@ -57,7 +57,7 @@ export class BattleView {
     this.root = root;
     this.cb = cb;
     this.stage = stage;
-    this.state = createBattle({ playerDeck, enemyDeck: stage.enemyDeck, playerHeroHp: cb.playerHeroHp ?? PLAYER_HERO_HP, enemyHeroHp: stage.enemyHeroHp, seed: cb.seed, noWait: cb.noWait });
+    this.state = createBattle({ playerDeck, enemyDeck: stage.enemyDeck, playerHeroHp: cb.playerHeroHp ?? PLAYER_HERO_HP, enemyHeroHp: stage.enemyHeroHp, seed: cb.seed, noWait: cb.noWait, aiLevel: stage.aiLevel });
     this.mount();
     this.renderSnapshot(this.snap());
     this.renderHand();

@@ -2,6 +2,14 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.37.0] — 28/10/2026 · PR #73 — Adversário esperto
+- **IA esperta (níveis 1–3):** antes de cada jogada o inimigo copia a batalha, testa cada carta pronta em cada casa da zona e cada feitiço em cada alvo, deixa o motor rodar alguns turnos à frente (com a sua resposta prevista) e fica com a jogada de nota mais alta. A nota pesa vida dos Comandantes (com modo PERIGO quando o próprio está baixo → defende), vida/ataque/habilidades das unidades, unidades-chave (curandeiros, auras, guardiões), avanço e ameaças. Assim ele combina habilidades, protege quem importa e escolhe entre atacar e defender.
+- **Treino contra ela mesma:** os pesos da nota foram ajustados por evolução em partidas espelhadas (`scripts/balance/train_ai.ts` → `src/core/aiWeights.ts`).
+- **Mesmo baralho dos dois lados, contra a IA simples:** o inimigo vence 55% (simples), 60% (nível 1), 90% (nível 2) e 93% (nível 3).
+- **Rápida e determinística:** pensa por número de simulações (nunca pelo relógio) só em cópias da batalha; ~3 ms por turno no computador (pior ~20 ms), dentro de ~120 ms num celular médio. Refazer a partida (`verifyMatch`) continua conferindo.
+- **Nível por fase (Fácil):** fases 1–3 simples, 4–6 nível 1, 7–9 nível 2, fase 10 nível 3; Normal +1 e Difícil +2 (até 3). O **Auto do jogador continua com a IA simples**.
+- **Campanha reequilibrada** para a IA nova (degraus e vida do Comandante inimigo): vitória ao chegar 95/97/89/87/85/81/79/68/68/67%.
+
 ## [0.36.0] — 28/10/2026 · PR #72 — Arena de 10 casas
 - **Arena 2 × 10** (antes 2 × 12): cada lado continua invocando nas 3 colunas da sua ponta; as batalhas ficam mais curtas e mais diretas.
 - **Campanha reequilibrada** no simulador para a arena nova (vida e degraus do inimigo por fase): vitória ao chegar 95/97/89/91/83/78/78/67/67/69% (antes 98/99/87/90/72/81/77/65/64/67%).

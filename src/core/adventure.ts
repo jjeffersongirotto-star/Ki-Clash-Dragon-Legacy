@@ -44,7 +44,7 @@ export function stageFor(stageId: number, diff: Difficulty): Stage {
     const k = deck.findIndex((c) => c.charId === out);
     if (k >= 0 && !deck.some((c) => c.charId === inn)) deck[k] = { ...deck[k], charId: inn };
   }
-  return { ...base, enemyDeck: deck };
+  return { ...base, enemyDeck: deck, aiLevel: Math.min(3, (base.aiLevel ?? 0) + (diff === 'normal' ? 1 : 2)) };
 }
 
 // ---------- progresso por dificuldade ----------
