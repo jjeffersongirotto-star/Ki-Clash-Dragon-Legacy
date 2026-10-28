@@ -201,7 +201,7 @@ Desde a v0.10 **não há mais estrelas de raridade**: a **raridade** é o tier d
 Todas as cartas (mão, coleção, equipe, treino, troca de equipe, detalhes, inspeção em batalha e recompensas) seguem o mesmo padrão:
 - **Moldura metálica** na cor do tier (Comum prata/cinza, Incomum verde, Raro azul, Épico roxo, Lendário laranja, Mítico vermelho).
 - **Topo esquerdo:** grande **gota azul com a contagem de rodadas** (v0.16.0: antes o custo de energia), passando por cima do canto da moldura. O número tem **contorno preto grosso**, sombra forte e um leve **brilho azul neon**.
-- **Topo, no centro:** pílula escura só com o **⚡Poder**. A largura acompanha o número (47, 100, 1000, 10000…) e ela fica sempre centralizada, sem encostar na gota nem na estrela.
+- **Topo, no centro:** ~~pílula escura só com o **⚡Poder**~~ (v0.42.2: saiu; o topo fica livre e o Poder aparece ao lado do nome na janela de detalhes).
 - **Topo direito:** **estrela dourada metálica com asinhas** mostrando o **nível** ("Nv." em cima do número), passando por cima do canto da moldura como a gota. Nas cartas pequenas (até 104 px) só o número aparece, maior, para continuar legível.
 - **Centro:** a arte grande do personagem (fundo, aura e personagem). Nas cartas com habilidades a arte é mais alta e o personagem fica um pouco mais para cima (peito e colar aparecem acima da faixa). O personagem fica **preso na janela da arte**: nada sai da carta (ex.: a lâmina reversa do Toru).
 - **Faixa do nome:** degradê vertical (mais escura embaixo) com **borda prata fina e brilhante** e cantos ornamentados; nome em branco, serifado, negrito, até 2 linhas, um pouco acima da **gema** para não encostar nela. Nomes com hífen não quebram no hífen; nomes com uma palavra muito comprida (ex.: "Tambor-de-Guerra", "Muralha-de-Ferro") ficam com a letra um pouco menor para caber inteiros.
@@ -435,7 +435,7 @@ Habilidades em detalhe:
 | Vitória de quem começa | 27% | 44% | 56% | 64% | 73% | 82% | 91% |
 
 - Exemplos: Riku Comum Nv.1 = ⚡44 · Toru Comum Nv.1 = ⚡47 · equipe inicial = **⚡377**.
-- O Poder aparece na **pílula do topo direito de toda carta** ("Nv N | ⚡Poder", v0.14) e na linha de status da janela de detalhes. É texto por cima do quadro congelado da carta (não muda o bitmap).
+- O Poder aparece **ao lado do nome do personagem na janela de detalhes** (v0.42.2; antes ficava numa pílula no topo de toda carta). É só visual: o valor e o cálculo não mudam, e o **Poder do baralho** continua na Coleção. É texto por cima do quadro congelado da carta (não muda o bitmap).
 
 ### Poder do baralho
 - **Soma do Poder das 10 cartas da equipe**, em destaque em **Coleção & Equipe** (painel do Comandante e título da equipe) e na **Aventura**.
@@ -1200,3 +1200,9 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - Recursos, Orbes, itens, raças, grupos, habilidades, efeitos, regiões, menus e botões usam **ícones desenhados** (src/assets/icons), mostrados como imagem; se faltar um ícone, o jogo mostra o emoji antigo no lugar.
 - Cada **carta de feitiço** tem arte própria; o **monte do baralho** na batalha mostra o verso da carta.
 - Os ícones não mudam regra nenhuma: são só visuais.
+
+## Ajustes de tela (v0.42.2)
+- **Batalha deitada:** a largura da arena desconta a faixa da câmera/entalhe do celular (safe area); as 10 colunas cabem inteiras, centralizadas entre os dois Comandantes.
+- **Cartas:** sem o Poder no topo (ver acima). **Detalhe da carta:** espaço entre a carta grande e as etiquetas (raridade, raça, grupo) para o brilho não pegar no texto.
+- **Grades (Coleção, baralho, Treinar):** usam miniaturas das artes (`src/assets/chars-sm`, `scripts/art/build_thumbs.py`), carregadas de uma vez, para a lista rolar sem as cartas piscarem pretas.
+- **Loja:** o Banner mostra só a imagem, os 2 destaques com o primeiro nome, as chances, a Lendária garantida e os botões (sem título nem textos explicativos).

@@ -5,7 +5,6 @@ import type { AbilityId, CardInstance, CharacterDef } from '../core/types';
 import { GEAR_BY_ID, GEAR_RARITY_NAMES } from '../core/gear';
 import { cardArtImg } from './art';
 import { gridArtHTML } from './gridArt';
-import { cardPower } from '../core/power';
 import { waitFor } from '../core/battle';
 import { getSpell, type SpellDef } from '../core/spells';
 import { ico, iconURL, spellArtURL } from './icons';
@@ -94,7 +93,7 @@ const LOCKED_GRID_STYLE = '--rc:#535559;--rg:#7b7d80;--ac:#55575a;--race-c:#5557
 
 export function cardHTML(
   card: CardInstance,
-  opts: { extraClass?: string; attrs?: string; locked?: boolean; badge?: string; compact?: boolean; grid?: boolean; power?: number; wait?: number } = {},
+  opts: { extraClass?: string; attrs?: string; locked?: boolean; badge?: string; compact?: boolean; grid?: boolean; /** v0.42.2: não aparece mais na carta (o Poder fica ao lado do nome no detalhe) */ power?: number; wait?: number } = {},
 ): string {
   const def = getChar(card.charId);
   const step = stepOf(card);
@@ -103,7 +102,6 @@ export function cardHTML(
   const cat = CATEGORY_INFO[def.category];
   const race = RACE_INFO[def.race];
   const t = Math.max(1, Math.min(6, card.stars));
-  const power = opts.power ?? cardPower(card);
   // v0.10.2: carta de grade = quadro congelado (bitmaps prontos, sem animação/filtro/blend)
   const ga = opts.grid ? gridArtHTML(def, t, !!opts.locked) : null;
   // v0.14.1: fileira de habilidades (bolinhas separadas por pontos) DENTRO da moldura, no centro de baixo
@@ -120,7 +118,6 @@ export function cardHTML(
       </div>
       <div class="card-fig">${ga ? ga.fg : cardArtImg(def, { stars: t, layer: 'fg' })}</div>
       <div class="ck-cost${opts.wait === 0 ? ' ready' : ''}" title="${opts.wait == null ? `Espera ${waitFor(def.id)} rodada(s) na mão` : opts.wait ? `Falta(m) ${opts.wait} rodada(s)` : 'Pronta para invocar'}"><span>${opts.wait ?? waitFor(def.id)}</span></div>
-      <div class="ck-pow" title="Poder">${ico('poder', '⚡')}${power}</div>
       <div class="ck-cat" title="${cat.label}"><img src="${categoryIconURI(def.category)}" alt=""></div>
       ${opts.badge ? `<div class="card-badge">${opts.badge}</div>` : ''}
       <div class="ck-banner"><span class="ck-name"${nfit}><span class="full">${esc(def.name).replace(/-/g, '\u2011')}</span><span class="short">${esc(def.name.split(' ')[0])}</span></span><i class="ck-gem"></i></div>

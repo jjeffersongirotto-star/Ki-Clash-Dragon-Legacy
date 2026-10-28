@@ -734,17 +734,18 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 
 @media (orientation: landscape) {
   body.in-battle { overflow: hidden; overscroll-behavior: none; }
-  .battle-screen { max-width: none; width: 100%; height: var(--vh); padding: 4px max(6px, env(safe-area-inset-right)) 4px max(6px, env(safe-area-inset-left)); overflow: hidden; }
+  .battle-screen { --sal: env(safe-area-inset-left, 0px); --sar: env(safe-area-inset-right, 0px); max-width: none; width: 100%; height: var(--vh); padding: 4px max(6px, var(--sar)) 4px max(6px, var(--sal)); overflow: hidden; }
   .battle-screen {
     /* v0.20.0: medidas da tela (divididas pelo zoom em telas grandes, ver o fim do arquivo) */
-    --vw: 100vw;
+    /* v0.42.2: tira a faixa da câmera/entalhe (safe area) da largura: antes a arena passava por baixo do Comandante inimigo */
+    --vw: calc(100vw - var(--sal) - var(--sar));
     --vh: 100dvh;
     --hud-h: 38px;
     /* largura de cada carta da mão: pela altura da tela e pela largura (6 cartas + montes + LUTAR) */
     --hand-w: clamp(52px, min(calc((var(--vh) - var(--hud-h)) * .2), calc((var(--vw) - 330px) / 6 - 6px)), 104px);
     --bottom-h: calc(var(--hand-w) * 1.42 + 12px);
     --hero-w: clamp(44px, 7vw, 92px);
-    --cell: clamp(24px, min(calc((var(--vw) - 2 * var(--hero-w) - 40px) / var(--ncols)), calc((var(--vh) - var(--hud-h) - var(--bottom-h) - 44px) / 2)), 170px);
+    --cell: clamp(24px, min(calc((var(--vw) - 2 * var(--hero-w) - 48px) / var(--ncols)), calc((var(--vh) - var(--hud-h) - var(--bottom-h) - 44px) / 2)), 170px);
   }
   .battle { height: 100%; display: grid !important; grid-template-columns: minmax(0, 1fr) auto !important; grid-template-rows: var(--hud-h) minmax(0, 1fr) auto; grid-template-areas: "hud tools" "field field" "bottom bottom"; gap: 4px; }
   .battle > .bhud { grid-area: hud; padding: 2px 6px; border-radius: 10px; min-width: 0; }
@@ -843,7 +844,7 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 @media (orientation: landscape) {
   .battle-screen {
     /* coluna do Comandante mais larga (antes 7vw) */
-    --hero-w: clamp(64px, 13.5vw, 210px);
+    --hero-w: clamp(64px, calc(var(--vw) * .135), 210px);
     /* altura da figura do Comandante: até 2 fileiras da arena (menos a placa de vida) */
     --lead-h: min(calc(var(--hero-w) * 1.2), calc(var(--cell) * 2 - 26px));
   }
@@ -873,7 +874,7 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .hero { justify-content: flex-end; }
 .hero-fig { flex: 0 0 auto; height: calc(var(--cell) * 2 + 8px); }
 @media (orientation: landscape) {
-  .battle-screen { --hero-w: clamp(64px, 13.5vw, 210px); }
+  .battle-screen { --hero-w: clamp(64px, calc(var(--vw) * .135), 210px); }
   .battle .hero { align-self: stretch; min-height: calc(var(--cell) * 2 + 16px); padding: 0 2px 3px; }
   /* v0.20.0: com a arena de 12 colunas as casas ficaram menores; o Comandante agora ocupa a altura do retângulo
      (a imagem não distorce: object-fit contain, de pé no piso) */
@@ -1181,10 +1182,10 @@ body.native-landscape .rotate-prompt { display: none !important; }
   .download-btn { zoom: 1.75; }
 }
 @media (orientation: landscape) and (min-width: 1700px) and (min-height: 950px) {
-  .battle-screen { zoom: 1.3; --vw: calc(100vw / 1.3); --vh: calc(100dvh / 1.3); }
+  .battle-screen { zoom: 1.3; --vw: calc((100vw - var(--sal) - var(--sar)) / 1.3); --vh: calc(100dvh / 1.3); }
 }
 @media (orientation: landscape) and (min-width: 2300px) and (min-height: 1300px) {
-  .battle-screen { zoom: 1.75; --vw: calc(100vw / 1.75); --vh: calc(100dvh / 1.75); }
+  .battle-screen { zoom: 1.75; --vw: calc((100vw - var(--sal) - var(--sar)) / 1.75); --vh: calc(100dvh / 1.75); }
 }
 
 /* ---- v0.20.0: batalha com o celular/tablet EM PÉ (quando o jogador escolhe "Jogar em pé"): nada passa da largura da tela ---- */
@@ -1439,9 +1440,12 @@ body.native-landscape .rotate-prompt { display: none !important; }
   .modal-detail .detail-info { font-size: 13px; line-height: 1.3; }
   .modal-detail .detail-info ul { margin: 4px 0; padding-left: 18px; }
   .modal-detail .lore { font-size: 12px; margin-top: 4px; }
+  /* v0.42.2: espaço entre a carta grande e as etiquetas, para o brilho da carta não pegar no texto */
+  .modal-detail .detail-info { margin-top: 16px; }
 }
 @media (max-width: 640px) and (max-height: 800px) {
   .modal-detail .detail-card { width: min(40vw, 25dvh); }
+  .modal-detail .detail-info { margin-top: 12px; }
   .modal-detail .detail-sprite-box { margin-top: 20px; }
   .modal-detail .detail-info { font-size: 12px; line-height: 1.25; }
   .modal-detail h2 { font-size: 18px; }
@@ -1528,3 +1532,10 @@ body.native-landscape .rotate-prompt { display: none !important; }
 /* v0.42.1: tutorial — as 6 casas da zona de invocação destacadas juntas; a casa sugerida ganha um círculo */
 .spot-zone { position: fixed; border: 3px dashed #5fd8ff; border-radius: 12px; box-shadow: 0 0 16px rgba(95,216,255,.7), inset 0 0 18px rgba(95,216,255,.35); pointer-events: none; }
 .spot-frame.ring { border-radius: 50%; border-width: 4px; }
+/* v0.42.2: Poder ao lado do nome no detalhe da carta (saiu do topo das cartas) */
+.detail-info h2 .name-pow { display: inline-flex; align-items: center; gap: 2px; margin-left: 6px; padding: 1px 10px 1px 6px; border: 1px solid #ffcf4a; border-radius: 99px; color: #ffe27a; font-size: .62em; font-weight: 900; vertical-align: .18em; background: rgba(40,30,0,.45); white-space: nowrap; }
+.act-tile i .ico { width: 1.6em; height: 1.6em; }
+/* v0.42.2: Banner sem título por cima; o nome (só o primeiro) embaixo de cada destaque aparece inteiro, numa plaquinha */
+.banner-feat { bottom: 8px; right: 10px; gap: 8px; }
+.banner-hero b { margin-top: 4px; padding: 1px 8px; border-radius: 99px; background: rgba(5,8,20,.72); font-size: 12px; line-height: 1.35; }
+@media (max-width: 520px) { .banner-hero .art-sprite { height: 96px; } }

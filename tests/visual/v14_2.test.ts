@@ -15,7 +15,7 @@ const EMB: Record<string, string> = { dps, mago, arqueiro, assassino, tanque, su
 describe('v0.14.2 — acabamento da carta (prévia v14.2f)', () => {
   it('topo: ⚡Poder sozinho na pílula e degrau na estrela dourada (v0.23.0: "+"/"++", sem "Nv.")', () => {
     const h = cardHTML({ charId: 'lyra', stars: 2, plus: 2 }, { power: 10000 });
-    expect(h).toContain('<div class="ck-pow" title="Poder"><img class="ico" src="/src/assets/icons/poder.webp" alt="" draggable="false">10000</div>');
+    expect(h).not.toContain('ck-pow'); // v0.42.2: o Poder saiu do topo da carta
     // v0.28.7: a estrela do degrau saiu; o canto mostra o ícone do grupo e o degrau fica em "Incomum++"
     expect(h).not.toContain('ck-star');
     expect(h).toContain('<div class="ck-cat" title="Mago">');

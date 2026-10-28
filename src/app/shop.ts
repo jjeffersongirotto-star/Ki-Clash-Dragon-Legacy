@@ -43,9 +43,8 @@ export function shop() {
         ? [...need.values()].map((g) => gearCell(g.id, g.rarity, g.n > 1 ? ` · ${g.n} personagens pedem` : '')).join('')
         : '<p class="hint">Nenhum item faltando para o próximo degrau dos personagens do seu baralho. 🎉</p>'
       : GEAR_SETS[shopCat].map((g) => gearCell(g.id, shopRarity)).join('');
-  app.innerHTML = `<div class="screen">${topbar('🏪 Loja')}
+  app.innerHTML = `<div class="screen">${topbar(`${ico('loja', '🏪')} Loja`)}
   <div class="shop">
-    <p class="hint">Compre com ${goldHTML()} <b>Ouro de Dragão</b>, que vem de cada vitória e Repetir (em dobro na primeira vitória de cada fase).</p>
     ${BANNERS.map((b) => bannerHTML(b, gold)).join('')}
     <h3>${ico('inventario', '🎒')} Itens de ascensão</h3>
     <div class="shop-tabs">
@@ -130,12 +129,10 @@ export function bannerHTML(b: Banner, gold: number): string {
   return `<div class="banner-box">
     <div class="banner-art">
       <div class="banner-sky"></div><div class="banner-mount"></div>
-      <div class="banner-feat">${feat.map((d) => `<div class="banner-hero" style="${starStyle(b.featuredRarity)}">${unitSpriteHTML(d, { stars: b.featuredRarity, side: 'player' })}<b>${esc(d.name)}</b></div>`).join('')}</div>
-      <div class="banner-title"><h3>${ico('banner', '🎴')} ${esc(b.name)}</h3><small>${esc(b.subtitle)}</small></div>
+      <div class="banner-feat">${feat.map((d) => `<div class="banner-hero" style="${starStyle(b.featuredRarity)}">${unitSpriteHTML(d, { stars: b.featuredRarity, side: 'player' })}<b>${esc(d.name.split(' ')[0])}</b></div>`).join('')}</div>
     </div>
     <div class="banner-odds">${odds}</div>
     <div class="pity-mark" title="A cada ${PITY_EVERY} cartas compradas, 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor garantida (volta a 0 quando sai uma)">${ico('pity', '🎯')} Lendária garantida <b>${pityCount(b, save.bannerPity)}/${PITY_EVERY}</b></div>
-    <p class="hint">Cada carta é um personagem ou um ✦ feitiço na raridade sorteada (feitiços de Comum a Épico). ${feat.map((d) => esc(d.name)).join(' e ')} saem só aqui, no ${TIER_NAMES[b.featuredRarity]}. No pacote de 10: pelo menos 1 ${TIER_NAMES[b.guarantee10]} ou melhor. A cada ${PITY_EVERY} cartas: 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor. Carta repetida vira mais 1 cópia (no 🎒 Inventário: use no baralho ou desmanche). Com 💠 Gemas de Invocação, cada gema compra 1 carta (usadas antes do Ouro).</p>
     <div class="row">${btn(1)}${btn(10)}</div>
   </div>`;
 }
