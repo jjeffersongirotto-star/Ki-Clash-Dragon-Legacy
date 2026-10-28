@@ -165,7 +165,7 @@ export function cardDetail(id: string, previewStars?: number) {
   }
   // v0.31.0: ações em "cards" ao lado da carta (Colocar no baralho / Treinar) e ✕ no canto; sem botões embaixo
   const actions = owned
-    ? `<button class="act-tile primary" data-m="deck"><i>${inDeck ? ico('tirar', '📤') : ico('colecao', '🃏')}</i><span>${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</span></button><button class="act-tile" data-m="train"><i>🔥</i><span>Treinar</span></button>`
+    ? `<button class="act-tile primary" data-m="deck"><i>${inDeck ? ico('tirar', '📤') : ico('colecao', '🃏')}</i><span>${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</span></button><button class="act-tile" data-m="train"><i>${ico('treinar', '🔥')}</i><span>Treinar</span></button>`
     : '';
   const lockNote = owned ? '' : !unlockStage(id) ? `<p class="hint">🎴 Personagem ${tierLabel(def.minStars)}: sai no <b>Banner</b> da 🏪 Loja (com Ouro de Dragão ou 💠 Gemas de Invocação).</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id)} pela primeira vez para desbloquear.</p>`;
   modal(`<button class="modal-x" data-m="close" aria-label="Fechar" title="Fechar">${ico('fechar', '✕')}</button><div class="detail" style="${starStyle(stars)}">
@@ -179,13 +179,13 @@ export function cardDetail(id: string, previewStars?: number) {
     </div>
     <div class="detail-info">
       <div class="detail-badges">${tierHTML(stars, plus)} ${raceHTML(def, true)} ${categoryHTML(def, true)}</div>
-      <h2>${esc(def.name)}</h2><div class="subtitle">${esc(def.title)}</div>
+      <h2>${esc(def.name)} <span class="name-pow" title="Poder = 10 × peso da habilidade × √(ataque × vida)">${ico('poder', '⚡')}${fmt(pow)}</span></h2><div class="subtitle">${esc(def.title)}</div>
       <div><small>Faixa: ${tierLabel(def.minStars)} a ${tierLabel(def.maxStars, MAX_STEP)}</small></div>
       <div class="star-preview-bar">
         <span class="sp-label">${ico('seta-evolucao', '👁')} Ver evolução por raridade (roupa/poder):</span>
         <div class="sp-tabs">${starTabs.join('')}</div>
       </div>
-      <div class="stat-row"><span class="pow-stat" title="Poder = 10 × peso da habilidade × √(ataque × vida)">Poder <b>⚡ ${fmt(pow)}</b></span><span title="Rodadas que a carta espera na mão até poder ser invocada">Espera <b>⏳ ${waitFor(def.id)}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${reachLabel(def)}</b></span><span>Movimento <b>${def.move}</b></span></div>
+      <div class="stat-row"><span title="Rodadas que a carta espera na mão até poder ser invocada">Espera <b>⏳ ${waitFor(def.id)}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${reachLabel(def)}</b></span><span>Movimento <b>${def.move}</b></span></div>
       ${abilityListHTML(def, stars, plus)}
       ${lockNote}
       <p class="lore">${esc(def.lore)}</p>

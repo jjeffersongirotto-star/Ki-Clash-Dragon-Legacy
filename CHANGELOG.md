@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.42.2] — 28/10/2026 · PR #80 — Arena centralizada, cartas sem Poder no topo e Loja mais limpa
+- **Batalha (celular deitado):** a arena passava por baixo do Comandante inimigo e cortava a última coluna em celulares com câmera/entalhe na lateral. Agora a largura desconta essa faixa e as 10 colunas cabem inteiras, centralizadas entre os dois Comandantes.
+- **Poder fora do topo das cartas** (em todo lugar: Coleção, baralho, mão, Treinar, Banner…). No detalhe da carta ele aparece **ao lado do nome** (ex.: "Zarek do Eclipse ⚡358"). Só visual: o Poder e o Poder do baralho continuam iguais.
+- **Detalhe da carta:** mais espaço entre a carta grande e as etiquetas (Lendário++, raça, grupo), para o brilho em volta da carta não pegar no texto.
+- **Coleção sem piscar:** as cartas das listas usam miniaturas leves da arte, carregadas de uma vez; rolando rápido elas não ficam mais pretas.
+- **Loja:** saíram a frase "Compre com Ouro de Dragão…", o parágrafo explicativo do Banner, o título "Despertar do Dragão" e o "Kenji e Vorax em destaque". Os nomes embaixo dos destaques aparecem inteiros, só o primeiro nome (Kenji, Vorax). O título "LOJA" usa o ícone desenhado da Loja.
+
 ## [0.42.1] — 28/10/2026 · PR #79 — Tutorial: qualquer casa da zona vale
 - **Invocar no tutorial:** antes só uma casa ficava clara e o texto falava em "3 colunas da esquerda". Agora as **6 casas da sua zona** ficam destacadas juntas (moldura azul) e **dá para colocar o personagem em qualquer uma**.
 - Na **1ª invocação**, o tutorial primeiro mostra os 6 quadrados: "Você pode colocar o Riku em qualquer um dos 6 quadrados destacados: essa é a sua zona de invocação." Depois **circula uma casa** (com a manopla apontando) e pede para colocar ali.

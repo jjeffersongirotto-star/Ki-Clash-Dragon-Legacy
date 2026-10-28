@@ -18,7 +18,7 @@ describe('v0.14 — padrão de carta', () => {
   it('Toru: espera 5 rodadas na gota (v0.16.0), ⚡47, sem estrela no degrau base (v0.23.0), nome, "Comum", raça + categoria, ATQ 2, VIDA 11', () => {
     const h = cardHTML({ charId: 'toru', stars: 1 });
     expect(h).toContain('<div class="ck-cost" title="Espera 5 rodada(s) na mão"><span>5</span></div>');
-    expect(h).toContain('<div class="ck-pow" title="Poder"><img class="ico" src="/src/assets/icons/poder.webp" alt="" draggable="false">47</div>'); // v0.42.0: ícone desenhado do Poder
+    expect(h).not.toContain('ck-pow'); // v0.42.2: o Poder saiu do topo da carta (fica ao lado do nome no detalhe)
     expect(h).not.toContain('ck-star');
     expect(h).not.toContain('Nv.');
     expect(h).toContain('Toru Sombra\u2011Reversa');
@@ -44,9 +44,10 @@ describe('v0.14 — padrão de carta', () => {
       for (const a of d.abilities) expect(row).toContain(`/src/assets/icons/ab-${a}.webp`); // v0.42.0: ícone desenhado de cada habilidade
     }
   });
-  it('Poder no topo é o Poder da carta (nível, cor e "+")', () => {
+  it('v0.42.2: o Poder não aparece mais no topo da carta (só visual; o valor continua o mesmo)', () => {
     const c = { charId: 'lyra', stars: 2, plus: true };
-    expect(cardHTML(c)).toContain(`poder.webp" alt="" draggable="false">${cardPower(c)}`);
+    expect(cardHTML(c, { power: cardPower(c) })).not.toContain('ck-pow');
+    expect(cardPower(c)).toBeGreaterThan(0);
   });
   it('emblema de ataque por categoria: cada categoria tem o seu ícone', () => {
     expect(Object.keys(ICONS).sort()).toEqual(Object.keys(CATEGORY_INFO).sort());
