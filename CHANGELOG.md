@@ -2,6 +2,17 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.41.0] — 28/10/2026 · PR #77 — Feitiços colecionáveis e ícone novo
+- **Feitiços viraram cartas colecionáveis:** antes todos vinham liberados; agora cada um tem raridade (Comum, Incomum, Raro ou Épico) e você ganha cópias como nos personagens. O baralho usa até 3 cópias, só as que você tem.
+  - Comum: Muralha, Flecha Envenenada, Cura em Massa · Incomum: Veneno Mortal, Chuva de Flechas, Investida de Ki · Raro: Lâmina Giratória, Tremor, Bola de Fogo, Raio Paralisante · Épico: Golpe nas Sombras, Anjo da Guarda, Chamado da Necropolis.
+- **De onde vêm:** do 🎴 Banner (sorteados junto com os personagens da mesma raridade; nunca no Lendário/Mítico), da **1ª vitória das fases 2, 5 e 8 de cada região** (Fácil: Comum nas regiões 1–3, Incomum 4–6, Raro 7–9, Épico na 10; Normal +1 raridade, Difícil +2) e do tutorial.
+- **Feitiço repetido** vira mais 1 cópia; as que sobram (fora do baralho e sem ser a 1ª) aparecem no 🎒 Inventário ("Cartas repetidas") e viram Orbes no Desmanchar.
+- **Coleção:** mostra os feitiços que você tem (com as cópias) e os que faltam, bloqueados, com a raridade e onde conseguir.
+- **Tutorial:** o pacote grátis traz também o feitiço **💨 Investida de Ki** (2 cópias) e a Batalha 2 ensina a lançá-lo (escolher a carta e tocar/clicar no inimigo destacado; texto diferente no celular e no PC). Escolhido no simulador entre os que o Riku, a Sora ou a Nara lançam: foi o que mais ajudou o jogador novo.
+- **Save antigo:** os feitiços que já estavam no baralho continuam seus (com as mesmas cópias); os outros passam a vir do Banner e das fases. A conta de teste ADM tem 9 cópias de cada feitiço.
+- **Curva da região 1** (simulador, 100 jogadores no Fácil, com Loja): vitória ao chegar 100 · 100 · 98 · 94 · 97 · 88 · 89 · 80 · 74 · 64% (só personagens, como a campanha foi calibrada: 94 · 97 · 88 · 88 · 90 · 82 · 80 · 69 · 70 · 67%; com todos os feitiços liberados, como era no jogo: 100 · 100 · 100 · 90 · 94 · 89 · 87 · 77 · 78 · 74%). Fica entre as duas: o começo um pouco mais fácil com a Investida, as fases 9 e 10 como antes.
+- **Ícone novo do app:** dragão dourado em anel com cartas, num fundo cósmico com raios. Ícones do navegador e do Android (normal, redondo e adaptável) e telas de abertura refeitos; nas máscaras redondas e arredondadas o dragão fica inteiro (`scripts/android/icons.py`).
+
 ## [0.40.0] — 28/10/2026 · PR #76 — Cartas sem aura e sem estrelinhas
 - **Cartas mais limpas:** saiu a fumaça colorida no meio de baixo da arte (a cor mudava conforme a carta) e saíram as estrelinhas que piscavam por cima da arte. Ficam o reflexo que passa pela carta e o efeito da borda. Vale para todos os lugares: Coleção, detalhe, mão, batalha e tela inicial.
 

@@ -13,8 +13,8 @@ import type { Stage } from './campaign';
 import { gearNeeded, type GearBag, addGear } from './gear';
 import type { OrbBag } from './progression';
 import type { BattleState, CardInstance } from './types';
-import { deployCells, waitOf } from './battle';
-import { isSpell } from './spells';
+import { deployCells, spellTargets, waitOf } from './battle';
+import { getSpell, isSpell } from './spells';
 
 /** Etapas guardadas no save: 0 = Batalha 1 · 1 = pacote · 2 = Batalha 2 · 3 = concluído */
 export const TUT_BATTLE1 = 0;
@@ -25,6 +25,13 @@ export const TUT_DONE = 3;
 export const TUTORIAL_STARTER = 'riku';
 export const TUTORIAL_PACK = ['sora', 'nara'];
 export const TUTORIAL_CHARS = [TUTORIAL_STARTER, ...TUTORIAL_PACK];
+/**
+ * v0.41.0: o feitiço do pacote do tutorial (os feitiços deixaram de vir todos liberados). Escolhido no simulador
+ * entre os que o Riku, a Sora ou a Nara conseguem lançar (scripts/balance/v41.ts): o que mais ajuda o jogador novo.
+ */
+export const TUTORIAL_SPELL = 'f-investida';
+/** cópias do feitiço do tutorial (todas entram no baralho) */
+export const TUTORIAL_SPELL_COPIES = 2;
 
 const enemy = (charId: string, copies = 3): CardInstance => ({ charId, stars: 1, plus: 0, copies });
 
@@ -97,6 +104,26 @@ const PLAN2: { id: string; r: number; c: number }[] = [
 ];
 
 const cardsUsed = (s: BattleState) => s.stats?.player.cards ?? 0;
+const spellsUsed = (s: BattleState) => s.stats?.player.spells ?? 0;
+
+/**
+ * v0.41.0: alvo que o tutorial aponta para o feitiço: na fileira, a que tem mais inimigos (a casa do inimigo mais à
+ * frente dela); num inimigo, o mais à frente; senão, o primeiro alvo possível.
+ */
+function spellAim(s: BattleState, id: string): [number, number] | undefined {
+  const t = spellTargets(s, 'player', id);
+  if (!t.length) return undefined;
+  const foes = s.units.filter((u) => u.side === 'enemy' && u.hp > 0).sort((a, b) => a.col - b.col || a.row - b.row);
+  const sp = getSpell(id);
+  if (sp.target === 'row' && foes.length) {
+    const per = (r: number) => foes.filter((u) => u.row === r).length;
+    const row = [...new Set(foes.map((u) => u.row))].sort((a, b) => per(b) - per(a) || a - b)[0];
+    const u = foes.find((f) => f.row === row)!;
+    return [u.row, u.col];
+  }
+  if (sp.target === 'enemy' && foes.length) return [foes[0].row, foes[0].col];
+  return t[0];
+}
 
 /**
  * Próximo passo do roteiro (uma invocação por turno; depois, LUTAR). `selected` = carta escolhida na mão.
@@ -111,6 +138,15 @@ export function guideStep(i: 0 | 1, s: BattleState, selected: number | null, mem
   const hand = s.decks.player.hand;
   const ready = hand.map((h, k) => ({ h, k })).filter(({ h }) => !isSpell(h.charId) && waitOf(h) === 0);
   const cells = deployCells(s, 'player');
+  // v0.41.0: Batalha 2 — depois das 3 primeiras invocações, ensina a lançar o feitiço (uma vez), assim que der
+  if (i === 1 && cardsUsed(s) === memo.cardsAtTurn && cardsUsed(s) >= PLAN2.length && spellsUsed(s) === 0) {
+    const sp = hand.map((h, k) => ({ h, k })).find(({ h }) => isSpell(h.charId) && waitOf(h) === 0 && spellAim(s, h.charId));
+    if (sp) {
+      if (selected !== sp.k) return { kind: 'card', hand: sp.k, charId: sp.h.charId };
+      const [r, c] = spellAim(s, sp.h.charId)!;
+      return { kind: 'cell', r, c, charId: sp.h.charId };
+    }
+  }
   if (cardsUsed(s) === memo.cardsAtTurn && ready.length && cells.length) {
     const n = cardsUsed(s);
     const plan = i === 1 ? PLAN2[n] : undefined;
@@ -132,6 +168,14 @@ export function guideText(i: 0 | 1, a: GuideAction, s: BattleState, touch = true
       ? 'Para ver o que uma carta faz, <b>toque e segure</b> a carta do <b>Riku</b> até aparecer a descrição.'
       : 'Para ver o que uma carta faz, <b>clique e segure</b> a carta do <b>Riku</b> (ou clique com o <b>botão direito</b>) até aparecer a descrição.';
   if (a.kind === 'watch') return s.winner ? '' : 'Veja o que acontece: seus personagens andam e atacam, depois o inimigo joga.';
+  // v0.41.0: o passo do feitiço (Batalha 2)
+  if ((a.kind === 'card' || a.kind === 'cell') && isSpell(a.charId)) {
+    const sp = getSpell(a.charId);
+    const tap = touch ? 'Toque' : 'Clique';
+    if (a.kind === 'card') return `Hora do <b>feitiço</b>! ${tap} na carta <b>${sp.icon} ${sp.name}</b>. Feitiço não entra em campo: um aliado da categoria dele (aqui, quem tem o maior ataque) conjura.`;
+    const what = sp.target === 'row' ? 'acerta <b>todos os inimigos da fileira</b>' : sp.target === 'enemy' ? 'acerta o <b>inimigo destacado</b>' : sp.target === 'ally' ? 'vale para o <b>aliado destacado</b>' : 'faz efeito';
+    return `${tap} na <b>casa destacada</b> para lançar: o feitiço ${what}. Depois ele volta para o baralho e reaparece na mão.`;
+  }
   if (i === 0) {
     if (a.kind === 'card') return n === 0 ? 'Esta é a sua <b>mão</b>. Toque na carta do <b>Riku</b> para escolhê-la.' : 'Chegou carta nova na mão. Toque nela para invocar mais um <b>Riku</b>.';
     if (a.kind === 'cell') return n === 0 ? 'Agora toque na <b>casa destacada</b>. A sua zona são as 3 colunas da esquerda: é lá que os personagens entram.' : 'Toque na <b>casa destacada</b> para invocar.';

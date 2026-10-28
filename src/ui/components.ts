@@ -161,12 +161,12 @@ export const spellCastersLabel = (s: SpellDef) => s.categories.map((c) => `${CAT
  * Carta de feitiço: mesma moldura/medidas da carta de personagem (cabe na mão e na grade), fundo estático
  * na cor da categoria e o ícone grande no lugar da arte. Sem animação nova.
  */
-export function spellCardHTML(id: string, opts: { extraClass?: string; attrs?: string; badge?: string; compact?: boolean; wait?: number; copies?: number } = {}): string {
+export function spellCardHTML(id: string, opts: { extraClass?: string; attrs?: string; badge?: string; compact?: boolean; wait?: number; copies?: number; locked?: boolean } = {}): string {
   const s = getSpell(id);
   const c1 = CAT_COLOR[s.categories[0]];
   const c2 = CAT_COLOR[s.categories[1] ?? s.categories[0]];
   const w = opts.wait ?? waitFor(id);
-  return `<div class="card spell-card s3 ${opts.compact ? 'compact' : 'ab'} ${opts.extraClass ?? ''}" style="--rc:#7c5cff;--rg:#b9a8ff;--sc1:${c1};--sc2:${c2}" ${opts.attrs ?? ''}>
+  return `<div class="card spell-card s3 ${opts.compact ? 'compact' : 'ab'} ${opts.extraClass ?? ''}${opts.locked ? ' locked' : ''}" style="--rc:#7c5cff;--rg:#b9a8ff;--sc1:${c1};--sc2:${c2}" ${opts.attrs ?? ''}>
     <div class="card-metal"><div class="card-frame">
       <div class="card-art spell-art"><span class="spell-ico">${s.icon}</span></div>
       <div class="ck-cost${opts.wait === 0 ? ' ready' : ''}" title="${opts.wait == null ? `Espera ${w} rodada(s) na mão` : opts.wait ? `Falta(m) ${opts.wait} rodada(s)` : 'Pronto para lançar'}"><span>${w}</span></div>

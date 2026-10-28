@@ -4,7 +4,7 @@
  */
 import { waitFor } from '../core/battle';
 import { PLAYABLE, RACE_INFO, getChar, isComingSoon } from '../core/characters';
-import { MAX_STEP, statsFor, stepOf, tierLabel } from '../core/progression';
+import { MAX_STEP, TIER_NAMES, statsFor, stepOf, tierLabel } from '../core/progression';
 import { playerLeaderImg, unitSpriteHTML } from '../ui/art';
 import { cardPower } from '../core/power';
 import { canEvolve, evolveLeader, leaderHp, leaderMaxLevel, nextRequirement } from '../core/leaders';
@@ -12,7 +12,7 @@ import { abilityListHTML, cardHTML, categoryHTML, dmgLabel, esc, raceHTML, reach
 import { SPELLS, getSpell, isSpell } from '../core/spells';
 import { gameAlert, showDialog } from '../ui/dialog';
 import { leaveBattleMode } from '../ui/orientation';
-import { MAX_COPIES, addToDeck, deckMin, copiesIn, maxCopiesFor, deckCount, deckIssue, deckMax, profileLevel, removeFromDeck, setCopies } from '../ui/save';
+import { MAX_COPIES, addToDeck, deckMin, copiesIn, spellCopies, maxCopiesFor, deckCount, deckIssue, deckMax, profileLevel, removeFromDeck, setCopies } from '../ui/save';
 import { app, save, setTrainSel, persist, unlockStage, entryName, teamPower, activeLeader, leaderLevel, fmt } from './state';
 import { topbar, bindNav, modal, closeModal, bakeAllGrid } from './ui';
 import { train } from './train';
@@ -90,6 +90,9 @@ export function collection() {
   const lockOrder = (id: string) => (isComingSoon(getChar(id)) ? 999 : unlockStage(id) ?? 99);
   const locked = PLAYABLE.filter((d) => !save.cards[d.id] && matchRace(d.id)).sort((a, b) => lockOrder(a.id) - lockOrder(b.id));
   const lockBadge = (id: string) => (unlockStage(id) ? `🔒 Fase ${unlockStage(id)}` : '🎴 Banner'); // v0.33.0: sem pacote de fase, tudo vem do Banner
+  // v0.41.0: feitiços que você tem primeiro; os outros aparecem bloqueados (vêm do Banner e das fases)
+  const ownedSpells = SPELLS.filter((sp) => spellCopies(save, sp.id) > 0);
+  const lockedSpells = SPELLS.filter((sp) => spellCopies(save, sp.id) <= 0).sort((a, b) => a.rarity - b.rarity);
   const count = deckCount(save);
   const max = deckMax(save);
   const issue = deckIssue(save);
@@ -98,7 +101,7 @@ export function collection() {
     const card = isSpell(id)
       ? spellCardHTML(id, { compact: true, attrs: `data-card="${id}"` })
       : cardHTML(save.cards[id], { compact: true, grid: true, attrs: `data-card="${id}"`, power: cardPower(save.cards[id]) });
-    return `<div class="deck-entry">${card}<div class="copies" data-copies="${id}"><button class="cp-btn" data-cp="-1" aria-label="Menos uma cópia" ${n <= 1 ? 'disabled' : ''}>−</button><b>×${n}</b><button class="cp-btn" data-cp="1" aria-label="Mais uma cópia" title="${n >= maxCopiesFor(save, id) && n < MAX_COPIES ? `Você tem ${maxCopiesFor(save, id)} cópia(s) deste personagem` : ''}" ${n >= maxCopiesFor(save, id) || count >= max ? 'disabled' : ''}>+</button></div></div>`;
+    return `<div class="deck-entry">${card}<div class="copies" data-copies="${id}"><button class="cp-btn" data-cp="-1" aria-label="Menos uma cópia" ${n <= 1 ? 'disabled' : ''}>−</button><b>×${n}</b><button class="cp-btn" data-cp="1" aria-label="Mais uma cópia" title="${n >= maxCopiesFor(save, id) && n < MAX_COPIES ? `Você tem ${maxCopiesFor(save, id)} cópia(s) desta carta` : ''}" ${n >= maxCopiesFor(save, id) || count >= max ? 'disabled' : ''}>+</button></div></div>`;
   };
   app.innerHTML = `<div class="screen">${topbar('Coleção & Baralho')}
     ${leaderPanelHTML()}
@@ -113,8 +116,11 @@ export function collection() {
     <p class="hint">Toque numa carta para inspecionar a evolução visual de raridade em raridade (Comum → Mítico), ver o sprite de arena e editar a equipe.</p>
     <h3 class="sec-title">Seus personagens <small>(${owned.length})</small></h3>
     <div class="card-grid">${owned.map((id) => cardHTML(save.cards[id], { grid: true, power: cardPower(save.cards[id]), attrs: `data-card="${id}"`, badge: save.deck.includes(id) ? `✔ ×${copiesIn(save, id)}` : undefined, extraClass: save.deck.includes(id) ? 'in-deck' : '' })).join('')}</div>
-    <h3 class="sec-title">✦ Feitiços <small>(${SPELLS.length} · ocupam vagas do baralho; precisam de um aliado da categoria em campo)</small></h3>
-    <div class="card-grid spell-grid">${SPELLS.map((sp) => spellCardHTML(sp.id, { attrs: `data-card="${sp.id}"`, badge: save.deck.includes(sp.id) ? `✔ ×${copiesIn(save, sp.id)}` : undefined, extraClass: save.deck.includes(sp.id) ? 'in-deck' : '' })).join('')}</div>
+    <h3 class="sec-title">✦ Feitiços <small>(${ownedSpells.length}/${SPELLS.length} · ocupam vagas do baralho; precisam de um aliado da categoria em campo)</small></h3>
+    <div class="card-grid spell-grid">${ownedSpells.map((sp) => spellCardHTML(sp.id, { attrs: `data-card="${sp.id}"`, badge: save.deck.includes(sp.id) ? `✔ ×${copiesIn(save, sp.id)}` : `×${spellCopies(save, sp.id)}`, extraClass: save.deck.includes(sp.id) ? 'in-deck' : '' })).join('')}</div>
+    ${lockedSpells.length ? `<div class="divider"><span>🔒 Feitiços ainda não obtidos (${lockedSpells.length})</span></div>
+    <div class="card-grid spell-grid locked-grid">${lockedSpells.map((sp) => spellCardHTML(sp.id, { locked: true, attrs: `data-card="${sp.id}"`, badge: `🔒 ${TIER_NAMES[sp.rarity]}` })).join('')}</div>
+    <p class="hint soon-note">✦ <b>Feitiços:</b> saem no 🎴 Banner (na raridade de cada um) e na 1ª vitória das fases 2, 5 e 8 de cada região.</p>` : ''}
     ${locked.length ? `<div class="divider"><span>🔒 Ainda não obtidos (${locked.length})</span></div>
     <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, stars: def.minStars }, { locked: true, grid: true, extraClass: isComingSoon(def) ? 'soon' : '', attrs: `data-card="${def.id}"`, badge: lockBadge(def.id) })).join('')}</div>
     ${locked.length ? `<p class="hint soon-note">🎴 <b>No Banner:</b> ${locked.length > 3 ? `${locked.length} personagens` : locked.map((d) => esc(d.name)).join(' e ')} — compre cartas no Banner da 🏪 Loja (com Ouro de Dragão ou 💠 Gemas de Invocação).</p>` : ''}` : ''}
@@ -217,17 +223,18 @@ export async function toggleDeck(id: string, inDeck: boolean) {
 export function spellDetail(id: string) {
   const sp = getSpell(id);
   const inDeck = save.deck.includes(id);
+  const have = spellCopies(save, id);
   modal(`<div class="detail" style="--rc:#7c5cff;--rg:#b9a8ff">
-    <div class="detail-left">${spellCardHTML(id, { extraClass: 'detail-card' })}</div>
+    <div class="detail-left">${spellCardHTML(id, { extraClass: 'detail-card', locked: !have })}</div>
     <div class="detail-info">
-      <div class="detail-badges"><span class="tier-tag" style="--rc:#7c5cff;--rg:#b9a8ff">✦ Feitiço</span></div>
+      <div class="detail-badges"><span class="tier-tag" style="--rc:#7c5cff;--rg:#b9a8ff">✦ Feitiço</span> ${tierHTML(sp.rarity)}</div>
       <h2>${sp.icon} ${esc(sp.name)}</h2><div class="subtitle">Conjurador: ${esc(spellCastersLabel(sp))}</div>
       ${spellInfoHTML(id)}
-      ${inDeck ? `<p class="hint">No baralho: <b>×${copiesIn(save, id)}</b> (ajuste as cópias com − / + na barra do baralho).</p>` : ''}
+      ${have ? `<p class="hint">Você tem <b>${have}</b> ${have === 1 ? 'cópia' : 'cópias'} (o baralho usa até ${MAX_COPIES}).${inDeck ? ` No baralho: <b>×${copiesIn(save, id)}</b> (ajuste com − / + na barra do baralho).` : ''}</p>` : `<p class="hint">🔒 Ainda não obtido. Feitiço ${TIER_NAMES[sp.rarity]}: sai no <b>🎴 Banner</b> da 🏪 Loja e na 1ª vitória das fases 2, 5 e 8 de cada região.</p>`}
     </div></div>
-    <div class="row"><button class="btn primary" data-m="deck">${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</button><button class="btn ghost" data-m="close">Fechar</button></div>`,
+    <div class="row">${have ? `<button class="btn primary" data-m="deck">${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</button>` : ''}<button class="btn ghost" data-m="close">Fechar</button></div>`,
     (m) => {
       m.querySelector('[data-m=close]')!.addEventListener('click', closeModal);
-      m.querySelector('[data-m=deck]')!.addEventListener('click', () => void toggleDeck(id, inDeck));
+      m.querySelector('[data-m=deck]')?.addEventListener('click', () => void toggleDeck(id, inDeck));
     });
 }

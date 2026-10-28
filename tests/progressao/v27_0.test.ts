@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { BANNERS, BANNER_EXCLUSIVE, bannerPrice, drawAt, dupBaseXp, dupMultiplier, feedCopy, grantCard, poolFor, pull, rollRarity } from '../../src/core/banner';
 import { getChar } from '../../src/core/characters';
+import { getSpell, isSpell } from '../../src/core/spells';
 import { STAGES } from '../../src/core/campaign';
 import { cardBarXp, newOwned, type OwnedCard } from '../../src/core/progression';
 
@@ -27,13 +28,17 @@ describe('v0.27.0 — Banner de cartas', () => {
     for (const [r, p] of Object.entries(B.odds)) expect(Math.abs(count[Number(r)] / n - p)).toBeLessThan(0.01);
   });
 
-  it('cada carta é um personagem que pode estar na raridade sorteada', () => {
+  it('cada carta é um personagem que pode estar na raridade sorteada (v0.41.0: ou um feitiço dessa raridade)', () => {
     const rng = lcg(3);
     for (let r = 1; r <= 5; r++)
       for (let i = 0; i < 200; i++) {
         const c = drawAt(B, r, rng);
-        const def = getChar(c.charId);
         expect(c.stars).toBe(r);
+        if (isSpell(c.charId)) {
+          expect(getSpell(c.charId).rarity).toBe(r);
+          continue;
+        }
+        const def = getChar(c.charId);
         expect(def.minStars).toBeLessThanOrEqual(r);
         expect(def.maxStars).toBeGreaterThanOrEqual(r);
         expect(def.summonOnly).toBeFalsy();

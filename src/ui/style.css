@@ -1152,6 +1152,7 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .stage-cmd { display: block; height: 96px; margin: -6px auto 0; transform-origin: 50% 100%; animation: advIdle 2.6s ease-in-out infinite; }
 .stage-diff { margin: 2px 0; font-size: 13px; color: var(--gold); }
 .stage-line { margin: 4px 0; font-size: 13px; color: #c9d1f5; }
+.stage-line .spell-pill { display: inline-block; padding: 0 6px; border-radius: 8px; border: 1px solid var(--rc, #7c5cff); color: var(--rg, #b9a8ff); background: rgba(124, 92, 255, .14); white-space: nowrap; } /* v0.41.0 */
 .stage-left { margin: 8px 0 2px; font-size: 14px; color: #7ef0a8; }
 .stage-left.out { color: #ff8a8a; }
 .stage-actions { display: grid; gap: 8px; margin-top: 10px; }

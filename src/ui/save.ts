@@ -1,7 +1,7 @@
 import { CHAR_BY_ID, STARTER_IDS } from '../core/characters';
 import { DECK_MIN, DECK_SLOTS, MAX_COPIES, deckMinFor, deckProblem, deckSize } from '../core/deck';
 import { deckMaxFor, profileLevelFor } from '../core/deckbuild';
-import { isSpell } from '../core/spells';
+import { SPELLS, isSpell } from '../core/spells';
 import type { CardInstance } from '../core/types';
 import { DEFAULT_LEADER, LEADERS } from '../core/leaders';
 import { LEGACY_ITEM_TO_ORB, XP_ITEMS, migrateBarV24, migrateOldCard, newOwned, stepOf, type OwnedCard, type XpItemId } from '../core/progression';
@@ -10,7 +10,7 @@ import { DIFFICULTIES, clearedIn, regionUnlocked, type DailyUse, type Difficulty
 import { REGION_COUNT, WORLD_STAGE_COUNT } from '../core/world';
 import { TUTORIAL_STARTER, TUT_BATTLE1, TUT_DONE } from '../core/tutorial';
 import { levelFromXp, newProfile, normalizeProfile, type ProfileState } from '../core/profile';
-import { addDupe, dupeCount, totalCopies, type Dupes } from '../core/banner';
+import { addDupe, dupeCount, totalCopies, type Dupes, type SpellBag } from '../core/banner';
 
 export interface SaveData {
   version: 1;
@@ -74,6 +74,10 @@ export interface SaveData {
   v39?: boolean;
   /** v0.33.0: falta o passo guiado do Banner no fim do tutorial */
   tutBanner?: boolean;
+  /** v0.41.0: cópias de cada feitiço que você tem (feitiço sem valor = ainda não obtido) */
+  spells?: SpellBag;
+  /** migração v0.41.0: os feitiços que já estavam no baralho viram cópias suas */
+  v41?: boolean;
 }
 
 /** Carta como era salva até a v0.22.0 (com nível numerado e `plus` verdadeiro/falso). */
@@ -149,6 +153,8 @@ export function defaultSave(): SaveData {
     v25: true,
     v26: true,
     v32: true,
+    v41: true,
+    spells: {},
     gems: 0,
     dupes: {},
     genXp: 0,
@@ -166,13 +172,17 @@ export function defaultSave(): SaveData {
 export const profileLevel = (d: SaveData) => levelFromXp(d.profile?.xp ?? 0);
 /** tamanho máximo do baralho para o nível de perfil */
 export const deckMax = (d: SaveData) => deckMaxFor(profileLevel(d));
-/** a carta (personagem possuído ou feitiço) pode estar no baralho? */
-export const usable = (d: SaveData, id: string) => isSpell(id) || (!!CHAR_BY_ID[id] && !!d.cards[id]);
-/** v0.32.0: quantas cópias da carta o baralho pode ter: feitiço até 3; personagem até 3, mas só as que você tem. */
-export const maxCopiesFor = (d: SaveData, id: string) => (isSpell(id) ? MAX_COPIES : Math.max(1, Math.min(MAX_COPIES, totalCopies(d.cards, d.dupes, id))));
+/** v0.41.0: cópias que você tem do feitiço (0 = ainda não obtido) */
+export const spellCopies = (d: SaveData, id: string) => Math.max(0, Math.floor(d.spells?.[id] ?? 0));
+/** a carta (personagem ou, v0.41.0, feitiço que você tem) pode estar no baralho? */
+export const usable = (d: SaveData, id: string) => (isSpell(id) ? spellCopies(d, id) > 0 : !!CHAR_BY_ID[id] && !!d.cards[id]);
+/** v0.32.0: quantas cópias da carta o baralho pode ter: até 3, mas só as que você tem (v0.41.0: feitiços também). */
+export const maxCopiesFor = (d: SaveData, id: string) => Math.max(1, Math.min(MAX_COPIES, ownedCopies(d, id)));
 export const copiesIn = (d: SaveData, id: string) => Math.max(1, Math.min(maxCopiesFor(d, id), Math.floor(d.copies?.[id] ?? MAX_COPIES)));
-/** v0.32.0: cópias que você tem do personagem (0 se não tem) */
-export const ownedCopies = (d: SaveData, id: string) => totalCopies(d.cards, d.dupes, id);
+/** v0.32.0: cópias que você tem da carta (0 se não tem; v0.41.0: feitiços também) */
+export function ownedCopies(d: SaveData, id: string): number {
+  return isSpell(id) ? spellCopies(d, id) : totalCopies(d.cards, d.dupes, id);
+}
 /** as entradas do baralho prontas para a batalha */
 export function deckCards(d: SaveData): CardInstance[] {
   return d.deck
@@ -307,6 +317,7 @@ export function loadSave(): SaveData {
     migrateV13(merged);
     migrateV26(merged, d); // antes do baralho: o tamanho máximo vem do nível de perfil
     migrateV32(merged, d); // antes do baralho: as cópias que você tem limitam o baralho
+    migrateV41(merged, d); // idem para os feitiços
     migrateV17(merged);
     normalizeV20(merged);
     migrateV39(merged);
@@ -389,6 +400,36 @@ export function migrateV32(merged: SaveData, raw: Partial<SaveData>): SaveData {
   merged.v32 = true;
   return merged;
 }
+
+/** Confere as cópias de feitiço (feitiço que existe, quantidade inteira > 0). */
+export function normalizeSpells(v: unknown): SpellBag {
+  const out: SpellBag = {};
+  if (!v || typeof v !== 'object') return out;
+  for (const [id, k] of Object.entries(v as Record<string, unknown>)) {
+    const n = Math.floor(Number(k));
+    if (isSpell(id) && n > 0) out[id] = n;
+  }
+  return out;
+}
+
+/**
+ * v0.41.0: os feitiços viraram cartas colecionáveis. Save antigo fica com os feitiços que estavam no baralho
+ * (com as cópias que o baralho usava, até 3), para ninguém perder nada; os outros passam a vir do Banner e das fases.
+ */
+export function migrateV41(merged: SaveData, raw: Partial<SaveData>): SaveData {
+  merged.spells = normalizeSpells(raw.spells);
+  if (!raw.v41)
+    for (const id of Array.isArray(raw.deck) ? raw.deck : []) {
+      if (!isSpell(id)) continue;
+      const n = Math.max(1, Math.min(MAX_COPIES, Math.floor(Number(raw.copies?.[id] ?? MAX_COPIES)) || MAX_COPIES));
+      merged.spells[id] = Math.max(merged.spells[id] ?? 0, n);
+    }
+  merged.v41 = true;
+  return merged;
+}
+
+/** v0.41.0: todos os feitiços com `n` cópias (conta ADM). */
+export const allSpells = (n: number): SpellBag => Object.fromEntries(SPELLS.map((s) => [s.id, n]));
 
 /**
  * v0.39.0 — mapa do mundo com 100 fases. As fases 1–10 continuam sendo as mesmas (região 1): o progresso, as ⭐ e o

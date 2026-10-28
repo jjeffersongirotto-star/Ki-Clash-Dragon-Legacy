@@ -12,8 +12,11 @@
  * - Cópia repetida (v0.32.0): fica guardada no inventário (mais 1 cópia do personagem). Em Desmanchar, ela vira
  *   XP do próprio personagem (Orbe da raridade da cópia, Comum 100 … Mítico 3.000, + 20% por "+", × sorte
  *   12% ×2 · 5% ×5 · 1% ×10) ou, no modo geral, 25% desse XP guardado como Orbes. A cópia não sobe a raridade.
+ * - v0.41.0: os feitiços também saem no banner, cada um na raridade dele (Comum a Épico), sorteados junto com os
+ *   personagens daquela raridade. Feitiço repetido vira mais 1 cópia; as que sobram são desmanchadas em Orbes.
  */
 import { PLAYABLE } from './characters';
+import { isSpell, spellsAt } from './spells';
 import { XP_ITEMS, feedXp, newOwned, orbXp, type OrbBag, type OwnedCard, type XpItemId } from './progression';
 
 export interface Banner {
@@ -69,9 +72,12 @@ export function rollRarity(odds: Record<number, number>, rng: () => number, min 
 /** Personagens que podem sair numa raridade (raridade inicial ≤ r ≤ máxima). */
 export const poolFor = (r: number) => PLAYABLE.filter((c) => c.minStars <= r && r <= c.maxStars).map((c) => c.id);
 
-/** Uma carta do banner na raridade `r`. */
+/** v0.41.0: cartas que podem sair numa raridade: personagens e os feitiços dessa raridade. */
+export const cardPoolFor = (r: number) => [...poolFor(r), ...spellsAt(r)];
+
+/** Uma carta do banner na raridade `r` (personagem ou, v0.41.0, feitiço). */
 export function drawAt(b: Banner, r: number, rng: () => number): PulledCard {
-  const pool = poolFor(r);
+  const pool = cardPoolFor(r);
   const feat = b.featured.filter((id) => pool.includes(id));
   const rest = pool.filter((id) => !b.featured.includes(id));
   const pick = (ids: string[]) => ids[Math.floor(rng() * ids.length) % ids.length];
@@ -224,11 +230,21 @@ export function bankXp(bank: { xp: number }, xp: number, items: Partial<Record<X
 
 export type GrantResult = { charId: string; stars: number; isNew: true } | { charId: string; stars: number; isNew: false; copies: number };
 
+/** v0.41.0: cópias de cada feitiço que o jogador tem (0 = ainda não obtido). */
+export type SpellBag = Record<string, number>;
+/** Cópias de feitiço que dá para desmanchar: a 1ª e as que o baralho usa ficam. */
+export const spareSpells = (bag: SpellBag | undefined, id: string, deckCopies: number) => Math.max(0, (bag?.[id] ?? 0) - Math.max(1, deckCopies));
+
 /**
  * Entrega uma carta (banner ou pacote): personagem novo entra na coleção na raridade da carta (1 cópia);
  * v0.32.0: o repetido NÃO vira XP sozinho — vira mais 1 cópia guardada no inventário (Desmanchar decide).
+ * v0.41.0: feitiço (com `spells`) soma 1 cópia; o primeiro libera o feitiço.
  */
-export function grantCard(cards: Record<string, OwnedCard>, card: { charId: string; stars: number }, dupes: Dupes): GrantResult {
+export function grantCard(cards: Record<string, OwnedCard>, card: { charId: string; stars: number }, dupes: Dupes, spells: SpellBag = {}): GrantResult {
+  if (isSpell(card.charId)) {
+    const n = (spells[card.charId] = (spells[card.charId] ?? 0) + 1);
+    return n === 1 ? { charId: card.charId, stars: card.stars, isNew: true } : { charId: card.charId, stars: card.stars, isNew: false, copies: n };
+  }
   if (!cards[card.charId]) {
     cards[card.charId] = { ...newOwned(card.charId), stars: card.stars, plus: 0 };
     return { charId: card.charId, stars: card.stars, isNew: true };

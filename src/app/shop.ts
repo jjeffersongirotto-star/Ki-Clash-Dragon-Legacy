@@ -96,7 +96,7 @@ export function buyCards(banner: Banner, n: 1 | 10, after: () => void = shop) {
   if (!pay) return;
   if (pay.kind === 'gem') save.gems = (save.gems ?? 0) - pay.cost;
   else prof().gold -= pay.cost;
-  const got = pull(banner, n, Math.random, (save.bannerPity ??= {})).map((c) => grantCard(save.cards, c, (save.dupes ??= {})));
+  const got = pull(banner, n, Math.random, (save.bannerPity ??= {})).map((c) => grantCard(save.cards, c, (save.dupes ??= {}), (save.spells ??= {})));
   persist();
   const best = Math.max(...got.map((g) => g.stars));
   const again = (k: 1 | 10) => {
@@ -134,7 +134,7 @@ export function bannerHTML(b: Banner, gold: number): string {
     </div>
     <div class="banner-odds">${odds}</div>
     <div class="pity-mark" title="A cada ${PITY_EVERY} cartas compradas, 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor garantida (volta a 0 quando sai uma)">🎯 Lendária garantida <b>${pityCount(b, save.bannerPity)}/${PITY_EVERY}</b></div>
-    <p class="hint">Cada carta é um personagem na raridade sorteada. ${feat.map((d) => esc(d.name)).join(' e ')} saem só aqui, no ${TIER_NAMES[b.featuredRarity]}. No pacote de 10: pelo menos 1 ${TIER_NAMES[b.guarantee10]} ou melhor. A cada ${PITY_EVERY} cartas: 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor. Personagem repetido vira mais 1 cópia (no 🎒 Inventário: use no baralho ou desmanche em XP). Com 💠 Gemas de Invocação, cada gema compra 1 carta (usadas antes do Ouro).</p>
+    <p class="hint">Cada carta é um personagem ou um ✦ feitiço na raridade sorteada (feitiços de Comum a Épico). ${feat.map((d) => esc(d.name)).join(' e ')} saem só aqui, no ${TIER_NAMES[b.featuredRarity]}. No pacote de 10: pelo menos 1 ${TIER_NAMES[b.guarantee10]} ou melhor. A cada ${PITY_EVERY} cartas: 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor. Carta repetida vira mais 1 cópia (no 🎒 Inventário: use no baralho ou desmanche). Com 💠 Gemas de Invocação, cada gema compra 1 carta (usadas antes do Ouro).</p>
     <div class="row">${btn(1)}${btn(10)}</div>
   </div>`;
 }

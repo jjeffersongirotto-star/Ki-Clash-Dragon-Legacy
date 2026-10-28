@@ -9,7 +9,7 @@ import { getLeader } from '../core/leaders';
 import { energyHTML, gemHTML, goldHTML } from '../ui/components';
 import { getSpell, isSpell } from '../core/spells';
 import { gameAlert } from '../ui/dialog';
-import { rawSaveHas, deckMax, hasSave, loadSave, setSaveKey, writeSave, type SaveData } from '../ui/save';
+import { allSpells, rawSaveHas, deckMax, hasSave, loadSave, setSaveKey, writeSave, type SaveData } from '../ui/save';
 import type { Difficulty } from '../core/adventure';
 import { FIRST_WIN_MULT, PROFILE_MAX, addProfileXp, energyMax, goldFor, msToNextEnergy, profileXpFor, tickEnergy, totalXpFor, newProfile, type ProfileState } from '../core/profile';
 import { adminSave, loadAccounts, saveKeyFor } from '../ui/accounts';
@@ -27,6 +27,7 @@ export function openAccountSave(): SaveData {
     const a = adminSave();
     d.deck = a.deck;
     d.copies = a.copies;
+    d.spells = a.spells;
     writeSave(d);
     return d;
   }
@@ -52,6 +53,12 @@ export function openAccountSave(): SaveData {
   if (id && accounts.accounts[id]?.admin && !rawSaveHas('"admDupes32":true')) {
     d.dupes = adminSave().dupes;
     (d as SaveData & { admDupes32?: boolean }).admDupes32 = true;
+    writeSave(d);
+  }
+  // v0.41.0: a ADM ganha uma vez 9 cópias de cada feitiço (os feitiços passaram a ser colecionáveis)
+  if (id && accounts.accounts[id]?.admin && !rawSaveHas('"admSpells41":true')) {
+    d.spells = allSpells(9);
+    (d as SaveData & { admSpells41?: boolean }).admSpells41 = true;
     writeSave(d);
   }
   return d;

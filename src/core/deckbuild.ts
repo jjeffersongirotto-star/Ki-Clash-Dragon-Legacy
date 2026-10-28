@@ -25,8 +25,10 @@ export const deckMaxFor = (profileLevel: number) => Math.min(DECK_ABS_MAX, DECK_
  * Baralho automático (simulador, conta ADM e inimigos com feitiços): os personagens mais fortes com 3 cópias
  * até sobrar espaço para os feitiços, depois `spellSlots` cartas de feitiço (2 cópias cada) que combinem com as
  * categorias do baralho (o feitiço cruzado conta para as duas).
+ * v0.41.0: `spells` = cópias de cada feitiço que o jogador tem (só esses entram, com até 2 cópias e não mais do que
+ * tem); sem `spells`, vale qualquer feitiço (inimigos e testes).
  */
-export function autoDeck(owned: CardInstance[], max: number, spellSlots = 0): CardInstance[] {
+export function autoDeck(owned: CardInstance[], max: number, spellSlots = 0, spells?: Record<string, number>): CardInstance[] {
   const chars = owned.slice().sort((a, b) => cardPower(b) - cardPower(a));
   const out: CardInstance[] = [];
   let left = max - spellSlots;
@@ -44,11 +46,11 @@ export function autoDeck(owned: CardInstance[], max: number, spellSlots = 0): Ca
   let sl = spellSlots + Math.max(0, left);
   // feitiços que combinam com o baralho, na ordem de valor medida no simulador (os de área primeiro)
   const pool = SPELLS.map((s) => ({ s, score: s.categories.reduce((n, k) => n + (cats.get(k) ?? 0), 0) }))
-    .filter((x) => x.score >= 3)
+    .filter((x) => x.score >= 3 && (!spells || (spells[x.s.id] ?? 0) > 0))
     .sort((a, b) => SPELL_VALUE_ORDER.indexOf(a.s.id) - SPELL_VALUE_ORDER.indexOf(b.s.id));
   for (const { s } of pool) {
     if (sl <= 0) break;
-    const n = Math.min(2, sl);
+    const n = Math.min(2, sl, spells ? spells[s.id] : 2);
     out.push({ charId: s.id, stars: 1, copies: n });
     sl -= n;
   }
