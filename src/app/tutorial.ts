@@ -12,6 +12,8 @@ import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
 import { MAX_COPIES, addToDeck, setCopies, spellCopies } from '../ui/save';
 import { addDupe, dupeCount } from '../core/banner';
 import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_PACK, TUTORIAL_REWARD, TUTORIAL_SEEDS, TUTORIAL_SPELL, TUTORIAL_SPELL_COPIES, TUTORIAL_STARTER, TUT_BATTLE1, TUT_BATTLE2, TUT_DONE, TUT_PACK, guideStep, guideText, newGuideMemo, tutorialGear } from '../core/tutorial';
+import { deployCells } from '../core/battle';
+import { isSpell } from '../core/spells';
 import { clearSpotlight, spotlight } from '../ui/spotlight';
 import { app, accounts, save, persist, activeLeader, leaderLevel } from './state';
 import { resultModalWith, closeModal } from './ui';
@@ -109,6 +111,9 @@ export function tutorialBattle(i: 0 | 1) {
     noWait: true,
   });
   const memo = newGuideMemo();
+  // v0.42.1: na 1ª invocação da Batalha 1, primeiro só as 6 casas da zona acendem; o círculo na casa sugerida vem depois
+  let zoneIntroEnd = 0;
+  const ZONE_INTRO_MS = 3200;
   // v0.35.0: passo "segure a carta" — o texto muda no celular (toque) e no PC (mouse)
   const touch = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
   view.onInfo = () => {
@@ -138,6 +143,14 @@ export function tutorialBattle(i: 0 | 1) {
           : a.kind === 'fight'
             ? view.root.querySelector('#fightBtn')
             : null;
+    // v0.42.1: personagem pode entrar em qualquer casa da zona — as 6 ficam livres e destacadas; a sugerida ganha o círculo
+    if (a.kind === 'cell' && !isSpell(a.charId)) {
+      const area = deployCells(view.state, 'player').map(([r, c]) => view.root.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`)).filter((el): el is Element => !!el);
+      const first = i === 0 && (view.state.stats?.player.cards ?? 0) === 0;
+      if (first && !zoneIntroEnd) zoneIntroEnd = Date.now() + ZONE_INTRO_MS;
+      const intro = first && Date.now() < zoneIntroEnd;
+      return spotlight(intro ? null : target, guideText(i, a, view.state, touch, intro), { onSkip: skip, area });
+    }
     spotlight(target, guideText(i, a, view.state, touch), { onSkip: skip });
   }, 150);
 }

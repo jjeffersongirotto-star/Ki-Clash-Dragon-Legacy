@@ -1125,6 +1125,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Vida e força dos Comandantes inimigos** (fases 1–10): vida 16, 20, 18, 32, 22, 40, 47, 52, 56, 74; degraus de força 3,34 · 3,25 · 0,5 · 1,5 · 0 · 0 · 1,5 · 0 · 0 · 0. Simulação (100 jogadores, sem feitiços): vitória ao chegar na fase ≈ 98, 99, 87, 90, 72, 81, 77, 65, 64, 67%.
 - **Baralho com poucas cópias:** a batalha aceita baralho com qualquer número de cartas (o mínimo é conferido na tela do baralho), porque quem só tem 1 cópia de cada personagem tem menos cartas.
 - **Tutorial guiado:** as duas batalhas têm semente fixa e as cartas chegam prontas (sem espera). A tela escurece tudo menos o que deve ser tocado (carta, casa, LUTAR ou o aviso de girar a tela), com seta e texto do passo; o resto não responde ao toque. "Pular tutorial" sempre disponível.
+- **Onde invocar no tutorial (v0.42.1):** na hora de colocar um personagem, as **6 casas da sua zona** ficam claras e destacadas juntas e **qualquer uma delas vale**. Na 1ª invocação da Batalha 1, primeiro só as 6 casas acendem (com o texto "qualquer um dos 6 quadrados destacados"); uns 3 segundos depois, uma casa ganha um **círculo** e a seta, com o pedido para colocar ali. Feitiços continuam apontando só o alvo certo.
 - **Fim do tutorial:** +2 💠 Gemas e um passo guiado no 🎴 Banner (Comprar 1 → Comprar 1 de novo → ✕). Se o jogo fechar antes, o passo volta ao abrir a Base enquanto houver gemas.
 
 ## 36. Artes novas inteiras (v0.34.0)

@@ -14,6 +14,11 @@ export interface SpotOptions {
   onSkip?: () => void;
   /** folga em volta do alvo (px) */
   pad?: number;
+  /**
+   * v0.42.1: área livre maior que o alvo (ex.: as 6 casas da zona de invocação). Ela fica clara, recebe toques e ganha
+   * uma moldura própria; o alvo (se houver) ganha o círculo e a seta. Sem alvo, só a área fica destacada.
+   */
+  area?: Element[];
 }
 
 function ensure(opts: SpotOptions): HTMLElement {
@@ -21,7 +26,7 @@ function ensure(opts: SpotOptions): HTMLElement {
   root = document.createElement('div');
   root.className = 'spot';
   root.innerHTML = `<div class="spot-b" data-b="t"></div><div class="spot-b" data-b="b"></div><div class="spot-b" data-b="l"></div><div class="spot-b" data-b="r"></div>
-    <div class="spot-frame"></div><div class="spot-arrow">👇</div>
+    <div class="spot-zone"></div><div class="spot-frame"></div><div class="spot-arrow">👇</div>
     <div class="spot-tip"><p class="spot-text"></p>${opts.onSkip ? '<button class="link-btn spot-skip">Pular tutorial</button>' : ''}</div>`;
   root.querySelector('.spot-skip')?.addEventListener('click', () => opts.onSkip?.());
   document.body.appendChild(root);
@@ -45,11 +50,17 @@ export function spotlight(target: Element | null, html: string, opts: SpotOption
   const frame = r.querySelector<HTMLElement>('.spot-frame')!;
   const arrow = r.querySelector<HTMLElement>('.spot-arrow')!;
   const tip = r.querySelector<HTMLElement>('.spot-tip')!;
+  const zone = r.querySelector<HTMLElement>('.spot-zone')!;
   if (html !== lastHtml) {
     r.querySelector('.spot-text')!.innerHTML = html;
     lastHtml = html;
   }
-  const box = target?.getBoundingClientRect();
+  const tbox = target?.getBoundingClientRect();
+  const boxes = (opts.area ?? []).map((el) => el.getBoundingClientRect()).filter((b) => b.width > 0);
+  const abox = boxes.length ? { left: Math.min(...boxes.map((b) => b.left)), top: Math.min(...boxes.map((b) => b.top)), right: Math.max(...boxes.map((b) => b.right)), bottom: Math.max(...boxes.map((b) => b.bottom)) } : null;
+  const hasT = !!tbox && tbox.width > 0;
+  const box = abox ? { left: Math.min(abox.left, hasT ? tbox.left : abox.left), top: Math.min(abox.top, hasT ? tbox.top : abox.top), right: Math.max(abox.right, hasT ? tbox.right : abox.right), bottom: Math.max(abox.bottom, hasT ? tbox.bottom : abox.bottom), width: 1 } : tbox;
+  zone.style.display = 'none';
   if (!box || box.width === 0) {
     place(t, 0, 0, vw, vh);
     for (const el of [b, l, rt]) place(el, 0, 0, 0, 0);
@@ -69,13 +80,30 @@ export function spotlight(target: Element | null, html: string, opts: SpotOption
   place(rt, x1, y0, vw - x1, y1 - y0);
   frame.style.display = arrow.style.display = '';
   place(frame, x0, y0, x1 - x0, y1 - y0);
+  frame.classList.remove('ring');
+  if (abox) {
+    // a área (zona) com moldura própria; o alvo com círculo; sem alvo, nem círculo nem seta
+    zone.style.display = '';
+    place(zone, x0, y0, x1 - x0, y1 - y0);
+    if (!hasT) {
+      frame.style.display = arrow.style.display = 'none';
+    } else {
+      const rp = 4;
+      place(frame, tbox.left - rp, tbox.top - rp, tbox.width + 2 * rp, tbox.height + 2 * rp);
+      frame.classList.add('ring');
+    }
+  }
+  const ax0 = abox && hasT ? tbox.left : x0;
+  const ax1 = abox && hasT ? tbox.right : x1;
+  const ay0 = abox && hasT ? tbox.top : y0;
+  const ay1 = abox && hasT ? tbox.bottom : y1;
   // seta acima do alvo (ou abaixo, se não couber) e caixa de texto do outro lado da tela
-  const above = y0 > 70;
+  const above = ay0 > 70;
   // v0.42.0: a manopla dourada (aponta para baixo; virada quando fica embaixo do alvo)
   arrow.innerHTML = ico('seta-tutorial', above ? '👇' : '👆');
   arrow.classList.toggle('up', !above);
-  arrow.style.left = `${(x0 + x1) / 2 - 18}px`;
-  arrow.style.top = `${above ? y0 - 46 : y1 + 6}px`;
+  arrow.style.left = `${(ax0 + ax1) / 2 - 18}px`;
+  arrow.style.top = `${above ? ay0 - 46 : ay1 + 6}px`;
   const tipBelow = (y0 + y1) / 2 < vh / 2;
   tip.style.top = tipBelow ? `${Math.min(vh - 140, y1 + 56)}px` : '';
   tip.style.bottom = tipBelow ? '' : `${Math.min(vh - 140, vh - y0 + 56)}px`;

@@ -63,7 +63,7 @@ export class BattleView {
     this.mount();
     this.renderSnapshot(this.snap());
     this.renderHand();
-    this.log(`⚔ ${stage.id ? `Fase ${stageLabel(stage.id)}: ` : ''}${stage.name}. Invoque cartas na sua zona (3 colunas da esquerda) e toque em LUTAR!`, 'sys');
+    this.log(`⚔ ${stage.id ? `Fase ${stageLabel(stage.id)}: ` : ''}${stage.name}. Invoque cartas na sua zona (as 3 primeiras colunas do seu lado) e toque em LUTAR!`, 'sys');
   }
 
   snap(): Snapshot {

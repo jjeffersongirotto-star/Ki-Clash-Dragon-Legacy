@@ -19,7 +19,7 @@ export function help() {
     <h3>Raças e Origens Anime</h3><ul>${Object.entries(RACE_INFO).map(([k, r]) => `<li><b>${raceIcon(k)} ${r.label}</b> — ${r.desc}</li>`).join('')}</ul>
     <h3>Seu turno</h3><ol>
       <li>Na batalha, as cartas não gastam energia: cada carta da mão tem uma <b>contagem de rodadas ⏳</b> (o número na gota). Ela começa em <b>2 × custo − 1</b> (3, 5, 7, 9 ou 11), cai 1 no início de cada turno seu e a carta só pode ser invocada quando chega a <b>0</b> — dá para invocar <b>todas</b> as prontas no mesmo turno. A mão inicial começa 2 rodadas adiantada. Depois, você compra <b>as cartas que faltarem para a mão voltar a ter 6</b>.</li>
-      <li>Toque numa carta e numa casa brilhante das <b>3 colunas da esquerda</b> para invocá-la como um lutador de corpo inteiro na arena.</li>
+      <li>Toque numa carta e em qualquer casa brilhante da sua zona (<b>as 3 primeiras colunas do seu lado</b>, 6 casas) para invocá-la como um lutador de corpo inteiro na arena.</li>
       <li>Toque em <b>LUTAR</b> (ou ligue o modo <b>Auto</b>): seus personagens caminham (<b>MOVE</b>), saltam, disparam feixes de Ki ou golpes corpo a corpo (<b>HIT</b>), sofrem dano e vão para a <b>Necropolis</b> quando derrotados.</li></ol>
     <h3>Cartas e baralho</h3><ul>
       <li>Cada carta (personagem ou <b>feitiço ✦</b>) entra no baralho com <b>1 a 3 cópias</b> (botões − / + em Coleção & Baralho). O baralho precisa ter de <b>20</b> até <b>28 + 2 × nível de perfil</b> cartas (30 no nível 1, 40 no nível 6+) e pelo menos 1 personagem.</li>

@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.42.1] — 28/10/2026 · PR #79 — Tutorial: qualquer casa da zona vale
+- **Invocar no tutorial:** antes só uma casa ficava clara e o texto falava em "3 colunas da esquerda". Agora as **6 casas da sua zona** ficam destacadas juntas (moldura azul) e **dá para colocar o personagem em qualquer uma**.
+- Na **1ª invocação**, o tutorial primeiro mostra os 6 quadrados: "Você pode colocar o Riku em qualquer um dos 6 quadrados destacados: essa é a sua zona de invocação." Depois **circula uma casa** (com a manopla apontando) e pede para colocar ali.
+- Textos revistos: dica "Invocar", passos da Batalha 2 ("casa circulada"), aviso do registro da batalha e o Como jogar não falam mais em "3 colunas da esquerda".
+- Testado no simulador: colocando os personagens em casas sorteadas da zona, as 2 batalhas do tutorial continuam sendo vencidas (300 de 300 em cada).
+
 ## [0.42.0] — 28/10/2026 · PR #78 — Ícones desenhados
 - **Ícones novos em todo o jogo** (as 212 imagens da lista de ícones, no mesmo estilo anime com dragão dourado), no lugar dos emojis:
   - **Recursos:** energia, Ouro de Dragão, Essências, Gemas de Invocação, nível de perfil e Poder da carta.
