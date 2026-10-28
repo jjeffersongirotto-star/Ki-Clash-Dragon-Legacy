@@ -4,7 +4,7 @@
  */
 import { CATEGORY_INFO, RACE_INFO, STAR_COLORS } from '../core/characters';
 import { TIER_NAMES } from '../core/progression';
-import { goldHTML } from '../ui/components';
+import { catIcon, goldHTML, essIcon, raceIcon } from '../ui/components';
 import { leaveBattleMode } from '../ui/orientation';
 import { ENERGY_COST } from '../core/profile';
 import { app } from './state';
@@ -16,7 +16,7 @@ export function help() {
   app.innerHTML = `<div class="screen">${topbar('Como jogar')}
   <div class="help">
     <h3>Objetivo</h3><p>A arena tem <b>2 fileiras × 12 colunas</b>. Cada Comandante fica posicionado nas extremidades da arena. Zere a vida do <b>Comandante inimigo</b> (à direita) antes que ele zere a sua.</p>
-    <h3>Raças e Origens Anime</h3><ul>${Object.values(RACE_INFO).map((r) => `<li><b>${r.icon} ${r.label}</b> — ${r.desc}</li>`).join('')}</ul>
+    <h3>Raças e Origens Anime</h3><ul>${Object.entries(RACE_INFO).map(([k, r]) => `<li><b>${raceIcon(k)} ${r.label}</b> — ${r.desc}</li>`).join('')}</ul>
     <h3>Seu turno</h3><ol>
       <li>Na batalha, as cartas não gastam energia: cada carta da mão tem uma <b>contagem de rodadas ⏳</b> (o número na gota). Ela começa em <b>2 × custo − 1</b> (3, 5, 7, 9 ou 11), cai 1 no início de cada turno seu e a carta só pode ser invocada quando chega a <b>0</b> — dá para invocar <b>todas</b> as prontas no mesmo turno. A mão inicial começa 2 rodadas adiantada. Depois, você compra <b>as cartas que faltarem para a mão voltar a ter 6</b>.</li>
       <li>Toque numa carta e numa casa brilhante das <b>3 colunas da esquerda</b> para invocá-la como um lutador de corpo inteiro na arena.</li>
@@ -44,14 +44,14 @@ export function help() {
     <p>Selos no lutador: <b>🧪 veneno</b> (dano por rodada, ignora resistência), <b>🔥 queimadura</b>, <b>💫 atordoado</b>, <b>🛡 escudo</b> (absorve antes da vida), <b>👼 Anjo da Guarda</b>, <b>🥁</b> recebendo o Tambor e <b>🌀</b> drenado pelo Sifão.</p>
     <h3>Raridades das cartas e Despertar</h3><p>${[1, 2, 3, 4, 5, 6].map((n) => `<span class="rar-chip" style="--rc:${STAR_COLORS[n].color}">${TIER_NAMES[n]} (${STAR_COLORS[n].label})</span>`).join(' ')}</p>
     <p>A <b>raridade da carta</b> (mostrada pela cor) é o tier do personagem. A carta <b>não tem nível</b>: cada raridade tem três degraus, <b>base</b>, <b>"+"</b> e <b>"++"</b> (ex.: Raro → <b>Raro+</b> → <b>Raro++</b> → Épico). O degrau aparece na estrela dourada da carta.</p>
-    <p>Cada degrau tem uma <b>barra de XP</b> (vista só em <b>Treinar</b>). A barra enche com <b>Orbes 🔮</b> e com o <b>XP por jogar</b>. Com a barra cheia, o <b>Despertar</b> sobe o degrau gastando <b>Essências ✴</b> e <b>itens de ascensão 🎒</b> (3 no "+", 4 no "++" e 5 na nova raridade; 1 / 2 / 3 deles da raridade um acima da carta e 2 da raridade dela; cada fase dá 3 itens). Cada degrau dá <b>+17% de ataque e de vida</b>; encher a barra não aumenta os status. <b>Habilidades, roupa, armadura, armas e aura de Ki</b> evoluem quando a <b>raridade muda</b>.</p>
+    <p>Cada degrau tem uma <b>barra de XP</b> (vista só em <b>Treinar</b>). A barra enche com <b>Orbes 🔮</b> e com o <b>XP por jogar</b>. Com a barra cheia, o <b>Despertar</b> sobe o degrau gastando <b>Essências ${essIcon()}</b> e <b>itens de ascensão 🎒</b> (3 no "+", 4 no "++" e 5 na nova raridade; 1 / 2 / 3 deles da raridade um acima da carta e 2 da raridade dela; cada fase dá 3 itens). Cada degrau dá <b>+17% de ataque e de vida</b>; encher a barra não aumenta os status. <b>Habilidades, roupa, armadura, armas e aura de Ki</b> evoluem quando a <b>raridade muda</b>.</p>
     <h3>Poder ⚡ e Comandante 👑</h3><p>Cada carta tem um <b>Poder</b> que sobe com a raridade e o degrau ("+" e "++"), com um bônus pela habilidade do personagem. O <b>Poder do baralho</b> é a soma dos personagens do baralho (cada um uma vez). Em <b>Coleção & Baralho</b>, quando o Poder do baralho alcança o requisito, toque em <b>Evoluir</b> no painel do Comandante: cada nível dá <b>+10 de vida máxima</b> (20 → 110). O Poder só é conferido na hora de evoluir — trocar cartas depois <b>nunca</b> tira o nível do Comandante. Os Comandantes inimigos também ficam mais resistentes a cada fase.</p>
     <h3>Energia ⚡, nível de perfil 👤 e Ouro de Dragão ${goldHTML()}</h3><ul>
       <li><b>Jogar ou Repetir</b> uma fase gasta energia: <b>Fácil ${ENERGY_COST.facil} · Normal ${ENERGY_COST.normal} · Difícil ${ENERGY_COST.dificil}</b>. Na batalha ela é gasta ao começar (a derrota também gasta). O tutorial é grátis.</li>
       <li>A energia <b>recupera 1 a cada 6 minutos</b> até o máximo do seu nível de perfil (nível 1 = 20 … nível 100 = 300).</li>
       <li>O <b>nível de perfil</b> sobe com XP de perfil: <b>1 por energia gasta</b> e mais um bônus a cada vitória ou Repetir (em dobro na primeira vitória). Ao subir de nível, você <b>ganha a energia máxima do nível novo</b>, que pode passar do máximo. O nível também aumenta o tamanho do baralho.</li>
       <li>Cada vitória ou Repetir dá <b>Ouro de Dragão</b> (mais nas fases altas e nas dificuldades difíceis; em dobro na primeira vitória). Gaste na <b>🏪 Loja</b> em itens de ascensão, Orbes e cartas do <b>🎴 Banner</b> (personagem repetido vira mais 1 cópia: o baralho usa até 3 de cada, e as sobras você desmancha em XP no <b>🎒 Inventário</b>).</li></ul>
-    <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.values(CATEGORY_INFO).map((c) => `<li><b>${c.icon} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
+    <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.entries(CATEGORY_INFO).map(([k, c]) => `<li><b>${catIcon(k)} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
   </div></div>`;
   bindNav();
 }

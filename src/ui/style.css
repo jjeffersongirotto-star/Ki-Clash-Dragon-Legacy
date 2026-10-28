@@ -1496,3 +1496,32 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .spot-tip { position: fixed; left: 50%; transform: translateX(-50%); width: min(440px, calc(100vw - 24px)); background: linear-gradient(180deg, #1f2650, #10142c); border: 2px solid #ffd23f; border-radius: 14px; padding: 10px 14px 6px; box-shadow: 0 8px 30px rgba(0,0,0,.7); text-align: left; pointer-events: auto; }
 .spot-text { margin: 0 0 4px; font-size: 15px; line-height: 1.35; color: #fff; }
 .spot-skip { margin-top: 0; font-size: 12px; }
+
+/* ---------- v0.42.0: ícones desenhados (src/assets/icons, <img> em cache; estáticos) ---------- */
+.ico { display: inline-block; width: 1.3em; height: 1.3em; object-fit: contain; vertical-align: -.3em; flex: none; pointer-events: none; }
+.ck-ab .ico.ab-svg { width: 100%; height: 100%; }
+.ck-icons .ico { width: 1.15em; height: 1.15em; vertical-align: middle; }
+.ck-pow .ico { width: 1.1em; height: 1.1em; margin-right: .05em; vertical-align: -.2em; }
+.gear i .ico { width: 92%; height: 92%; vertical-align: middle; }
+.orb .ico { width: 1.25em; height: 1.25em; vertical-align: middle; }
+.item-btn .ic .orb .ico, .shop-item .orb .ico { width: 1.7em; height: 1.7em; }
+.coin .coin-img { width: 1.35em; height: 1.35em; vertical-align: middle; }
+.res .coin-img, .menu .coin-img { width: 1.55em; height: 1.55em; }
+.sgem .ico, .energy .ico { width: 1.3em; height: 1.3em; vertical-align: middle; }
+.spell-card .card-art.spell-art:has(.spell-img) { background: #120c24; }
+.spell-card .spell-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.spell-card .spell-target .ico { width: 1.25em; height: 1.25em; vertical-align: -.3em; }
+.btn > .ico:first-child { width: 1.5em; height: 1.5em; margin-right: .25em; vertical-align: -.4em; }
+.world-ball .ico { width: 100%; height: 100%; vertical-align: top; }
+.banner-sky { background: #1a1040 url('../assets/banner-fundo.webp') center / cover no-repeat; }
+.banner-mount { display: none; }
+.u-fx i .ico { width: 1.25em; height: 1.25em; vertical-align: top; }
+/* v0.42.0: verso da carta no monte do baralho (as sombras ::before/::after herdam o fundo) */
+.pile-draw .pile-stack { background: #0b1938 url('../assets/card/verso.webp') center / cover no-repeat; }
+.pile-draw .pile-ico { display: none; }
+.pile-ico .ico { width: 80%; height: 80%; vertical-align: middle; }
+.spot-arrow .ico { width: 48px; height: 48px; vertical-align: top; }
+.spot-arrow.up .ico { transform: rotate(180deg); }
+.dialog-icon .ico { width: 1.6em; height: 1.6em; vertical-align: middle; }
+.rp-icon .ico { width: 1.2em; height: 1.2em; vertical-align: middle; }
+.rp-icon:has(.ico) { transform: none; }

@@ -7,7 +7,8 @@ import { WORLD_STAGES } from '../core/campaign';
 import { stageLabel } from '../core/world';
 import { XP_ITEMS } from '../core/progression';
 import { cardArtImg } from '../ui/art';
-import { goldHTML, orbHTML, esc, starStyle } from '../ui/components';
+import { ico } from '../ui/icons';
+import { goldHTML, orbHTML, esc, starStyle, essIcon } from '../ui/components';
 import { gameAlert, gameConfirm, showDialog } from '../ui/dialog';
 import { leaveBattleMode } from '../ui/orientation';
 import { tutorialDone, profileLevel, resetSave } from '../ui/save';
@@ -30,26 +31,26 @@ export function home(): void {
   const acc = accounts.current ? accounts.accounts[accounts.current] : null;
   app.innerHTML = `<div class="screen home">
     <div class="account-box">${acc
-      ? `<span class="acc-name" title="Conta local deste aparelho">👤 <b>${esc(acc.name)}</b>${acc.admin ? ' <small>teste</small>' : ''}</span><button class="btn small ghost" id="accOut">Sair</button>`
+      ? `<span class="acc-name" title="Conta local deste aparelho">${ico('perfil', '👤')} <b>${esc(acc.name)}</b>${acc.admin ? ' <small>teste</small>' : ''}</span><button class="btn small ghost" id="accOut">Sair</button>`
       : `<button class="btn small" id="accIn">👤 Entrar / Criar conta</button>`}
-      ${(() => { const p = prof(); const lv = profileLevel(save); const into = p.xp - totalXpFor(lv); const need = xpToNext(lv); return `<span class="profile-chip" title="Nível de perfil: sobe com XP de perfil (1 por energia gasta e ao vencer ou repetir fases)"><span>👤 Nível <b>${lv}</b>${lv < PROFILE_MAX ? ` <small>${into}/${need}</small>` : ' <small>máx.</small>'}</span><span class="profile-bar"><i style="width:${lv < PROFILE_MAX ? ((100 * into) / need).toFixed(1) : 100}%"></i></span></span>`; })()}
+      ${(() => { const p = prof(); const lv = profileLevel(save); const into = p.xp - totalXpFor(lv); const need = xpToNext(lv); return `<span class="profile-chip" title="Nível de perfil: sobe com XP de perfil (1 por energia gasta e ao vencer ou repetir fases)"><span>${ico('perfil', '👤')} Nível <b>${lv}</b>${lv < PROFILE_MAX ? ` <small>${into}/${need}</small>` : ' <small>máx.</small>'}</span><span class="profile-bar"><i style="width:${lv < PROFILE_MAX ? ((100 * into) / need).toFixed(1) : 100}%"></i></span></span>`; })()}
       <span class="app-version">v${APP_VERSION}</span>
-      <button class="btn small upd-btn" id="updBtn" title="Procurar atualização" aria-label="Procurar atualização"><svg class="upd-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M20.5 3.5v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      <button class="btn small upd-btn" id="updBtn" title="Procurar atualização" aria-label="Procurar atualização">${ico('atualizar', '<svg class="upd-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M20.5 3.5v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'upd-ico')}</button></div>
     <div class="logo">
       <div class="logo-ki">KI-CLASH</div>
       <div class="logo-sub">DRAGON LEGACY</div>
     </div>
     <div class="home-heroes">${['kenji', 'vorax', 'nyx'].map((id) => `<div class="home-hero" style="${starStyle(getChar(id).maxStars)}">${cardArtImg(getChar(id), { stars: getChar(id).maxStars })}</div>`).join('')}</div>
-    <div class="res big">${resPills()}<span>✴ ${save.essencias} Essências</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
+    <div class="res big">${resPills()}<span>${essIcon()} ${save.essencias} Essências</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
     <nav class="menu">
-      <button class="btn primary" data-nav="adventure">⚔ Aventura <small>${next ? `Fase ${stageLabel(next.id)}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
-      <button class="btn" data-nav="collection">🃏 Coleção & Baralho <small>${Object.keys(save.cards).length}/${PLAYABLE.length} personagens</small></button>
-      <button class="btn" data-nav="train">🔥 Treinar & Despertar</button>
-      <div class="menu-pair"><button class="btn" data-nav="shop">🏪 Loja <small>${goldHTML(fmt(prof().gold))}</small></button><button class="btn" data-nav="inventory">🎒 Inventário <small>${dupesTotal()} repetidos</small></button></div>
-      <button class="btn ghost" data-nav="help">❓ Como jogar</button>
+      <button class="btn primary" data-nav="adventure">${ico('aventura', '⚔')} Aventura <small>${next ? `Fase ${stageLabel(next.id)}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
+      <button class="btn" data-nav="collection">${ico('colecao', '🃏')} Coleção & Baralho <small>${Object.keys(save.cards).length}/${PLAYABLE.length} personagens</small></button>
+      <button class="btn" data-nav="train">${ico('treinar', '🔥')} Treinar & Despertar</button>
+      <div class="menu-pair"><button class="btn" data-nav="shop">${ico('loja', '🏪')} Loja <small>${goldHTML(fmt(prof().gold))}</small></button><button class="btn" data-nav="inventory">${ico('inventario', '🎒')} Inventário <small>${dupesTotal()} repetidos</small></button></div>
+      <button class="btn ghost" data-nav="help">${ico('ajuda', '❓')} Como jogar</button>
     </nav>
     <button class="link-btn" id="reset">Apagar progresso</button>
-    ${isNativeApp() ? '' : `<a class="btn download-btn" href="${APK_DOWNLOAD_URL}" rel="noopener" title="Baixar o app Android (APK)">⬇ Baixar</a>`}
+    ${isNativeApp() ? '' : `<a class="btn download-btn" href="${APK_DOWNLOAD_URL}" rel="noopener" title="Baixar o app Android (APK)">${ico('baixar', '⬇')} Baixar</a>`}
   </div>`;
   bindNav();
   app.querySelector('#accIn')?.addEventListener('click', accountDialog);

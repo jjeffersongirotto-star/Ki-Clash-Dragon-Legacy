@@ -3,6 +3,7 @@ import { effectiveAtk } from '../core/battle';
 import { getChar } from '../core/characters';
 import type { BattleState, RecordedEvent, Side, Snapshot } from '../core/types';
 import { INFO_DEFAULT, statusList } from './battleFx';
+import { ico } from './icons';
 import { unitSpriteHTML } from './art';
 import { esc, starStyle } from './components';
 import type { BattleView } from './battleView';
@@ -80,7 +81,7 @@ export function renderSnapshot(view: BattleView, snap: Snapshot, _ev?: RecordedE
     const fxEl = el.querySelector('.u-fx') as HTMLElement;
     if (fxEl.dataset.k !== key) {
       fxEl.dataset.k = key;
-      fxEl.innerHTML = st.map((x) => `<i title="${esc(x.label)}">${x.icon}</i>`).join('');
+      fxEl.innerHTML = st.map((x) => `<i title="${esc(x.label)}">${ico(x.img, x.icon)}</i>`).join('');
     }
     el.classList.toggle('stunned', !!u.effects?.some((e) => e.kind === 'atordoado' && e.turns > 0));
   }

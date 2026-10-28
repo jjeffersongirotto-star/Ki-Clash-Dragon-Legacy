@@ -21,6 +21,6 @@ describe('v0.14.3 — habilidades nas cartas pequenas (mão, equipe, Treinar)', 
     expect(atk).toBeGreaterThan(h.indexOf('class="ck-panel"'));
     expect(ab).toBeGreaterThan(atk);
     expect(hp).toBeGreaterThan(ab);
-    expect(h).toContain('class="ab-svg"'); // peitoral da Resistência Física
+    expect(h).toContain('class="ico ab-svg"'); // v0.42.0: ícones desenhados das habilidades
   });
 });

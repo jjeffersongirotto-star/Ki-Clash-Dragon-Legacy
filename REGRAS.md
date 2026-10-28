@@ -1194,3 +1194,8 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 ## Ícone do app (v0.41.0)
 - Arte: `scripts/android/icone-fonte.jpg` (dragão dourado em anel com cartas, fundo cósmico). `python3 scripts/android/icons.py` gera `public/icon-192.png` e `icon-512.png` (arte inteira), `icon-maskable-512.png` (anel reduzido para caber no círculo seguro de 60%, com os raios da arte esticados para fora), os ícones do Android (normal, redondo e adaptável: fundo = raios, frente = disco do dragão dentro da zona segura de 66 dp) e as telas de abertura. O ícone da aba do navegador também é o novo.
+
+## Ícones do jogo (v0.42.0)
+- Recursos, Orbes, itens, raças, grupos, habilidades, efeitos, regiões, menus e botões usam **ícones desenhados** (src/assets/icons), mostrados como imagem; se faltar um ícone, o jogo mostra o emoji antigo no lugar.
+- Cada **carta de feitiço** tem arte própria; o **monte do baralho** na batalha mostra o verso da carta.
+- Os ícones não mudam regra nenhuma: são só visuais.

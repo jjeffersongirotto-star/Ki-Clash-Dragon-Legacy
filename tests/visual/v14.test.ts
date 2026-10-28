@@ -1,8 +1,7 @@
 /// <reference types="vite/client" />
 import { describe, expect, it } from 'vitest';
 import { cardHTML } from '../../src/ui/components';
-import { ABILITIES } from '../../src/core/abilities';
-import { CATEGORY_INFO, PLAYABLE, RACE_INFO, getChar } from '../../src/core/characters';
+import { CATEGORY_INFO, PLAYABLE, getChar } from '../../src/core/characters';
 import { cardPower } from '../../src/core/power';
 import dps from '../../src/assets/card/atk-dps.svg?raw';
 import mago from '../../src/assets/card/atk-mago.svg?raw';
@@ -19,12 +18,13 @@ describe('v0.14 — padrão de carta', () => {
   it('Toru: espera 5 rodadas na gota (v0.16.0), ⚡47, sem estrela no degrau base (v0.23.0), nome, "Comum", raça + categoria, ATQ 2, VIDA 11', () => {
     const h = cardHTML({ charId: 'toru', stars: 1 });
     expect(h).toContain('<div class="ck-cost" title="Espera 5 rodada(s) na mão"><span>5</span></div>');
-    expect(h).toContain('<div class="ck-pow" title="Poder">⚡47</div>');
+    expect(h).toContain('<div class="ck-pow" title="Poder"><img class="ico" src="/src/assets/icons/poder.webp" alt="" draggable="false">47</div>'); // v0.42.0: ícone desenhado do Poder
     expect(h).not.toContain('ck-star');
     expect(h).not.toContain('Nv.');
     expect(h).toContain('Toru Sombra\u2011Reversa');
     expect(h).toContain('<div class="ck-rar">Comum</div>');
-    expect(h).toContain(`<span title="Androide">${RACE_INFO.androide.icon}</span><span title="Tanque">${CATEGORY_INFO.tanque.icon}</span>`);
+    expect(h).toContain('<span title="Androide"><img class="ico" src="/src/assets/icons/raca-androide.webp"');
+    expect(h).toContain('<span title="Tanque"><img class="ico" src="/src/assets/icons/cat-tanque.webp"');
     expect(h).toMatch(/class="ck-atk fisico"[^>]*><span>2<\/span>/);
     expect(h).toMatch(/class="ck-hp"[^>]*><span>11<\/span>/);
     expect(h).toContain('cat-tanque');
@@ -41,12 +41,12 @@ describe('v0.14 — padrão de carta', () => {
       const row = h.slice(h.indexOf('class="ck-abil'));
       expect((row.match(/class="ck-ab"/g) ?? []).length, d.id).toBe(d.abilities.length);
       expect((row.match(/class="ck-dot"/g) ?? []).length, d.id).toBe(Math.max(0, d.abilities.length - 1));
-      for (const a of d.abilities) expect(row).toContain(a === 'guarda' ? 'ab-svg' : ABILITIES[a].icon);
+      for (const a of d.abilities) expect(row).toContain(`/src/assets/icons/ab-${a}.webp`); // v0.42.0: ícone desenhado de cada habilidade
     }
   });
   it('Poder no topo é o Poder da carta (nível, cor e "+")', () => {
     const c = { charId: 'lyra', stars: 2, plus: true };
-    expect(cardHTML(c)).toContain(`⚡${cardPower(c)}`);
+    expect(cardHTML(c)).toContain(`poder.webp" alt="" draggable="false">${cardPower(c)}`);
   });
   it('emblema de ataque por categoria: cada categoria tem o seu ícone', () => {
     expect(Object.keys(ICONS).sort()).toEqual(Object.keys(CATEGORY_INFO).sort());

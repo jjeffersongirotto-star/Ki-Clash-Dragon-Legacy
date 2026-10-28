@@ -8,7 +8,7 @@ import { REGIONS, REGION_COUNT, STAGES_PER_REGION, localOf, regionOf, regionStag
 import { XP_ITEMS, playXp, feedXp, stepOf } from '../core/progression';
 import { leaderHp } from '../core/leaders';
 import { BattleView } from '../ui/battleView';
-import { energyHTML, gemHTML, goldHTML, gearHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, esc, raceHTML, spellCardHTML, spellCastersLabel, starStyle, tierHTML } from '../ui/components';
+import { energyHTML, gemHTML, goldHTML, gearHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, esc, raceHTML, spellCardHTML, spellCastersLabel, starStyle, tierHTML, essIcon } from '../ui/components';
 import { getSpell, isSpell } from '../core/spells';
 import { gameAlert, showDialog } from '../ui/dialog';
 import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
@@ -16,6 +16,9 @@ import { MAX_COPIES, addToDeck, copiesIn, maxCopiesFor, setCopies, deckMin, deck
 import { GEAR_RARE_CHANCE, addGear, stageGearDrop, stageGearIds, stageGearRarity } from '../core/gear';
 import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, gemsFor, spellRewardFor, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, regionUnlocked, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from '../core/adventure';
 import { enemyCommanderArt } from '../ui/art';
+import { ico } from '../ui/icons';
+const regionIcon = (r: { id: number; icon: string }) => ico(`regiao-${r.id}`, r.icon);
+const LOCK = () => ico('bloqueado', '🔒');
 import { grantCard, type GrantResult } from '../core/banner';
 import { ENERGY_COST, energyMax, goldFor, profileXpFor, spendEnergy } from '../core/profile';
 import { app, save, persist, activeLeader, leaderLevel, prof, energyNow, levelNote, grantProfileAndGold, pendingLevelNote, setPendingLevelNote, noEnergy } from './state';
@@ -32,7 +35,7 @@ export const MAP_TOP = 150;
 export const advDiff = (): Difficulty => save.difficulty ?? 'facil';
 /** v0.21.0: ⭐ da fase (cheias = conquistadas, vazias = faltam); `fresh` destaca as recém-ganhas */
 export const starsHTML = (mask: number, fresh = 0) =>
-  `<span class="stars-row" aria-label="${starCount(mask)} de ${STAR_COUNT} estrelas">${[0, 1, 2].map((i) => `<i class="${mask & (1 << i) ? 'on' : ''} ${fresh & (1 << i) ? 'new' : ''}">★</i>`).join('')}</span>`;
+  `<span class="stars-row" aria-label="${starCount(mask)} de ${STAR_COUNT} estrelas">${[0, 1, 2].map((i) => `<i class="${mask & (1 << i) ? 'on' : ''} ${fresh & (1 << i) ? 'new' : ''}">${ico(mask & (1 << i) ? 'estrela' : 'estrela-vazia', '★')}</i>`).join('')}</span>`;
 export type NodeState = 'done' | 'next' | 'lock';
 export const nodeState = (diff: Difficulty, id: number): NodeState => (isCleared(save, diff, id) ? 'done' : stageUnlocked(save, diff, id) ? 'next' : 'lock');
 
@@ -48,7 +51,7 @@ export function adventure(region?: number): void {
   app.innerHTML = `<div class="screen adventure">${topbar('Aventura')}
     ${diffTabs(diff)}
     ${teamReady(save) ? '' : `<p class="warn-bar">⚠ Baralho inválido: ${esc(deckIssue(save) ?? '')}. <button class="btn small" data-nav="collection">Arrumar baralho</button></p>`}
-    <p class="world-title">🗺 Mapa do mundo</p>
+    <p class="world-title">${ico('mapa', '🗺')} Mapa do mundo</p>
     <div class="world-map" id="worldMap"><div class="world-track" id="worldTrack"></div></div>
   </div>`;
   bindNav();
@@ -59,7 +62,7 @@ export function adventure(region?: number): void {
 /** Abas de dificuldade (iguais no mapa do mundo e no mapa da região). */
 const diffTabs = (diff: Difficulty) => `<div class="diff-tabs" role="tablist">${DIFFICULTIES.map((d) => {
   const open = difficultyUnlocked(save, d);
-  return `<button class="diff-tab ${d === diff ? 'on' : ''} ${open ? '' : 'locked'}" role="tab" aria-selected="${d === diff}" data-diff="${d}">${open ? DIFFICULTY_ICON[d] : '🔒'} ${DIFFICULTY_LABEL[d]}</button>`;
+  return `<button class="diff-tab ${d === diff ? 'on' : ''} ${open ? '' : 'locked'}" role="tab" aria-selected="${d === diff}" data-diff="${d}">${open ? ico(`dif-${d}`, DIFFICULTY_ICON[d]) : LOCK()} ${DIFFICULTY_LABEL[d]}</button>`;
 }).join('')}</div>`;
 function bindDiffTabs(redraw: () => void) {
   app.querySelectorAll<HTMLElement>('[data-diff]').forEach((el) =>
@@ -107,9 +110,9 @@ export function drawWorld(scrollToNext = false) {
       const won = ids.filter((id) => isCleared(save, diff, id)).length;
       const stars = ids.reduce((n, id) => n + starCount(starsOf(save, diff, id)), 0);
       return `<button class="world-node ${state}" data-region="${r.id}" style="left:${pos[i][0]}px;top:${pos[i][1]}px" aria-label="Região ${r.id}: ${esc(r.name)}">
-        <span class="world-ball">${state === 'lock' ? '🔒' : r.icon}</span>
+        <span class="world-ball">${state === 'lock' ? LOCK() : regionIcon(r)}</span>
         <span class="world-name">${r.id}. ${esc(r.name)}</span>
-        ${state === 'lock' ? '' : `<span class="world-prog">${won}/${STAGES_PER_REGION} fases · ★ ${stars}/${STAGES_PER_REGION * STAR_COUNT}</span>`}
+        ${state === 'lock' ? '' : `<span class="world-prog">${won}/${STAGES_PER_REGION} fases · ${ico('estrela', '★')} ${stars}/${STAGES_PER_REGION * STAR_COUNT}</span>`}
         ${state === 'next' ? '<span class="adv-tag">ATUAL</span>' : ''}
       </button>`;
     }).join('')}`;
@@ -140,7 +143,7 @@ export function regionMap(region: number): void {
   app.innerHTML = `<div class="screen adventure">${topbar('Aventura')}
     ${diffTabs(diff)}
     ${teamReady(save) ? '' : `<p class="warn-bar">⚠ Baralho inválido: ${esc(deckIssue(save) ?? '')}. <button class="btn small" data-nav="collection">Arrumar baralho</button></p>`}
-    <div class="region-bar"><button class="btn small" data-world>◀ Mundo</button><b>${r.icon} Região ${r.id} · ${esc(r.name)}</b></div>
+    <div class="region-bar"><button class="btn small" data-world>${ico('mapa', '◀')} Mundo</button><b>${regionIcon(r)} Região ${r.id} · ${esc(r.name)}</b></div>
     <div class="adv-map" id="advMap"><div class="adv-track" id="advTrack"></div></div>
   </div>`;
   bindNav();
@@ -174,7 +177,7 @@ export function drawMap(scrollToNext = false) {
       const local = localOf(st.id);
       return `<button class="adv-node ${state}" data-st="${st.id}" style="left:${pos[i][0]}px;top:${pos[i][1]}px" aria-label="Fase ${stageLabel(st.id)}: ${esc(st.name)}">
         ${enemyCommanderArt(stageCommander(stageFor(st.id, diff)), 'adv-cmd', `animation-delay:-${(i * 0.37).toFixed(2)}s`)}
-        <span class="adv-ball">${state === 'done' ? '✓' : state === 'next' ? local : '🔒'}</span>
+        <span class="adv-ball">${state === 'done' ? ico('concluida', '✓') : state === 'next' ? local : LOCK()}</span>
         ${state === 'done' ? `<span class="adv-stars">${starsHTML(starsOf(save, diff, st.id))}</span>` : ''}
         <span class="adv-name">${local}. ${esc(st.name)}</span>
         ${state === 'done' ? `<span class="adv-left ${left ? '' : 'out'}">${left}/${DAILY_LIMIT} hoje</span>` : ''}
@@ -219,11 +222,11 @@ export function stageDialog(stageId: number) {
     title: `Fase ${stageLabel(st.id)} · ${st.name}`,
     html: `<button class="stage-close" data-x aria-label="Fechar">✕</button>
       ${enemyCommanderArt(stageCommander(st), 'stage-cmd')}
-      <p class="stage-diff">${REGIONS[regionOf(st.id) - 1].icon} ${esc(REGIONS[regionOf(st.id) - 1].name)} · Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
+      <p class="stage-diff">${regionIcon(REGIONS[regionOf(st.id) - 1])} ${esc(REGIONS[regionOf(st.id) - 1].name)} · Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
       <p class="stage-line">Comandante inimigo ❤${st.enemyHeroHp} · Inimigos até ${(() => { const top = foes.reduce((a, c) => (c.stars * 3 + stepOf(c) > a.stars * 3 + stepOf(a) ? c : a)); return tierHTML(top.stars, stepOf(top)); })()}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</p>
-      <p class="stage-line">Recompensa: ✴${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && gemsFor(st.id) ? ` · 1ª vitória: ${gemHTML(`+${gemsFor(st.id)}`)} ${gemsFor(st.id) > 1 ? 'Gemas' : 'Gema'} de Invocação` : ''}${!done && spellRewardFor(st.id, diff) ? (() => { const sp = getSpell(spellRewardFor(st.id, diff)!); return ` · 1ª vitória: <span class="spell-pill" style="${starStyle(sp.rarity)}">✦ ${sp.icon} ${esc(sp.name)}</span> <small>(feitiço ${STAR_COLORS[sp.rarity].label})</small>`; })() : ''}</p>
+      <p class="stage-line">Recompensa: ${essIcon()}${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && gemsFor(st.id) ? ` · 1ª vitória: ${gemHTML(`+${gemsFor(st.id)}`)} ${gemsFor(st.id) > 1 ? 'Gemas' : 'Gema'} de Invocação` : ''}${!done && spellRewardFor(st.id, diff) ? (() => { const sp = getSpell(spellRewardFor(st.id, diff)!); return ` · 1ª vitória: <span class="spell-pill" style="${starStyle(sp.rarity)}">✦ ${sp.icon} ${esc(sp.name)}</span> <small>(feitiço ${STAR_COLORS[sp.rarity].label})</small>`; })() : ''}</p>
       <p class="stage-line">Itens: ${(() => { const [lo, hi] = stageGearRarity(stageId, diff); return `${stageGearIds(stageId).map((id) => gearHTML(id, lo)).join(' ')} <small>${hi > lo ? `${100 - GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[lo].label} · ${GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[hi].label}` : `100% ${STAR_COLORS[lo].label}`}</small>`; })()}</p>
-      <ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}</li>`).join('')}</ul>
+      <ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>${ico(mask & (1 << i) ? 'estrela' : 'estrela-vazia', '★')}</i> ${esc(g.text)}</li>`).join('')}</ul>
       <p class="stage-line">Por vitória ou Repetir: ${goldHTML(goldFor(stageId, diff))} · 👤 +${profileXpFor(stageId, diff)} XP de perfil${done ? '' : ' <small>(em dobro na primeira vitória)</small>'} · você tem ${energyHTML(energyNow(), energyMax(prof()))}</p>
       ${done ? `<p class="stage-left ${left ? '' : 'out'}">${left ? `Hoje: <b>${left}/${DAILY_LIMIT}</b> restantes` : 'Limite de hoje atingido. Volta amanhã.'}</p>` : ''}
       <div class="stage-actions">
@@ -293,7 +296,7 @@ export function grantRewards(st: Stage, diff: Difficulty, first = false) {
   for (const o of XP_ITEMS) save.items[o.id] += r.orbs[o.id] ?? 0;
   save.essencias += r.essencias;
   for (const g of r.gear) addGear((save.gear ??= {}), g.id, g.rarity);
-  return `<div class="res big"><span>✴ +${r.essencias}</span>${XP_ITEMS.filter((o) => r.orbs[o.id]).map((o) => `<span class="orb-pill">${orbHTML(o.id, `+${r.orbs[o.id]}`)}</span>`).join('')}${r.gear.map((g) => gearHTML(g.id, g.rarity, '+1')).join('')}</div>`;
+  return `<div class="res big"><span>${essIcon()} +${r.essencias}</span>${XP_ITEMS.filter((o) => r.orbs[o.id]).map((o) => `<span class="orb-pill">${orbHTML(o.id, `+${r.orbs[o.id]}`)}</span>`).join('')}${r.gear.map((g) => gearHTML(g.id, g.rarity, '+1')).join('')}</div>`;
 }
 
 /** v0.22.0: XP por jogar — ao vencer jogando, todo o baralho ganha XP. */
@@ -393,7 +396,7 @@ export function finishBattle(stageId: number, diff: Difficulty, winner: string, 
     // v0.21.0: ⭐ dos objetivos cumpridos nesta vitória (somam aos que a fase já tinha)
     const fresh = addStars(save, diff, stageId, end ? starsForWin(end, diff, stageId) : 1);
     const mask = starsOf(save, diff, stageId);
-    const starsLine = `<div class="win-stars">${starsHTML(mask, fresh)}</div><ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}${fresh & (1 << i) ? ' <b class="new-tag">nova!</b>' : ''}</li>`).join('')}</ul>${fresh && starCount(mask) === STAR_COUNT ? '<p class="hint">⟲ Repetir liberado nesta fase!</p>' : ''}`;
+    const starsLine = `<div class="win-stars">${starsHTML(mask, fresh)}</div><ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>${ico(mask & (1 << i) ? 'estrela' : 'estrela-vazia', '★')}</i> ${esc(g.text)}${fresh & (1 << i) ? ' <b class="new-tag">nova!</b>' : ''}</li>`).join('')}</ul>${fresh && starCount(mask) === STAR_COUNT ? '<p class="hint">⟲ Repetir liberado nesta fase!</p>' : ''}`;
     // v0.33.0: no lugar do pacote de personagens, 💠 Gemas de Invocação na primeira vitória (fases 3, 6, 9 e 10)
     const gems = first ? gemsFor(stageId) : 0;
     save.gems = (save.gems ?? 0) + gems;
@@ -406,12 +409,12 @@ export function finishBattle(stageId: number, diff: Difficulty, winner: string, 
     const opened = first && nextDiff && stageUnlocked(save, nextDiff, stageId) ? nextDiff : undefined;
     // v0.39.0: vencer a fase 10 de uma região libera a próxima região (nesta dificuldade)
     const nextRegion = first && localOf(stageId) === STAGES_PER_REGION && regionOf(stageId) < REGION_COUNT ? REGIONS[regionOf(stageId)] : undefined;
-    const regionOpened = nextRegion ? `<p class="hint">🗺 Nova região liberada: <b>${nextRegion.icon} ${esc(nextRegion.name)}</b>!</p>` : '';
-    html = `<h2 class="win">🏆 Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : `Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.`}</p>
+    const regionOpened = nextRegion ? `<p class="hint">${ico('liberado', '🗺')} Nova região liberada: <b>${regionIcon(nextRegion)} ${esc(nextRegion.name)}</b>!</p>` : '';
+    html = `<h2 class="win">${ico('vitoria', '🏆')} Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : `Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.`}</p>
       ${starsLine}${got}${opened ? `<p class="hint">🔓 Fase ${stageLabel(stageId)} liberada no <b>${DIFFICULTY_LABEL[opened]}</b>!</p>` : ''}${regionOpened}${unlocked}`;
   } else {
     save.items.orbe1 += 1;
-    html = `<h2 class="lose">${winner === 'empate' ? '⏱ Empate' : '💀 Derrota'}</h2><p>Treine seus personagens com Orbes e tente de novo! (+1 Orbe Comum)</p>`;
+    html = `<h2 class="lose">${winner === 'empate' ? `${ico('empate', '⏱')} Empate` : `${ico('derrota', '💀')} Derrota`}</h2><p>Treine seus personagens com Orbes e tente de novo! (+1 Orbe Comum)</p>`;
   }
   html += pendingLevelNote;
   setPendingLevelNote('');

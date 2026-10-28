@@ -1,4 +1,5 @@
 import { playerAuto, playerEndTurn, playerUse } from '../core/match';
+import { ico } from './icons';
 import { createBattle, deployCells, spellTargets, unitAt, waitOf, DEPLOY_DEPTH, Ctx } from '../core/battle';
 import { isSpell } from '../core/spells';
 import type { BattleState, CardInstance, RecordedEvent, Side, Snapshot, Unit } from '../core/types';
@@ -100,8 +101,8 @@ export class BattleView {
             <span class="vs-badge">💀</span>
           </div>
         </div>
-        <button class="btn small ghost" data-act="speed" id="speedBtn">${this.cb.speed()}x</button>
-        <button class="btn small ghost log-toggle" data-act="log" title="Registro da batalha">📜</button>
+        <button class="btn small ghost" data-act="speed" id="speedBtn">${ico('velocidade')}<span>${this.cb.speed()}x</span></button>
+        <button class="btn small ghost log-toggle" data-act="log" title="Registro da batalha">${ico('registro', '📜')}</button>
       </div>
       <div class="field">
         <div class="hero hero-p" id="hero-player">
@@ -125,23 +126,23 @@ export class BattleView {
       <div class="tactical-tabs">
         <div class="info-wrap"><div class="info" id="info">${INFO_DEFAULT}</div><button class="info-close" data-act="info-close" aria-label="Fechar informações">✕</button></div>
         <div class="tactical-right">
-          <button class="tab-btn" id="autoBtn" data-act="auto" title="Invocar e lutar automaticamente">Auto: OFF</button>
+          <button class="tab-btn" id="autoBtn" data-act="auto" title="Invocar e lutar automaticamente">${ico('auto')}<span>Auto: OFF</span></button>
           <div class="deployed-pill" title="Unidades aliadas em campo">Em campo (<b id="deployedCount">0</b>)</div>
         </div>
       </div>
       <div class="bottom">
         <div class="energy" id="energy"></div>
         <div class="hand-row">
-          <div class="pile pile-draw" id="pileDraw" title="Baralho: cartas que ainda podem ser compradas"><div class="pile-stack"><span class="pile-ico">🂠</span><b class="pile-count">0</b></div><div class="pile-label">Baralho</div></div>
+          <div class="pile pile-draw" id="pileDraw" title="Baralho: cartas que ainda podem ser compradas"><div class="pile-stack"><span class="pile-ico">${ico('pilha', '🂠')}</span><b class="pile-count">0</b></div><div class="pile-label">Baralho</div></div>
           <div class="hand" id="hand"></div>
-          <div class="pile pile-dead" id="pileDead" title="Necropolis (Derrotadas): cópias cujas unidades caíram"><div class="pile-stack"><span class="pile-ico">☠</span><b class="pile-count">0</b></div><div class="pile-label">Necropolis</div></div>
+          <div class="pile pile-dead" id="pileDead" title="Necropolis (Derrotadas): cópias cujas unidades caíram"><div class="pile-stack"><span class="pile-ico">${ico('necropolis', '☠')}</span><b class="pile-count">0</b></div><div class="pile-label">Necropolis</div></div>
         </div>
-        <button class="btn fight" data-act="fight" id="fightBtn">LUTAR ⚔</button>
+        <button class="btn fight" data-act="fight" id="fightBtn">LUTAR ${ico('lutar', '⚔')}</button>
       </div>
-      <details class="log-panel" open><summary>📜 Registro da batalha</summary><ol class="log" id="log"></ol></details>
+      <details class="log-panel" open><summary>${ico('registro', '📜')} Registro da batalha</summary><ol class="log" id="log"></ol></details>
       <div class="rotate-prompt" role="dialog" aria-label="Gire o celular">
         <div class="rp-box">
-          <div class="rp-icon" aria-hidden="true">📱</div>
+          <div class="rp-icon" aria-hidden="true">${ico('girar', '📱')}</div>
           <div class="rp-title">Gire o celular para jogar deitado</div>
           <p class="rp-msg">A arena fica maior e as 6 cartas da mão cabem inteiras numa linha.</p>
           <div class="rp-btns"><button class="btn primary" data-act="rotate">⟳ Tela cheia deitada</button><button class="btn ghost" data-act="rotate-dismiss">Jogar em pé</button></div>
@@ -178,12 +179,12 @@ export class BattleView {
     this.root.querySelector('[data-act=speed]')!.addEventListener('click', (e) => {
       const n = this.cb.speed() >= 3 ? 1 : this.cb.speed() + 1;
       this.cb.setSpeed(n);
-      (e.currentTarget as HTMLElement).textContent = `${n}x`;
+      (e.currentTarget as HTMLElement).querySelector('span')!.textContent = `${n}x`;
     });
     this.root.querySelector('[data-act=auto]')!.addEventListener('click', () => {
       this.autoMode = !this.autoMode;
       const btn = this.root.querySelector('#autoBtn') as HTMLElement;
-      btn.textContent = `Auto: ${this.autoMode ? 'ON' : 'OFF'}`;
+      btn.querySelector('span')!.textContent = `Auto: ${this.autoMode ? 'ON' : 'OFF'}`;
       btn.classList.toggle('active', this.autoMode);
       if (this.autoMode && !this.busy && !this.state.winner) void this.runAutoTurn();
     });

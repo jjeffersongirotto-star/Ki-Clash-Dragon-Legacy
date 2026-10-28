@@ -9,14 +9,13 @@ import assassino from '../../src/assets/card/atk-assassino.svg?raw';
 import tanque from '../../src/assets/card/atk-tanque.svg?raw';
 import suporte from '../../src/assets/card/atk-suporte.svg?raw';
 import star from '../../src/assets/card/lv-star.svg?raw';
-import peitoral from '../../src/assets/card/ab-peitoral.svg?raw';
 
 const EMB: Record<string, string> = { dps, mago, arqueiro, assassino, tanque, suporte };
 
 describe('v0.14.2 — acabamento da carta (prévia v14.2f)', () => {
   it('topo: ⚡Poder sozinho na pílula e degrau na estrela dourada (v0.23.0: "+"/"++", sem "Nv.")', () => {
     const h = cardHTML({ charId: 'lyra', stars: 2, plus: 2 }, { power: 10000 });
-    expect(h).toContain('<div class="ck-pow" title="Poder">⚡10000</div>');
+    expect(h).toContain('<div class="ck-pow" title="Poder"><img class="ico" src="/src/assets/icons/poder.webp" alt="" draggable="false">10000</div>');
     // v0.28.7: a estrela do degrau saiu; o canto mostra o ícone do grupo e o degrau fica em "Incomum++"
     expect(h).not.toContain('ck-star');
     expect(h).toContain('<div class="ck-cat" title="Mago">');
@@ -51,18 +50,18 @@ describe('v0.14.2 — acabamento da carta (prévia v14.2f)', () => {
       expect(svg).not.toMatch(/<animate|@keyframes|filter=/);
     }
   });
-  it('estrela de nível e peitoral são SVG estáticos', () => {
-    for (const svg of [star, peitoral]) {
+  it('estrela de nível é SVG estático', () => {
+    for (const svg of [star]) {
       expect(svg).toContain('<svg');
       expect(svg).not.toMatch(/<animate|@keyframes|filter=/);
     }
   });
-  it('Resistência Física (Postura de Guarda) usa o peitoral na carta e na lista de habilidades', () => {
-    expect(abilityIconHTML('guarda')).toContain('class="ab-svg"');
+  it('Resistência Física (Postura de Guarda) usa o ícone desenhado (v0.42.0) na carta e na lista de habilidades', () => {
+    expect(abilityIconHTML('guarda')).toContain('class="ico ab-svg" src="/src/assets/icons/ab-guarda.webp"');
     const toru = getChar('toru');
-    expect(cardHTML({ charId: 'toru', stars: 1 })).toContain('<span class="ck-ab" title="Postura de Guarda"><img class="ab-svg"');
+    expect(cardHTML({ charId: 'toru', stars: 1 })).toContain('<span class="ck-ab" title="Postura de Guarda"><img class="ico ab-svg"');
     const list = abilityListHTML(toru, 1, 1);
-    expect(list).toContain('<img class="ab-svg"');
+    expect(list).toContain('<img class="ico ab-svg"');
     expect(list).not.toContain('🛡 Postura');
     // v0.17: ninguém tem mais resistência de atributo (só por habilidade); a lista não mostra linha extra
     expect(PLAYABLE.every((d) => !d.physRes && !d.magRes)).toBe(true);

@@ -8,14 +8,13 @@ import { gridArtHTML } from './gridArt';
 import { cardPower } from '../core/power';
 import { waitFor } from '../core/battle';
 import { getSpell, type SpellDef } from '../core/spells';
-import peitoralUrl from '../assets/card/ab-peitoral.svg';
+import { ico, iconURL, spellArtURL } from './icons';
 
-/** v0.14.2: ícone de habilidade — a Resistência Física (Postura de Guarda) usa o peitoral de armadura (SVG) no lugar do 🛡. */
-const ABILITY_SVG: Record<string, string> = { guarda: peitoralUrl };
-export function abilityIconHTML(id: AbilityId): string {
-  const svg = ABILITY_SVG[id];
-  return svg ? `<img class="ab-svg" src="${svg}" alt="" draggable="false">` : ABILITIES[id].icon;
-}
+/** v0.42.0: ícone desenhado de cada habilidade (src/assets/icons/ab-<id>.webp). */
+export const abilityIconHTML = (id: AbilityId) => ico(`ab-${id}`, ABILITIES[id].icon, 'ab-svg');
+/** v0.42.0: ícones desenhados de grupo e raça (o emoji fica de reserva). */
+export const catIcon = (c: string) => ico(`cat-${c}`, CATEGORY_INFO[c as keyof typeof CATEGORY_INFO]?.icon ?? '');
+export const raceIcon = (r: string) => ico(`raca-${r}`, RACE_INFO[r as keyof typeof RACE_INFO]?.icon ?? '');
 
 export const esc = (s: string) => s.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]!);
 
@@ -32,12 +31,12 @@ export function starStyle(stars: number): string {
 
 export function categoryHTML(def: CharacterDef, withLabel = false): string {
   const c = CATEGORY_INFO[def.category];
-  return `<span class="cat-tag" title="${c.label}">${c.icon}${withLabel ? ` ${c.label}` : ''}</span>`;
+  return `<span class="cat-tag" title="${c.label}">${catIcon(def.category)}${withLabel ? ` ${c.label}` : ''}</span>`;
 }
 
 export function raceHTML(def: CharacterDef, withLabel = true): string {
   const r = RACE_INFO[def.race];
-  return `<span class="race-tag" style="--race-c:${r.color}" title="${esc(r.desc)}">${r.icon}${withLabel ? ` ${r.label}` : ''}</span>`;
+  return `<span class="race-tag" style="--race-c:${r.color}" title="${esc(r.desc)}">${raceIcon(def.race)}${withLabel ? ` ${r.label}` : ''}</span>`;
 }
 
 /** Alcance exibido: alcance básico + bônus; miras especiais mostram o alcance delas. */
@@ -82,7 +81,7 @@ export const CATEGORY_SVG: Record<string, string> = {
 /** Ícone do grupo como imagem (data URI, em cache): a carta não leva SVG em linha (v0.10.1). */
 const catURI = new Map<string, string>();
 export function categoryIconURI(category: string): string {
-  let u = catURI.get(category);
+  let u = catURI.get(category) ?? iconURL(`cat-${category}`);
   if (!u) {
     u = `data:image/svg+xml;charset=utf-8,${encodeURIComponent((CATEGORY_SVG[category] ?? '').replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" '))}`;
     catURI.set(category, u);
@@ -121,14 +120,14 @@ export function cardHTML(
       </div>
       <div class="card-fig">${ga ? ga.fg : cardArtImg(def, { stars: t, layer: 'fg' })}</div>
       <div class="ck-cost${opts.wait === 0 ? ' ready' : ''}" title="${opts.wait == null ? `Espera ${waitFor(def.id)} rodada(s) na mão` : opts.wait ? `Falta(m) ${opts.wait} rodada(s)` : 'Pronta para invocar'}"><span>${opts.wait ?? waitFor(def.id)}</span></div>
-      <div class="ck-pow" title="Poder">⚡${power}</div>
+      <div class="ck-pow" title="Poder">${ico('poder', '⚡')}${power}</div>
       <div class="ck-cat" title="${cat.label}"><img src="${categoryIconURI(def.category)}" alt=""></div>
       ${opts.badge ? `<div class="card-badge">${opts.badge}</div>` : ''}
       <div class="ck-banner"><span class="ck-name"${nfit}><span class="full">${esc(def.name).replace(/-/g, '\u2011')}</span><span class="short">${esc(def.name.split(' ')[0])}</span></span><i class="ck-gem"></i></div>
       <div class="ck-panel">
         <div class="ck-atk ${def.damageType}" title="Ataque: ${st.atk} (${def.damageType === 'fisico' ? 'físico' : 'mágico'})"><span>${st.atk}</span></div>
         <div class="ck-rar">${tier}</div>
-        <div class="ck-foot"><div class="ck-icons"><span title="${race.label}">${race.icon}</span><span title="${cat.label}">${cat.icon}</span></div></div>
+        <div class="ck-foot"><div class="ck-icons"><span title="${race.label}">${raceIcon(def.race)}</span><span title="${cat.label}">${catIcon(def.category)}</span></div></div>
         ${abil}
         <div class="ck-hp" title="Vida: ${st.hp}"><span>${st.hp}</span></div>
       </div>
@@ -146,7 +145,7 @@ export function abilityListHTML(def: CharacterDef, stars?: number, step = 0): st
     return `<li><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> — ${esc(ab.description)}${now}</li>`;
   });
   if (def.physRes) rows.push(`<li><b>${abilityIconHTML('guarda')} Resistência física ${def.physRes}</b> — reduz cada golpe físico em ${def.physRes}.</li>`);
-  if (def.magRes) rows.push(`<li><b>🔰 Resistência mágica ${def.magRes}</b> — reduz cada golpe mágico em ${def.magRes}.</li>`);
+  if (def.magRes) rows.push(`<li><b>${abilityIconHTML('barreira')} Resistência mágica ${def.magRes}</b> — reduz cada golpe mágico em ${def.magRes}.</li>`);
   return `<ul class="abilities">${rows.join('')}</ul>`;
 }
 
@@ -166,17 +165,18 @@ export function spellCardHTML(id: string, opts: { extraClass?: string; attrs?: s
   const c1 = CAT_COLOR[s.categories[0]];
   const c2 = CAT_COLOR[s.categories[1] ?? s.categories[0]];
   const w = opts.wait ?? waitFor(id);
+  const art = spellArtURL(id);
   return `<div class="card spell-card s3 ${opts.compact ? 'compact' : 'ab'} ${opts.extraClass ?? ''}${opts.locked ? ' locked' : ''}" style="--rc:#7c5cff;--rg:#b9a8ff;--sc1:${c1};--sc2:${c2}" ${opts.attrs ?? ''}>
     <div class="card-metal"><div class="card-frame">
-      <div class="card-art spell-art"><span class="spell-ico">${s.icon}</span></div>
+      <div class="card-art spell-art">${art ? `<img class="spell-img" src="${art}" alt="" draggable="false">` : `<span class="spell-ico">${s.icon}</span>`}</div>
       <div class="ck-cost${opts.wait === 0 ? ' ready' : ''}" title="${opts.wait == null ? `Espera ${w} rodada(s) na mão` : opts.wait ? `Falta(m) ${opts.wait} rodada(s)` : 'Pronto para lançar'}"><span>${w}</span></div>
       <div class="ck-pow spell-tag" title="Feitiço">✦ Feitiço</div>
       ${opts.copies ? `<div class="ck-star" title="Cópias no baralho"><small>×</small><b>${opts.copies}</b></div>` : ''}
       ${opts.badge ? `<div class="card-badge">${opts.badge}</div>` : ''}
       <div class="ck-banner"><span class="ck-name"><span class="full">${esc(s.name)}</span><span class="short">${esc(s.name.split(' ')[0])}</span></span><i class="ck-gem"></i></div>
       <div class="ck-panel spell-panel">
-        <div class="ck-foot"><div class="ck-icons">${s.categories.map((k) => `<span title="${CATEGORY_INFO[k].label}">${CATEGORY_INFO[k].icon}</span>`).join('')}</div></div>
-        <div class="spell-target">${spellTargetLabel(s)}</div>
+        <div class="ck-foot"><div class="ck-icons">${s.categories.map((k) => `<span title="${CATEGORY_INFO[k].label}">${catIcon(k)}</span>`).join('')}</div></div>
+        <div class="spell-target">${iconURL(`alvo-${s.target}`) ? `${ico(`alvo-${s.target}`)} ${spellTargetLabel(s).replace(/^\S+ /, '')}` : spellTargetLabel(s)}</div>
       </div>
     </div></div>
   </div>`;
@@ -191,7 +191,7 @@ export function spellInfoHTML(id: string): string {
 /** v0.22.0: 🔮 Orbe com a cor da raridade (e a quantidade, se houver). */
 export function orbHTML(id: XpItemId, count?: number | string): string {
   const o = XP_ITEMS.find((x) => x.id === id)!;
-  return `<span class="orb" style="--oc:${STAR_COLORS[o.rarity].color}" title="${o.name} (+${o.xp} XP)" aria-label="${o.name}"><i></i>${count != null ? `<b>${count}</b>` : ''}</span>`;
+  return `<span class="orb" style="--oc:${STAR_COLORS[o.rarity].color}" title="${o.name} (+${o.xp} XP)" aria-label="${o.name}">${ico(o.id, '<i></i>')}${count != null ? `<b>${count}</b>` : ''}</span>`;
 }
 /** Os Orbes de uma recompensa, da raridade mais baixa para a mais alta. */
 export const orbBagHTML = (bag: OrbBag, prefix = '') =>
@@ -201,20 +201,22 @@ export const orbBagHTML = (bag: OrbBag, prefix = '') =>
  * v0.26.1: 🪙 Ouro de Dragão — a moeda Ryo dourada (redonda, com borda), com o dragão 🐉 dourado no lugar
  * do furo do meio. O dragão é o próprio 🐉, pintado de dourado pelo CSS (.coin-dragon).
  */
-export const coinFace = () => `<span class="coin-face" aria-hidden="true"><span class="coin-field"><span class="coin-dragon">🐉</span></span></span>`;
+export const coinFace = () => ico('ouro', '', 'coin-img') || `<span class="coin-face" aria-hidden="true"><span class="coin-field"><span class="coin-dragon">🐉</span></span></span>`;
 /** Ouro de Dragão com quantidade (opcional). */
 export const goldHTML = (count?: number | string) =>
   `<span class="coin" title="Ouro de Dragão" aria-label="Ouro de Dragão">${coinFace()}${count != null ? `<b>${count}</b>` : ''}</span>`;
 /** v0.33.0: 💠 Gema de Invocação (ícone próprio: cristal lapidado roxo-azulado) com quantidade opcional. */
 export const gemHTML = (count?: number | string) =>
-  `<span class="sgem" title="Gema de Invocação" aria-label="Gema de Invocação"><i class="sgem-ico"></i>${count != null ? `<b>${count}</b>` : ''}</span>`;
+  `<span class="sgem" title="Gema de Invocação" aria-label="Gema de Invocação">${ico('gema', '<i class="sgem-ico"></i>')}${count != null ? `<b>${count}</b>` : ''}</span>`;
 /** v0.26.0: energia ⚡ atual / máxima (acima do máximo fica dourada). */
 export const energyHTML = (cur: number, max: number) =>
-  `<span class="energy${cur > max ? ' over' : ''}" title="Energia (Fácil 1 · Normal 3 · Difícil 6; recupera 1 a cada 6 min)">⚡<b>${cur}</b><small>/${max}</small></span>`;
+  `<span class="energy${cur > max ? ' over' : ''}" title="Energia (Fácil 1 · Normal 3 · Difícil 6; recupera 1 a cada 6 min)">${ico('energia', '⚡')}<b>${cur}</b><small>/${max}</small></span>`;
 
 /** v0.24.0: ícone de item de ascensão; a raridade aparece só na cor do fundo. */
 export function gearHTML(id: string, rarity: number, count?: number | string, missing = false): string {
   const g = GEAR_BY_ID[id];
   const label = `${g.name} ${GEAR_RARITY_NAMES[rarity]} (${STAR_COLORS[rarity].label})`;
-  return `<span class="gear${missing ? ' missing' : ''}" style="--gc:${STAR_COLORS[rarity].color}" title="${label}" aria-label="${label}"><i>${g.icon}</i>${count != null ? `<b>${count}</b>` : ''}</span>`;
+  return `<span class="gear${missing ? ' missing' : ''}" style="--gc:${STAR_COLORS[rarity].color}" title="${label}" aria-label="${label}"><i>${ico(`gear-${id}`, g.icon)}</i>${count != null ? `<b>${count}</b>` : ''}</span>`;
 }
+/** v0.42.0: ✴ Essências (ícone desenhado). */
+export const essIcon = () => ico('essencia', '✴');
