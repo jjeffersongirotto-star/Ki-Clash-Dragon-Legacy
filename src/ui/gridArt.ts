@@ -16,7 +16,6 @@ import { charArtUrl, portraitImg, portraitSVG } from './art';
 /** proporção da arte da carta alta (`.card.ab .card-art { aspect-ratio: .72 }`, v0.14.2); nas cartas baixas (.82) o fundo é recortado com object-fit: cover */
 const ART_RATIO = 0.72;
 /** opacidade da aura por cor (mesmos valores do CSS) */
-const AURA_OPACITY = [0, 0.4, 0.55, 0.7, 0.85, 0.85, 0.85];
 
 type Baked = { bg: string; fg: string };
 const BAKED = new Map<string, Baked>();
@@ -60,36 +59,11 @@ function loadImg(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function hexRgb(hex: string): [number, number, number] {
-  let h = hex.replace('#', '');
-  if (h.length === 3) h = h.split('').map((c) => c + c).join('');
-  const n = parseInt(h.slice(0, 6), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
-
 function canvas(w: number, h: number): [HTMLCanvasElement, CanvasRenderingContext2D] {
   const c = document.createElement('canvas');
   c.width = w;
   c.height = h;
   return [c, c.getContext('2d')!];
-}
-
-/** aura de Ki (gradiente elíptico), como no CSS (v0.31.0: sem os raios girando) */
-function drawAura(W: number, H: number, _t: number, aura: string): HTMLCanvasElement {
-  const [c, g] = canvas(W, H);
-  const [r, gg, b] = hexRgb(aura);
-  // .card-aura: radial-gradient(ellipse 60% 65% at 50% 68%, mix(ac 80%, #fff) 0%, mix(ac 50%, transparent) 38%, transparent 72%)
-  g.save();
-  g.translate(W * 0.5, H * 0.68);
-  g.scale(W * 0.6, H * 0.65);
-  const rg = g.createRadialGradient(0, 0, 0, 0, 0, 1);
-  rg.addColorStop(0, `rgb(${Math.round(r * 0.8 + 51)},${Math.round(gg * 0.8 + 51)},${Math.round(b * 0.8 + 51)})`);
-  rg.addColorStop(0.38, `rgba(${r},${gg},${b},.5)`);
-  rg.addColorStop(0.72, `rgba(${r},${gg},${b},0)`);
-  g.fillStyle = rg;
-  g.fillRect(-3, -3, 6, 6);
-  g.restore();
-  return c;
 }
 
 function toUrl(c: HTMLCanvasElement): Promise<string> {
@@ -113,9 +87,6 @@ async function bake(def: CharacterDef, t: number, locked: boolean): Promise<void
   ]);
   const [bc0, bg0] = canvas(W, H);
   bg0.drawImage(bgImg, 0, 0, W, H);
-  bg0.globalCompositeOperation = 'screen';
-  bg0.globalAlpha = AURA_OPACITY[t];
-  bg0.drawImage(drawAura(W, H, t, def.palette.aura), 0, 0);
   const [fc0, fg0] = canvas(FW, FW);
   fg0.drawImage(fgImg, 0, 0, FW, FW);
   let bc = bc0, fc = fc0;
