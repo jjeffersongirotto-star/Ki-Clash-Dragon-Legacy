@@ -22,9 +22,9 @@ export interface SimResult {
 export const ARENA = { battles: 0, turns: 0, clashes: 0, heroToEnemy: 0, heroToPlayer: 0 };
 export const resetArena = () => Object.assign(ARENA, { battles: 0, turns: 0, clashes: 0, heroToEnemy: 0, heroToPlayer: 0 });
 
-export function simulate(playerDeck: CardInstance[], enemyDeck: CardInstance[], playerHp: number, enemyHp: number, seed: number): SimResult {
+export function simulate(playerDeck: CardInstance[], enemyDeck: CardInstance[], playerHp: number, enemyHp: number, seed: number, aiLevel = Number(process.env.SIM_AI ?? NaN)): SimResult {
   // v0.35.0: SIM_COLS testa outros tamanhos de arena (12, 10, 7…) sem mudar o jogo
-  const s: BattleState = createBattle({ playerDeck, enemyDeck, playerHeroHp: playerHp, enemyHeroHp: enemyHp, seed, cols: Number(process.env.SIM_COLS) || undefined });
+  const s: BattleState = createBattle({ playerDeck, enemyDeck, playerHeroHp: playerHp, enemyHeroHp: enemyHp, seed, cols: Number(process.env.SIM_COLS) || undefined, aiLevel: Number.isFinite(aiLevel) ? aiLevel : undefined });
   let clashes = 0;
   const heroDmg = { player: 0, enemy: 0 };
   let maxBurst = 0;

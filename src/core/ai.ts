@@ -4,9 +4,19 @@ import { getSpell, isSpell } from './spells';
 import { has } from './abilities';
 import { nextRandom } from './rng';
 import type { BattleState, Side, Unit } from './types';
+import { smartDeploy } from './aiSmart';
+
+/**
+ * Jogada da IA. v0.37.0: o INIMIGO usa a IA esperta (aiSmart.ts) quando a batalha tem `aiLevel` ≥ 1; o modo Auto
+ * do jogador e o nível 0 usam a IA simples abaixo.
+ */
+export function aiDeploy(state: BattleState, ctx: Ctx, side: Side) {
+  if (side === 'enemy' && (state.aiLevel ?? 0) > 0) return smartDeploy(state, ctx, side, state.aiLevel!, simpleDeploy);
+  simpleDeploy(state, ctx, side);
+}
 
 /** IA simples: invoca TODAS as cartas prontas (contagem 0), as mais caras primeiro, reforçando as fileiras ameaçadas. */
-export function aiDeploy(state: BattleState, ctx: Ctx, side: Side) {
+export function simpleDeploy(state: BattleState, ctx: Ctx, side: Side) {
   for (let guard = 0; guard < 12; guard++) {
     const hand = state.decks[side].hand;
     const options = hand

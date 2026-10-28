@@ -50,6 +50,8 @@ export interface BattleSetup {
   fury?: boolean;
   /** v0.33.0: tutorial — as cartas não esperam na mão (as dos dois lados ficam prontas na hora) */
   noWait?: boolean;
+  /** v0.37.0: nível da IA inimiga (0 = simples; 1–3 = esperta) */
+  aiLevel?: number;
 }
 
 /** Coletor de eventos: cada evento leva um retrato do estado para a UI animar. */
@@ -101,6 +103,7 @@ export function createBattle(setup: BattleSetup): BattleState {
     maxTurns: setup.maxTurns ?? 40,
     fury: setup.fury ?? true,
     noWait: setup.noWait || undefined,
+    aiLevel: setup.aiLevel || undefined,
     log: [],
     stats: { player: { cards: 0, spells: 0, kills: 0 }, enemy: { cards: 0, spells: 0, kills: 0 } },
   };
@@ -988,7 +991,7 @@ export function bringBack(state: BattleState, ctx: Ctx, side: Side, uid: number,
 // ---------- v0.17.0: feitiços (v0.28.1: em battleSpells.ts) ----------
 export { castSpell, spellCasters, spellTargets } from './battleSpells';
 
-function endRoundIfNeeded(state: BattleState, ctx: Ctx) {
+export function endRound(state: BattleState, ctx: Ctx) {
   if (state.winner) return;
   if (state.turn >= state.maxTurns) {
     const p = state.heroes.player.hp / state.heroes.player.maxHp;
@@ -1011,7 +1014,7 @@ export function endPlayerTurn(state: BattleState, ai: (s: BattleState, ctx: Ctx,
   ai(state, ctx, 'enemy');
   resolveSide(state, ctx, 'enemy');
   if (state.winner) return ctx.events;
-  endRoundIfNeeded(state, ctx);
+  endRound(state, ctx);
   if (state.winner) return ctx.events;
   state.turn++;
   startTurn(state, ctx, 'player');

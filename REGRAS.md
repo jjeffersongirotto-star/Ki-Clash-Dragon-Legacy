@@ -1152,3 +1152,12 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 | 7 | 6,2 | 15,1 | 39,2 / 5,2 | 100 · 93 · 99 · 93 · 100 · 97 · 97 · 96 · 95 · 95% |
 
   Com 10 casas e a campanha reequilibrada: 95 · 97 · 89 · 91 · 83 · 78 · 78 · 67 · 67 · 69%.
+
+## 39. Adversário esperto (v0.37.0)
+- O inimigo tem **níveis de IA**: **0 = simples** (regras fixas: invoca as cartas prontas mais caras e reforça as fileiras ameaçadas) e **1 a 3 = esperta**.
+- A IA esperta **pensa antes de jogar**: para cada jogada possível (cada carta pronta em cada casa da zona, cada feitiço em cada alvo, ou parar), ela simula a batalha alguns turnos à frente numa cópia (o nível 1 olha só o próprio ataque; os níveis 2 e 3 também a resposta do jogador e o turno seguinte) e escolhe a jogada que deixa a situação melhor. Repete enquanto houver jogada que melhore.
+- A **nota** da situação pesa: vida dos dois Comandantes (abaixo de 40% vira **modo perigo**: defender ou fechar a partida), vida, ataque e habilidades das unidades, **unidades-chave** (curandeiros, auras, guardiões, Necropolis), avanço rumo ao Comandante adversário, ameaça das unidades inimigas que se aproximam, efeitos ruins e cartas prontas na mão. Os pesos vêm de um **treino contra ela mesma** (`scripts/balance/train_ai.ts`).
+- O tempo de pensar é limitado por **número de simulações** (não pelo relógio) e as simulações não mexem no sorteio da batalha real: a partida continua **determinística** e verificável.
+- **Nível por fase (Fácil):** 0, 0, 0, 1, 1, 1, 2, 2, 2, 3. **Normal** soma +1 e **Difícil** +2 (até 3). O **modo Auto do jogador usa sempre a IA simples**.
+- Mesmo baralho dos dois lados contra a IA simples: o inimigo vence 55% (nível 0), 60% (1), 90% (2), 93% (3).
+

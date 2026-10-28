@@ -166,7 +166,7 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
       const hp = sc.hp[p.leader - 1];
       let w = 0;
       for (let k = 0; k < probe; k++) {
-        const r = simulate(battleDeck(p, i), STAGES[i].enemyDeck, hp, sc.enemyHp(i), seed++);
+        const r = simulate(battleDeck(p, i), STAGES[i].enemyDeck, hp, sc.enemyHp(i), seed++, STAGES[i].aiLevel);
         if (r.winner === 'player') { w++; st.hpLeftWin.push(r.playerHpLeft / hp); st.winStats.push(r.stats); }
         st.burst.push(r.maxBurstOnPlayer / hp); st.maxAtk.push(r.maxEnemyAtk);
       }
@@ -175,13 +175,13 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
       for (;;) {
         attempts++;
         spend(p); levelUp(p, sc);
-        const r = simulate(battleDeck(p, i), STAGES[i].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i), seed++);
+        const r = simulate(battleDeck(p, i), STAGES[i].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i), seed++, STAGES[i].aiLevel);
         if (r.winner === 'player') { reward(p, i, true, repeatMult); winXp(p, i, true); break; }
         p.items.orbe1 = (p.items.orbe1 ?? 0) + 1;
         if (attempts > 300) break;
         if (i > 0) {
           spend(p); levelUp(p, sc);
-          const rr = simulate(battleDeck(p, i), STAGES[i - 1].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i - 1), seed++);
+          const rr = simulate(battleDeck(p, i), STAGES[i - 1].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i - 1), seed++, STAGES[i - 1].aiLevel);
           if (rr.winner === 'player') { reward(p, i - 1, false, repeatMult); winXp(p, i - 1); } else p.items.orbe1 = (p.items.orbe1 ?? 0) + 1;
         }
       }

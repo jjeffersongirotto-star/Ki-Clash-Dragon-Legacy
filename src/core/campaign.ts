@@ -17,6 +17,8 @@ export interface Stage {
   unlock?: string;
   /** v0.25.0: pacote da primeira vitória — todos os personagens que a fase dá (o `unlock` e um de Comum) */
   pack: string[];
+  /** v0.37.0: nível da IA inimiga (0 = simples; 1–3 = esperta, ver aiSmart.ts) */
+  aiLevel?: number;
 }
 
 const NAMES = [
@@ -89,7 +91,9 @@ export function enemyLeaderHp(i: number): number {
  * ENEMY_STEPS e ENEMY_SPELLS para a vitória ao chegar ficar ~90% nas fases 1–3, ~75% nas 4–7 e ~65% nas 8–10.
  * Até a v0.27.0: 12 + 7·i (12, 19, 26, 33, 40, 47, 54, 61, 68, 75).
  */
-export const ENEMY_HERO_HP = [14, 14, 18, 32, 30, 37, 56, 62, 72, 106];
+export const ENEMY_HERO_HP = [14, 14, 18, 34, 36, 40, 36, 41, 39, 56];
+/* v0.37.0: com a IA esperta nas fases 4–10 (STAGE_AI), reequilibrado no simulador (scripts/balance/v28.ts, SIM_SPELLS=0).
+   v0.36.0: 14, 14, 18, 32, 30, 37, 56, 62, 72, 106. */
 /* v0.36.0: arena de 10 colunas (os dois lados chegam mais rápido), reequilibrado no simulador (scripts/balance/v28.ts,
    SIM_COLS=10 SIM_SPELLS=0). v0.33.0–v0.35.0: 16, 20, 18, 32, 22, 40, 47, 52, 56, 74. */
 /* v0.33.0: com a IA menor nas primeiras fases (3 → 10 personagens) e sem pacotes de fase, reequilibrado no simulador
@@ -124,7 +128,8 @@ export const ENEMY_SPELL_COPIES = 2;
  * Até a v0.22.0: NÍVEL por fase (1, 4, 4, 5, 6, 6, 11, 14, 17, 12). v0.23.0–v0.27.0: 0, 0,5, 0, 1, 0,5, 0, 3, 0, 0,5, 0,5.
  * v0.28.0: reequilíbrio (scripts/balance/v28.ts).
  */
-export const ENEMY_STEPS = [2.8, 1, 0.5, 1.5, 1.5, 0, 1.5, 0, 0, 0];
+export const ENEMY_STEPS = [2.8, 1, 0.5, 1.5, 2.5, 0.5, 0, 0, 0, 0];
+/* v0.37.0 (IA esperta). v0.36.0: 2,8, 1, 0,5, 1,5, 1,5, 0, 1,5, 0, 0, 0. */
 /* v0.36.0 (arena de 10 colunas). v0.33.0–v0.35.0: 3,34, 3,25, 0,5, 1,5, 0, 0, 1,5, 0, 0, 0. */
 /* v0.33.0: fases 1–2 com só 3–4 personagens de Comum ficam em Incomum (1 deles Incomum+); v0.28.0: 0, 0,5, 0,5, 0,5, 0, 0, 1,5, 0, 0, 0. */
 
@@ -153,6 +158,12 @@ export function enemyDeckFor(i: number, target = ENEMY_STEPS[i], spellIds = ENEM
   return [...deck, ...spells];
 }
 
+/**
+ * v0.37.0 — nível da IA inimiga por fase no Fácil (0 = simples, 1–3 = esperta: pensa mais turnos à frente).
+ * As primeiras fases ficam com a IA simples; Normal e Difícil somam +1 e +2 (até 3), em adventure.ts.
+ */
+export const STAGE_AI = [0, 0, 0, 1, 1, 1, 2, 2, 2, 3];
+
 export const STAGES: Stage[] = NAMES.map((name, i) => ({
   id: i + 1,
   name,
@@ -162,6 +173,7 @@ export const STAGES: Stage[] = NAMES.map((name, i) => ({
   rewards: { essencias: 6 + i * 3, orbs: { orbe1: 4 + i * 2, orbe2: Math.round(((1 + Math.floor(i / 2)) * 400 + (i >= 5 ? 1500 : 0)) / 250) } },
   unlock: STAGE_PACKS ? UNLOCKS[i + 1] : undefined,
   pack: STAGE_PACKS ? stagePack(i + 1) : [],
+  aiLevel: STAGE_AI[i],
 }));
 
 /** Vida do Comandante do jogador no nível 1 (v0.13: sobe com o nível do Comandante — ver leaders.ts). */
