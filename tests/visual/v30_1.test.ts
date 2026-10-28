@@ -13,9 +13,10 @@ describe('v0.30.1 — Comandante adversário recortado e respirando', () => {
     }
   });
 
-  it('os 20 personagens originais têm recorte e altura entre 0,4 e 1,3 do nosso bárbaro', () => {
-    const originals = PLAYABLE.filter((d) => COMMANDER_LOOK[d.id]);
-    expect(originals.length).toBe(Object.keys(COMMANDER_LOOK).length);
+  // v0.38.0: a tabela tem todos os personagens com recorte limpo (não só os 20 originais)
+  it('todo personagem da tabela tem recorte e altura entre 0,4 e 1,3 do nosso bárbaro', () => {
+    const inTable = PLAYABLE.filter((d) => COMMANDER_LOOK[d.id]);
+    expect(inTable.length).toBe(Object.keys(COMMANDER_LOOK).length);
     for (const [id, look] of Object.entries(COMMANDER_LOOK)) {
       expect(hasCutout(id), id).toBe(true);
       expect(look.h).toBeGreaterThanOrEqual(0.4);
@@ -28,7 +29,7 @@ describe('v0.30.1 — Comandante adversário recortado e respirando', () => {
     expect(h).toContain('class="hero-cut"');
     expect(h).toContain(`--hs:${COMMANDER_LOOK.mei.h}`);
     expect(h).not.toContain('card');
-    expect(enemyCommanderBattle({ charId: 'riku', stars: 1 })).toContain('hero-cut flip');
+    expect(enemyCommanderBattle({ charId: 'aiko', stars: 2 })).toContain('hero-cut flip');
     expect(enemyCommanderBattle(null)).toContain('hero-leader-enemy hero-img');
   });
 });

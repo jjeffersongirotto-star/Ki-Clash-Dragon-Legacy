@@ -5,6 +5,7 @@ import { DECK_SLOTS } from './deck';
 import { LEADER_HP } from './leaders';
 import { getSpell } from './spells';
 import { cardPower } from './power';
+import { isCleanCommander } from './commanders';
 import type { OrbBag } from './progression';
 
 export interface Stage {
@@ -183,13 +184,15 @@ export const PLAYER_HERO_HP = LEADER_HP[0];
  * v0.28.0 — Comandante inimigo de cada fase (só a arte; a vida continua `enemyHeroHp`). Fases 1 a 9: o personagem
  * mais forte do baralho da fase (no Fácil) que ainda NÃO foi Comandante de uma fase anterior, então nenhum se repete.
  * A fase 10 é o minotauro de sempre (`null`). O Comandante do jogador não muda.
+ * v0.38.0: só personagens com recorte limpo (commanders.ts) — a Nyx (redemoinho cortado) e o Zarek (buraco negro cortado)
+ * deixaram de ser Comandantes; entram os seguintes mais fortes do baralho.
  */
 export const STAGE_COMMANDERS: (string | null)[] = (() => {
   const used = new Set<string>();
   return STAGES.map((st, i) => {
     if (i === STAGES.length - 1) return null;
     const best = st.enemyDeck
-      .filter((c) => !c.charId.startsWith('f-') && !used.has(c.charId))
+      .filter((c) => !c.charId.startsWith('f-') && isCleanCommander(c.charId) && !used.has(c.charId))
       .sort((a, b) => cardPower(b) - cardPower(a) || a.charId.localeCompare(b.charId))[0];
     used.add(best.charId);
     return best.charId;
@@ -198,6 +201,6 @@ export const STAGE_COMMANDERS: (string | null)[] = (() => {
 
 /** Carta do Comandante inimigo da fase (na raridade em que ele está no baralho dessa dificuldade), ou `null` = minotauro. */
 export function stageCommander(stage: Pick<Stage, 'id' | 'enemyDeck'>): CardInstance | null {
-  const id = stage.id >= 1 ? STAGE_COMMANDERS[stage.id - 1] : [...stage.enemyDeck].sort((a, b) => cardPower(b) - cardPower(a))[0]?.charId;
+  const id = stage.id >= 1 ? STAGE_COMMANDERS[stage.id - 1] : [...stage.enemyDeck].filter((c) => isCleanCommander(c.charId)).sort((a, b) => cardPower(b) - cardPower(a))[0]?.charId;
   return (id && stage.enemyDeck.find((c) => c.charId === id)) || null;
 }

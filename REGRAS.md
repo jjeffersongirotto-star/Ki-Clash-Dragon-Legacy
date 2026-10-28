@@ -1138,7 +1138,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - As descrições das habilidades e feitiços mostram só o nome, o que fazem e o valor de agora ("agora: …"); não há mais notas de versão nem a linha "Por raridade".
 - **Na batalha**, tocar/clicar numa carta da mão ou numa unidade só escolhe ou joga. A **descrição** abre ao **segurar** (cerca de 0,45 s) e, no PC, também com o **botão direito**. Arrastar a carta continua invocando.
 - O **tutorial** (Batalha 2) tem um passo que pede para segurar a carta do Riku; o texto é "toque e segure" no celular e "clique e segure (ou botão direito)" no PC.
-- **Comandantes:** nenhum recorte pode ter parte do corpo, arma ou efeito pela metade. Quando o efeito da arte não dá para recortar inteiro, o jogo desenha o efeito (ex.: o redemoinho girando da Nyx; tabela `COMMANDER_LOOK.fx` em `src/ui/art.ts`). Script: `scripts/art/build_cutouts.py` (`--retrato` para o modelo de retrato; tabelas `PORTRAIT` e `FILL`).
+- **Comandantes:** nenhum recorte pode ter parte do corpo, arma ou efeito pela metade (v0.38.0: quem não tem recorte limpo não é Comandante — ver seção 40). Script: `scripts/art/build_cutouts.py` (`--retrato` para o modelo de retrato; tabelas `PORTRAIT` e `FILL`).
 
 ## 38. Arena de 10 casas (v0.36.0)
 - A arena tem **2 fileiras × 10 colunas** (até a v0.35.0 eram 12). Cada lado invoca nas **3 colunas** da sua ponta (você: 1–3; inimigo: 8–10). O número de colunas é uma constante só (`COLS` em `src/core/battle.ts`).
@@ -1160,4 +1160,11 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - O tempo de pensar é limitado por **número de simulações** (não pelo relógio) e as simulações não mexem no sorteio da batalha real: a partida continua **determinística** e verificável.
 - **Nível por fase (Fácil):** 0, 0, 0, 1, 1, 1, 2, 2, 2, 3. **Normal** soma +1 e **Difícil** +2 (até 3). O **modo Auto do jogador usa sempre a IA simples**.
 - Mesmo baralho dos dois lados contra a IA simples: o inimigo vence 55% (nível 0), 60% (1), 90% (2), 93% (3).
+
+## 40. Comandantes sem cortes (v0.38.0)
+- **Só vira Comandante adversário quem tem recorte limpo:** corpo, arma e efeito inteiros. As **120 artes** foram triadas uma a uma, lado a lado com o recorte: **79 servem** e **41 não servem** (efeito cortado pela metade, arma sem a lâmina, pedaço do cenário junto, corpo escondido pelo cenário ou figura encostada na borda da arte). A lista com o motivo de cada recusa está em `COMMANDER_REJECTED` (`src/core/commanders.ts`).
+- **Saíram:** Nyx (redemoinho cortado), Zarek (buraco negro cortado), Riku, Hana e Ren. O redemoinho desenhado pelo jogo por cima da Nyx também saiu.
+- **Comandante de cada fase:** o personagem mais forte do baralho da fase, com recorte limpo, que ainda não foi Comandante antes. Fases 1–9 (Fácil): Daichi, Kuro, Tobi, Aiko, Gorath, Yume, **Mei**, Kenji, **Lyra**; fase 10: o minotauro.
+- **Altura aparente** de cada um em relação ao nosso bárbaro (1,0), pelo tamanho real e pela pose (`COMMANDER_LOOK`): gigantes até 1,12 (Gorath), em pé 0,8–1,0, agachados, ajoelhados e sentados 0,55–0,75 (ex.: besouro Grub 0,55, Mei sobre a lótus 0,62). Ninguém é esticado.
+- Recortes em WebP com até 560 px de altura (`src/assets/cutouts/`).
 

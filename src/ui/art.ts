@@ -1,6 +1,7 @@
 import type { CharacterDef, Side } from '../core/types';
 import { sceneSVG } from './scenes';
 import { getChar } from '../core/characters';
+import { COMMANDER_LOOK } from '../core/commanders';
 import leaderPlayerUrl from '../assets/leader-player.webp';
 import leaderEnemyUrl from '../assets/leader-enemy.webp';
 
@@ -51,55 +52,14 @@ export function enemyCommanderArt(card: { charId: string; stars: number } | null
 const CUTOUT_FILES = import.meta.glob('../assets/cutouts/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const CUTOUTS = new Map(Object.entries(CUTOUT_FILES).map(([k, v]) => [k.slice(k.lastIndexOf('/') + 1, -'.webp'.length), v]));
 export const hasCutout = (id: string): boolean => CUTOUTS.has(id);
-/**
- * v0.35.0: efeito desenhado pelo JOGO sobre o recorte, quando o efeito da arte não dava para recortar inteiro
- * (ex.: o redemoinho da Nyx saía pela metade). `ar` = largura/altura do recorte; x, y = centro do efeito e `size` = largura,
- * em fração da largura/altura do recorte (antes de espelhar). O efeito gira em CSS e espelha junto com o personagem.
- */
-export interface CommanderFx {
-  kind: 'swirl';
-  color: string;
-  ar: number;
-  x: number;
-  y: number;
-  size: number;
-}
-export const COMMANDER_LOOK: Record<string, { h: number; flip?: boolean; fx?: CommanderFx }> = {
-  // v0.34.0: artes novas de corpo inteiro. Altura APARENTE em relação ao nosso bárbaro (1,0): tamanho real do personagem
-  // e pose (agachado, ajoelhado, sentado ou flutuando fica mais baixo; nunca é esticado para encher a coluna).
-  gorath: { h: 1.12 }, // minotauro gigante, em pé
-  daichi: { h: 1.1 }, // golem de pedra enorme, base aberta
-  vorax: { h: 1.0 }, // necromante alto, em pé
-  zarek: { h: 0.98 }, // alienígena alto, em pé
-  tobi: { h: 0.9 }, // oni grande tocando tambor, em movimento
-  toru: { h: 0.9 }, // androide grandão, base aberta
-  kenji: { h: 0.82 }, // homem em base baixa de kung fu
-  lyra: { h: 0.88, flip: true }, // mulher em pé (o chapéu soma altura)
-  nyx: { h: 0.86, flip: true, fx: { kind: 'swirl', color: '#38f0ff', ar: 301 / 560, x: 0.9, y: 0.25, size: 0.72 } }, // androide feminina em pé; redemoinho do jogo na mão estendida
-  aiko: { h: 0.86, flip: true }, // mulher em pé atirando com o arco
-  hana: { h: 0.84, flip: true }, // mulher em pé com o arco
-  yume: { h: 0.84 }, // mulher avançando com a foice
-  kael: { h: 0.84 }, // jovem em pé
-  suri: { h: 0.82 }, // espírito flutuando
-  sora: { h: 0.8, flip: true }, // mulher em passo de dança
-  riku: { h: 0.66, flip: true }, // salto com os joelhos encolhidos
-  nara: { h: 0.66, flip: true }, // mulher em avanço baixo
-  jin: { h: 0.66 }, // ajoelhado mirando
-  kuro: { h: 0.66 }, // agachado para o bote
-  ren: { h: 0.6 }, // agachado
-  mei: { h: 0.62 }, // sentada sobre a flor de lótus
-};
+/** v0.38.0: a tabela de alturas mudou para core/commanders.ts (a campanha só escolhe Comandante com recorte limpo). */
+export { COMMANDER_LOOK };
 export function enemyCommanderBattle(card: { charId: string; stars: number } | null): string {
   if (!card) return enemyLeaderImg();
   const url = CUTOUTS.get(card.charId);
   if (!url) return enemyCommanderArt(card, 'hero-svg hero-leader-enemy hero-cmd');
   const look = COMMANDER_LOOK[card.charId] ?? { h: 0.85 };
-  const img = `<img src="${url}" alt="Comandante Adversário" decoding="async" draggable="false">`;
-  if (!look.fx) return `<span class="hero-cut${look.flip ? ' flip' : ''}" style="--hs:${look.h}">${img}</span>`;
-  const f = look.fx;
-  const arms = [0, 120, 240].map((r) => `<path d="M50 50 C 58 40, 72 38, 82 46 C 92 54, 92 70, 80 80" transform="rotate(${r} 50 50)"/>`).join('');
-  const swirl = `<svg class="cmd-swirl" viewBox="0 0 100 100" style="left:${(f.x * 100).toFixed(1)}%;top:${(f.y * 100).toFixed(1)}%;width:${(f.size * 100).toFixed(1)}%;--fx:${f.color}" aria-hidden="true"><g fill="none" stroke-linecap="round"><g class="sw-glow">${arms}</g><g class="sw-core">${arms}</g></g><circle cx="50" cy="50" r="7"/></svg>`;
-  return `<span class="hero-cut has-fx${look.flip ? ' flip' : ''}" style="--hs:${look.h}"><span class="cut-in" style="aspect-ratio:${f.ar.toFixed(4)}">${swirl}${img}</span></span>`;
+  return `<span class="hero-cut${look.flip ? ' flip' : ''}" style="--hs:${look.h}"><img src="${url}" alt="Comandante Adversário" decoding="async" draggable="false"></span>`;
 }
 
 let leaderWarm: HTMLImageElement[] | null = null;
