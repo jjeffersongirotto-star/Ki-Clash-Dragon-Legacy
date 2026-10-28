@@ -9,7 +9,7 @@ import { CHAR_BY_ID, PLAYABLE } from '../core/characters';
 import { autoDeck, deckMaxFor, PROFILE_MAX_LEVEL } from '../core/deckbuild';
 import { PROFILE_MAX, totalXpFor } from '../core/profile';
 import { LEADERS } from '../core/leaders';
-import { STAGES } from '../core/campaign';
+import { WORLD_STAGES } from '../core/campaign';
 import { MAX_STEP, type OwnedCard } from '../core/progression';
 import { defaultSave, type SaveData } from './save';
 import { TUT_DONE } from '../core/tutorial';
@@ -125,10 +125,10 @@ export function adminSave(): SaveData {
   // v0.32.0: 9 cópias guardadas de cada personagem (baralho com 3 e sobras para testar o Desmanchar)
   d.dupes = Object.fromEntries(Object.values(cards).map((c) => [c.charId, { [c.stars]: 9 }]));
   d.genXp = 0;
-  d.cleared = STAGES.map((s) => s.id);
-  d.clearedDiff = { normal: STAGES.map((s) => s.id), dificil: STAGES.map((s) => s.id) };
+  d.cleared = WORLD_STAGES.map((s) => s.id);
+  d.clearedDiff = { normal: WORLD_STAGES.map((s) => s.id), dificil: WORLD_STAGES.map((s) => s.id) };
   // v0.21.0: 3 ⭐ em todas as fases, nas 3 dificuldades
-  d.stars = Object.fromEntries(['facil', 'normal', 'dificil'].flatMap((diff) => STAGES.map((s) => [`${diff}:${s.id}`, 7])));
+  d.stars = Object.fromEntries(['facil', 'normal', 'dificil'].flatMap((diff) => WORLD_STAGES.map((s) => [`${diff}:${s.id}`, 7])));
   // v0.17: baralho de 40 (máximo) com os 10 mais fortes × 3 e 10 cartas de feitiço
   const deck = autoDeck(Object.values(cards).map((c) => ({ charId: c.charId, stars: c.stars, plus: c.plus })), deckMaxFor(PROFILE_MAX_LEVEL), 10);
   d.deck = deck.map((c) => c.charId);

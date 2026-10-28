@@ -9,9 +9,10 @@
  * - Limite diário por fase e dificuldade: DAILY_LIMIT vezes por dia. Gastam 1: cada "Repetir" e cada vitória em
  *   fase já vencida. A primeira vitória e as derrotas não gastam. Volta à meia-noite de Brasília (UTC−3).
  */
-import { ENEMY_SPELLS, ENEMY_STEPS, STAGES, enemyDeckFor, type Stage } from './campaign';
+import { WORLD_SPELLS, WORLD_STEPS, enemyDeckFor, getStage, regionOrbTier, type Stage } from './campaign';
+import { STAGES_PER_REGION, localOf, regionOf } from './world';
 import type { CardInstance } from './types';
-import { bagXp, type OrbBag } from './progression';
+import { bagXp, orbXp, type OrbBag, type XpItemId } from './progression';
 import { stageGearDrop } from './gear';
 
 export type Difficulty = 'facil' | 'normal' | 'dificil';
@@ -36,10 +37,10 @@ export const DIFFICULTY_RULES: Record<Difficulty, DifficultyRule> = {
 /** A fase `stageId` na dificuldade escolhida (mesmo nome, Comandante e recompensa; baralho inimigo mais forte). */
 export function stageFor(stageId: number, diff: Difficulty): Stage {
   const i = stageId - 1;
-  const base = STAGES[i];
+  const base = getStage(stageId);
   if (diff === 'facil') return base;
   const rule = DIFFICULTY_RULES[diff];
-  const deck: CardInstance[] = enemyDeckFor(i, ENEMY_STEPS[i], ENEMY_SPELLS[i], rule.stepBonus);
+  const deck: CardInstance[] = enemyDeckFor(i, WORLD_STEPS[i], WORLD_SPELLS[i], rule.stepBonus);
   for (const [out, inn] of rule.swaps[i] ?? []) {
     const k = deck.findIndex((c) => c.charId === out);
     if (k >= 0 && !deck.some((c) => c.charId === inn)) deck[k] = { ...deck[k], charId: inn };
@@ -77,6 +78,9 @@ export function stageUnlocked(p: AdventureProgress, diff: Difficulty, stageId: n
 
 /** A dificuldade está liberada? (a fase 1 dela está liberada: Fácil sempre; Normal/Difícil com a fase 1 da anterior) */
 export const difficultyUnlocked = (p: AdventureProgress, diff: Difficulty) => stageUnlocked(p, diff, 1);
+
+/** v0.39.0: a região está liberada na dificuldade? (a fase 1 dela: região 1 como antes; região N+1 com a fase 10 da região N vencida) */
+export const regionUnlocked = (p: AdventureProgress, diff: Difficulty, region: number) => stageUnlocked(p, diff, (region - 1) * STAGES_PER_REGION + 1);
 
 // ---------- limite diário ----------
 
@@ -176,6 +180,32 @@ export const STAGE_GOALS: Record<Difficulty, [StarGoal, StarGoal][]> = {
   ],
 };
 
+/**
+ * v0.39.0: objetivos das fases 11–100, da mesma lista. O par de objetivos gira de fase em fase e os números apertam
+ * com a dificuldade e a partir da região 6: ❤️ 50 → 70 → 100% · 🃏 12 → 10 → 8 cartas · 💀 6 → 8 → 10 abates.
+ */
+const WORLD_GOAL_PAIRS: [GoalKind, GoalKind][] = [
+  ['hp', 'cards'],
+  ['kills', 'nospell'],
+  ['cards', 'hp'],
+  ['kills', 'hp'],
+  ['spells', 'cards'],
+  ['hp', 'nospell'],
+  ['kills', 'cards'],
+  ['hp', 'spells'],
+  ['cards', 'nospell'],
+  ['hp', 'kills'],
+];
+const GOAL_LEVELS: Record<GoalKind, number[]> = { hp: [50, 70, 100], cards: [12, 10, 8], kills: [6, 8, 10], spells: [2, 2, 2], nospell: [0, 0, 0] };
+export function worldGoals(diff: Difficulty, stageId: number): [StarGoal, StarGoal] {
+  const region = regionOf(stageId);
+  const lvl = Math.min(2, DIFFICULTIES.indexOf(diff) + (region >= 6 ? 1 : 0));
+  const [a, b] = WORLD_GOAL_PAIRS[(localOf(stageId) - 1 + region) % WORLD_GOAL_PAIRS.length];
+  return [G(a, GOAL_LEVELS[a][lvl]), G(b, GOAL_LEVELS[b][lvl])];
+}
+/** Os 2 objetivos da fase (além de vencer) na dificuldade. */
+export const goalPair = (diff: Difficulty, stageId: number): [StarGoal, StarGoal] => (stageId <= STAGE_GOALS[diff].length ? STAGE_GOALS[diff][stageId - 1] : worldGoals(diff, stageId));
+
 export const goalText = (g: StarGoal): string =>
   g.kind === 'hp'
     ? g.n >= 100
@@ -193,7 +223,7 @@ export const goalText = (g: StarGoal): string =>
 export const STAR_COUNT = 3;
 /** Os 3 objetivos da fase na dificuldade (o 1º é sempre vencer). */
 export function starGoals(diff: Difficulty, stageId: number): { kind: 'win' | GoalKind; text: string }[] {
-  const pair = STAGE_GOALS[diff][stageId - 1] ?? STAGE_GOALS.facil[0];
+  const pair = goalPair(diff, stageId);
   return [{ kind: 'win', text: 'Vencer a fase' }, ...pair.map((g) => ({ kind: g.kind, text: goalText(g) }))];
 }
 
@@ -233,7 +263,7 @@ export function goalMet(g: StarGoal, r: WinResult): boolean {
 
 /** Objetivos cumpridos numa vitória (máscara de bits). */
 export function starsForWin(r: WinResult, diff: Difficulty = 'facil', stageId = 1): number {
-  const pair = STAGE_GOALS[diff][stageId - 1] ?? STAGE_GOALS.facil[0];
+  const pair = goalPair(diff, stageId);
   let m = 1;
   pair.forEach((g, i) => {
     if (goalMet(g, r)) m |= 2 << i;
@@ -253,9 +283,9 @@ export function addStars(p: StarProgress, diff: Difficulty, stageId: number, mas
 /** v0.24.1: na primeira vitória de cada fase, os itens da fase saem 2 vezes e o XP por jogar vem multiplicado por isto. */
 export const FIRST_WIN_XP_MULT = 2;
 
-/** v0.33.0: 💠 Gemas de Invocação na PRIMEIRA vitória da fase (em cada dificuldade): fases 3, 6 e 9 = 1; fase 10 = 3. */
+/** v0.33.0: 💠 Gemas de Invocação na PRIMEIRA vitória da fase (em cada dificuldade): fases 3, 6 e 9 = 1; fase 10 = 3. v0.39.0: em cada região. */
 export const GEMS_BY_STAGE: Record<number, number> = { 3: 1, 6: 1, 9: 1, 10: 3 };
-export const gemsFor = (stageId: number) => GEMS_BY_STAGE[stageId] ?? 0;
+export const gemsFor = (stageId: number) => GEMS_BY_STAGE[localOf(stageId)] ?? 0;
 
 /** Chances no Difícil, por vitória ou Repetir (independentes). */
 export const HARD_LEGENDARY_CHANCE = 0.1;
@@ -278,12 +308,19 @@ export interface StageReward {
 }
 
 function orbRewards(stageId: number, diff: Difficulty, rng: () => number): { essencias: number; orbs: OrbBag } {
-  const base = STAGES[stageId - 1].rewards;
+  const base = getStage(stageId).rewards;
   if (diff === 'facil') return { essencias: base.essencias, orbs: { ...base.orbs } };
   const xp = bagXp(base.orbs);
-  if (diff === 'normal') return { essencias: base.essencias, orbs: { orbe3: Math.max(1, Math.round((xp * 0.6) / 400)), orbe4: Math.max(1, Math.round((xp * 0.4) / 800)) } };
-  const orbs: OrbBag = { orbe4: Math.max(1, Math.round(xp / 800)) };
-  if (rng() < HARD_LEGENDARY_CHANCE) orbs.orbe5 = 1;
-  if (rng() < HARD_MYTHIC_CHANCE) orbs.orbe6 = 1;
+  // v0.39.0: nas regiões novas os Orbes do Normal e do Difícil também sobem de raridade (até Mítico)
+  const t = regionOrbTier(regionOf(stageId)) - 1;
+  const orb = (k: number) => `orbe${Math.min(6, k + t)}` as XpItemId;
+  if (diff === 'normal') {
+    const orbs: OrbBag = {};
+    for (const [k, share] of [[3, 0.6], [4, 0.4]] as const) orbs[orb(k)] = (orbs[orb(k)] ?? 0) + Math.max(1, Math.round((xp * share) / orbXp(orb(k))));
+    return { essencias: base.essencias, orbs };
+  }
+  const orbs: OrbBag = { [orb(4)]: Math.max(1, Math.round(xp / orbXp(orb(4)))) };
+  if (rng() < HARD_LEGENDARY_CHANCE) orbs.orbe5 = (orbs.orbe5 ?? 0) + 1;
+  if (rng() < HARD_MYTHIC_CHANCE) orbs.orbe6 = (orbs.orbe6 ?? 0) + 1;
   return { essencias: base.essencias, orbs };
 }

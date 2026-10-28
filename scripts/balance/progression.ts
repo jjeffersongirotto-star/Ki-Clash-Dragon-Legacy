@@ -11,7 +11,7 @@
  * tentativas, maior dano num único turno inimigo (burst) e maior ataque de uma unidade inimiga.
  */
 import { simulate } from './sim';
-import { STAGES, STAGE_PACKS, stagePack } from '../../src/core/campaign';
+import { STAGES as CAMPAIGN, STAGE_PACKS, stagePack, type Stage } from '../../src/core/campaign';
 import { BANNERS, feedCopy, pull } from '../../src/core/banner';
 import { STARTER_IDS } from '../../src/core/characters';
 import { TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_REWARD, tutorialGear } from '../../src/core/tutorial';
@@ -86,6 +86,15 @@ function shopBuy(p: Player) {
   }
 }
 
+/** v0.39.0: com o Ouro que sobra (guardando 1500 para itens), compra cartas do Banner de 10 em 10. */
+function bannerBuy(p: Player) {
+  while (p.gold >= BANNERS[0].price10 + 1500) {
+    p.gold -= BANNERS[0].price10;
+    pullCards(p, 10);
+  }
+  spend(p);
+}
+
 function spend(p: Player) {
   for (let guard = 0; guard < 2000; guard++) {
     shopBuy(p);
@@ -139,12 +148,15 @@ export interface StageStat { arrivePower: number[]; leader: number[]; winAtArriv
  * antes de tentar cada fase nova (simula um dia: 5 Repetir e depois a fase nova). `opts.repeatMult` = fração da
  * recompensa nas repetições (v0.20.0: 1; antes: 0,5).
  */
-export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { repeats?: number; repeatMult?: number } = {}) {
+export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { repeats?: number; repeatMult?: number; stages?: Stage[]; bannerGold?: boolean; maxAttempts?: number; firstPlayer?: number; onPlayer?: (pi: number) => void } = {}) {
   const repeats = opts.repeats ?? 0;
   const repeatMult = opts.repeatMult ?? 0.5;
+  // v0.39.0: `stages` = as 100 fases do mundo; `bannerGold` = o Ouro que sobra da Loja vira cartas do Banner (10 por vez)
+  const STAGES = opts.stages ?? CAMPAIGN;
   const stats: StageStat[] = STAGES.map(() => ({ arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [], winStats: [] }));
   let seed = 7;
-  for (let pi = 0; pi < players; pi++) {
+  for (let pi = opts.firstPlayer ?? 0; pi < (opts.firstPlayer ?? 0) + players; pi++) {
+    opts.onPlayer?.(pi);
     let rs = 1000 + pi * 7919;
     const p: Player = { cards: {}, items: SIM_OLD_START ? { orbe1: 10, orbe3: 3 } : {}, ess: SIM_OLD_START ? 10 : 0, cleared: 0, leader: 1, gear: {}, gold: 0, copies: {}, rng: () => ((rs = (rs * 16807) % 2147483647) / 2147483647) };
     if (SIM_OLD_START) for (const id of STARTER_IDS) p.cards[id] = newOwned(id);
@@ -159,7 +171,7 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
     }
     for (let i = 0; i < STAGES.length; i++) {
       if (i > 0) for (let k = 0; k < repeats; k++) reward(p, i - 1, false, repeatMult);
-      spend(p); levelUp(p, sc);
+      spend(p); if (opts.bannerGold) bannerBuy(p); levelUp(p, sc);
       const st = stats[i];
       st.arrivePower.push(deckPower(team(p))); st.leader.push(p.leader);
       // taxa de vitória exatamente no momento em que chega à fase
@@ -178,7 +190,7 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
         const r = simulate(battleDeck(p, i), STAGES[i].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i), seed++, STAGES[i].aiLevel);
         if (r.winner === 'player') { reward(p, i, true, repeatMult); winXp(p, i, true); break; }
         p.items.orbe1 = (p.items.orbe1 ?? 0) + 1;
-        if (attempts > 300) break;
+        if (attempts > (opts.maxAttempts ?? 300)) break;
         if (i > 0) {
           spend(p); levelUp(p, sc);
           const rr = simulate(battleDeck(p, i), STAGES[i - 1].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i - 1), seed++, STAGES[i - 1].aiLevel);

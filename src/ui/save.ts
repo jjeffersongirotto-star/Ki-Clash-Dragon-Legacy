@@ -6,7 +6,8 @@ import type { CardInstance } from '../core/types';
 import { DEFAULT_LEADER, LEADERS } from '../core/leaders';
 import { LEGACY_ITEM_TO_ORB, XP_ITEMS, migrateBarV24, migrateOldCard, newOwned, stepOf, type OwnedCard, type XpItemId } from '../core/progression';
 import { normalizeGear, type GearBag } from '../core/gear';
-import { DIFFICULTIES, clearedIn, type DailyUse, type Difficulty } from '../core/adventure';
+import { DIFFICULTIES, clearedIn, regionUnlocked, type DailyUse, type Difficulty } from '../core/adventure';
+import { REGION_COUNT, WORLD_STAGE_COUNT } from '../core/world';
 import { TUTORIAL_STARTER, TUT_BATTLE1, TUT_DONE } from '../core/tutorial';
 import { levelFromXp, newProfile, normalizeProfile, type ProfileState } from '../core/profile';
 import { addDupe, dupeCount, totalCopies, type Dupes } from '../core/banner';
@@ -67,6 +68,10 @@ export interface SaveData {
   v32?: boolean;
   /** v0.33.0: 💠 Gemas de Invocação (1 gema = 1 carta do banner) */
   gems?: number;
+  /** v0.39.0: região aberta por último no mapa do mundo (1 a 10) */
+  region?: number;
+  /** migração v0.39.0: progresso conferido para as 100 fases do mundo */
+  v39?: boolean;
   /** v0.33.0: falta o passo guiado do Banner no fim do tutorial */
   tutBanner?: boolean;
 }
@@ -304,6 +309,7 @@ export function loadSave(): SaveData {
     migrateV32(merged, d); // antes do baralho: as cópias que você tem limitam o baralho
     migrateV17(merged);
     normalizeV20(merged);
+    migrateV39(merged);
     merged.items = migrateOrbs(d.items as Record<string, unknown>);
     merged.gear = normalizeGear(d.gear); // v0.24.0: save sem itens de ascensão começa com a mochila vazia
     migrateV25(merged, d);
@@ -382,6 +388,24 @@ export function migrateV32(merged: SaveData, raw: Partial<SaveData>): SaveData {
   merged.genXp = Math.max(0, Math.floor(Number(raw.genXp) || 0));
   merged.v32 = true;
   return merged;
+}
+
+/**
+ * v0.39.0 — mapa do mundo com 100 fases. As fases 1–10 continuam sendo as mesmas (região 1): o progresso, as ⭐ e o
+ * limite do dia de antes valem como estavam. A conversão só confere as listas (números de 1 a 100, sem repetir, em
+ * ordem), tira estrelas de fases que não existem e abre o mapa na última região liberada no Fácil.
+ */
+export function migrateV39(d: SaveData): SaveData {
+  const ok = (v: unknown): v is number => Number.isInteger(v) && (v as number) >= 1 && (v as number) <= WORLD_STAGE_COUNT;
+  const clean = (v: unknown) => [...new Set(Array.isArray(v) ? v.filter(ok) : [])].sort((a, b) => a - b);
+  d.cleared = clean(d.cleared);
+  d.clearedDiff = { normal: clean(d.clearedDiff?.normal), dificil: clean(d.clearedDiff?.dificil) };
+  if (d.stars) for (const k of Object.keys(d.stars)) if (!ok(Number(k.split(':')[1]))) delete d.stars[k];
+  if (!Number.isInteger(d.region) || d.region! < 1 || d.region! > REGION_COUNT || !regionUnlocked(d, 'facil', d.region!)) {
+    d.region = Math.max(...Array.from({ length: REGION_COUNT }, (_, k) => k + 1).filter((r) => regionUnlocked(d, 'facil', r)));
+  }
+  d.v39 = true;
+  return d;
 }
 
 export const tutorialDone = (d: SaveData) => (d.tutorial ?? TUT_DONE) >= TUT_DONE;

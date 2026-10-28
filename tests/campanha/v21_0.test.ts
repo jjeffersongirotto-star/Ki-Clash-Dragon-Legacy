@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { STAR_COUNT, starGoals, addStars, canRepeat, markCleared, starCount, starsForWin, starsOf, type AdventureProgress, type StarProgress } from '../../src/core/adventure';
-import { STAGES } from '../../src/core/campaign';
+import { WORLD_STAGES } from '../../src/core/campaign';
 import { defaultSave, normalizeV20 } from '../../src/ui/save';
 import { adminSave } from '../../src/ui/accounts';
 
@@ -43,7 +43,7 @@ describe('v0.21.0 — estrelas por fase', () => {
   });
   it('ADM: 3 ⭐ em todas as fases nas 3 dificuldades', () => {
     const a = adminSave();
-    expect(Object.keys(a.stars!)).toHaveLength(3 * STAGES.length);
+    expect(Object.keys(a.stars!)).toHaveLength(3 * WORLD_STAGES.length); // v0.39.0: as 100 fases do mundo
     expect(Object.values(a.stars!).every((v) => v === 7)).toBe(true);
   });
 });

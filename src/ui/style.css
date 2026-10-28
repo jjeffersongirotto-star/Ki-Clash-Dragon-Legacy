@@ -1145,6 +1145,23 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .adv-node.lock .adv-ball { background: #1a1f3a; border: 3px solid #2e3560; color: #59618f; font-size: 20px; }
 .adv-node.lock .adv-cmd { filter: grayscale(1) brightness(.28); }
 .adv-node.lock .adv-name { color: #4c547d; }
+/* v0.39.0: mapa do mundo — as 10 regiões num caminho pontilhado na horizontal (rola de lado) */
+.world-title { margin: 4px 0 0; text-align: center; font-weight: 900; color: #ffe7a0; letter-spacing: .5px; }
+.world-map { flex: 1; min-height: 240px; overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.world-track { position: relative; height: 100%; min-height: 240px; }
+.world-node { position: absolute; width: 76px; height: 76px; margin: -38px 0 0 -38px; padding: 0; border: 0; border-radius: 50%; background: none; color: inherit; }
+.world-ball { position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center; font-size: 34px; z-index: 2; }
+.world-name { position: absolute; top: 82px; left: -42px; width: 160px; text-align: center; font-size: 12px; font-weight: 800; line-height: 1.2; z-index: 3; text-shadow: 0 1px 3px #000; white-space: normal; }
+.world-prog { position: absolute; top: 112px; left: -42px; width: 160px; text-align: center; font-size: 11px; color: #c9d2ff; z-index: 3; }
+.world-node .adv-tag { top: -30px; left: -4px; }
+.world-node.done .world-ball { background: radial-gradient(circle at 35% 30%, #fff6c9, #ffcf4a 45%, #e07a00); border: 3px solid #fff2b0; box-shadow: 0 0 22px rgba(255,190,40,.75); }
+.world-node.done .world-name { color: #ffe7a0; }
+.world-node.next .world-ball { background: radial-gradient(circle at 35% 30%, #bff3ff, #2fb8ff 50%, #1550c0); border: 3px solid #e6fbff; box-shadow: 0 0 0 6px rgba(47,184,255,.25), 0 0 30px rgba(47,184,255,.8); }
+.world-node.next .world-name { color: #bfefff; }
+.world-node.lock .world-ball { background: #1a1f3a; border: 3px solid #2e3560; font-size: 24px; }
+.world-node.lock .world-name { color: #4c547d; }
+.region-bar { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+.region-bar b { color: #ffe7a0; font-size: 14px; }
 .dialog.stage-dialog { position: relative; }
 .stage-close { position: absolute; right: 10px; top: 8px; border: 0; background: none; color: var(--muted); font-size: 20px; padding: 4px 8px; }
 .stage-cmd { display: block; height: 96px; margin: -6px auto 0; transform-origin: 50% 100%; animation: advIdle 2.6s ease-in-out infinite; }

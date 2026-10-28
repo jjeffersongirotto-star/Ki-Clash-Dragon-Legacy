@@ -3,7 +3,8 @@
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
  */
 import { STAR_COLORS, getChar } from '../core/characters';
-import { STAGES, stageCommander, type Stage } from '../core/campaign';
+import { getStage, stageCommander, type Stage } from '../core/campaign';
+import { REGIONS, REGION_COUNT, STAGES_PER_REGION, localOf, regionOf, regionStageIds, stageLabel } from '../core/world';
 import { XP_ITEMS, playXp, feedXp, stepOf } from '../core/progression';
 import { leaderHp } from '../core/leaders';
 import { BattleView } from '../ui/battleView';
@@ -12,8 +13,8 @@ import { getSpell, isSpell } from '../core/spells';
 import { gameAlert, showDialog } from '../ui/dialog';
 import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
 import { MAX_COPIES, addToDeck, deckMin, deckCards, deckCount, deckIssue, deckMax, teamReady } from '../ui/save';
-import { GEAR_DROP, GEAR_RARE_CHANCE, STAGE_GEAR, addGear, stageGearDrop } from '../core/gear';
-import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, gemsFor, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from '../core/adventure';
+import { GEAR_RARE_CHANCE, addGear, stageGearDrop, stageGearIds, stageGearRarity } from '../core/gear';
+import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, gemsFor, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, regionUnlocked, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from '../core/adventure';
 import { enemyCommanderArt } from '../ui/art';
 import { grantCard, type GrantResult } from '../core/banner';
 import { ENERGY_COST, energyMax, goldFor, profileXpFor, spendEnergy } from '../core/profile';
@@ -35,19 +36,32 @@ export const starsHTML = (mask: number, fresh = 0) =>
 export type NodeState = 'done' | 'next' | 'lock';
 export const nodeState = (diff: Difficulty, id: number): NodeState => (isCleared(save, diff, id) ? 'done' : stageUnlocked(save, diff, id) ? 'next' : 'lock');
 
-/** v0.20.0: Aventura em mapa — abas de dificuldade no topo e as fases como bolinhas num caminho pontilhado. */
-export function adventure() {
+/**
+ * v0.39.0: Aventura = MAPA DO MUNDO — as 10 regiões num caminho pontilhado na horizontal (abas de dificuldade no topo).
+ * Tocar numa região liberada abre o mapa dela (as 10 fases num caminho na vertical, como antes). `region` abre direto
+ * o mapa da região (ex.: ao voltar de uma batalha).
+ */
+export function adventure(region?: number): void {
   leaveBattleMode();
+  if (region) return regionMap(region);
   const diff = advDiff();
   app.innerHTML = `<div class="screen adventure">${topbar('Aventura')}
-    <div class="diff-tabs" role="tablist">${DIFFICULTIES.map((d) => {
-      const open = difficultyUnlocked(save, d);
-      return `<button class="diff-tab ${d === diff ? 'on' : ''} ${open ? '' : 'locked'}" role="tab" aria-selected="${d === diff}" data-diff="${d}">${open ? DIFFICULTY_ICON[d] : '🔒'} ${DIFFICULTY_LABEL[d]}</button>`;
-    }).join('')}</div>
+    ${diffTabs(diff)}
     ${teamReady(save) ? '' : `<p class="warn-bar">⚠ Baralho inválido: ${esc(deckIssue(save) ?? '')}. <button class="btn small" data-nav="collection">Arrumar baralho</button></p>`}
-    <div class="adv-map" id="advMap"><div class="adv-track" id="advTrack"></div></div>
+    <p class="world-title">🗺 Mapa do mundo</p>
+    <div class="world-map" id="worldMap"><div class="world-track" id="worldTrack"></div></div>
   </div>`;
   bindNav();
+  bindDiffTabs(() => adventure());
+  drawWorld(true);
+}
+
+/** Abas de dificuldade (iguais no mapa do mundo e no mapa da região). */
+const diffTabs = (diff: Difficulty) => `<div class="diff-tabs" role="tablist">${DIFFICULTIES.map((d) => {
+  const open = difficultyUnlocked(save, d);
+  return `<button class="diff-tab ${d === diff ? 'on' : ''} ${open ? '' : 'locked'}" role="tab" aria-selected="${d === diff}" data-diff="${d}">${open ? DIFFICULTY_ICON[d] : '🔒'} ${DIFFICULTY_LABEL[d]}</button>`;
+}).join('')}</div>`;
+function bindDiffTabs(redraw: () => void) {
   app.querySelectorAll<HTMLElement>('[data-diff]').forEach((el) =>
     el.addEventListener('click', () => {
       const d = el.dataset.diff as Difficulty;
@@ -58,22 +72,94 @@ export function adventure() {
       }
       save.difficulty = d;
       persist();
-      adventure();
+      redraw();
     }),
   );
+}
+
+/** Estado da região no mapa do mundo: concluída (fase 10 vencida), a próxima (liberada) ou bloqueada. */
+export const regionState = (diff: Difficulty, region: number): NodeState =>
+  isCleared(save, diff, region * STAGES_PER_REGION) ? 'done' : regionUnlocked(save, diff, region) ? 'next' : 'lock';
+/** Posição vertical de cada região no caminho do mundo (fração da altura), para o caminho ondular. */
+export const WORLD_Y = [0.62, 0.36, 0.6, 0.34, 0.62, 0.38, 0.6, 0.34, 0.6, 0.4];
+export const WORLD_STEP = 150;
+
+/** Desenha o caminho das regiões com a altura atual (de novo ao girar/redimensionar a tela). */
+export function drawWorld(scrollToNext = false) {
+  const map = app.querySelector<HTMLElement>('#worldMap');
+  const track = app.querySelector<HTMLElement>('#worldTrack');
+  if (!map || !track) return;
+  const diff = advDiff();
+  const h = Math.max(240, track.clientHeight || 300);
+  const w = WORLD_STEP * REGION_COUNT;
+  const pos = REGIONS.map((_, i) => [WORLD_STEP / 2 + i * WORLD_STEP, Math.round(WORLD_Y[i] * h)] as const);
+  const states = REGIONS.map((r) => regionState(diff, r.id));
+  const segs = pos.slice(0, -1).map(([x1, y1], i) => {
+    const [x2, y2] = pos[i + 1];
+    const mx = (x1 + x2) / 2;
+    return `<path class="adv-path ${states[i] === 'done' ? 'lit' : ''}" d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}"/>`;
+  });
+  track.style.width = `${w}px`;
+  track.innerHTML = `<svg class="adv-paths" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">${segs.join('')}</svg>
+    ${REGIONS.map((r, i) => {
+      const state = states[i];
+      const ids = regionStageIds(r.id);
+      const won = ids.filter((id) => isCleared(save, diff, id)).length;
+      const stars = ids.reduce((n, id) => n + starCount(starsOf(save, diff, id)), 0);
+      return `<button class="world-node ${state}" data-region="${r.id}" style="left:${pos[i][0]}px;top:${pos[i][1]}px" aria-label="Região ${r.id}: ${esc(r.name)}">
+        <span class="world-ball">${state === 'lock' ? '🔒' : r.icon}</span>
+        <span class="world-name">${r.id}. ${esc(r.name)}</span>
+        ${state === 'lock' ? '' : `<span class="world-prog">${won}/${STAGES_PER_REGION} fases · ★ ${stars}/${STAGES_PER_REGION * STAR_COUNT}</span>`}
+        ${state === 'next' ? '<span class="adv-tag">ATUAL</span>' : ''}
+      </button>`;
+    }).join('')}`;
+  track.querySelectorAll<HTMLElement>('[data-region]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const r = +el.dataset.region!;
+      if (!regionUnlocked(save, diff, r)) {
+        void gameAlert('Região bloqueada', `Vença a fase 10 de ${REGIONS[r - 2].name} no ${DIFFICULTY_LABEL[diff]} para liberar ${REGIONS[r - 1].name}.`, '🔒');
+        return;
+      }
+      regionMap(r);
+    }),
+  );
+  if (scrollToNext) {
+    const k = Math.max(0, states.indexOf('next') >= 0 ? states.indexOf('next') : states.lastIndexOf('done'));
+    map.scrollLeft = Math.max(0, pos[k][0] - map.clientWidth / 2);
+  }
+}
+
+/** v0.20.0: mapa da região — as 10 fases como bolinhas num caminho pontilhado (v0.39.0: com o botão de voltar ao mundo). */
+export function regionMap(region: number): void {
+  leaveBattleMode();
+  const diff = advDiff();
+  if (!regionUnlocked(save, diff, region)) return adventure();
+  save.region = region;
+  persist();
+  const r = REGIONS[region - 1];
+  app.innerHTML = `<div class="screen adventure">${topbar('Aventura')}
+    ${diffTabs(diff)}
+    ${teamReady(save) ? '' : `<p class="warn-bar">⚠ Baralho inválido: ${esc(deckIssue(save) ?? '')}. <button class="btn small" data-nav="collection">Arrumar baralho</button></p>`}
+    <div class="region-bar"><button class="btn small" data-world>◀ Mundo</button><b>${r.icon} Região ${r.id} · ${esc(r.name)}</b></div>
+    <div class="adv-map" id="advMap"><div class="adv-track" id="advTrack"></div></div>
+  </div>`;
+  bindNav();
+  bindDiffTabs(() => (regionUnlocked(save, advDiff(), region) ? regionMap(region) : adventure()));
+  app.querySelector('[data-world]')!.addEventListener('click', () => adventure());
   drawMap(true);
 }
 
-/** Desenha o caminho e as fases com a largura atual (de novo ao girar/redimensionar a tela). */
+/** Desenha o caminho e as fases da região aberta com a largura atual (de novo ao girar/redimensionar a tela). */
 export function drawMap(scrollToNext = false) {
   const map = app.querySelector<HTMLElement>('#advMap');
   const track = app.querySelector<HTMLElement>('#advTrack');
   if (!map || !track) return;
   const diff = advDiff();
+  const stages = regionStageIds(save.region ?? 1).map(getStage);
   const w = track.clientWidth || 360;
-  const h = MAP_TOP + MAP_STEP * (STAGES.length - 1) + MAP_BOTTOM;
-  const pos = STAGES.map((_, i) => [Math.round(MAP_X[i] * w), h - MAP_BOTTOM - i * MAP_STEP] as const);
-  const states = STAGES.map((st) => nodeState(diff, st.id));
+  const h = MAP_TOP + MAP_STEP * (stages.length - 1) + MAP_BOTTOM;
+  const pos = stages.map((_, i) => [Math.round(MAP_X[i] * w), h - MAP_BOTTOM - i * MAP_STEP] as const);
+  const states = stages.map((st) => nodeState(diff, st.id));
   const segs = pos.slice(0, -1).map(([x1, y1], i) => {
     const [x2, y2] = pos[i + 1];
     const my = (y1 + y2) / 2;
@@ -82,14 +168,15 @@ export function drawMap(scrollToNext = false) {
   });
   track.style.height = `${h}px`;
   track.innerHTML = `<svg class="adv-paths" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">${segs.join('')}</svg>
-    ${STAGES.map((st, i) => {
+    ${stages.map((st, i) => {
       const state = states[i];
       const left = state === 'done' ? dailyLeft(save.daily, diff, st.id) : 0;
-      return `<button class="adv-node ${state}" data-st="${st.id}" style="left:${pos[i][0]}px;top:${pos[i][1]}px" aria-label="Fase ${st.id}: ${esc(st.name)}">
+      const local = localOf(st.id);
+      return `<button class="adv-node ${state}" data-st="${st.id}" style="left:${pos[i][0]}px;top:${pos[i][1]}px" aria-label="Fase ${stageLabel(st.id)}: ${esc(st.name)}">
         ${enemyCommanderArt(stageCommander(stageFor(st.id, diff)), 'adv-cmd', `animation-delay:-${(i * 0.37).toFixed(2)}s`)}
-        <span class="adv-ball">${state === 'done' ? '✓' : state === 'next' ? st.id : '🔒'}</span>
+        <span class="adv-ball">${state === 'done' ? '✓' : state === 'next' ? local : '🔒'}</span>
         ${state === 'done' ? `<span class="adv-stars">${starsHTML(starsOf(save, diff, st.id))}</span>` : ''}
-        <span class="adv-name">${st.id}. ${esc(st.name)}</span>
+        <span class="adv-name">${local}. ${esc(st.name)}</span>
         ${state === 'done' ? `<span class="adv-left ${left ? '' : 'out'}">${left}/${DAILY_LIMIT} hoje</span>` : ''}
         ${state === 'next' ? '<span class="adv-tag">PRÓXIMA</span>' : ''}
       </button>`;
@@ -104,7 +191,10 @@ export function drawMap(scrollToNext = false) {
 let mapResize = 0;
 window.addEventListener('resize', () => {
   clearTimeout(mapResize);
-  mapResize = window.setTimeout(() => drawMap(), 150);
+  mapResize = window.setTimeout(() => {
+    drawMap();
+    drawWorld();
+  }, 150);
 });
 
 /** Janela da fase: informações, Jogar (em cima) e Repetir (embaixo), com o limite do dia. */
@@ -112,7 +202,7 @@ export function stageDialog(stageId: number) {
   const diff = advDiff();
   const state = nodeState(diff, stageId);
   if (state === 'lock') {
-    void gameAlert('Fase bloqueada', `Vença a fase ${stageId - 1} no ${DIFFICULTY_LABEL[diff]} para liberar esta.`, '🔒');
+    void gameAlert('Fase bloqueada', `Vença a fase ${stageLabel(stageId - 1)} no ${DIFFICULTY_LABEL[diff]} para liberar esta.`, '🔒');
     return;
   }
   const st = stageFor(stageId, diff);
@@ -126,13 +216,13 @@ export function stageDialog(stageId: number) {
   const mask = starsOf(save, diff, stageId);
   const full = starCount(mask) === STAR_COUNT;
   void showDialog({
-    title: `Fase ${st.id} · ${st.name}`,
+    title: `Fase ${stageLabel(st.id)} · ${st.name}`,
     html: `<button class="stage-close" data-x aria-label="Fechar">✕</button>
       ${enemyCommanderArt(stageCommander(st), 'stage-cmd')}
-      <p class="stage-diff">Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
+      <p class="stage-diff">${REGIONS[regionOf(st.id) - 1].icon} ${esc(REGIONS[regionOf(st.id) - 1].name)} · Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
       <p class="stage-line">Comandante inimigo ❤${st.enemyHeroHp} · Inimigos até ${(() => { const top = foes.reduce((a, c) => (c.stars * 3 + stepOf(c) > a.stars * 3 + stepOf(a) ? c : a)); return tierHTML(top.stars, stepOf(top)); })()}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</p>
       <p class="stage-line">Recompensa: ✴${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && gemsFor(st.id) ? ` · 1ª vitória: ${gemHTML(`+${gemsFor(st.id)}`)} ${gemsFor(st.id) > 1 ? 'Gemas' : 'Gema'} de Invocação` : ''}</p>
-      <p class="stage-line">Itens: ${STAGE_GEAR[stageId - 1].map((id) => gearHTML(id, GEAR_DROP[diff][0])).join(' ')} <small>${100 - GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[GEAR_DROP[diff][0]].label} · ${GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[GEAR_DROP[diff][1]].label}</small></p>
+      <p class="stage-line">Itens: ${(() => { const [lo, hi] = stageGearRarity(stageId, diff); return `${stageGearIds(stageId).map((id) => gearHTML(id, lo)).join(' ')} <small>${hi > lo ? `${100 - GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[lo].label} · ${GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[hi].label}` : `100% ${STAR_COLORS[lo].label}`}</small>`; })()}</p>
       <ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>★</i> ${esc(g.text)}</li>`).join('')}</ul>
       <p class="stage-line">Por vitória ou Repetir: ${goldHTML(goldFor(stageId, diff))} · 👤 +${profileXpFor(stageId, diff)} XP de perfil${done ? '' : ' <small>(em dobro na primeira vitória)</small>'} · você tem ${energyHTML(energyNow(), energyMax(prof()))}</p>
       ${done ? `<p class="stage-left ${left ? '' : 'out'}">${left ? `Hoje: <b>${left}/${DAILY_LIMIT}</b> restantes` : 'Limite de hoje atingido. Volta amanhã.'}</p>` : ''}
@@ -205,14 +295,14 @@ export function repeatStage(stageId: number, diff: Difficulty) {
   save.daily = useDaily(save.daily, diff, stageId);
   const got = grantRewards(st, diff) + levelNote(spent, before) + grantProfileAndGold(stageId, diff);
   persist();
-  resultModal(`<h2 class="win">⟲ Fase ${st.id} repetida</h2><p>${esc(st.name)} · ${DIFFICULTY_LABEL[diff]}</p>${got}<p class="hint">Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.</p>`);
+  resultModal(`<h2 class="win">⟲ Fase ${stageLabel(st.id)} repetida</h2><p>${esc(st.name)} · ${DIFFICULTY_LABEL[diff]}</p>${got}<p class="hint">Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.</p>`);
 }
 
 export function resultModal(html: string) {
   modal(`${html}<div class="row"><button class="btn primary" data-m="adv">Continuar</button><button class="btn" data-m="train">Treinar</button></div>`, (m) => {
     m.querySelector('[data-m=adv]')!.addEventListener('click', () => {
       closeModal();
-      adventure();
+      adventure(save.region);
     });
     m.querySelector('[data-m=train]')!.addEventListener('click', () => {
       closeModal();
@@ -260,7 +350,7 @@ export function startBattle(stageId: number, diff: Difficulty = advDiff()) {
       save.speed = n;
       persist();
     },
-    onExit: () => adventure(),
+    onExit: () => adventure(regionOf(stageId)),
     onFinish: (winner, end) => finishBattle(stageId, diff, winner, end),
     playerHeroHp: leaderHp(activeLeader(), leaderLevel()),
   });
@@ -289,8 +379,11 @@ export function finishBattle(stageId: number, diff: Difficulty, winner: string, 
     // v0.28.0: vencer a fase N libera a mesma fase na dificuldade seguinte (se a anterior dela já foi vencida)
     const nextDiff = DIFFICULTIES[DIFFICULTIES.indexOf(diff) + 1];
     const opened = first && nextDiff && stageUnlocked(save, nextDiff, stageId) ? nextDiff : undefined;
+    // v0.39.0: vencer a fase 10 de uma região libera a próxima região (nesta dificuldade)
+    const nextRegion = first && localOf(stageId) === STAGES_PER_REGION && regionOf(stageId) < REGION_COUNT ? REGIONS[regionOf(stageId)] : undefined;
+    const regionOpened = nextRegion ? `<p class="hint">🗺 Nova região liberada: <b>${nextRegion.icon} ${esc(nextRegion.name)}</b>!</p>` : '';
     html = `<h2 class="win">🏆 Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : `Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.`}</p>
-      ${starsLine}${got}${opened ? `<p class="hint">🔓 Fase ${stageId} liberada no <b>${DIFFICULTY_LABEL[opened]}</b>!</p>` : ''}${unlocked}`;
+      ${starsLine}${got}${opened ? `<p class="hint">🔓 Fase ${stageLabel(stageId)} liberada no <b>${DIFFICULTY_LABEL[opened]}</b>!</p>` : ''}${regionOpened}${unlocked}`;
   } else {
     save.items.orbe1 += 1;
     html = `<h2 class="lose">${winner === 'empate' ? '⏱ Empate' : '💀 Derrota'}</h2><p>Treine seus personagens com Orbes e tente de novo! (+1 Orbe Comum)</p>`;

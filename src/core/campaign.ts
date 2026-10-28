@@ -1,11 +1,14 @@
-import { getChar } from './characters';
 import type { CardInstance } from './types';
 import { fromStepIndex, stepIndex } from './progression';
 import { DECK_SLOTS } from './deck';
 import { LEADER_HP } from './leaders';
 import { getSpell } from './spells';
 import { cardPower } from './power';
-import { isCleanCommander } from './commanders';
+import { COMMANDER_LOOK, isCleanCommander } from './commanders';
+import { PLAYABLE, getChar } from './characters';
+import { shuffle } from './rng';
+import { bagXp, orbXp, type XpItemId } from './progression';
+import { REGIONS, STAGES_PER_REGION, WORLD_NAMES, WORLD_STAGE_COUNT, localOf, regionOf } from './world';
 import type { OrbBag } from './progression';
 
 export interface Stage {
@@ -147,13 +150,15 @@ export function enemyCard(charId: string, target: number, bonus = 0): CardInstan
 }
 
 /** Baralho da IA na fase `i`: os personagens da fase (v0.33.0: 3 a 10) com 3 cópias (no degrau da fase + `bonus`) e os feitiços da fase com 2 cópias. */
-export function enemyDeckFor(i: number, target = ENEMY_STEPS[i], spellIds = ENEMY_SPELLS[i], bonus = 0): CardInstance[] {
-  if (new Set(POOLS[i]).size !== POOLS[i].length || POOLS[i].length > DECK_SLOTS) throw new Error(`Fase ${i + 1}: a IA precisa de até ${DECK_SLOTS} personagens diferentes`);
+export function enemyDeckFor(i: number, target = WORLD_STEPS[i], spellIds = WORLD_SPELLS[i], bonus = 0): CardInstance[] {
+  // v0.39.0: fases 11–100 (regiões 2–10) com os baralhos gerados em `worldPlan`
+  const pool = i < POOLS.length ? POOLS[i] : worldPlan().pools[i - POOLS.length];
+  if (new Set(pool).size !== pool.length || pool.length > DECK_SLOTS) throw new Error(`Fase ${i + 1}: a IA precisa de até ${DECK_SLOTS} personagens diferentes`);
   const frac = target - Math.floor(target);
   // degrau quebrado: espalha o degrau a mais entre as cartas (k-ésima carta sobe quando a conta "vira")
-  const deck = POOLS[i].map((charId, k) => enemyCard(charId, Math.floor(target) + (Math.floor((k + 1) * frac) > Math.floor(k * frac) ? 1 : 0), bonus));
+  const deck = pool.map((charId, k) => enemyCard(charId, Math.floor(target) + (Math.floor((k + 1) * frac) > Math.floor(k * frac) ? 1 : 0), bonus));
   const spells = spellIds.map((sid) => {
-    if (!getSpell(sid).categories.some((k) => POOLS[i].some((id) => getChar(id).category === k))) throw new Error(`Fase ${i + 1}: ${sid} sem conjurador`);
+    if (!getSpell(sid).categories.some((k) => pool.some((id) => getChar(id).category === k))) throw new Error(`Fase ${i + 1}: ${sid} sem conjurador`);
     return { charId: sid, stars: 1, copies: ENEMY_SPELL_COPIES };
   });
   return [...deck, ...spells];
@@ -169,7 +174,7 @@ export const STAGES: Stage[] = NAMES.map((name, i) => ({
   id: i + 1,
   name,
   enemyHeroHp: enemyLeaderHp(i),
-  enemyDeck: enemyDeckFor(i),
+  enemyDeck: enemyDeckFor(i, ENEMY_STEPS[i], ENEMY_SPELLS[i]),
   // v0.22.0: mesmo XP de antes em Orbes — o antigo 📜 (4 + 2i) vira Orbes Comuns; 💎 (1 + i/2) e 🔮 (fase 6+) viram Orbes Incomuns
   rewards: { essencias: 6 + i * 3, orbs: { orbe1: 4 + i * 2, orbe2: Math.round(((1 + Math.floor(i / 2)) * 400 + (i >= 5 ? 1500 : 0)) / 250) } },
   unlock: STAGE_PACKS ? UNLOCKS[i + 1] : undefined,
@@ -201,6 +206,143 @@ export const STAGE_COMMANDERS: (string | null)[] = (() => {
 
 /** Carta do Comandante inimigo da fase (na raridade em que ele está no baralho dessa dificuldade), ou `null` = minotauro. */
 export function stageCommander(stage: Pick<Stage, 'id' | 'enemyDeck'>): CardInstance | null {
-  const id = stage.id >= 1 ? STAGE_COMMANDERS[stage.id - 1] : [...stage.enemyDeck].filter((c) => isCleanCommander(c.charId)).sort((a, b) => cardPower(b) - cardPower(a))[0]?.charId;
+  const id = stage.id >= 1 ? WORLD_COMMANDERS[stage.id - 1] : [...stage.enemyDeck].filter((c) => isCleanCommander(c.charId)).sort((a, b) => cardPower(b) - cardPower(a))[0]?.charId;
   return (id && stage.enemyDeck.find((c) => c.charId === id)) || null;
 }
+
+// ---------------- v0.39.0: mapa do mundo (regiões 2–10, fases 11–100) ----------------
+
+/**
+ * Degrau-alvo das cartas inimigas no Fácil (escada inteira: 0 = Comum … 17 = Mítico++) na fase 1 e na fase 10 de cada
+ * região; as fases do meio ficam na reta entre os dois. Índice 0 = região 2. Escolhidos no simulador de longo prazo
+ * (scripts/balance/world.ts, 32 jogadores) para a vitória ao chegar cair devagar de região em região:
+ * 83 · 77 · 75 · 74 · 69 · 63 · 60 · 58 · 53 · 52% (média de cada região, 1 a 10). As regiões 8–10 têm degrau bem
+ * mais alto porque o jogador chega com muitas cartas Lendárias e Míticas do Banner.
+ */
+export const WORLD_STEP_RANGE: [number, number][] = [
+  [2.35, 3.35],
+  [4.5, 5.5],
+  [4.65, 5.65],
+  [6.65, 7.65],
+  [7.35, 8.35],
+  [8.5, 9.5],
+  [12.7, 13.7],
+  [13.15, 14.15],
+  [15.5, 16.5],
+];
+/** Vida do Comandante inimigo na fase 1 e na fase 10 de cada região (índice 0 = região 2). */
+export const WORLD_HP_RANGE: [number, number][] = [
+  [50, 70],
+  [60, 80],
+  [70, 90],
+  [80, 100],
+  [90, 110],
+  [100, 120],
+  [110, 130],
+  [120, 140],
+  [130, 160],
+];
+/** XP dos Orbes de cada região em relação à fase de mesmo número da região 1 (multiplica por isto a cada região). */
+export const WORLD_XP_GROWTH = 2;
+/** Feitiços que a IA pode receber nas regiões novas (só os que miram um alvo ou uma fileira). */
+const WORLD_SPELL_POOL = ['f-raio', 'f-tremor', 'f-muralha', 'f-cura', 'f-bola-fogo', 'f-anjo', 'f-chuva', 'f-flecha-veneno', 'f-veneno', 'f-investida', 'f-giratoria', 'f-sombras'];
+
+/** Nível da IA nas regiões novas (Fácil): sobe dentro da região e de região em região; da região 6 em diante, sempre 3. */
+export const worldAiLevel = (region: number, local: number) => Math.max(1, Math.min(3, Math.floor(1 + (region - 2) * 0.5 + (local - 1) / 4.5)));
+
+const lerp = ([a, b]: [number, number], local: number) => a + ((b - a) * (local - 1)) / (STAGES_PER_REGION - 1);
+const rarityOfStep = (t: number) => Math.max(1, Math.min(6, Math.floor(t / 3) + 1));
+/** O personagem chega à raridade `r` (começa nela ou abaixo e termina nela ou acima)? */
+const fits = (id: string, r: number) => getChar(id).minStars <= r && getChar(id).maxStars >= r;
+
+interface WorldPlan {
+  pools: string[][];
+  spells: string[][];
+  commanders: string[];
+}
+let plan: WorldPlan | null = null;
+/**
+ * Baralhos, feitiços e Comandantes das fases 11–100 (gerados uma vez, sempre iguais). Cada fase tem 10 personagens
+ * diferentes: o Comandante, depois os personagens que chegam à raridade da fase com a raça da região e o resto de
+ * qualquer raça. O Comandante tem recorte limpo (commanders.ts), não se repete dentro da região e só volta a aparecer
+ * no mundo quando todos os recortes limpos que servem para a raridade já foram usados (o que foi usado há mais tempo).
+ */
+export function worldPlan(): WorldPlan {
+  if (plan) return plan;
+  const all = PLAYABLE.map((d) => d.id);
+  const clean = Object.keys(COMMANDER_LOOK).filter((id) => all.includes(id));
+  const lastUsed = new Map<string, number>();
+  STAGE_COMMANDERS.forEach((id, i) => id && lastUsed.set(id, i));
+  const pools: string[][] = [];
+  const spells: string[][] = [];
+  const commanders: string[] = [];
+  for (let i = POOLS.length; i < WORLD_STAGE_COUNT; i++) {
+    const region = regionOf(i + 1);
+    const local = localOf(i + 1);
+    const races = REGIONS[region - 1].races;
+    const r = rarityOfStep(lerp(WORLD_STEP_RANGE[region - 2], local));
+    const st = { seed: 7919 * (i + 1) };
+    const inRegion = new Set(local > 1 ? commanders.slice(commanders.length - (local - 1)) : []);
+    // Comandante: recorte limpo, chega à raridade da fase, ainda não usado nesta região; prefere o que nunca foi usado
+    // (ou foi usado há mais tempo) e a raça da região
+    // (quem nunca foi Comandante vale mais do que a raça da região; quem termina 1 raridade abaixo da fase ainda serve)
+    const reach = (id: string) => (fits(id, r) ? 0 : getChar(id).maxStars >= r - 1 && getChar(id).minStars <= r ? 50 : 1000);
+    const score = (id: string) => reach(id) + (races.includes(getChar(id).race) ? 0 : 20) + (lastUsed.has(id) ? 100 + lastUsed.get(id)! / 1000 : 0);
+    const cmd = shuffle(clean.filter((id) => !inRegion.has(id)), st).sort((a, b) => score(a) - score(b))[0];
+    commanders.push(cmd);
+    lastUsed.set(cmd, i);
+    // o resto do baralho: quem chega à raridade, raça da região primeiro (no máximo 7 da região, para variar)
+    const others = shuffle(all.filter((id) => id !== cmd && fits(id, r)), st);
+    const mine = others.filter((id) => races.includes(getChar(id).race)).slice(0, 7);
+    const rest = others.filter((id) => !mine.includes(id));
+    const pool = [cmd, ...mine, ...rest].slice(0, DECK_SLOTS);
+    if (pool.length < DECK_SLOTS) pool.push(...shuffle(all.filter((id) => !pool.includes(id)), st).slice(0, DECK_SLOTS - pool.length));
+    pools.push(pool);
+    // feitiços: 1 nas fases 3 e 6, 2 nas fases 9 e 10 (sempre com conjurador no baralho)
+    const n = local === 3 || local === 6 ? 1 : local >= 9 ? 2 : 0;
+    const castable = shuffle(WORLD_SPELL_POOL, st).filter((sid) => getSpell(sid).categories.some((k) => pool.some((id) => getChar(id).category === k)));
+    spells.push(castable.slice(0, n));
+  }
+  plan = { pools, spells, commanders };
+  return plan;
+}
+
+/** Degrau-alvo das cartas inimigas em cada uma das 100 fases (Fácil). */
+export const WORLD_STEPS: number[] = Array.from({ length: WORLD_STAGE_COUNT }, (_, i) => (i < ENEMY_STEPS.length ? ENEMY_STEPS[i] : lerp(WORLD_STEP_RANGE[regionOf(i + 1) - 2], localOf(i + 1))));
+/** Feitiços da IA em cada uma das 100 fases. */
+export const WORLD_SPELLS: string[][] = Array.from({ length: WORLD_STAGE_COUNT }, (_, i) => (i < ENEMY_SPELLS.length ? ENEMY_SPELLS[i] : worldPlan().spells[i - ENEMY_SPELLS.length]));
+
+/** Orbes da recompensa no Fácil das fases 11–100: o XP da fase de mesmo número da região 1 × WORLD_XP_GROWTH^(região−1), em Orbes de raridade maior a cada 2 regiões (60% numa raridade e 40% na de cima). */
+export const regionOrbTier = (region: number) => Math.min(5, 1 + Math.ceil((region - 1) / 2));
+function worldRewards(i: number): Stage['rewards'] {
+  const region = regionOf(i + 1);
+  const base = STAGES[localOf(i + 1) - 1].rewards;
+  const xp = bagXp(base.orbs) * Math.pow(WORLD_XP_GROWTH, region - 1);
+  const t = regionOrbTier(region);
+  const lo = `orbe${t}` as XpItemId, hi = `orbe${t + 1}` as XpItemId;
+  return { essencias: 6 + i * 3, orbs: { [lo]: Math.max(1, Math.round((xp * 0.6) / orbXp(lo))), [hi]: Math.max(1, Math.round((xp * 0.4) / orbXp(hi))) } };
+}
+
+/** As 100 fases do mundo (as 10 primeiras são `STAGES`, a região 1). */
+export const WORLD_STAGES: Stage[] = [
+  ...STAGES,
+  ...Array.from({ length: WORLD_STAGE_COUNT - STAGES.length }, (_, k): Stage => {
+    const i = STAGES.length + k;
+    const region = regionOf(i + 1);
+    const local = localOf(i + 1);
+    return {
+      id: i + 1,
+      name: WORLD_NAMES[region - 2][local - 1],
+      enemyHeroHp: Math.round(lerp(WORLD_HP_RANGE[region - 2], local)),
+      enemyDeck: enemyDeckFor(i),
+      rewards: worldRewards(i),
+      pack: [],
+      aiLevel: worldAiLevel(region, local),
+    };
+  }),
+];
+/** Fase pelo número global (1 a 100). */
+export const getStage = (stageId: number): Stage => WORLD_STAGES[stageId - 1];
+
+/** Comandante de cada uma das 100 fases (`null` = minotauro, só na fase 10). */
+export const WORLD_COMMANDERS: (string | null)[] = [...STAGE_COMMANDERS, ...worldPlan().commanders];

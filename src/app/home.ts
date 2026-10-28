@@ -3,7 +3,8 @@
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
  */
 import { PLAYABLE, getChar } from '../core/characters';
-import { STAGES } from '../core/campaign';
+import { WORLD_STAGES } from '../core/campaign';
+import { stageLabel } from '../core/world';
 import { XP_ITEMS } from '../core/progression';
 import { cardArtImg } from '../ui/art';
 import { goldHTML, orbHTML, esc, starStyle } from '../ui/components';
@@ -25,7 +26,7 @@ export function home(): void {
   if (!tutorialDone(save)) return tutorial(); // v0.25.0: o jogador novo começa pelo tutorial
   if (save.tutBanner && (save.gems ?? 0) > 0) return bannerGuide(); // v0.33.0: passo guiado do Banner
   leaveBattleMode();
-  const next = STAGES.find((s) => !save.cleared.includes(s.id));
+  const next = WORLD_STAGES.find((s) => !save.cleared.includes(s.id));
   const acc = accounts.current ? accounts.accounts[accounts.current] : null;
   app.innerHTML = `<div class="screen home">
     <div class="account-box">${acc
@@ -41,7 +42,7 @@ export function home(): void {
     <div class="home-heroes">${['kenji', 'vorax', 'nyx'].map((id) => `<div class="home-hero" style="${starStyle(getChar(id).maxStars)}">${cardArtImg(getChar(id), { stars: getChar(id).maxStars })}</div>`).join('')}</div>
     <div class="res big">${resPills()}<span>✴ ${save.essencias} Essências</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
     <nav class="menu">
-      <button class="btn primary" data-nav="adventure">⚔ Aventura <small>${next ? `Fase ${next.id}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
+      <button class="btn primary" data-nav="adventure">⚔ Aventura <small>${next ? `Fase ${stageLabel(next.id)}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
       <button class="btn" data-nav="collection">🃏 Coleção & Baralho <small>${Object.keys(save.cards).length}/${PLAYABLE.length} personagens</small></button>
       <button class="btn" data-nav="train">🔥 Treinar & Despertar</button>
       <div class="menu-pair"><button class="btn" data-nav="shop">🏪 Loja <small>${goldHTML(fmt(prof().gold))}</small></button><button class="btn" data-nav="inventory">🎒 Inventário <small>${dupesTotal()} repetidos</small></button></div>
