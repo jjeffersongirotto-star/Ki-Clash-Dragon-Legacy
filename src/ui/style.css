@@ -1525,3 +1525,6 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .dialog-icon .ico { width: 1.6em; height: 1.6em; vertical-align: middle; }
 .rp-icon .ico { width: 1.2em; height: 1.2em; vertical-align: middle; }
 .rp-icon:has(.ico) { transform: none; }
+/* v0.42.1: tutorial — as 6 casas da zona de invocação destacadas juntas; a casa sugerida ganha um círculo */
+.spot-zone { position: fixed; border: 3px dashed #5fd8ff; border-radius: 12px; box-shadow: 0 0 16px rgba(95,216,255,.7), inset 0 0 18px rgba(95,216,255,.35); pointer-events: none; }
+.spot-frame.ring { border-radius: 50%; border-width: 4px; }

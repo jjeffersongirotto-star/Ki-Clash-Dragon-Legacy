@@ -2,6 +2,14 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.42.1] — 28/10/2026 · PR #79 — Tutorial: qualquer casa da zona vale
+- **Invocar no tutorial:** antes só uma casa ficava clara e o texto falava em "3 colunas da esquerda". Agora as **6 casas da sua zona** ficam destacadas juntas (moldura azul) e **dá para colocar o personagem em qualquer uma**.
+- Na **1ª invocação**, o tutorial primeiro mostra os 6 quadrados: "Você pode colocar o Riku em qualquer um dos 6 quadrados destacados: essa é a sua zona de invocação." Depois **circula uma casa** (com a manopla apontando) e pede para colocar ali.
+- Textos revistos: dica "Invocar", passos da Batalha 2 ("casa circulada"), aviso do registro da batalha e o Como jogar não falam mais em "3 colunas da esquerda".
+- **Ícone novo da raça Humano:** artista marcial original (rabo de cavalo, roupa verde com dragão dourado, espiral de ki na mão), no lugar do 🌍. O gerador de ícones agora tira sozinho o fundo branco de imagens JPG.
+- **Arte nova do feitiço Investida de Ki:** lutador original de manoplas avançando numa explosão de ki e o inimigo voando para trás (o empurrão do feitiço), no lugar do 💨. Com isso, as 212 imagens estão todas no jogo. O gerador corta as artes de feitiço, verso e Banner na proporção certa, sem esticar.
+- Testado no simulador: colocando os personagens em casas sorteadas da zona, as 2 batalhas do tutorial continuam sendo vencidas (300 de 300 em cada).
+
 ## [0.42.0] — 28/10/2026 · PR #78 — Ícones desenhados
 - **Ícones novos em todo o jogo** (as 212 imagens da lista de ícones, no mesmo estilo anime com dragão dourado), no lugar dos emojis:
   - **Recursos:** energia, Ouro de Dragão, Essências, Gemas de Invocação, nível de perfil e Poder da carta.
@@ -13,7 +21,7 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
   - **Batalha:** monte do baralho com o **verso da carta** novo, Necropolis, Registro, Auto, Velocidade, LUTAR, aviso de girar o celular, Vitória/Derrota/Empate.
   - **Loja:** fundo novo do Banner (dragão dourado no céu). **Tutorial:** a seta virou a manopla dourada. **Avisos:** ícones de aviso, sucesso, sem conexão etc.
 - **Ajustes nas imagens:** 8 ícones vinham com o "buraco" do meio pintado de branco (Amuleto, Anel, Arco, Arqueiro, Vampirismo, Raio em Cadeia, Cadeado e Atualizar); o buraco ficou transparente.
-- **Ficaram de fora por enquanto:** a raça **Humano** e a arte do feitiço **Investida de Ki** lembram personagens conhecidos de outras marcas; seguem com o ícone antigo até chegar uma versão nova.
+- **Ficaram de fora por enquanto:** a raça **Humano** e a arte do feitiço **Investida de Ki** lembram personagens conhecidos de outras marcas; seguem com o ícone antigo até chegar uma versão nova (chegaram na v0.42.1).
 - Os emblemas de **custo (gota), ataque e vida** da carta continuam os de antes (o número fica em cima deles).
 - Imagens em WebP leve (ícones 128 px, regiões 192 px); gerador: `scripts/art/build_icons.py`.
 

@@ -63,7 +63,7 @@ export function tutorialGear(): GearBag {
 export const TUTORIAL_TIPS: { icon: string; title: string; text: string }[][] = [
   [
     { icon: '🎯', title: 'Objetivo', text: 'Derrube a vida do Comandante inimigo (lá na direita) antes que ele derrube a do seu (na esquerda).' },
-    { icon: '🃏', title: 'Invocar', text: 'Toque na carta do Riku na sua mão e depois numa casa brilhante das 3 colunas da esquerda. Essa é a sua zona.' },
+    { icon: '🃏', title: 'Invocar', text: 'Toque na carta do Riku na sua mão e depois em um dos 6 quadrados destacados: essa é a sua zona de invocação.' },
     { icon: '⚔', title: 'Lutar', text: 'Toque em LUTAR. Seus personagens andam para a direita e atacam. Quem chega ao fim da arena bate no Comandante inimigo.' },
     { icon: '❤', title: 'Vida do Comandante', text: 'As barras lá em cima mostram a vida dos dois Comandantes. Se a sua chegar a 0, você perde.' },
   ],
@@ -160,8 +160,11 @@ export function guideStep(i: 0 | 1, s: BattleState, selected: number | null, mem
   return { kind: 'fight' };
 }
 
-/** Texto do passo (muda conforme o que já foi feito). `touch` = celular/tablet (toque) ou PC (mouse). */
-export function guideText(i: 0 | 1, a: GuideAction, s: BattleState, touch = true): string {
+/**
+ * Texto do passo (muda conforme o que já foi feito). `touch` = celular/tablet (toque) ou PC (mouse).
+ * v0.42.1: `zoneIntro` = 1ª invocação da Batalha 1, antes do círculo: mostra que vale qualquer uma das 6 casas da zona.
+ */
+export function guideText(i: 0 | 1, a: GuideAction, s: BattleState, touch = true, zoneIntro = false): string {
   const n = cardsUsed(s);
   if (a.kind === 'hold')
     return touch
@@ -178,7 +181,10 @@ export function guideText(i: 0 | 1, a: GuideAction, s: BattleState, touch = true
   }
   if (i === 0) {
     if (a.kind === 'card') return n === 0 ? 'Esta é a sua <b>mão</b>. Toque na carta do <b>Riku</b> para escolhê-la.' : 'Chegou carta nova na mão. Toque nela para invocar mais um <b>Riku</b>.';
-    if (a.kind === 'cell') return n === 0 ? 'Agora toque na <b>casa destacada</b>. A sua zona são as 3 colunas da esquerda: é lá que os personagens entram.' : 'Toque na <b>casa destacada</b> para invocar.';
+    if (a.kind === 'cell') {
+      if (n === 0 && zoneIntro) return 'Você pode colocar o <b>Riku</b> em <b>qualquer um dos 6 quadrados destacados</b>: essa é a sua zona de invocação.';
+      return n === 0 ? 'Coloque o <b>Riku</b> aqui: toque na <b>casa circulada</b>.' : 'Toque na <b>casa circulada</b> para invocar.';
+    }
     if (s.turn <= 1) return 'Toque em <b>LUTAR ⚔</b>. Seus personagens andam para a direita e atacam quem estiver na frente.';
     if (s.turn === 2) return 'Lá em cima ficam as <b>barras de vida</b> dos Comandantes. Quem chega ao fim da arena bate no Comandante inimigo. Toque em <b>LUTAR</b>.';
     return 'Continue! Toque em <b>LUTAR</b> até derrubar o Comandante inimigo.';
@@ -187,13 +193,13 @@ export function guideText(i: 0 | 1, a: GuideAction, s: BattleState, touch = true
     if (n === 0) return 'Isso! A descrição mostra as habilidades (vale também para as unidades em campo). Agora <b>toque</b> (sem segurar) na carta do <b>Riku</b> para escolhê-la.';
     if (n === 1) return 'A <b>Sora</b> ataca de longe (até 4 casas) e cura o aliado mais ferido da fileira. Toque na carta da Sora.';
     if (n === 2) return 'A <b>Nara</b> também acerta o inimigo na <b>diagonal</b> logo à frente. Toque na carta da Nara.';
-    return 'Invoque a carta pronta: toque nela e depois na casa destacada.';
+    return 'Invoque a carta pronta: toque nela e depois na casa circulada.';
   }
   if (a.kind === 'cell') {
-    if (n === 0) return 'Coloque o Riku na frente: toque na casa destacada.';
+    if (n === 0) return 'Coloque o Riku na <b>casa circulada</b>, na frente da sua zona.';
     if (n === 1) return 'Coloque a Sora <b>atrás</b> do Riku, na mesma fileira: assim ela fica protegida.';
     if (n === 2) return 'Coloque a Nara na <b>outra fileira</b>.';
-    return 'Toque na casa destacada.';
+    return 'Toque na <b>casa circulada</b>.';
   }
   if (n >= 3 && s.turn <= 4) return 'Os inimigos também têm habilidades: <b>Daichi</b> devolve dano, <b>Hana</b> atira de longe e <b>Tobi</b> dá ataque aos vizinhos. Toque em <b>LUTAR</b>.';
   return 'Toque em <b>LUTAR</b>. Dica: segure uma carta ou unidade para ver as habilidades e use o <b>Auto</b> para jogar mais rápido.';
