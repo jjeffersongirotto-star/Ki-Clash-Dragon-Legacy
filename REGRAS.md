@@ -1178,4 +1178,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Recompensas:** o XP dos Orbes de cada fase é o da fase de mesmo número da região 1 × **2 por região**, em Orbes de raridade maior a cada 2 regiões (região 2–3: Incomum/Raro … região 8–10: Lendário/Mítico; Normal e Difícil também sobem). Os itens de ascensão sobem 1 cor a cada 2 regiões (até laranja). Essências, Ouro, XP de perfil e XP por jogar seguem crescendo com o número da fase. **💠 Gemas** na primeira vitória das fases 3, 6 e 9 (1) e 10 (3) de **cada região**, em cada dificuldade.
 - **Save:** o progresso de antes (fases 1–10, ⭐, limite do dia) continua igual — é a região 1. Quem já venceu a fase 10 encontra a região 2 liberada.
 - **Curva de dificuldade** (simulador de longo prazo `scripts/balance/world.ts`, 32 jogadores no Fácil, com Loja e Banner pelo Ouro): vitória ao chegar, média de cada região: **83 · 77 · 75 · 74 · 69 · 63 · 60 · 58 · 53 · 52%**.
-
+- **Visual da carta (v0.40.0):** a arte aparece limpa, sem aura colorida e sem estrelinhas. Ficam só o reflexo (cartas Raras ou melhores) e a borda na cor da raridade.

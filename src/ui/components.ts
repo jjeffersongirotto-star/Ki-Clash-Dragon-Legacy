@@ -107,7 +107,6 @@ export function cardHTML(
   const power = opts.power ?? cardPower(card);
   // v0.10.2: carta de grade = quadro congelado (bitmaps prontos, sem animação/filtro/blend)
   const ga = opts.grid ? gridArtHTML(def, t, !!opts.locked) : null;
-  const sparks = t >= 5 && !opts.locked ? Array.from({ length: t === 6 ? 7 : 4 }, (_, i) => `<i class="spk" style="--i:${i}"></i>`).join('') : '';
   // v0.14.1: fileira de habilidades (bolinhas separadas por pontos) DENTRO da moldura, no centro de baixo
   // v0.14.3: as cartas pequenas (compactas, mão) também mostram a fileira, entre o ataque e a vida
   const abil = `${opts.compact ? '' : '<div class="ck-sep"><i></i><i></i><i></i></div>'}<div class="ck-abil n${def.abilities.length}">${def.abilities.map((a) => `<span class="ck-ab" title="${esc(ABILITIES[a].name)}">${abilityIconHTML(a)}</span>`).join('<i class="ck-dot"></i>')}</div>`;
@@ -118,7 +117,6 @@ export function cardHTML(
     <div class="card-metal"><div class="card-frame">
       <div class="card-art">
         <div class="card-bg">${ga ? ga.bg : cardArtImg(def, { stars: t, layer: 'bg' })}</div>
-        <div class="card-aura"></div>
         ${t >= 3 && !ga ? '<div class="card-shine"></div>' : ''}
       </div>
       <div class="card-fig">${ga ? ga.fg : cardArtImg(def, { stars: t, layer: 'fg' })}</div>
@@ -134,7 +132,6 @@ export function cardHTML(
         ${abil}
         <div class="ck-hp" title="Vida: ${st.hp}"><span>${st.hp}</span></div>
       </div>
-      ${sparks}
     </div></div>
   </div>`;
 }

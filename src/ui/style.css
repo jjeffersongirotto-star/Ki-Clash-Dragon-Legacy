@@ -440,16 +440,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .card:hover { transform: translateY(-4px); }
 .card-frame { position: relative; border-radius: 4.5cqw; background: linear-gradient(180deg, #101736, #060918); box-shadow: inset 0 0 0 .9cqw rgba(0,0,0,.85), 0 0 0 .6cqw rgba(255,255,255,.22); padding-bottom: 2.2cqw; }
 .card-art { position: relative; aspect-ratio: .82; border-radius: 4cqw 4cqw 2cqw 2cqw; overflow: hidden; box-shadow: inset 0 0 0 .8cqw rgba(0,0,0,.75); }
-.card-bg, .card-aura, .card-shine { position: absolute; inset: 0; }
+.card-bg, .card-shine { position: absolute; inset: 0; }
 .card-bg svg { width: 100%; height: 100%; display: block; object-fit: cover; }
 
 /* Aura de energia atrás do personagem */
-.card-aura { background: radial-gradient(ellipse 60% 65% at 50% 68%, color-mix(in srgb, var(--ac) 80%, #fff) 0%, color-mix(in srgb, var(--ac) 50%, transparent) 38%, transparent 72%); mix-blend-mode: screen; opacity: .4; }
-.card.s2 .card-aura { opacity: .55; }
-.card.s3 .card-aura { opacity: .7; }
-.card.s4 .card-aura, .card.s5 .card-aura, .card.s6 .card-aura { opacity: .85; animation: auraPulse 2.6s ease-in-out infinite; }
-/* v0.31.0: saíram os raios girando por cima da arte (Épico+); ficam a aura, o reflexo (card-shine) e a borda */
-@keyframes auraPulse { 50% { opacity: 1; transform: scale(1.06); } }
+/* v0.31.0: saíram os raios girando; v0.40.0: saíram também a aura colorida e as estrelinhas. Ficam o reflexo (card-shine) e a borda */
 
 /* Reflexo de brilho (3★+) */
 .card-shine { background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,.55) 48%, rgba(255,255,255,.14) 54%, transparent 62%); transform: translateX(-130%); animation: cardShine 7s ease-in-out infinite; mix-blend-mode: screen; z-index: 4; pointer-events: none; }
@@ -513,11 +508,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .card.s6 .card-metal { background-size: 260% 260%; animation: premiumGlow 2s ease-in-out infinite, metalFlow 5s linear infinite; }
 @keyframes premiumGlow { 50% { filter: brightness(1.12) saturate(1.15); } }
 @keyframes metalFlow { 0% { background-position: 0% 0%; } 100% { background-position: 260% 260%; } }
-.spk { position: absolute; z-index: 8; width: 9cqw; height: 9cqw; pointer-events: none; clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); background: #fff; box-shadow: 0 0 3cqw #fff; opacity: 0; animation: twinkle 2.2s ease-in-out infinite; animation-delay: calc(var(--i) * .41s); }
-.spk:nth-of-type(1) { left: 8%; top: 18%; } .spk:nth-of-type(2) { left: 80%; top: 30%; } .spk:nth-of-type(3) { left: 16%; top: 62%; } .spk:nth-of-type(4) { left: 74%; top: 72%; }
-.spk:nth-of-type(5) { left: 46%; top: 6%; } .spk:nth-of-type(6) { left: 88%; top: 52%; } .spk:nth-of-type(7) { left: 4%; top: 40%; }
-.card.s6 .spk { background: #ffe9a8; box-shadow: 0 0 3cqw #ffd23f; }
-@keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0); } 45% { opacity: 1; transform: scale(1) rotate(45deg); } 60% { opacity: .9; } }
 .card.locked { filter: grayscale(1); opacity: .55; transition: none; }
 .card.locked .card-metal { animation: none !important; box-shadow: 0 0 0 1px rgba(0,0,0,.6); }
 .card.locked:hover { transform: none; }
@@ -647,7 +637,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .swap-in .card-metal, .hand .card.cant .card-metal { animation: none !important; }
 .hand .card.cant *, .hand .card.cant *::before { animation-play-state: paused !important; }
 /* camadas animadas promovidas para a GPU (só transform/opacity) */
-.card-shine, .spk, .card.s4 .card-aura, .card.s5 .card-aura, .card.s6 .card-aura { will-change: transform, opacity; }
+.card-shine { will-change: transform, opacity; }
 /* brilho premium (Lendário/Mítico): em vez de animar `filter` na moldura inteira (redesenha
    toda a carta), anima só a opacidade de um véu luminoso por cima — mesmo efeito de pulso */
 .card.s5 .card-metal, .card.s6 .card-metal { animation-name: none; }
@@ -678,21 +668,16 @@ body { background: transparent; background-attachment: scroll; overscroll-behavi
 body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background: radial-gradient(circle at 50% -10%, #2a1d5c 0%, transparent 55%), radial-gradient(circle at 100% 100%, #3b0f2a 0%, transparent 45%), var(--bg); }
 /* sem camadas extras forçadas (no Android, camadas demais travam a rolagem) */
-.card-shine, .spk, .card-aura, .card-metal::after { will-change: auto !important; }
+.card-shine, .card-metal::after { will-change: auto !important; }
 
 /* Cartas de GRADE (Coleção, Equipe, lista do Treinar, troca): quadro congelado.
    A arte (fundo + aura + raios e o personagem com sombra) já vem pronta em bitmap; na carta
    não sobra nenhuma animação, filtro, mix-blend-mode nem transição. */
 .card.grid-card, .card.grid-card *, .card.grid-card *::before, .card.grid-card *::after { animation: none !important; transition: none !important; }
 .card.grid-card .card-metal::after { content: none; }
-.card.grid-card.baked .card-aura { display: none; }
 .card.grid-card.baked .card-fig { filter: none; }
 .card.grid-card.baked.locked .card-art, .card.grid-card.baked.locked .card-fig { filter: none; }
-.card.grid-card .card-aura::before { animation: none !important; }
 /* faíscas Lendário/Mítico congeladas acesas (como no meio do brilho) */
-.card.grid-card .spk { opacity: .85; transform: scale(.7) rotate(45deg); }
-.card.grid-card .spk:nth-of-type(2n) { opacity: .6; transform: scale(.5) rotate(45deg); }
-.card.grid-card .spk:nth-of-type(3n) { opacity: .95; transform: scale(.85) rotate(45deg); }
 /* no toque não existe "passar o mouse": nada de levantar a carta durante a rolagem */
 @media (hover: none) { .card:hover { transform: none; } }
 

@@ -6,17 +6,18 @@ import { PLAYABLE, RACE_INFO, getChar } from '../../src/core/characters';
 describe('visual das cartas', () => {
   it('tem moldura, cenário, personagem separado, custo, nível/Poder, faixa com o nome, ataque e vida (padrão v0.14)', () => {
     const h = cardHTML({ charId: 'riku', stars: 2, plus: 1 }); // v0.23.0: a estrela mostra o degrau (só com "+" ou "++")
-    for (const cls of ['card-metal', 'card-frame', 'card-bg', 'card-aura', 'card-fig', 'ck-cost', 'ck-pow', 'ck-cat', 'ck-banner', 'ck-rar', 'ck-icons', 'ck-atk', 'ck-hp', 'ck-abil']) expect(h).toContain(cls);
+    for (const cls of ['card-metal', 'card-frame', 'card-bg', 'card-fig', 'ck-cost', 'ck-pow', 'ck-cat', 'ck-banner', 'ck-rar', 'ck-icons', 'ck-atk', 'ck-hp', 'ck-abil']) expect(h).toContain(cls);
     expect(h).toContain('Riku Vendaval');
     expect(h).toMatch(/class="card s2/);
   });
-  it('mais estrelas = mais brilho: reflexo a partir de 3★, faíscas em 5★ e 6★', () => {
+  it('mais estrelas = mais brilho: reflexo a partir de 3★ (v0.40.0: sem aura colorida e sem estrelinhas)', () => {
     const at = (s: number) => cardHTML({ charId: 'kenji', stars: s });
     expect(at(2)).not.toContain('card-shine');
     expect(at(3)).toContain('card-shine');
-    expect(at(4)).not.toContain('class="spk"');
-    expect((at(5).match(/class="spk"/g) ?? []).length).toBe(4);
-    expect((at(6).match(/class="spk"/g) ?? []).length).toBe(7);
+    for (const s of [1, 2, 3, 4, 5, 6]) {
+      expect(at(s)).not.toContain('class="spk"');
+      expect(at(s)).not.toContain('card-aura');
+    }
   });
   it('carta bloqueada não tem faíscas; versão compacta não mostra status', () => {
     expect(cardHTML({ charId: 'vorax', stars: 6 }, { locked: true })).not.toContain('class="spk"');

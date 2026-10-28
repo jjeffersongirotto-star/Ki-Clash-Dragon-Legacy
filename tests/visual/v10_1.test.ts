@@ -34,8 +34,9 @@ describe('v0.10.1 — retratos em cache (desempenho)', () => {
     expect((html.match(/<img class="portrait/g) ?? []).length).toBe(1);
     expect(html).toContain('char-art');
     expect(html).not.toContain('<svg');
-    // efeitos premium continuam na carta (faíscas e reflexo)
-    expect(html).toContain('class="spk"');
+    // v0.40.0: sem estrelinhas nem aura colorida; o reflexo continua
+    expect(html).not.toContain('class="spk"');
+    expect(html).not.toContain('card-aura');
     expect(html).toContain('card-shine');
   });
 });

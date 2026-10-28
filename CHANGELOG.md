@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.40.0] — 28/10/2026 · PR #76 — Cartas sem aura e sem estrelinhas
+- **Cartas mais limpas:** saiu a fumaça colorida no meio de baixo da arte (a cor mudava conforme a carta) e saíram as estrelinhas que piscavam por cima da arte. Ficam o reflexo que passa pela carta e o efeito da borda. Vale para todos os lugares: Coleção, detalhe, mão, batalha e tela inicial.
+
 ## [0.39.0] — 28/10/2026 · PR #75 — Mapa do mundo: 100 fases
 - **Mapa do mundo:** a Aventura abre num caminho pontilhado com **10 regiões** (Vale Sereno, Costa do Coral Partido, Selva das Mil Raízes, Dunas de Âmbar, Cordilheira Trovejante, Pântano das Velas Mortas, Cidadela das Engrenagens, Ilhas Flutuantes de Éter, Abismo Estelar e Coroa do Dragão Eterno). Cada uma abre o mapa vertical de 10 fases; a região 1 são as fases de sempre.
 - **90 fases novas** com nomes próprios, baralhos inimigos com os 120 personagens (raça da região em maioria), dificuldade, vida do Comandante e nível da IA subindo; Comandantes com recorte limpo, sem repetir dentro da região.
