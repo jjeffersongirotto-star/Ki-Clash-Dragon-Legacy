@@ -1219,4 +1219,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Janela da fase:** feitiços do inimigo com a miniatura da arte; objetivos e valores com ícones desenhados.
 - **Arenas:** cada fase pode ter uma arte de fundo (`src/assets/arenas/NNN.webp`, NNN = 001 a 100), igual nas 3 dificuldades. Com arte, arena, Comandantes e mão ficam transparentes por cima do cenário; sem arte, o visual de antes.
 - **v0.45.0:** 98 das 100 fases têm arena (faltam 7-4 e 10-10, que usam o fundo padrão). Com arena, há um leve escurecimento por cima do cenário para manter cartas e números legíveis.
-- **v0.45.1:** 99 das 100 fases têm arena (falta só a 7-4, que usa o fundo padrão).
+- **v0.45.1:** as 100 fases têm arena.
