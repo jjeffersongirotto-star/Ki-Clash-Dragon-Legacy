@@ -5,7 +5,7 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
 ## [0.45.1] — 29/10/2026 · PR #84 — Arenas novas das fases 10-10 e 7-4 e cores de ataque/vida
 - **Fase 10-10 Despertar do Dragão Eterno** ganhou a arena nova: dragão dourado de asas abertas e armadura, entre ruínas e templos, com raios e runas no chão.
 - **Fase 7-4 Arsenal Silencioso** ganhou a arena nova: armaduras medievais e armas futuristas em cabines, sem robôs. **Agora as 100 fases têm arena.**
-- **Cores do ataque e da vida na arena:** o ataque do lutador agora aparece **branco** como a vida (antes era amarelo). **Verde** = aumentado (buff: aura, Fúria, Tambor…; na vida, escudo ativo). **Vermelho** = reduzido (debuff: dreno, Domínio…; na vida, abaixo do máximo).
+- **Cores do ataque e da vida na arena:** o ataque do lutador agora aparece **branco** como a vida (antes era amarelo). **Verde** = aumentado (buff: aura, Fúria, Tambor…; na vida, escudo ativo). **Vermelho** = reduzido (debuff: dreno, Domínio…; na vida, **só enquanto um debuff ativo reduz a vida máxima**; vida baixa por dano continua **branca**, e quando o debuff acaba a vida volta a ficar branca).
 
 ## [0.45.0] — 29/10/2026 · PR #83 — Arenas das fases
 - **98 fases ganharam arena própria** (cenário de fundo da batalha, igual no Fácil, Normal e Difícil): Vila do Vale Sereno, Floresta dos Ecos, Porto dos Corsários, Oásis Esquecido, Mosteiro das Nuvens, Catacumba Alagada, Fundição Rubra, Biblioteca Suspensa, Estação Órbita Zero, Portões de Obsidiana e todas as outras.

@@ -8,6 +8,7 @@ import { unitSpriteHTML } from './art';
 import { esc, starStyle } from './components';
 import type { BattleView } from './battleView';
 import { HOLD_MS } from './battleHand';
+import { hpStatClass } from './statColor';
 
 export function renderSnapshot(view: BattleView, snap: Snapshot, _ev?: RecordedEvent) {
   const layer = view.root.querySelector('.units') as HTMLElement;
@@ -76,10 +77,10 @@ export function renderSnapshot(view: BattleView, snap: Snapshot, _ev?: RecordedE
     atkEl.classList.toggle('buff', atk > u.atk);
     const hpEl = el.querySelector('.u-hpn') as HTMLElement;
     hpEl.textContent = String(Math.max(0, u.hp));
-    // v0.45.1: vida verde com escudo ativo (vida aumentada), vermelha abaixo do máximo
-    const shield = u.effects?.some((e) => e.kind === 'escudo' && e.turns > 0 && e.amount > 0);
-    hpEl.classList.toggle('buff', !!shield);
-    hpEl.classList.toggle('debuff', !shield && u.hp < u.maxHp);
+    // v0.45.1: cor pela modificação ativa da vida máxima, nunca pelo dano sofrido
+    const hpCls = hpStatClass(u);
+    hpEl.classList.toggle('buff', hpCls === 'buff');
+    hpEl.classList.toggle('debuff', hpCls === 'debuff');
     // v0.17.0: selos estáticos de efeito/aura (só troca o HTML quando muda)
     const st = statusList(fake, u);
     const key = st.map((x) => x.key).join(',');
