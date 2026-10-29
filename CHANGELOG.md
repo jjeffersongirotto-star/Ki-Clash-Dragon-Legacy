@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.45.1] — 29/10/2026 · PR #84 — Arena nova da fase 10-10
+- **Fase 10-10 Despertar do Dragão Eterno** ganhou a arena nova: dragão dourado de asas abertas e armadura, entre ruínas e templos, com raios e runas no chão. Agora 99 das 100 fases têm arena (falta só a 7-4 Arsenal Silencioso).
+
 ## [0.45.0] — 29/10/2026 · PR #83 — Arenas das fases
 - **98 fases ganharam arena própria** (cenário de fundo da batalha, igual no Fácil, Normal e Difícil): Vila do Vale Sereno, Floresta dos Ecos, Porto dos Corsários, Oásis Esquecido, Mosteiro das Nuvens, Catacumba Alagada, Fundição Rubra, Biblioteca Suspensa, Estação Órbita Zero, Portões de Obsidiana e todas as outras.
 - Com arena, a grade da arena, os quadros dos Comandantes e a faixa da mão ficam **transparentes** por cima do cenário. Um leve escurecimento (mais forte embaixo) e sombra nos números mantêm tudo legível mesmo nos cenários claros (nuvens, areia, céu).
