@@ -1,9 +1,9 @@
 /**
- * v0.43.0: ajustes do aparelho (não vão no save da conta): sons, vibração e linguagem.
+ * v0.43.0: ajustes do aparelho (não vão no save da conta): vibração e linguagem.
  */
 const SETTINGS_KEY = 'kicdl-settings-v1';
-export interface Settings { sound: boolean; vibrate: boolean; lang: 'pt' }
-const DEFAULTS: Settings = { sound: true, vibrate: true, lang: 'pt' };
+export interface Settings { vibrate: boolean; lang: 'pt' }
+const DEFAULTS: Settings = { vibrate: true, lang: 'pt' };
 
 export function settings(): Settings {
   try {

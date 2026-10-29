@@ -1210,6 +1210,6 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 ## Card de perfil (v0.43.0)
 - No canto de cima da Base fica o **card de perfil**: foto (com moldura na cor da raridade do personagem), **nome** do jogador, **NV** (nível de perfil) e a **barra de XP de perfil** (cheia no nível máximo). Substitui os antigos quadros de conta, "Sair" e nível.
 - **Foto:** é o rosto de um personagem que o jogador tem. Tocar na foto abre a lista dos rostos liberados (cada personagem novo libera o seu). Sem escolha, usa o 1º personagem. Fica salva na conta (`avatar`).
-- **Nome:** tocar abre as **Opções**: **Trocar nome** (apelido do perfil, `nick`; não muda o nome de entrar na conta), **Sons** (liga/desliga; o jogo ainda não tem sons, a opção já fica guardada), **Vibração** (liga/desliga; o celular vibra quando um Comandante leva dano, mais forte no seu), **Linguagem** (Português), **Trocar de conta** (ou Entrar / Criar conta), **Créditos** (versão), **Apagar progresso** (saiu do fim da Base) e **Sair** da conta. Sem conta e sem apelido, aparece "Jogador".
-- Sons, vibração e linguagem são do aparelho (`kicdl-settings-v1`), não da conta.
+- **Nome:** tocar abre as **Opções**: **Trocar nome** (apelido do perfil, `nick`; não muda o nome de entrar na conta), **Vibração** (liga/desliga; o celular vibra quando um Comandante leva dano, mais forte no seu), **Linguagem** (Português), **Trocar de conta** (ou Entrar / Criar conta), **Créditos** (versão), **Apagar progresso** (saiu do fim da Base) e **Sair** da conta. Sem conta e sem apelido, aparece "Jogador".
+- Vibração e linguagem são do aparelho (`kicdl-settings-v1`), não da conta.
 - Os rostos saem das artes por `scripts/art/build_thumbs.py` (`src/assets/faces`).

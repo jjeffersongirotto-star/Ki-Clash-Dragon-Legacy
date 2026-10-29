@@ -7,7 +7,6 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
 - **Foto de perfil:** toque na foto para escolher o **rosto de um personagem seu**. Cada personagem novo que você ganha libera o rosto dele. A moldura tem a cor da raridade do personagem.
 - **Opções** (toque no nome):
   - **Trocar nome:** o nome que aparece no perfil (para entrar na conta continua o mesmo).
-  - **Sons:** liga/desliga (o jogo ainda não tem sons; a escolha já fica guardada).
   - **Vibração:** liga/desliga — o celular vibra quando um Comandante leva dano (mais forte quando é o seu).
   - **Linguagem:** Português.
   - **Trocar de conta** (ou **Entrar / Criar conta**, sem conta), **Créditos** (versão do jogo).

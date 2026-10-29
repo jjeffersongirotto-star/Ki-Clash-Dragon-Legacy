@@ -1,7 +1,7 @@
 /**
  * v0.43.0 — Card de perfil no canto de cima da Base: foto (rosto de um personagem que o jogador tem, com moldura),
  * nome, nível e barra de XP de perfil. Tocar na foto escolhe o rosto; tocar no nome abre as opções
- * (Trocar nome, Sons, Vibração, Linguagem, Trocar/Entrar conta, Créditos, Apagar progresso e Sair).
+ * (Trocar nome, Vibração, Linguagem, Trocar/Entrar conta, Créditos, Apagar progresso e Sair).
  */
 
 /** Nome mostrado no card: o apelido escolhido, senão o nome da conta, senão "Jogador". */
@@ -92,7 +92,6 @@ async function optionsDialog(refresh: () => void, enter: () => void) {
     title: 'Opções',
     html: `<div class="opt-list">
         ${row('nick', '✏️', 'Trocar nome', esc(displayName()))}
-        ${row('sound', '🔊', 'Sons', onOff(st.sound))}
         ${row('vibrate', '📳', 'Vibração', onOff(st.vibrate))}
         <div class="opt-row opt-static"><i class="opt-ico">🌐</i><span>Linguagem</span><b class="opt-val">Português</b></div>
         ${row('enter', ico('perfil', '👤'), logged ? 'Trocar de conta' : 'Entrar / Criar conta')}
@@ -104,11 +103,6 @@ async function optionsDialog(refresh: () => void, enter: () => void) {
     onMount: (root, close) => {
       const on = (opt: string, fn: (el: HTMLElement) => void) => root.querySelector<HTMLElement>(`[data-opt=${opt}]`)?.addEventListener('click', (e) => fn(e.currentTarget as HTMLElement));
       const setVal = (el: HTMLElement, v: string) => (el.querySelector('.opt-val')!.textContent = v);
-      on('sound', (el) => {
-        st.sound = !st.sound;
-        saveSettings(st);
-        setVal(el, onOff(st.sound));
-      });
       on('vibrate', (el) => {
         st.vibrate = !st.vibrate;
         saveSettings(st);
