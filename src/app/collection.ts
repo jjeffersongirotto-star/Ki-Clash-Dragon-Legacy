@@ -100,7 +100,7 @@ export function collection() {
   const entryHTML = (id: string) => {
     const n = copiesIn(save, id);
     const card = isSpell(id)
-      ? spellCardHTML(id, { compact: true, attrs: `data-card="${id}"` })
+      ? spellCardHTML(id, { compact: true, extraClass: 'grid-card', attrs: `data-card="${id}"` })
       : cardHTML(save.cards[id], { compact: true, grid: true, attrs: `data-card="${id}"`, power: cardPower(save.cards[id]) });
     return `<div class="deck-entry">${card}<div class="copies" data-copies="${id}"><button class="cp-btn" data-cp="-1" aria-label="Menos uma cópia" ${n <= 1 ? 'disabled' : ''}>−</button><b>×${n}</b><button class="cp-btn" data-cp="1" aria-label="Mais uma cópia" title="${n >= maxCopiesFor(save, id) && n < MAX_COPIES ? `Você tem ${maxCopiesFor(save, id)} cópia(s) desta carta` : ''}" ${n >= maxCopiesFor(save, id) || count >= max ? 'disabled' : ''}>+</button></div></div>`;
   };
@@ -118,9 +118,9 @@ export function collection() {
     <h3 class="sec-title">Seus personagens <small>(${owned.length})</small></h3>
     <div class="card-grid">${owned.map((id) => cardHTML(save.cards[id], { grid: true, power: cardPower(save.cards[id]), attrs: `data-card="${id}"`, badge: save.deck.includes(id) ? `✔ ×${copiesIn(save, id)}` : undefined, extraClass: save.deck.includes(id) ? 'in-deck' : '' })).join('')}</div>
     <h3 class="sec-title">✦ Feitiços <small>(${ownedSpells.length}/${SPELLS.length} · ocupam vagas do baralho; precisam de um aliado da categoria em campo)</small></h3>
-    <div class="card-grid spell-grid">${ownedSpells.map((sp) => spellCardHTML(sp.id, { attrs: `data-card="${sp.id}"`, badge: save.deck.includes(sp.id) ? `✔ ×${copiesIn(save, sp.id)}` : `×${spellCopies(save, sp.id)}`, extraClass: save.deck.includes(sp.id) ? 'in-deck' : '' })).join('')}</div>
+    <div class="card-grid spell-grid">${ownedSpells.map((sp) => spellCardHTML(sp.id, { attrs: `data-card="${sp.id}"`, badge: save.deck.includes(sp.id) ? `✔ ×${copiesIn(save, sp.id)}` : `×${spellCopies(save, sp.id)}`, extraClass: save.deck.includes(sp.id) ? 'grid-card in-deck' : 'grid-card' })).join('')}</div>
     ${lockedSpells.length ? `<div class="divider"><span>🔒 Feitiços ainda não obtidos (${lockedSpells.length})</span></div>
-    <div class="card-grid spell-grid locked-grid">${lockedSpells.map((sp) => spellCardHTML(sp.id, { locked: true, attrs: `data-card="${sp.id}"`, badge: `🔒 ${TIER_NAMES[sp.rarity]}` })).join('')}</div>
+    <div class="card-grid spell-grid locked-grid">${lockedSpells.map((sp) => spellCardHTML(sp.id, { locked: true, extraClass: 'grid-card', attrs: `data-card="${sp.id}"`, badge: `🔒 ${TIER_NAMES[sp.rarity]}` })).join('')}</div>
     <p class="hint soon-note">✦ <b>Feitiços:</b> saem no 🎴 Banner (na raridade de cada um) e na 1ª vitória das fases 2, 5 e 8 de cada região.</p>` : ''}
     ${locked.length ? `<div class="divider"><span>🔒 Ainda não obtidos (${locked.length})</span></div>
     <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, stars: def.minStars }, { locked: true, grid: true, extraClass: isComingSoon(def) ? 'soon' : '', attrs: `data-card="${def.id}"`, badge: lockBadge(def.id) })).join('')}</div>

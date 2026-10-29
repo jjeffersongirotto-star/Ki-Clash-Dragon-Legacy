@@ -17,6 +17,10 @@ export const charArtUrl = (id: string): string | undefined => CHAR_ART.get(id);
 const CHAR_THUMB_FILES = import.meta.glob('../assets/chars-sm/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const CHAR_THUMB = new Map(Object.entries(CHAR_THUMB_FILES).map(([k, v]) => [k.slice(k.lastIndexOf('/') + 1, -'.webp'.length), v]));
 export const charThumbUrl = (id: string): string | undefined => CHAR_THUMB.get(id) ?? CHAR_ART.get(id);
+/** v0.43.0: rosto do personagem para a foto de perfil (src/assets/faces, scripts/art/build_thumbs.py). */
+const FACE_FILES = import.meta.glob('../assets/faces/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+const FACES = new Map(Object.entries(FACE_FILES).map(([k, v]) => [k.slice(k.lastIndexOf('/') + 1, -'.webp'.length), v]));
+export const faceUrl = (id: string): string | undefined => FACES.get(id);
 export const hasCharArt = (id: string): boolean => CHAR_ART.has(id);
 /** Arte ilustrada como <img> (carta, retratos). */
 export const charArtImg = (id: string, cls = 'portrait char-art') =>
