@@ -5,7 +5,7 @@
  * paisagem (Screen Orientation API). No Chrome Android a trava só funciona em TELA CHEIA e
  * precisa de um toque do jogador (por isso é chamada no toque de "Lutar" ou no botão do aviso).
  * Se não der (iPhone, navegador sem suporte, jogador recusou), nada quebra: o jogo mostra o
- * aviso "Gire o celular" e o layout em pé continua funcionando.
+ * aviso de girar e o layout em pé continua funcionando.
  * Ao sair da batalha, sai da tela cheia e destrava.
  */
 import { Capacitor } from '@capacitor/core';
@@ -13,7 +13,7 @@ import { ScreenOrientation } from '@capacitor/screen-orientation';
 
 /**
  * v0.20.0 — no app Android a batalha SEMPRE deita a tela sozinha (trava em paisagem pelo plugin nativo, sem
- * precisar de tela cheia nem de toque) e o aviso "Gire o celular" não aparece. Ao sair, a tela fica livre de novo.
+ * precisar de tela cheia nem de toque) e o aviso de girar não aparece. Ao sair, a tela fica livre de novo.
  */
 const native = () => Capacitor.isNativePlatform();
 
@@ -71,8 +71,9 @@ export function leaveBattleMode(): void {
   weEnteredFullscreen = false;
 }
 
-/** v0.46.0: o jogo inteiro é deitado. No app trava em paisagem desde o início; no site, em pé num celular aparece
- * o aviso "Vire o celular" com um botão que tenta tela cheia + paisagem. */
+/** v0.46.1: o jogo inteiro é deitado, sem aviso para girar o celular. No app trava em paisagem desde a abertura
+ * (AndroidManifest + plugin). No site o navegador só deixa travar com um toque: o primeiro toque do jogador tenta
+ * tela cheia + paisagem, sem janela nenhuma; se não der, o layout segue funcionando. */
 export function installLandscape(): void {
   if (typeof document === 'undefined') return;
   if (native()) {
@@ -80,11 +81,9 @@ export function installLandscape(): void {
     void ScreenOrientation.lock({ orientation: 'landscape' }).catch(() => document.body.classList.remove('native-landscape'));
     return;
   }
-  const el = document.createElement('div');
-  el.className = 'rotate-all';
-  el.setAttribute('role', 'dialog');
-  el.setAttribute('aria-label', 'Vire o celular');
-  el.innerHTML = '<div class="ra-box"><span class="ra-ico">📱↻</span><div class="ra-title">Vire o celular</div><p>O Ki-Clash é jogado com a tela deitada.</p><button class="btn primary" type="button">Deitar a tela</button></div>';
-  el.querySelector('button')!.addEventListener('click', () => void requestLandscape());
-  document.body.appendChild(el);
+  const first = () => {
+    document.removeEventListener('pointerup', first, true);
+    void requestLandscape();
+  };
+  document.addEventListener('pointerup', first, true);
 }

@@ -10,7 +10,6 @@ import { enemyCommanderBattle, playerLeaderImg } from './art';
 import { stageLabel } from '../core/world';
 import { stageCommander } from '../core/campaign';
 import { gameConfirm } from './dialog';
-import { requestLandscape } from './orientation';
 import { esc } from './components';
 import * as battleEffects from './battleEffects';
 import * as battleRender from './battleRender';
@@ -140,26 +139,8 @@ export class BattleView {
         <button class="btn fight" data-act="fight" id="fightBtn">LUTAR ${ico('lutar', '⚔')}</button>
       </div>
       <details class="log-panel" open><summary>${ico('registro', '📜')} Registro da batalha</summary><ol class="log" id="log"></ol></details>
-      <div class="rotate-prompt" role="dialog" aria-label="Gire o celular">
-        <div class="rp-box">
-          <div class="rp-icon" aria-hidden="true">${ico('girar', '📱')}</div>
-          <div class="rp-title">Gire o celular para jogar deitado</div>
-          <p class="rp-msg">A arena fica maior e as 6 cartas da mão cabem inteiras numa linha.</p>
-          <div class="rp-btns"><button class="btn primary" data-act="rotate">⟳ Tela cheia deitada</button><button class="btn ghost" data-act="rotate-dismiss">Jogar em pé</button></div>
-        </div>
-      </div>
     </div>`;
     const battleEl = this.root.querySelector('.battle') as HTMLElement;
-    if (sessionStorage.getItem('kicdl-rotate-dismissed')) battleEl.classList.add('rotate-dismissed');
-    this.root.querySelector('[data-act=rotate]')!.addEventListener('click', () => void requestLandscape());
-    this.root.querySelector('[data-act=rotate-dismiss]')!.addEventListener('click', () => {
-      battleEl.classList.add('rotate-dismissed');
-      try {
-        sessionStorage.setItem('kicdl-rotate-dismissed', '1');
-      } catch {
-        /* ok */
-      }
-    });
     this.root.querySelector('[data-act=log]')!.addEventListener('click', () => battleEl.classList.toggle('log-open'));
     this.root.querySelector('[data-act=info-close]')!.addEventListener('click', () => {
       if (this.selected != null) this.clearSelection();

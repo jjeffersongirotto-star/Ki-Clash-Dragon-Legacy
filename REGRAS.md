@@ -1228,4 +1228,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Locais em breve (🔒):** 8 Torre, 9 Invasão de Chefe, 10 Arena, 11 Masmorra em Dupla, 12 Santuário dos 7 Diamantes, 13 Praça de Eventos, 14 Mina de Cristais. Tocar mostra o brilho e a janela do jogo "Em breve" (nunca janela nativa).
 - Ao tocar um local, o brilho aparece por ~0,25 s e depois a tela abre. O mapa não tem animação contínua.
 - Perfil, recursos, versão, ⟳ e Baixar ficam na barra de cima, fora dos prédios.
-- **O jogo inteiro é deitado:** o app Android trava em paisagem desde a abertura (também no AndroidManifest). No site, celular em pé mostra "Vire o celular" com o botão "Deitar a tela" (tela cheia + paisagem quando o navegador deixa). Na batalha continua o aviso próprio dela.
+- **O jogo inteiro é deitado:** o app Android trava em paisagem desde a abertura (também no AndroidManifest). **(v0.46.1)** Não existe aviso para girar o celular, nem na Base nem na batalha. No site, o primeiro toque do jogador tenta tela cheia + paisagem em silêncio (o navegador exige um toque); se não der, o layout continua funcionando.

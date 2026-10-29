@@ -27,3 +27,15 @@ describe('v0.46.0 hub', () => {
     expect(hit.top + hit.height).toBeLessThanOrEqual(100.0001);
   });
 });
+
+describe('v0.46.1 tela deitada sem aviso', () => {
+  it('não existe mais o aviso "Vire o celular" nem "Deitar a tela"', async () => {
+    const { readFileSync } = await import('node:fs');
+    for (const f of ['src/ui/orientation.ts', 'src/ui/battleView.ts', 'src/app/home.ts']) {
+      const src = readFileSync(f, 'utf8');
+      expect(src, f).not.toContain('Vire o celular');
+      expect(src, f).not.toContain('Deitar a tela');
+    }
+    expect(readFileSync('android/app/src/main/AndroidManifest.xml', 'utf8')).toContain('android:screenOrientation="sensorLandscape"');
+  });
+});
