@@ -76,6 +76,8 @@ export interface SaveData {
   tutBanner?: boolean;
   /** v0.43.0: foto de perfil = rosto de um personagem que o jogador tem (id); sem valor, o 1º personagem */
   avatar?: string;
+  /** v0.43.0: nome mostrado no perfil (apelido); sem valor, o nome da conta ou "Jogador" */
+  nick?: string;
   /** v0.41.0: cópias de cada feitiço que você tem (feitiço sem valor = ainda não obtido) */
   spells?: SpellBag;
   /** migração v0.41.0: os feitiços que já estavam no baralho viram cópias suas */

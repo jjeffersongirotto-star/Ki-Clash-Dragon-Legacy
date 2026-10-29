@@ -99,7 +99,7 @@ function dupesHTML(dupes: NonNullable<typeof save.dupes>): string {
       }).reverse();
       const xpOf = (r: number) => (mode === 'direcionado' ? dupBaseXp(r) : generalXp(r));
       return `<div class="dupe-row" style="${starStyle(owned.stars)}">
-        <div class="dupe-card">${cardHTML({ charId: id, stars: owned.stars, plus: stepOf(owned) }, { compact: true })}</div>
+        <div class="dupe-card">${cardHTML({ charId: id, stars: owned.stars, plus: stepOf(owned) }, { compact: true, grid: true })}</div>
         <div class="dupe-info">
           <b>${esc(def.name)}</b>
           <small>Você tem <b>${ownedCopies(save, id)}</b> cópias · no baralho: <b>${use}</b> · dá para desmanchar: <b>${spare}</b></small>
@@ -132,7 +132,7 @@ function spellDupesHTML(): string {
       const use = deckUse(sp.id);
       const spare = spareSpells(save.spells, sp.id, use);
       return `<div class="dupe-row" style="${starStyle(sp.rarity)}">
-        <div class="dupe-card">${spellCardHTML(sp.id, { compact: true })}</div>
+        <div class="dupe-card">${spellCardHTML(sp.id, { compact: true, extraClass: 'grid-card' })}</div>
         <div class="dupe-info">
           <b>${sp.icon} ${esc(sp.name)}</b>
           <small>Você tem <b>${have}</b> cópias · no baralho: <b>${use}</b> · dá para desmanchar: <b>${spare}</b></small>

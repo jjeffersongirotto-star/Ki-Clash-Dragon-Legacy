@@ -9,3 +9,10 @@ describe('v0.43.0 — foto de perfil', () => {
     expect(missing).toEqual([]);
   });
 });
+
+describe('v0.43.0 — opções do aparelho', () => {
+  it('sons e vibração começam ligados e a linguagem é Português', async () => {
+    const { settings } = await import('../../src/ui/settings');
+    expect(settings()).toEqual({ sound: true, vibrate: true, lang: 'pt' });
+  });
+});

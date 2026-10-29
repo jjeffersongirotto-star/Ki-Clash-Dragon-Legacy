@@ -11,7 +11,7 @@ import { ico } from '../ui/icons';
 import { goldHTML, orbHTML, esc, starStyle, essIcon } from '../ui/components';
 import { gameAlert, gameConfirm, showDialog } from '../ui/dialog';
 import { leaveBattleMode } from '../ui/orientation';
-import { tutorialDone, resetSave } from '../ui/save';
+import { tutorialDone } from '../ui/save';
 import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from '../ui/update';
 import { createAccount, login, NAME_MAX, PASS_MIN } from '../ui/accounts';
 import { app, accounts, openAccountSave, save, setSave, firstChar, setTrainSel, persist, fmt, prof, resPills } from './state';
@@ -45,19 +45,11 @@ export function home(): void {
       <div class="menu-pair"><button class="btn" data-nav="shop">${ico('loja', '🏪')} Loja <small>${goldHTML(fmt(prof().gold))}</small></button><button class="btn" data-nav="inventory">${ico('inventario', '🎒')} Inventário <small>${dupesTotal()} repetidos</small></button></div>
       <button class="btn ghost" data-nav="help">${ico('ajuda', '❓')} Como jogar</button>
     </nav>
-    <button class="link-btn" id="reset">Apagar progresso</button>
     ${isNativeApp() ? '' : `<a class="btn download-btn" href="${APK_DOWNLOAD_URL}" rel="noopener" title="Baixar o app Android (APK)">${ico('baixar', '⬇')} Baixar</a>`}
   </div>`;
   bindNav();
   bindProfileCard(app, home, accountDialog);
   app.querySelector('#updBtn')!.addEventListener('click', (e) => searchUpdate(e.currentTarget as HTMLButtonElement));
-  app.querySelector('#reset')!.addEventListener('click', async () => {
-    if (await gameConfirm('Apagar progresso?', 'Todo o progresso salvo (personagens, níveis, itens e fases) será apagado. Isso não pode ser desfeito.', 'Apagar tudo', true)) {
-      resetSave();
-      setSave(openAccountSave());
-      home();
-    }
-  });
 }
 
 /** v0.19.0: botão ⟳ — procura uma versão nova (app: Releases do GitHub; site: version.json publicado). */

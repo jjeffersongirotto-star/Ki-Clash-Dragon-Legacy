@@ -1567,3 +1567,7 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .opt-row .opt-ico .ico { width: 24px; height: 24px; vertical-align: middle; }
 .opt-row .opt-val { margin-left: auto; color: #ffcf4a; }
 .opt-row.opt-exit { color: #ff8a8a; border-color: #7a3040; }
+.opt-row.opt-danger { color: #ffb36b; border-color: #7a5030; }
+.opt-list { max-height: 62dvh; overflow-y: auto; }
+/* v0.43.0: listas grandes (Coleção, baralho, Inventário) — nada de filtro por carta (cada filtro vira uma camada a mais ao rolar) */
+.card.grid-card .ck-cat { filter: none; }

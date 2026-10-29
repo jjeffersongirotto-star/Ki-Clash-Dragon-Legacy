@@ -1,5 +1,6 @@
 /** v0.28.3: animação de cada evento da batalha — separado de battleView.ts. */
 import { getSpell } from '../core/spells';
+import { vibrate } from './settings';
 import type { RecordedEvent } from '../core/types';
 import { sleep } from './battleFx';
 import type { BattleView } from './battleView';
@@ -109,6 +110,7 @@ export async function effect(view: BattleView, ev: RecordedEvent) {
     case 'hero': {
       const [x, y] = view.heroCenter(ev.side);
       view.floatText(x, y, `-${ev.amount}`, 'hero-dmg');
+      vibrate(ev.side === 'player' ? 45 : 20); // v0.43.0: vibração quando um Comandante leva dano (mais forte no seu)
       const box = view.root.querySelector(`#hero-${ev.side}`)!;
       box.classList.remove('hit');
       void (box as HTMLElement).offsetWidth;

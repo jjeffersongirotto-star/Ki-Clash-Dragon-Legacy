@@ -165,7 +165,7 @@ export function spellCardHTML(id: string, opts: { extraClass?: string; attrs?: s
   const art = spellArtURL(id);
   return `<div class="card spell-card s3 ${opts.compact ? 'compact' : 'ab'} ${opts.extraClass ?? ''}${opts.locked ? ' locked' : ''}" style="--rc:#7c5cff;--rg:#b9a8ff;--sc1:${c1};--sc2:${c2}" ${opts.attrs ?? ''}>
     <div class="card-metal"><div class="card-frame">
-      <div class="card-art spell-art">${art ? `<img class="spell-img" src="${art}" alt="" draggable="false">` : `<span class="spell-ico">${s.icon}</span>`}</div>
+      <div class="card-art spell-art">${art ? `<img class="spell-img" src="${art}" alt="" draggable="false" decoding="async">` : `<span class="spell-ico">${s.icon}</span>`}</div>
       <div class="ck-cost${opts.wait === 0 ? ' ready' : ''}" title="${opts.wait == null ? `Espera ${w} rodada(s) na mão` : opts.wait ? `Falta(m) ${opts.wait} rodada(s)` : 'Pronto para lançar'}"><span>${w}</span></div>
       <div class="ck-pow spell-tag" title="Feitiço">✦ Feitiço</div>
       ${opts.copies ? `<div class="ck-star" title="Cópias no baralho"><small>×</small><b>${opts.copies}</b></div>` : ''}
