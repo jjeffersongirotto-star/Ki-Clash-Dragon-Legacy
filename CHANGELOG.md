@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.45.0] — 29/10/2026 · PR #83 — Arenas das fases
+- **98 fases ganharam arena própria** (cenário de fundo da batalha, igual no Fácil, Normal e Difícil): Vila do Vale Sereno, Floresta dos Ecos, Porto dos Corsários, Oásis Esquecido, Mosteiro das Nuvens, Catacumba Alagada, Fundição Rubra, Biblioteca Suspensa, Estação Órbita Zero, Portões de Obsidiana e todas as outras.
+- Com arena, a grade da arena, os quadros dos Comandantes e a faixa da mão ficam **transparentes** por cima do cenário. Um leve escurecimento (mais forte embaixo) e sombra nos números mantêm tudo legível mesmo nos cenários claros (nuvens, areia, céu).
+- **Ficaram de fora por enquanto:** fase **7-4 Arsenal Silencioso** (um dos robôs lembra um robô de anime conhecido) e fase **10-10 Despertar do Dragão Eterno** (o dragão dourado nas nuvens com raios lembra um dragão de anime conhecido). Essas duas usam o fundo de antes até chegar uma versão nova.
+- Imagens em WebP 1920×864 (`scripts/art/build_arenas.py`).
+
 ## [0.44.0] — 29/10/2026 · PR #82 — Repetidas por raridade, confirmação do Desmanchar, ícones da fase e arenas prontas
 - **Cartas repetidas:** um card para cada **raridade** (ex.: Spike-11 Lendário ×9, Épico ×1 e Raro ×1 viram 3 cards em sequência), cada um com a carta naquela raridade, o número de cópias e os botões **Desmanchar 1** / **Todas**. Todos os cards têm o mesmo tamanho.
 - **Confirmação ao desmanchar:** antes de desmanchar aparece um aviso dizendo quantas cópias, de qual raridade e o que acontece:
