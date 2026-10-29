@@ -1582,7 +1582,10 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .stage-close .ico { width: 1.3em; height: 1.3em; vertical-align: middle; }
 .stage-actions .cost .ico { width: 1.1em; height: 1.1em; vertical-align: -.2em; }
 /* v0.44.0: fase com arte de arena — cenário atrás da batalha; arena, Comandantes e mão transparentes por cima */
-.battle-screen.has-arena { background: #0b0f24 var(--arena-bg) center / cover no-repeat; }
+.battle-screen.has-arena { background: linear-gradient(180deg, rgba(5,8,22,.26) 0%, rgba(5,8,22,.2) 45%, rgba(5,8,22,.5) 100%), #0b0f24 var(--arena-bg) center / cover no-repeat; }
+/* números e nomes legíveis mesmo em cenários claros (nuvens, areia, céu) */
+.has-arena .battle .hero-hp, .has-arena .battle .pile-label, .has-arena .battle .cell-coord { text-shadow: 0 1px 2px #000, 0 0 6px rgba(0,0,0,.85); }
+.has-arena .battle .cell-coord { opacity: .5; }
 .has-arena .battle .board-wrap { background: transparent; box-shadow: 0 0 0 1.5px rgba(255,255,255,.28); }
 .has-arena .battle .board { background: transparent; }
 .has-arena .battle .arena-scenery { display: none; }
