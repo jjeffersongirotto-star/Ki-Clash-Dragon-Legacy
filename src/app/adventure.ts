@@ -8,7 +8,7 @@ import { REGIONS, REGION_COUNT, STAGES_PER_REGION, localOf, regionOf, regionStag
 import { XP_ITEMS, playXp, feedXp, stepOf } from '../core/progression';
 import { leaderHp } from '../core/leaders';
 import { BattleView } from '../ui/battleView';
-import { energyHTML, gemHTML, goldHTML, gearHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, esc, raceHTML, spellCardHTML, spellCastersLabel, starStyle, tierHTML, essIcon } from '../ui/components';
+import { goalHTML, spellMiniHTML, energyHTML, gemHTML, goldHTML, gearHTML, orbBagHTML, orbHTML, cardHTML, categoryHTML, esc, raceHTML, spellCardHTML, spellCastersLabel, starStyle, tierHTML, essIcon } from '../ui/components';
 import { getSpell, isSpell } from '../core/spells';
 import { gameAlert, showDialog } from '../ui/dialog';
 import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
@@ -17,6 +17,7 @@ import { GEAR_RARE_CHANCE, addGear, stageGearDrop, stageGearIds, stageGearRarity
 import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, gemsFor, spellRewardFor, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, regionUnlocked, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from '../core/adventure';
 import { enemyCommanderArt } from '../ui/art';
 import { ico } from '../ui/icons';
+import { arenaAttrs } from '../ui/arenas';
 const regionIcon = (r: { id: number; icon: string }) => ico(`regiao-${r.id}`, r.icon);
 const LOCK = () => ico('bloqueado', '🔒');
 import { grantCard, type GrantResult } from '../core/banner';
@@ -220,20 +221,20 @@ export function stageDialog(stageId: number) {
   const full = starCount(mask) === STAR_COUNT;
   void showDialog({
     title: `Fase ${stageLabel(st.id)} · ${st.name}`,
-    html: `<button class="stage-close" data-x aria-label="Fechar">✕</button>
+    html: `<button class="stage-close" data-x aria-label="Fechar">${ico('fechar', '✕')}</button>
       ${enemyCommanderArt(stageCommander(st), 'stage-cmd')}
       <p class="stage-diff">${regionIcon(REGIONS[regionOf(st.id) - 1])} ${esc(REGIONS[regionOf(st.id) - 1].name)} · Dificuldade <b>${DIFFICULTY_LABEL[diff]}</b></p>
-      <p class="stage-line">Comandante inimigo ❤${st.enemyHeroHp} · Inimigos até ${(() => { const top = foes.reduce((a, c) => (c.stars * 3 + stepOf(c) > a.stars * 3 + stepOf(a) ? c : a)); return tierHTML(top.stars, stepOf(top)); })()}${foeSpells.length ? ` · ✦ ${foeSpells.map((sp) => `<span title="${esc(sp.name)}">${sp.icon}</span>`).join('')}` : ''}</p>
-      <p class="stage-line">Recompensa: ${essIcon()}${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && gemsFor(st.id) ? ` · 1ª vitória: ${gemHTML(`+${gemsFor(st.id)}`)} ${gemsFor(st.id) > 1 ? 'Gemas' : 'Gema'} de Invocação` : ''}${!done && spellRewardFor(st.id, diff) ? (() => { const sp = getSpell(spellRewardFor(st.id, diff)!); return ` · 1ª vitória: <span class="spell-pill" style="${starStyle(sp.rarity)}">✦ ${sp.icon} ${esc(sp.name)}</span> <small>(feitiço ${STAR_COLORS[sp.rarity].label})</small>`; })() : ''}</p>
+      <p class="stage-line">Comandante inimigo ${ico('vida', '❤')}${st.enemyHeroHp} · Inimigos até ${(() => { const top = foes.reduce((a, c) => (c.stars * 3 + stepOf(c) > a.stars * 3 + stepOf(a) ? c : a)); return tierHTML(top.stars, stepOf(top)); })()}${foeSpells.length ? ` · ${foeSpells.map((sp) => spellMiniHTML(sp.id)).join('')}` : ''}</p>
+      <p class="stage-line">Recompensa: ${essIcon()}${r.essencias} ${orbBagHTML(r.orbs)}${diff === 'dificil' ? ` · chance: ${orbHTML('orbe5')} ${HARD_LEGENDARY_CHANCE * 100}% ${orbHTML('orbe6')} ${HARD_MYTHIC_CHANCE * 100}%` : ''}${!done && gemsFor(st.id) ? ` · 1ª vitória: ${gemHTML(`+${gemsFor(st.id)}`)} ${gemsFor(st.id) > 1 ? 'Gemas' : 'Gema'} de Invocação` : ''}${!done && spellRewardFor(st.id, diff) ? (() => { const sp = getSpell(spellRewardFor(st.id, diff)!); return ` · 1ª vitória: <span class="spell-pill" style="${starStyle(sp.rarity)}">${spellMiniHTML(sp.id)} ${esc(sp.name)}</span> <small>(feitiço ${STAR_COLORS[sp.rarity].label})</small>`; })() : ''}</p>
       <p class="stage-line">Itens: ${(() => { const [lo, hi] = stageGearRarity(stageId, diff); return `${stageGearIds(stageId).map((id) => gearHTML(id, lo)).join(' ')} <small>${hi > lo ? `${100 - GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[lo].label} · ${GEAR_RARE_CHANCE[diff] * 100}% ${STAR_COLORS[hi].label}` : `100% ${STAR_COLORS[lo].label}`}</small>`; })()}</p>
-      <ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>${ico(mask & (1 << i) ? 'estrela' : 'estrela-vazia', '★')}</i> ${esc(g.text)}</li>`).join('')}</ul>
-      <p class="stage-line">Por vitória ou Repetir: ${goldHTML(goldFor(stageId, diff))} · 👤 +${profileXpFor(stageId, diff)} XP de perfil${done ? '' : ' <small>(em dobro na primeira vitória)</small>'} · você tem ${energyHTML(energyNow(), energyMax(prof()))}</p>
+      <ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>${ico(mask & (1 << i) ? 'estrela' : 'estrela-vazia', '★')}</i> ${goalHTML(g.text)}</li>`).join('')}</ul>
+      <p class="stage-line">Por vitória ou Repetir: ${goldHTML(goldFor(stageId, diff))} · ${ico('perfil', '👤')} +${profileXpFor(stageId, diff)} XP de perfil${done ? '' : ' <small>(em dobro na primeira vitória)</small>'} · você tem ${energyHTML(energyNow(), energyMax(prof()))}</p>
       ${done ? `<p class="stage-left ${left ? '' : 'out'}">${left ? `Hoje: <b>${left}/${DAILY_LIMIT}</b> restantes` : 'Limite de hoje atingido. Volta amanhã.'}</p>` : ''}
       <div class="stage-actions">
-        <button class="btn primary big" data-act="play" ${play ? '' : 'disabled'}>⚔ Jogar <span class="cost">⚡${ENERGY_COST[diff]}</span></button>
-        ${done ? `<button class="btn big" data-act="repeat" ${repeat ? '' : 'disabled'}>⟲ Repetir <span class="cost">⚡${ENERGY_COST[diff]}</span></button>` : ''}
+        <button class="btn primary big" data-act="play" ${play ? '' : 'disabled'}>${ico('lutar', '⚔')} Jogar <span class="cost">${ico('energia', '⚡')}${ENERGY_COST[diff]}</span></button>
+        ${done ? `<button class="btn big" data-act="repeat" ${repeat ? '' : 'disabled'}>${ico('atualizar', '⟲')} Repetir <span class="cost">${ico('energia', '⚡')}${ENERGY_COST[diff]}</span></button>` : ''}
       </div>
-      ${done && !full ? `<p class="stage-note">⟲ Repetir libera com as ${STAR_COUNT} ⭐ desta fase.</p>` : ''}`,
+      ${done && !full ? `<p class="stage-note">${ico('atualizar', '⟲')} Repetir libera com as ${STAR_COUNT} ${ico('estrela', '⭐')} desta fase.</p>` : ''}`,
     buttons: [],
     onMount: (root, close) => {
       root.querySelector('.dialog')?.classList.add('stage-dialog');
@@ -368,7 +369,8 @@ export function startBattle(stageId: number, diff: Difficulty = advDiff()) {
   const deck = deckCards(save);
   window.scrollTo(0, 0);
   enterBattleMode();
-  app.innerHTML = '<div class="screen battle-screen" id="bs"></div>';
+  const arena = arenaAttrs(stageId);
+  app.innerHTML = `<div class="screen battle-screen${arena.cls}" id="bs"${arena.style}></div>`;
   new BattleView(app.querySelector('#bs')!, stage, deck, {
     speed: () => save.speed || 1,
     setSpeed: (n) => {
@@ -396,7 +398,7 @@ export function finishBattle(stageId: number, diff: Difficulty, winner: string, 
     // v0.21.0: ⭐ dos objetivos cumpridos nesta vitória (somam aos que a fase já tinha)
     const fresh = addStars(save, diff, stageId, end ? starsForWin(end, diff, stageId) : 1);
     const mask = starsOf(save, diff, stageId);
-    const starsLine = `<div class="win-stars">${starsHTML(mask, fresh)}</div><ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>${ico(mask & (1 << i) ? 'estrela' : 'estrela-vazia', '★')}</i> ${esc(g.text)}${fresh & (1 << i) ? ' <b class="new-tag">nova!</b>' : ''}</li>`).join('')}</ul>${fresh && starCount(mask) === STAR_COUNT ? '<p class="hint">⟲ Repetir liberado nesta fase!</p>' : ''}`;
+    const starsLine = `<div class="win-stars">${starsHTML(mask, fresh)}</div><ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>${ico(mask & (1 << i) ? 'estrela' : 'estrela-vazia', '★')}</i> ${goalHTML(g.text)}${fresh & (1 << i) ? ' <b class="new-tag">nova!</b>' : ''}</li>`).join('')}</ul>${fresh && starCount(mask) === STAR_COUNT ? '<p class="hint">⟲ Repetir liberado nesta fase!</p>' : ''}`;
     // v0.33.0: no lugar do pacote de personagens, 💠 Gemas de Invocação na primeira vitória (fases 3, 6, 9 e 10)
     const gems = first ? gemsFor(stageId) : 0;
     save.gems = (save.gems ?? 0) + gems;

@@ -1213,3 +1213,8 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Nome:** tocar abre as **Opções**: **Trocar nome** (apelido do perfil, `nick`; não muda o nome de entrar na conta), **Vibração** (liga/desliga; o celular vibra quando um Comandante leva dano, mais forte no seu), **Linguagem** (Português), **Trocar de conta** (ou Entrar / Criar conta), **Créditos** (versão), **Apagar progresso** (saiu do fim da Base) e **Sair** da conta. Sem conta e sem apelido, aparece "Jogador".
 - Vibração e linguagem são do aparelho (`kicdl-settings-v1`), não da conta.
 - Os rostos saem das artes por `scripts/art/build_thumbs.py` (`src/assets/faces`).
+
+## Repetidas, Desmanchar e arenas (v0.44.0)
+- **Cartas repetidas:** um card por raridade de cada personagem (mesmo tamanho para todos). Desmanchar sempre pede **confirmação**, explicando o modo: Direcionado = XP do próprio personagem; Geral (e feitiços) = 25% desse XP guardado como Orbes.
+- **Janela da fase:** feitiços do inimigo com a miniatura da arte; objetivos e valores com ícones desenhados.
+- **Arenas:** cada fase pode ter uma arte de fundo (`src/assets/arenas/NNN.webp`, NNN = 001 a 100), igual nas 3 dificuldades. Com arte, arena, Comandantes e mão ficam transparentes por cima do cenário; sem arte, o visual de antes.

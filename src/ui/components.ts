@@ -217,3 +217,20 @@ export function gearHTML(id: string, rarity: number, count?: number | string, mi
 }
 /** v0.42.0: ✴ Essências (ícone desenhado). */
 export const essIcon = () => ico('essencia', '✴');
+
+/** v0.44.0: miniatura da arte de um feitiço (moldura na cor da raridade); sem arte, o emoji. */
+export function spellMiniHTML(id: string): string {
+  const sp = getSpell(id);
+  const u = spellArtURL(id);
+  return u
+    ? `<img class="spell-mini" src="${u}" alt="${esc(sp.name)}" title="${esc(sp.name)}" style="${starStyle(sp.rarity)}" draggable="false" decoding="async">`
+    : `<span title="${esc(sp.name)}">${sp.icon}</span>`;
+}
+
+/** v0.44.0: texto do objetivo de estrela com o emoji do começo trocado pelo ícone desenhado. */
+const GOAL_ICON: Record<string, string> = { '❤️': 'vida', '🃏': 'pilha', '🪄': 'alvo-none', '💀': 'derrota' };
+export function goalHTML(text: string): string {
+  const [first, ...rest] = text.split(' ');
+  const name = GOAL_ICON[first];
+  return name ? `${ico(name, first)} ${esc(rest.join(' '))}` : esc(text);
+}

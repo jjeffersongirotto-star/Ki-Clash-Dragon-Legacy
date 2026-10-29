@@ -11,17 +11,18 @@
  *   Desmanchar geral (25% do XP do Orbe da raridade do feitiço).
  */
 import { getChar } from '../core/characters';
-import { TIER_NAMES, XP_ITEMS, stepOf, type OrbBag } from '../core/progression';
+import { TIER_NAMES, XP_ITEMS, type OrbBag } from '../core/progression';
 import { GEAR_CATEGORIES, GEAR_RARITIES, GEAR_SETS, gearCount } from '../core/gear';
 import { CATEGORY_INFO } from '../core/characters';
-import { bankXp, feedCopy, generalXp, spareCopies, spareSpells, takeDupe, dupBaseXp, type CopyXp } from '../core/banner';
+import { bankXp, feedCopy, generalXp, spareSpells, takeDupe, dupBaseXp, type CopyXp } from '../core/banner';
 import { SPELLS, getSpell, isSpell } from '../core/spells';
 import { cardHTML, catIcon, esc, gearHTML, orbBagHTML, orbHTML, spellCardHTML, starStyle, essIcon } from '../ui/components';
 import { ico } from '../ui/icons';
 import { leaveBattleMode } from '../ui/orientation';
-import { copiesIn, ownedCopies } from '../ui/save';
+import { copiesIn } from '../ui/save';
 import { app, save, persist, fmt } from './state';
 import { topbar, bindNav, modal, closeModal } from './ui';
+import { gameConfirm } from '../ui/dialog';
 
 let tab: 'itens' | 'repetidos' = 'itens';
 let mode: 'direcionado' | 'geral' = 'direcionado';
@@ -52,10 +53,12 @@ export function inventory() {
   app.querySelectorAll<HTMLElement>('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab as typeof tab; rerender(); }));
   app.querySelectorAll<HTMLElement>('[data-mode]').forEach((b) => b.addEventListener('click', () => { mode = b.dataset.mode as typeof mode; rerender(); }));
   app.querySelectorAll<HTMLElement>('[data-dis]').forEach((b) =>
-    b.addEventListener('click', () => {
+    b.addEventListener('click', async () => {
       const id = b.dataset.dis!;
       const stars = Number(b.dataset.r);
       const all = b.dataset.n === 'all';
+      // v0.44.0: confirma antes de desmanchar, explicando o que vai acontecer
+      if (!(await confirmDismantle(id, stars, all))) return;
       const res = isSpell(id) ? dismantleSpell(id, all) : mode === 'direcionado' ? dismantleDirected(id, stars, all) : dismantleGeneral(id, stars, all);
       persist();
       if (res) resultDialog(res, rerender);
@@ -82,12 +85,11 @@ function dupesHTML(dupes: NonNullable<typeof save.dupes>): string {
     mode === 'direcionado'
       ? 'A cópia vira <b>XP do próprio personagem</b> (Orbe da raridade da cópia; às vezes ×2, ×5 ou ×10). XP que passar da barra cheia: 25% volta em Orbes.'
       : 'A cópia vira <b>25% do XP</b> que daria ao próprio personagem, guardado como <b>Orbes</b> (para usar em qualquer personagem).';
+  // v0.44.0: um card por RARIDADE (Lendário, Épico, Raro…), todos do mesmo tamanho
   const rows = ids
-    .map((id) => {
+    .flatMap((id) => {
       const def = getChar(id);
       const use = deckUse(id);
-      const spare = spareCopies(dupes, id, use);
-      const owned = save.cards[id];
       const rarities = Object.keys(dupes[id]).map(Number).sort((a, b) => b - a);
       // as cópias "presas" ao baralho saem primeiro das raridades mais baixas
       let locked = Math.max(0, use - 1);
@@ -98,21 +100,20 @@ function dupesHTML(dupes: NonNullable<typeof save.dupes>): string {
         return { r, n, free: n - lockedHere };
       }).reverse();
       const xpOf = (r: number) => (mode === 'direcionado' ? dupBaseXp(r) : generalXp(r));
-      return `<div class="dupe-row" style="${starStyle(owned.stars)}">
-        <div class="dupe-card">${cardHTML({ charId: id, stars: owned.stars, plus: stepOf(owned) }, { compact: true, grid: true })}</div>
+      return lines.map(
+        (l) => `<div class="dupe-row" style="${starStyle(l.r)}">
+        <div class="dupe-card">${cardHTML({ charId: id, stars: l.r }, { compact: true, grid: true })}</div>
         <div class="dupe-info">
           <b>${esc(def.name)}</b>
-          <small>Você tem <b>${ownedCopies(save, id)}</b> cópias · no baralho: <b>${use}</b> · dá para desmanchar: <b>${spare}</b></small>
-          ${lines
-            .map(
-              (l) => `<div class="dupe-line"><span class="tier-tag" style="${starStyle(l.r)}">${TIER_NAMES[l.r]}</span> ×${l.n}${l.free < l.n ? ` <small>(${l.n - l.free} no baralho)</small>` : ''}
-              <span class="dupe-xp">${mode === 'direcionado' ? '📈' : '🔮'} ${fmt(xpOf(l.r))} XP cada</span>
-              <button class="btn small ${l.free ? 'primary' : ''}" data-dis="${id}" data-r="${l.r}" data-n="1" ${l.free ? '' : 'disabled'}>${mode === 'direcionado' ? 'Usar 1' : 'Desmanchar 1'}</button>
-              <button class="btn small" data-dis="${id}" data-r="${l.r}" data-n="all" ${l.free > 1 ? '' : 'disabled'}>Todas (${l.free})</button></div>`,
-            )
-            .join('')}
+          <div class="dupe-line"><span class="tier-tag" style="${starStyle(l.r)}">${TIER_NAMES[l.r]}</span> <span>×${l.n} ${l.n === 1 ? 'cópia' : 'cópias'}</span>${l.free < l.n ? ` <small>(${l.n - l.free} no baralho)</small>` : ''}</div>
+          <small class="dupe-xp">${mode === 'direcionado' ? `${ico('evoluir', '📈')} ${fmt(xpOf(l.r))} XP cada para ${esc(def.name.split(' ')[0])}` : `${ico('orbe3', '🔮')} ${fmt(xpOf(l.r))} XP cada em Orbes`}</small>
+          <div class="dupe-btns">
+            <button class="btn small ${l.free ? 'primary' : ''}" data-dis="${id}" data-r="${l.r}" data-n="1" ${l.free ? '' : 'disabled'}>Desmanchar 1</button>
+            <button class="btn small" data-dis="${id}" data-r="${l.r}" data-n="all" ${l.free > 1 ? '' : 'disabled'}>Todas (${l.free})</button>
+          </div>
         </div>
-      </div>`;
+      </div>`,
+      );
     })
     .join('');
   return `<div class="inv-tabs inv-modes">
@@ -147,6 +148,20 @@ function spellDupesHTML(): string {
   return `<h3 class="sec-title">✦ Feitiços repetidos</h3>
     <p class="hint">Feitiço não tem XP: a cópia que sobra vira <b>Orbes</b> (como no Desmanchar geral). A 1ª cópia e as que estão no baralho ficam.</p>
     ${rows || '<p class="hint">Nenhum feitiço repetido. Feitiços repetidos do 🎴 Banner e das fases aparecem aqui.</p>'}`;
+}
+
+/** v0.44.0: aviso de confirmação do Desmanchar, com o que vai acontecer (modo direcionado ou geral). */
+async function confirmDismantle(id: string, stars: number, all: boolean): Promise<boolean> {
+  const spell = isSpell(id);
+  const n = spell ? (all ? spareSpells(save.spells, id, deckUse(id)) : 1) : all ? freeAt(id, stars) : 1;
+  if (n < 1) return false;
+  const name = spell ? getSpell(id).name : getChar(id).name;
+  const what = `${n} ${n === 1 ? 'cópia' : 'cópias'} ${TIER_NAMES[stars]} de ${name}`;
+  const msg =
+    !spell && mode === 'direcionado'
+      ? `Direcionado: ${what} ${n === 1 ? 'vira' : 'viram'} XP do próprio ${name.split(' ')[0]}: ${fmt(dupBaseXp(stars) * n)} XP (às vezes ×2, ×5 ou ×10). O XP que passar da barra cheia volta 25% em Orbes.`
+      : `${spell ? 'Feitiço' : 'Geral'}: ${what} ${n === 1 ? 'vira' : 'viram'} 25% do XP que daria${spell ? '' : ' ao próprio personagem'}: ${fmt(generalXp(stars) * n)} XP guardados como Orbes, para usar em qualquer personagem.`;
+  return gameConfirm('Desmanchar?', `${msg} Isso não pode ser desfeito.`, 'Desmanchar', true);
 }
 
 type DisResult = { kind: 'dir'; id: string; n: number; xp: CopyXp[] } | { kind: 'gen'; id: string; n: number; xp: number; orbs: OrbBag };

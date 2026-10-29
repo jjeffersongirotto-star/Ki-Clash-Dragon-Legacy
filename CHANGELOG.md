@@ -2,6 +2,15 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.44.0] — 29/10/2026 · PR #82 — Repetidas por raridade, confirmação do Desmanchar, ícones da fase e arenas prontas
+- **Cartas repetidas:** um card para cada **raridade** (ex.: Spike-11 Lendário ×9, Épico ×1 e Raro ×1 viram 3 cards em sequência), cada um com a carta naquela raridade, o número de cópias e os botões **Desmanchar 1** / **Todas**. Todos os cards têm o mesmo tamanho.
+- **Confirmação ao desmanchar:** antes de desmanchar aparece um aviso dizendo quantas cópias, de qual raridade e o que acontece:
+  - **Direcionado:** viram XP do próprio personagem (às vezes ×2, ×5 ou ×10).
+  - **Geral** (e feitiços): viram **25%** desse XP, guardado como Orbes para qualquer personagem.
+- **Treinar:** saiu o texto explicativo do fim da Escada de Despertar.
+- **Janela da fase:** os feitiços do inimigo aparecem com a **arte de cada feitiço** (antes eram emojis como 🌋 🧱 ☄️ 👼); objetivos de estrela, vida do Comandante, XP de perfil, energia, Jogar, Repetir e fechar usam os ícones desenhados. Verificado nas 100 fases.
+- **Arenas das fases (preparado):** quando a arte de uma fase existir (`src/assets/arenas/NNN.webp`, gerador `scripts/art/build_arenas.py`), ela vira o fundo da batalha e a arena, os quadros dos Comandantes e a faixa da mão ficam transparentes por cima. Fácil, Normal e Difícil da mesma fase usam a mesma arena. Fases sem arte continuam como antes.
+
 ## [0.43.0] — 29/10/2026 · PR #81 — Card de perfil e título do Banner de volta
 - **Card de perfil** no canto de cima da Base, no lugar dos 3 quadros (conta, Sair e nível): **foto** com moldura, **nome**, **NV** e a **barra de experiência** (enche com o XP de perfil; no nível máximo fica cheia).
 - **Foto de perfil:** toque na foto para escolher o **rosto de um personagem seu**. Cada personagem novo que você ganha libera o rosto dele. A moldura tem a cor da raridade do personagem.
