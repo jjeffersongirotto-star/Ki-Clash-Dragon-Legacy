@@ -11,13 +11,13 @@ import { ico } from '../ui/icons';
 import { goldHTML, orbHTML, esc, starStyle, essIcon } from '../ui/components';
 import { gameAlert, gameConfirm, showDialog } from '../ui/dialog';
 import { leaveBattleMode } from '../ui/orientation';
-import { tutorialDone, profileLevel, resetSave } from '../ui/save';
+import { tutorialDone, resetSave } from '../ui/save';
 import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from '../ui/update';
-import { PROFILE_MAX, totalXpFor, xpToNext } from '../core/profile';
-import { createAccount, login, logout, NAME_MAX, PASS_MIN } from '../ui/accounts';
+import { createAccount, login, NAME_MAX, PASS_MIN } from '../ui/accounts';
 import { app, accounts, openAccountSave, save, setSave, firstChar, setTrainSel, persist, fmt, prof, resPills } from './state';
 import { bindNav } from './ui';
 import { bannerGuide, tutorial } from './tutorial';
+import { bindProfileCard, profileCardHTML } from './profile';
 
 // ---------------- BASE ----------------
 /** v0.32.0: cópias repetidas guardadas (todas as raridades) */
@@ -28,12 +28,8 @@ export function home(): void {
   if (save.tutBanner && (save.gems ?? 0) > 0) return bannerGuide(); // v0.33.0: passo guiado do Banner
   leaveBattleMode();
   const next = WORLD_STAGES.find((s) => !save.cleared.includes(s.id));
-  const acc = accounts.current ? accounts.accounts[accounts.current] : null;
   app.innerHTML = `<div class="screen home">
-    <div class="account-box">${acc
-      ? `<span class="acc-name" title="Conta local deste aparelho">${ico('perfil', '👤')} <b>${esc(acc.name)}</b>${acc.admin ? ' <small>teste</small>' : ''}</span><button class="btn small ghost" id="accOut">Sair</button>`
-      : `<button class="btn small" id="accIn">👤 Entrar / Criar conta</button>`}
-      ${(() => { const p = prof(); const lv = profileLevel(save); const into = p.xp - totalXpFor(lv); const need = xpToNext(lv); return `<span class="profile-chip" title="Nível de perfil: sobe com XP de perfil (1 por energia gasta e ao vencer ou repetir fases)"><span>${ico('perfil', '👤')} Nível <b>${lv}</b>${lv < PROFILE_MAX ? ` <small>${into}/${need}</small>` : ' <small>máx.</small>'}</span><span class="profile-bar"><i style="width:${lv < PROFILE_MAX ? ((100 * into) / need).toFixed(1) : 100}%"></i></span></span>`; })()}
+    <div class="account-box">${profileCardHTML()}
       <span class="app-version">v${APP_VERSION}</span>
       <button class="btn small upd-btn" id="updBtn" title="Procurar atualização" aria-label="Procurar atualização">${ico('atualizar', '<svg class="upd-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M20.5 3.5v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'upd-ico')}</button></div>
     <div class="logo">
@@ -53,15 +49,8 @@ export function home(): void {
     ${isNativeApp() ? '' : `<a class="btn download-btn" href="${APK_DOWNLOAD_URL}" rel="noopener" title="Baixar o app Android (APK)">${ico('baixar', '⬇')} Baixar</a>`}
   </div>`;
   bindNav();
-  app.querySelector('#accIn')?.addEventListener('click', accountDialog);
+  bindProfileCard(app, home, accountDialog);
   app.querySelector('#updBtn')!.addEventListener('click', (e) => searchUpdate(e.currentTarget as HTMLButtonElement));
-  app.querySelector('#accOut')?.addEventListener('click', () => {
-    persist();
-    logout(accounts);
-    setSave(openAccountSave());
-    setTrainSel(firstChar());
-    home();
-  });
   app.querySelector('#reset')!.addEventListener('click', async () => {
     if (await gameConfirm('Apagar progresso?', 'Todo o progresso salvo (personagens, níveis, itens e fases) será apagado. Isso não pode ser desfeito.', 'Apagar tudo', true)) {
       resetSave();

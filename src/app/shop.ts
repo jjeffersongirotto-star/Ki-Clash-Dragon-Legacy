@@ -130,6 +130,7 @@ export function bannerHTML(b: Banner, gold: number): string {
     <div class="banner-art">
       <div class="banner-sky"></div><div class="banner-mount"></div>
       <div class="banner-feat">${feat.map((d) => `<div class="banner-hero" style="${starStyle(b.featuredRarity)}">${unitSpriteHTML(d, { stars: b.featuredRarity, side: 'player' })}<b>${esc(d.name.split(' ')[0])}</b></div>`).join('')}</div>
+      <div class="banner-title"><h3>${ico('banner', '🎴')} ${esc(b.name)}</h3></div>
     </div>
     <div class="banner-odds">${odds}</div>
     <div class="pity-mark" title="A cada ${PITY_EVERY} cartas compradas, 1 ${TIER_NAMES[PITY_RARITY_LABEL]} ou melhor garantida (volta a 0 quando sai uma)">${ico('pity', '🎯')} Lendária garantida <b>${pityCount(b, save.bannerPity)}/${PITY_EVERY}</b></div>

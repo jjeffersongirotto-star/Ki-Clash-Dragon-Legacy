@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.43.0] — 29/10/2026 · PR #81 — Card de perfil e título do Banner de volta
+- **Card de perfil** no canto de cima da Base, no lugar dos 3 quadros (conta, Sair e nível): **foto** com moldura, **nome**, **NV** e a **barra de experiência** (enche com o XP de perfil; no nível máximo fica cheia).
+- **Foto de perfil:** toque na foto para escolher o **rosto de um personagem seu**. Cada personagem novo que você ganha libera o rosto dele. A moldura tem a cor da raridade do personagem.
+- **Opções:** toque no nome para abrir **Sons** (liga/desliga — o jogo ainda não tem sons; a escolha já fica guardada), **Linguagem** (Português) e **Sair**. Sem conta, aparece "Jogador" e a opção **Entrar / Criar conta**.
+- **Loja:** o título **"Despertar do Dragão"** voltou para cima da imagem do Banner (só a frase "Kenji e Vorax em destaque" continua fora).
+- Rostos dos 121 personagens recortados das artes (`scripts/art/build_thumbs.py`, com ajuste manual para quem tem o rosto fora do lugar comum).
+
 ## [0.42.2] — 28/10/2026 · PR #80 — Arena centralizada, cartas sem Poder no topo e Loja mais limpa
 - **Batalha (celular deitado):** a arena passava por baixo do Comandante inimigo e cortava a última coluna em celulares com câmera/entalhe na lateral. Agora a largura desconta essa faixa e as 10 colunas cabem inteiras, centralizadas entre os dois Comandantes.
 - **Poder fora do topo das cartas** (em todo lugar: Coleção, baralho, mão, Treinar, Banner…). No detalhe da carta ele aparece **ao lado do nome** (ex.: "Zarek do Eclipse ⚡358"). Só visual: o Poder e o Poder do baralho continuam iguais.
