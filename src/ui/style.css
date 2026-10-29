@@ -1595,3 +1595,35 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .has-arena .battle .cell.zone-e:not(.can):not(.drop-over):not(.spell-t) { background: rgba(255,61,110,.10); border-color: rgba(255,120,150,.38); }
 .has-arena .battle .hero, .has-arena .battle .hero-p, .has-arena .battle .hero-e { background: transparent; border-color: rgba(255,255,255,.22); box-shadow: none; }
 .has-arena .battle > .bottom { background: rgba(5,8,22,.22); border-color: rgba(255,255,255,.2); box-shadow: none; }
+
+/* ===== v0.46.0: HUB (mapa flutuante da Base) ===== */
+.screen.home.hub { padding: 0; min-height: 100dvh; position: relative; overflow: hidden; text-align: left; }
+.hub-stage { position: fixed; inset: 0; overflow: hidden; background: #1a1440; }
+.hub-map { position: absolute; left: 50%; top: 50%; aspect-ratio: 2340 / 1080; width: max(100vw, calc(100dvh * 2340 / 1080)); transform: translate(-50%, -50%); background-size: 100% 100%; }
+@media (orientation: portrait) { .hub-map { width: 100vw; } }
+.hub-layer { position: absolute; pointer-events: none; user-select: none; }
+.hub-glow { opacity: 0; transition: opacity .12s ease-out; }
+.hub-glow.on { opacity: 1; }
+.hub-spot { position: absolute; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.hub-spot:focus-visible { outline: 2px solid #ffd166; border-radius: 12px; }
+.hub-tag { position: absolute; left: 50%; bottom: 2%; transform: translateX(-50%); white-space: nowrap; font-size: clamp(9px, 1.15vw, 14px); font-weight: 900; color: #fff; background: rgba(8,10,30,.72); border: 1px solid rgba(255,255,255,.22); border-radius: 999px; padding: 1px 8px; text-shadow: 0 1px 2px #000; pointer-events: none; }
+.hub-spot.locked .hub-tag { color: #c9cde6; }
+.account-box.hub-top { position: fixed; top: 0; left: 0; right: 0; z-index: 20; margin: 0; padding: max(6px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) 6px max(10px, env(safe-area-inset-left)); background: linear-gradient(rgba(6,8,24,.78), rgba(6,8,24,0)); }
+.account-box.hub-top .res { display: flex; gap: 6px; flex-wrap: wrap; font-size: 13px; font-weight: 800; }
+.account-box.hub-top .res > span { background: rgba(16,22,50,.85); border: 1px solid #3a4580; border-radius: 10px; padding: 3px 8px; }
+
+/* ===== v0.46.0: jogo inteiro deitado ===== */
+.rotate-all { display: none; }
+@media (orientation: portrait) and (pointer: coarse) {
+  body:not(.native-landscape):not(.in-battle) .rotate-all { display: grid; position: fixed; inset: 0; z-index: 9000; place-items: center; background: rgba(6,8,24,.94); color: #fff; text-align: center; padding: 24px; }
+}
+.rotate-all .ra-box { max-width: 320px; }
+.rotate-all .ra-ico { font-size: 54px; display: block; margin-bottom: 10px; }
+.rotate-all .ra-title { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
+.rotate-all p { color: #b9c0e6; margin: 0 0 14px; }
+@media (orientation: landscape) {
+  .screen:not(.hub) { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+}
+.hub-tag.up { bottom: auto; top: -6%; }
+.account-box.hub-top .hub-dl { text-decoration: none; border-color: #2fb8ff; border-radius: 999px; flex: none; }
+.hub-tag.left { left: auto; right: 62%; bottom: auto; top: 50%; transform: translateY(-50%); }

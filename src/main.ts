@@ -4,6 +4,7 @@ import { STAGES } from './core/campaign';
 import { isSpell } from './core/spells';
 import { warmLeader, warmPortraits } from './ui/art';
 import { installPerfGuards } from './ui/perf';
+import { installLandscape } from './ui/orientation';
 import { migrateV17 } from './ui/save';
 import { app, save } from './app/state';
 import { bakeAllGrid } from './app/ui';
@@ -12,6 +13,7 @@ import { home } from './app/home';
 // garante que o save tem todos os campos e personagens válidos
 migrateV17(save);
 installPerfGuards(app);
+installLandscape();
 home();
 void bakeAllGrid();
 warmLeader();

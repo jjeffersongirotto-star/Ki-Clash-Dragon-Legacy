@@ -1221,3 +1221,11 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **v0.45.0:** 98 das 100 fases têm arena (faltam 7-4 e 10-10, que usam o fundo padrão). Com arena, há um leve escurecimento por cima do cenário para manter cartas e números legíveis.
 - **v0.45.1:** as 100 fases têm arena.
 - **Placa ATQ | VIDA do lutador (v0.45.1):** números brancos; verde quando aumentados (buff; na vida, escudo ativo), vermelhos quando reduzidos (debuff). Na vida, vermelho **só enquanto um debuff ativo reduz a vida máxima**; vida baixa por dano fica **branca**, e ao fim do debuff volta a branca. A cor segue o modificador ativo, nunca a vida atual × máxima.
+
+## Hub da Base e tela deitada (v0.46.0)
+- A **Base é um mapa de ilhas flutuantes** (arte 2340×1080, cobre a tela deitada mantendo a proporção). Cada local tem camada normal, com cadeado e com brilho, alinhadas ao mapa.
+- **Locais liberados:** 1 Aventura, 2 Coleção & Baralho, 3 Treinar & Despertar, 4 Loja, 5 Altar de Invocação (abre a Loja, onde fica o Banner), 6 Inventário, 7 Acampamento do Iniciante (abre o "Como jogar").
+- **Locais em breve (🔒):** 8 Torre, 9 Invasão de Chefe, 10 Arena, 11 Masmorra em Dupla, 12 Santuário dos 7 Diamantes, 13 Praça de Eventos, 14 Mina de Cristais. Tocar mostra o brilho e a janela do jogo "Em breve" (nunca janela nativa).
+- Ao tocar um local, o brilho aparece por ~0,25 s e depois a tela abre. O mapa não tem animação contínua.
+- Perfil, recursos, versão, ⟳ e Baixar ficam na barra de cima, fora dos prédios.
+- **O jogo inteiro é deitado:** o app Android trava em paisagem desde a abertura (também no AndroidManifest). No site, celular em pé mostra "Vire o celular" com o botão "Deitar a tela" (tela cheia + paisagem quando o navegador deixa). Na batalha continua o aviso próprio dela.
