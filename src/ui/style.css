@@ -213,9 +213,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* Placa ATQ | VIDA na base do lutador (estilo 2 | 3 da referência) */
 .u-stat-plate { position: absolute; left: 50%; bottom: 5px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 3px; background: rgba(5,8,20,.88); border: 1px solid rgba(255,255,255,.28); border-radius: 6px; padding: 0 5px; font-size: clamp(9px, calc(var(--cell) * .19), 13px); font-weight: 900; line-height: 1.25; white-space: nowrap; z-index: 6; box-shadow: 0 2px 4px rgba(0,0,0,.75); }
-.u-atk { color: #ffd166; }
-.u-atk.debuff { color: #00f5d4; }
-.u-atk.buff { color: #7dff9a; }
+/* v0.45.1: ataque e vida brancos; verde = aumentado (buff), vermelho = reduzido por debuff ativo (vida baixa por dano continua branca) */
+.u-atk { color: #fff; }
+.u-atk.debuff, .u-hpn.debuff { color: #ff5a5a; }
+.u-atk.buff, .u-hpn.buff { color: #5dff8a; }
 .u-sep { color: #9aa3c7; font-weight: 400; font-size: .85em; }
 .u-hpn { color: #fff; }
 .u-hp { position: absolute; left: 10%; right: 10%; bottom: 0; height: 4.5px; background: #2a0810; border-radius: 3px; overflow: hidden; border: 1px solid #000; z-index: 5; }

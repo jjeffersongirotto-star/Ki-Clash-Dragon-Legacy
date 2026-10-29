@@ -146,6 +146,8 @@ export interface Unit {
   col: number;
   atk: number;
   maxHp: number;
+  /** v0.45.1: vida máxima sem buff/debuff (se ausente, = maxHp) */
+  baseMaxHp?: number;
   hp: number;
   damageType: DamageType;
   physRes: number;
