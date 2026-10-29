@@ -1571,3 +1571,23 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .opt-list { max-height: 62dvh; overflow-y: auto; }
 /* v0.43.0: listas grandes (Coleção, baralho, Inventário) — nada de filtro por carta (cada filtro vira uma camada a mais ao rolar) */
 .card.grid-card .ck-cat { filter: none; }
+/* v0.44.0: Cartas repetidas — um card por raridade, todos com a mesma altura */
+.dupe-row { align-items: center; }
+.dupe-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+.dupe-xp .ico { width: 1.25em; height: 1.25em; vertical-align: -.3em; }
+/* v0.44.0: miniaturas dos feitiços e ícones dos objetivos na janela da fase */
+.spell-mini { display: inline-block; width: 1.9em; height: 1.9em; object-fit: cover; object-position: 50% 30%; border-radius: 6px; border: 2px solid var(--rc, #a78bfa); vertical-align: middle; margin: 0 2px; box-shadow: 0 0 0 1px #000; }
+.spell-pill .spell-mini { width: 1.5em; height: 1.5em; }
+.stage-goals li .ico { width: 1.25em; height: 1.25em; vertical-align: -.3em; }
+.stage-close .ico { width: 1.3em; height: 1.3em; vertical-align: middle; }
+.stage-actions .cost .ico { width: 1.1em; height: 1.1em; vertical-align: -.2em; }
+/* v0.44.0: fase com arte de arena — cenário atrás da batalha; arena, Comandantes e mão transparentes por cima */
+.battle-screen.has-arena { background: #0b0f24 var(--arena-bg) center / cover no-repeat; }
+.has-arena .battle .board-wrap { background: transparent; box-shadow: 0 0 0 1.5px rgba(255,255,255,.28); }
+.has-arena .battle .board { background: transparent; }
+.has-arena .battle .arena-scenery { display: none; }
+.has-arena .battle .cell:not(.can):not(.drop-over):not(.spell-t), .has-arena .battle .cell:nth-child(2n):not(.can):not(.drop-over):not(.spell-t) { background: rgba(8,12,30,.14); border-color: rgba(255,255,255,.22); box-shadow: none; }
+.has-arena .battle .cell.zone-p:not(.can):not(.drop-over):not(.spell-t) { background: rgba(47,184,255,.12); border-color: rgba(120,210,255,.4); }
+.has-arena .battle .cell.zone-e:not(.can):not(.drop-over):not(.spell-t) { background: rgba(255,61,110,.10); border-color: rgba(255,120,150,.38); }
+.has-arena .battle .hero, .has-arena .battle .hero-p, .has-arena .battle .hero-e { background: transparent; border-color: rgba(255,255,255,.22); box-shadow: none; }
+.has-arena .battle > .bottom { background: rgba(5,8,22,.22); border-color: rgba(255,255,255,.2); box-shadow: none; }

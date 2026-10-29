@@ -30,7 +30,7 @@ export function ladderHTML(card: { charId: string; stars: number; plus?: number 
   }
   return `<details class="ladder" open><summary>${ico('escada', '🪜')} Escada de Despertar</summary><table><thead><tr><th>Degrau</th><th>Barra de XP</th><th>Despertar</th></tr></thead><tbody>${rows.join('')}</tbody></table>
     <p class="hint">Itens de ascensão de ${esc(getChar(card.charId).name)} na raridade ${TIER_NAMES[card.stars]} (1 de cada; alguns são da raridade <b>um acima</b> da carta): <b>"+"</b> ${charGear(card.charId).plus.map((r) => gearHTML(r.id, reqRarity(r, card.stars))).join('')} · <b>"++"</b> ${charGear(card.charId).plus2.map((r) => gearHTML(r.id, reqRarity(r, card.stars))).join('')} · <b>nova raridade</b> ${charGear(card.charId).awaken.map((r) => gearHTML(r.id, reqRarity(r, card.stars))).join('')}</p>
-    <p class="hint">As barras ficam na proporção <b>3 / 6 / 10</b> ("+" / "++" / nova raridade). Cada degrau (<b>"+"</b>, <b>"++"</b> e cada nova raridade) dá <b>+17%</b> de ataque e de vida. Habilidades e visual mudam na <b>nova raridade</b>. Encher a barra não aumenta os status: ela libera o Despertar.</p></details>`;
+</details>`;
 }
 
 /** v0.24.0: mochila de itens de ascensão, por categoria (só os que o jogador tem). */
