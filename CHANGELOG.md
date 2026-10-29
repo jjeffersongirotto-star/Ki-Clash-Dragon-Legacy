@@ -2,6 +2,16 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.46.0] — 29/10/2026 · Hub da Base (mapa flutuante) e jogo inteiro deitado
+- **A Base virou um mapa:** ilhas flutuantes com 14 locais. Tocar num prédio acende o brilho dele por um instante e abre a tela:
+  - 🔓 **Aventura**, **Coleção & Baralho**, **Treinar & Despertar**, **Loja**, **Altar de Invocação** (abre a Loja, onde fica o Banner), **Inventário** e **Acampamento do Iniciante** (abre o "Como jogar").
+  - 🔒 **Torre, Invasão de Chefe, Arena, Masmorra em Dupla, Santuário dos 7 Diamantes, Praça de Eventos e Mina de Cristais** aparecem com cadeado e abrem a janela do jogo **"Em breve"**.
+- Perfil, energia, Ouro, Gemas, Essências, repetidos, versão, ⟳ e **Baixar** ficam na barra de cima do mapa.
+- **Tela deitada em todo o jogo:** no app Android a tela fica travada deitada desde a abertura. No site, com o celular em pé aparece o aviso **"Vire o celular"** com o botão **Deitar a tela**. As telas ganharam margem para as bordas do celular.
+- Sem animação contínua nova no mapa (60 FPS). A Mina tem área de toque maior porque o prédio é pequeno.
+- Arte provisória (será trocada depois): cadeado da Aventura cortado (não é usado, a Aventura nunca fica trancada), brilho fraco e Mina pequena.
+- Camadas geradas por `scripts/hub/build_hub.py` (WebP recortado pelo contorno, posições em `src/ui/hubLayers.ts`).
+
 ## [0.45.1] — 29/10/2026 · PR #84 — Arenas novas das fases 10-10 e 7-4 e cores de ataque/vida
 - **Fase 10-10 Despertar do Dragão Eterno** ganhou a arena nova: dragão dourado de asas abertas e armadura, entre ruínas e templos, com raios e runas no chão.
 - **Fase 7-4 Arsenal Silencioso** ganhou a arena nova: armaduras medievais e armas futuristas em cabines, sem robôs. **Agora as 100 fases têm arena.**

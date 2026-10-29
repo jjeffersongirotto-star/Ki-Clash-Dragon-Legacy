@@ -60,11 +60,8 @@ export function enterBattleMode(): void {
 export function leaveBattleMode(): void {
   if (typeof document === 'undefined' || !document.body.classList.contains('in-battle')) return;
   document.body.classList.remove('in-battle');
-  if (native()) {
-    document.body.classList.remove('native-landscape');
-    void ScreenOrientation.unlock().catch(() => {});
-    return;
-  }
+  // v0.46.0: no app o jogo inteiro fica deitado — não destrava ao sair da batalha
+  if (native()) return;
   try {
     (screen as unknown as { orientation?: OrientationLike }).orientation?.unlock?.();
   } catch {
@@ -72,4 +69,22 @@ export function leaveBattleMode(): void {
   }
   if (weEnteredFullscreen && document.fullscreenElement) void document.exitFullscreen().catch(() => {});
   weEnteredFullscreen = false;
+}
+
+/** v0.46.0: o jogo inteiro é deitado. No app trava em paisagem desde o início; no site, em pé num celular aparece
+ * o aviso "Vire o celular" com um botão que tenta tela cheia + paisagem. */
+export function installLandscape(): void {
+  if (typeof document === 'undefined') return;
+  if (native()) {
+    document.body.classList.add('native-landscape');
+    void ScreenOrientation.lock({ orientation: 'landscape' }).catch(() => document.body.classList.remove('native-landscape'));
+    return;
+  }
+  const el = document.createElement('div');
+  el.className = 'rotate-all';
+  el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-label', 'Vire o celular');
+  el.innerHTML = '<div class="ra-box"><span class="ra-ico">📱↻</span><div class="ra-title">Vire o celular</div><p>O Ki-Clash é jogado com a tela deitada.</p><button class="btn primary" type="button">Deitar a tela</button></div>';
+  el.querySelector('button')!.addEventListener('click', () => void requestLandscape());
+  document.body.appendChild(el);
 }

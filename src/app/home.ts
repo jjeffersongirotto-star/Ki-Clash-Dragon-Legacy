@@ -2,20 +2,20 @@
  * Tela da Base, contas locais e ⟳ atualização.
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
  */
-import { PLAYABLE, getChar } from '../core/characters';
-import { WORLD_STAGES } from '../core/campaign';
-import { stageLabel } from '../core/world';
-import { XP_ITEMS } from '../core/progression';
-import { cardArtImg } from '../ui/art';
 import { ico } from '../ui/icons';
-import { goldHTML, orbHTML, esc, starStyle, essIcon } from '../ui/components';
+import { esc, essIcon } from '../ui/components';
 import { gameAlert, gameConfirm, showDialog } from '../ui/dialog';
 import { leaveBattleMode } from '../ui/orientation';
 import { tutorialDone } from '../ui/save';
 import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from '../ui/update';
 import { createAccount, login, NAME_MAX, PASS_MIN } from '../ui/accounts';
-import { app, accounts, openAccountSave, save, setSave, firstChar, setTrainSel, persist, fmt, prof, resPills } from './state';
-import { bindNav } from './ui';
+import { app, accounts, openAccountSave, save, setSave, firstChar, setTrainSel, persist, resPills } from './state';
+import { bindNav, go } from './ui';
+import { HUB_SPOTS, hitBox, type HubSpot } from './hubConfig';
+import { HUB_BOXES } from '../ui/hubLayers';
+
+const HUB_FILES = import.meta.glob('../assets/hub/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+const HUB_IMG: Record<string, string> = Object.fromEntries(Object.entries(HUB_FILES).map(([k, v]) => [k.slice(k.lastIndexOf('/') + 1, -5), v]));
 import { bannerGuide, tutorial } from './tutorial';
 import { bindProfileCard, profileCardHTML } from './profile';
 
@@ -27,29 +27,49 @@ export function home(): void {
   if (!tutorialDone(save)) return tutorial(); // v0.25.0: o jogador novo começa pelo tutorial
   if (save.tutBanner && (save.gems ?? 0) > 0) return bannerGuide(); // v0.33.0: passo guiado do Banner
   leaveBattleMode();
-  const next = WORLD_STAGES.find((s) => !save.cleared.includes(s.id));
-  app.innerHTML = `<div class="screen home">
-    <div class="account-box">${profileCardHTML()}
+  const lay = (k: string, extra = '') => {
+    const b = HUB_BOXES[k];
+    const u = HUB_IMG[k];
+    if (!b || !u) return '';
+    const h = hitBox(b);
+    return `<img class="hub-layer${extra}" data-layer="${k}" src="${u}" alt="" draggable="false" style="left:${h.left}%;top:${h.top}%;width:${h.width}%;height:${h.height}%">`;
+  };
+  app.innerHTML = `<div class="screen home hub">
+    <div class="hub-stage"><div class="hub-map" style="background-image:url('${HUB_IMG.mapa}')">
+      ${HUB_SPOTS.filter((s) => !s.nav).map((s) => lay(`${s.key}-locked`)).join('')}
+      ${HUB_SPOTS.map((s) => lay(`${s.key}-glow`, ' hub-glow')).join('')}
+      ${HUB_SPOTS.map((s, i) => {
+        const b = HUB_BOXES[s.key];
+        if (!b) return '';
+        const h = hitBox(b, s.pad ?? 0);
+        return `<button class="hub-spot${s.nav ? '' : ' locked'}" data-spot="${i}" aria-label="${esc(s.label)}${s.nav ? '' : ' (em breve)'}" style="left:${h.left}%;top:${h.top}%;width:${h.width}%;height:${h.height}%"><span class="hub-tag${s.tagUp ? ' up' : ''}${s.tagLeft ? ' left' : ''}">${s.nav ? '' : '🔒 '}${esc(s.label)}</span></button>`;
+      }).join('')}
+    </div></div>
+    <div class="account-box hub-top">${profileCardHTML()}
+      <div class="res">${resPills()}<span>${essIcon()} ${save.essencias}</span><span title="Repetidos">🎒 ${dupesTotal()}</span></div>
       <span class="app-version">v${APP_VERSION}</span>
+      ${isNativeApp() ? '' : `<a class="btn small hub-dl" href="${APK_DOWNLOAD_URL}" rel="noopener" title="Baixar o app Android (APK)">${ico('baixar', '⬇')} Baixar</a>`}
       <button class="btn small upd-btn" id="updBtn" title="Procurar atualização" aria-label="Procurar atualização">${ico('atualizar', '<svg class="upd-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M20.5 3.5v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'upd-ico')}</button></div>
-    <div class="logo">
-      <div class="logo-ki">KI-CLASH</div>
-      <div class="logo-sub">DRAGON LEGACY</div>
-    </div>
-    <div class="home-heroes">${['kenji', 'vorax', 'nyx'].map((id) => `<div class="home-hero" style="${starStyle(getChar(id).maxStars)}">${cardArtImg(getChar(id), { stars: getChar(id).maxStars })}</div>`).join('')}</div>
-    <div class="res big">${resPills()}<span>${essIcon()} ${save.essencias} Essências</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
-    <nav class="menu">
-      <button class="btn primary" data-nav="adventure">${ico('aventura', '⚔')} Aventura <small>${next ? `Fase ${stageLabel(next.id)}: ${esc(next.name)}` : 'Tudo concluído!'}</small></button>
-      <button class="btn" data-nav="collection">${ico('colecao', '🃏')} Coleção & Baralho <small>${Object.keys(save.cards).length}/${PLAYABLE.length} personagens</small></button>
-      <button class="btn" data-nav="train">${ico('treinar', '🔥')} Treinar & Despertar</button>
-      <div class="menu-pair"><button class="btn" data-nav="shop">${ico('loja', '🏪')} Loja <small>${goldHTML(fmt(prof().gold))}</small></button><button class="btn" data-nav="inventory">${ico('inventario', '🎒')} Inventário <small>${dupesTotal()} repetidos</small></button></div>
-      <button class="btn ghost" data-nav="help">${ico('ajuda', '❓')} Como jogar</button>
-    </nav>
-    ${isNativeApp() ? '' : `<a class="btn download-btn" href="${APK_DOWNLOAD_URL}" rel="noopener" title="Baixar o app Android (APK)">${ico('baixar', '⬇')} Baixar</a>`}
   </div>`;
+  app.querySelectorAll<HTMLButtonElement>('.hub-spot').forEach((el) => el.addEventListener('click', () => tapSpot(HUB_SPOTS[Number(el.dataset.spot)])));
   bindNav();
   bindProfileCard(app, home, accountDialog);
   app.querySelector('#updBtn')!.addEventListener('click', (e) => searchUpdate(e.currentTarget as HTMLButtonElement));
+}
+
+let tapping = false;
+/** v0.46.0: toque num local do hub — brilho curto e depois abre a tela (ou a janela "Em breve"). */
+function tapSpot(s: HubSpot) {
+  if (tapping) return;
+  tapping = true;
+  const g = app.querySelector<HTMLElement>(`[data-layer="${s.key}-glow"]`);
+  g?.classList.add('on');
+  setTimeout(() => {
+    tapping = false;
+    g?.classList.remove('on');
+    if (s.nav) go(s.nav);
+    else void gameAlert(`${s.label} — em breve`, `${s.soon ?? ''} Este local ainda está sendo construído.`, '🔒');
+  }, 260);
 }
 
 /** v0.19.0: botão ⟳ — procura uma versão nova (app: Releases do GitHub; site: version.json publicado). */
