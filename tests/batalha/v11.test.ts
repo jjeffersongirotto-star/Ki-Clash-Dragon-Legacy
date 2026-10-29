@@ -20,9 +20,9 @@ describe('v0.11.0 — batalha deitada', () => {
     expect(() => leaveBattleMode()).not.toThrow();
   });
 
-  it('aviso de girar o celular é uma janela do jogo (não diálogo nativo)', () => {
-    expect(battleSrc).toContain('Gire o celular para jogar deitado');
-    expect(battleSrc).toContain('data-act="rotate-dismiss"');
+  it('v0.46.1: sem aviso de girar o celular (a tela deita sozinha)', () => {
+    expect(battleSrc).not.toContain('Gire o celular');
+    expect(battleSrc).not.toContain('rotate-prompt');
     expect(battleSrc).not.toMatch(/\balert\(|\bconfirm\(/);
   });
 });

@@ -128,8 +128,6 @@ export function tutorialBattle(i: 0 | 1) {
     if (view.disposed || !document.body.contains(view.root)) return stop();
     if (view.state.winner) return clearSpotlight();
     const battleEl = view.root.querySelector('.battle');
-    const rp = view.root.querySelector<HTMLElement>('.rotate-prompt');
-    if (rp && getComputedStyle(rp).display !== 'none') return spotlight(rp.querySelector('.rp-box') ?? rp, 'Escolha como jogar: <b>deitado</b> (tela cheia) ou <b>em pé</b>.', { onSkip: skip });
     // nada cobre o alvo durante o tutorial (menos a descrição logo depois do passo de segurar, até escolher a carta)
     if (!(memo.held && view.selected == null && (view.state.stats?.player.cards ?? 0) === 0)) battleEl?.classList.remove('has-info');
     battleEl?.classList.remove('log-open');

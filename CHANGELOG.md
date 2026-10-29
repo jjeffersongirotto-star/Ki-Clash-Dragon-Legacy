@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.46.1] — 29/10/2026 · Tela deitada automática, sem aviso
+- **Saiu o aviso "Vire o celular"** (na Base e na batalha). O jogo não pede mais para girar.
+- **App Android:** já abre deitado (travado em paisagem no AndroidManifest e pelo plugin de orientação desde a abertura).
+- **Site:** o navegador só deixa deitar a tela depois de um toque, então o **primeiro toque** no jogo tenta tela cheia + deitado, sem janela nenhuma. Se o navegador não deixar, o jogo continua funcionando normalmente.
+
 ## [0.46.0] — 29/10/2026 · Hub da Base (mapa flutuante) e jogo inteiro deitado
 - **A Base virou um mapa:** ilhas flutuantes com 14 locais. Tocar num prédio acende o brilho dele por um instante e abre a tela:
   - 🔓 **Aventura**, **Coleção & Baralho**, **Treinar & Despertar**, **Loja**, **Altar de Invocação** (abre a Loja, onde fica o Banner), **Inventário** e **Acampamento do Iniciante** (abre o "Como jogar").
