@@ -109,3 +109,17 @@ describe('v0.51.0 Loja em abas e hub enxuto', () => {
     expect(home).not.toContain('essIcon()');
   });
 });
+
+describe('v0.51.1 acabamento do hub', () => {
+  it('hub sem texto de versão; nível dentro do retrato; Android imersivo no onResume', async () => {
+    const { readFileSync } = await import('node:fs');
+    const home = readFileSync('src/app/home.ts', 'utf8');
+    expect(home).not.toContain('class="app-version"');
+    const css = readFileSync('src/ui/style.css', 'utf8');
+    expect(css).toMatch(/v0\.51\.1[\s\S]*\.pcard-v2 \.pcard-lvbadge \{ left: 3px; bottom: 3px;[^}]*border: 0;/);
+    expect(css).toMatch(/v0\.51\.1[\s\S]*\.energy small \{ font-size: inherit/);
+    const act = readFileSync('android/app/src/main/java/io/github/jjeffersongirotto/kiclash/MainActivity.java', 'utf8');
+    expect(act).toContain('onResume');
+    expect(act).toContain('LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES');
+  });
+});

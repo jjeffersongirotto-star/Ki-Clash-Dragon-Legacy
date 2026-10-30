@@ -1647,3 +1647,12 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .shop-mtab.on { color: #ffd46b; background: linear-gradient(180deg, #2a3470, #1b2148); box-shadow: inset 0 3px 0 #ffcf4a; }
 .shop-panel { border: 1px solid #3a4580; border-radius: 0 14px 14px 14px; padding: 10px; background: linear-gradient(180deg, #1b2148, #10142c); }
 .shop-panel .shop-tabs:first-child { margin-top: 0; }
+
+/* ===== v0.51.1: hub — recursos menores e mais altos, nível dentro do retrato, sem versão ===== */
+.account-box.hub-top { padding-left: 2px; }
+.account-box.hub-top .hub-spacer { margin-left: auto; }
+.account-box.hub-top .res.hub-res { gap: 3px; margin-top: 0; }
+.account-box.hub-top .res.hub-res > span { padding: 1px 6px; border-width: 1px; border-color: rgba(58,69,128,.6); border-radius: 8px; font-size: 12px; line-height: 1.25; }
+.account-box.hub-top .res.hub-res .energy small { font-size: inherit; font-weight: inherit; }
+.account-box.hub-top .res.hub-res img, .account-box.hub-top .res.hub-res .coin-img { width: 15px; height: 15px; }
+.pcard-v2 .pcard-lvbadge { left: 3px; bottom: 3px; min-width: 0; height: auto; padding: 0 3px; border: 0; border-radius: 4px; background: rgba(0,0,0,.55); box-shadow: none; font-size: 10px; line-height: 13px; }

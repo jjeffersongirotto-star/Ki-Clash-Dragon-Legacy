@@ -1259,3 +1259,8 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - Hub: perfil no canto de cima à esquerda sem cobrir prédios; barra de XP com a largura do retrato; ao lado só Ouro (linha de cima) e Energia (linha de baixo).
 - Loja: título centralizado, só Ouro à direita. Banner sem porcentagens na frente; ⓘ abre as chances, a garantia a cada 80 e a do Comprar 10.
 - Loja em abas: **Itens de Ascensão** (sub-abas por categoria e raridade, como antes) e **Orbes**. A aba escolhida fica guardada enquanto o jogo está aberto.
+
+## Acabamento do hub (v0.51.1)
+- Ouro e Energia em cápsulas pequenas, uma embaixo da outra, sem encostar na Torre; Energia atual e máxima com o mesmo tamanho de letra.
+- O nível do jogador fica num número pequeno no canto de baixo à esquerda do retrato.
+- O hub não mostra a versão; ela aparece no ⟳ (Procurar atualização).
