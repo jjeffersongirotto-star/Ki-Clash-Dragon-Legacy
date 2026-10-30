@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.48.0] — 29/10/2026 · Hub com a arte nova do Gemini (o que veio certo) e nuvens em movimento
+- **Prédios novos (maiores e com cadeado menor):** Altar de Invocação, Acampamento do Iniciante, Masmorra em Dupla, Santuário dos 7 Diamantes, Praça de Eventos e Mina de Cristais. Esses usam a arte nova completa (normal, com cadeado e brilho).
+- **Mantidos com a arte de antes** (a versão nova veio menor que o pedido): Loja, Inventário, Arena, Treinar & Despertar, Aventura, Coleção & Baralho, Torre e Invasão de Chefe. Para os liberados entre eles, o **brilho ao tocar** veio do pacote novo (mais forte), ajustado ao tamanho da arte antiga. Os cadeados da Torre, Invasão e Arena continuam os antigos, para não encolher esses prédios.
+- **Posições:** os prédios novos foram encaixados para não encostar nos vizinhos; nada foi esticado.
+- **Cenário:** nuvens altas e névoa baixa deslizam devagar **atrás** dos prédios (só deslocamento, leve para manter 60 FPS; param com janela aberta e com "reduzir movimento").
+- Instalação: `python3 scripts/hub/build_hub.py <pacote antigo> <pacote novo>`.
+
 ## [0.47.0] — 29/10/2026 · Banner 2×5, hub espalhado com estandartes e rolagem da Coleção sem buracos
 - **10 cartas do Banner:** a janela agora ocupa a tela deitada e mostra as 10 cartas em **2 fileiras de 5**, inteiras, com "Novo!"/"Repetido" embaixo. O ✕ fica no canto de cima.
 - **Hub — trancados:** ao tocar num local trancado, acende só a arte **com cadeado** (nunca aparece a versão liberada) e depois abre "Em breve".

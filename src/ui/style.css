@@ -1660,3 +1660,11 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .hub-spot.locked .hub-ribbon::before, .hub-spot.locked .hub-ribbon::after { background: #1b2036; border-color: #6c7499; }
 .hub-tag { isolation: isolate; }
 .account-box.hub-top .hub-dl { color: #fff; }
+
+/* v0.48.0: cenário do hub — nuvens altas e névoa ATRÁS dos prédios, deslizando devagar (só transform: barato, 60 FPS) */
+.hub-cena { position: absolute; left: 0; width: 200%; background-repeat: repeat-x; background-size: 50% 100%; pointer-events: none; will-change: transform; animation: hubDrift linear infinite; }
+.hub-cena.nuvem { top: 3.7%; height: 37%; animation-duration: 290s; }
+.hub-cena.nevoa { top: 75.9%; height: 24.1%; opacity: .7; animation-duration: 470s; }
+@keyframes hubDrift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .hub-cena { animation: none; } }
+body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused; }

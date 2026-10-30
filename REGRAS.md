@@ -1235,3 +1235,8 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Hub:** fundo = céu sem prédios (`vazio.webp`); cada prédio é uma camada própria na posição do local (deslocamento `dx`/`dy` em `src/app/hubConfig.ts`), sem esticar a arte. Locais liberados usam a arte normal e o brilho ao tocar; trancados usam só a arte com cadeado, que acende ao tocar.
 - **Nomes do hub:** estandarte (faixa com pontas dobradas) embaixo ou ao lado do prédio; vermelho = liberado, cinza = 🔒.
 - **Cartas da grade (Coleção e Baralho):** depois de montada, cada carta vira uma imagem única com o mesmo visual (`src/ui/cardBake.ts`). As camadas originais continuam por baixo para toques; a foto é refeita sozinha quando a carta muda.
+
+## Hub com arte nova parcial (v0.48.0)
+- O hub mistura dois pacotes de arte: prédios **novos** (05 Altar, 07 Acampamento, 11 Masmorra, 12 Santuário, 13 Eventos, 14 Mina) e prédios **antigos** (01, 02, 03, 04, 06, 08, 09, 10) até o Gemini refazer os que vieram menores. O brilho dos antigos liberados vem do pacote novo, ajustado ao tamanho antigo.
+- Nunca esticar arte de prédio para aumentar: só trocar quando a arte nova vier no tamanho certo.
+- **Cenário animado:** nuvens (290 s por volta) e névoa (470 s) atrás dos prédios, só com `transform`; pausam com janela aberta e com "reduzir movimento". Caminhante, dragão, faíscas de ki e quadros de animação dos prédios ainda **não** estão no jogo.
