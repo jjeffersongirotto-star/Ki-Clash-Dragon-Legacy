@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.49.0] — 30/10/2026 · Hub com os 10 prédios refeitos
+- **Arte refeita (normal, com cadeado e brilho):** Treinar & Despertar, Loja, Altar de Invocação (desenho novo), Inventário, Acampamento do Iniciante, Arena, Masmorra em Dupla, Santuário dos 7 Diamantes, Praça de Eventos e Mina de Cristais.
+- **Mantidos:** Aventura, Coleção & Baralho, Torre e Invasão de Chefe (arte de antes; Aventura e Coleção com o brilho forte da v0.48).
+- Posições reajustadas para os prédios não se encostarem; nada esticado.
+- Instalação: `python3 scripts/hub/build_hub.py <pacote antigo> <pacote novo> <pacote refeito>`.
+
 ## [0.48.0] — 29/10/2026 · Hub com a arte nova do Gemini (o que veio certo) e nuvens em movimento
 - **Prédios novos (maiores e com cadeado menor):** Altar de Invocação, Acampamento do Iniciante, Masmorra em Dupla, Santuário dos 7 Diamantes, Praça de Eventos e Mina de Cristais. Esses usam a arte nova completa (normal, com cadeado e brilho).
 - **Mantidos com a arte de antes** (a versão nova veio menor que o pedido): Loja, Inventário, Arena, Treinar & Despertar, Aventura, Coleção & Baralho, Torre e Invasão de Chefe. Para os liberados entre eles, o **brilho ao tocar** veio do pacote novo (mais forte), ajustado ao tamanho da arte antiga. Os cadeados da Torre, Invasão e Arena continuam os antigos, para não encolher esses prédios.

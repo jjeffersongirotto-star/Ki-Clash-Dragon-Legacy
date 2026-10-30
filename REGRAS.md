@@ -1240,3 +1240,6 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - O hub mistura dois pacotes de arte: prédios **novos** (05 Altar, 07 Acampamento, 11 Masmorra, 12 Santuário, 13 Eventos, 14 Mina) e prédios **antigos** (01, 02, 03, 04, 06, 08, 09, 10) até o Gemini refazer os que vieram menores. O brilho dos antigos liberados vem do pacote novo, ajustado ao tamanho antigo.
 - Nunca esticar arte de prédio para aumentar: só trocar quando a arte nova vier no tamanho certo.
 - **Cenário animado:** nuvens (290 s por volta) e névoa (470 s) atrás dos prédios, só com `transform`; pausam com janela aberta e com "reduzir movimento". Caminhante, dragão, faíscas de ki e quadros de animação dos prédios ainda **não** estão no jogo.
+
+## Hub com 10 prédios refeitos (v0.49.0)
+- Arte do hub: 03, 04, 05, 06, 07, 10, 11, 12, 13 e 14 vêm do pacote refeito (normal + cadeado + brilho); 01, 02, 08 e 09 continuam do pacote original (01 e 02 com o brilho do pacote novo). Posições em `src/app/hubConfig.ts` (dx/dy).
