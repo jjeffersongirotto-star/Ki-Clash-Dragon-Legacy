@@ -45,7 +45,7 @@ export function home(): void {
         const b = HUB_BOXES[s.key];
         if (!b) return '';
         const h = hitBox(moved(b, s), s.pad ?? 0);
-        return `<button class="hub-spot${s.nav ? '' : ' locked'}" data-spot="${i}" aria-label="${esc(s.label)}${s.nav ? '' : ' (em breve)'}" style="left:${h.left}%;top:${h.top}%;width:${h.width}%;height:${h.height}%"><span class="hub-tag${s.tagUp ? ' up' : ''}${s.tagLeft ? ' left' : ''}"><span class="hub-ribbon">${s.nav ? '' : '🔒 '}${esc(s.label)}</span></span></button>`;
+        return `<button class="hub-spot${s.nav ? '' : ' locked'}" data-spot="${i}" aria-label="${esc(s.label)}${s.nav ? '' : ' (em breve)'}" style="left:${h.left}%;top:${h.top}%;width:${h.width}%;height:${h.height}%"><span class="hub-tag${s.tagUp ? ' up' : ''}${s.tagLeft ? ' left' : ''}"><span class="hub-ribbon">${s.nav ? '' : '<span class="lk">🔒</span> '}${s.br ? esc(s.label.slice(0, s.br)) + '<br>' + esc(s.label.slice(s.br + 1)) : esc(s.label)}</span></span></button>`;
       }).join('')}
     </div></div>
     <div class="account-box hub-top">${profileCardHTML()}

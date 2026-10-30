@@ -1668,3 +1668,13 @@ body.native-landscape .rotate-prompt { display: none !important; }
 @keyframes hubDrift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .hub-cena { animation: none; } }
 body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused; }
+
+/* v0.49.1: nomes do hub em faixa quase transparente, lados abertos, texto com contorno suave (estilo Mighty Party) */
+.hub-tag, .hub-tag.up, .hub-tag.left { left: 50%; right: auto; top: auto; bottom: -2%; transform: translateX(-50%); }
+.hub-ribbon { background: linear-gradient(90deg, rgba(8,10,30,0) 0%, rgba(8,10,30,.45) 22%, rgba(8,10,30,.45) 78%, rgba(8,10,30,0) 100%); border: 0; box-shadow: none; border-radius: 0; padding: .1em 1.6em .14em;
+  color: #fff; font-size: clamp(10px, 1.25vw, 16px); font-weight: 900; letter-spacing: .03em; text-align: center; line-height: 1.1;
+  text-shadow: 0 0 2px rgba(0,0,0,.55), 1px 1px 0 rgba(0,0,0,.45), -1px -1px 0 rgba(0,0,0,.45), 1px -1px 0 rgba(0,0,0,.45), -1px 1px 0 rgba(0,0,0,.45); }
+.hub-ribbon::before, .hub-ribbon::after { display: none; }
+.hub-spot.locked .hub-ribbon { color: #d6dbf0; background: linear-gradient(90deg, rgba(8,10,30,0) 0%, rgba(8,10,30,.38) 22%, rgba(8,10,30,.38) 78%, rgba(8,10,30,0) 100%); }
+.hub-spot.locked .hub-ribbon .lk { opacity: .8; font-size: .85em; }
+.hub-ribbon { white-space: nowrap; }
