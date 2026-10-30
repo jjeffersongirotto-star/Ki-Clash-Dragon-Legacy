@@ -2,6 +2,14 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.47.0] — 29/10/2026 · Banner 2×5, hub espalhado com estandartes e rolagem da Coleção sem buracos
+- **10 cartas do Banner:** a janela agora ocupa a tela deitada e mostra as 10 cartas em **2 fileiras de 5**, inteiras, com "Novo!"/"Repetido" embaixo. O ✕ fica no canto de cima.
+- **Hub — trancados:** ao tocar num local trancado, acende só a arte **com cadeado** (nunca aparece a versão liberada) e depois abre "Em breve".
+- **Hub — mais espaço:** Acampamento subiu, Inventário e Masmorra foram para baixo/esquerda, Mina para a direita e Treinar desceu um pouco. A arte dos prédios **não foi esticada**: o mapa de fundo passou a ser o céu sem prédios e cada prédio é desenhado na posição nova.
+- **Hub — nomes em estandarte:** cada nome fica numa faixa de pano com pontas dobradas (vermelha nos liberados, cinza-azulada nos trancados).
+- **Coleção e Baralho — rolagem rápida sem buracos:** cada carta da grade é fotografada uma vez numa **imagem só** (mesmo visual) e trocada por ela. As fotos são feitas aos poucos, primeiro as visíveis, só com a tela parada, e ficam guardadas enquanto o jogo está aberto.
+- Botão "Baixar" do hub com texto branco (legível).
+
 ## [0.46.1] — 29/10/2026 · Tela deitada automática, sem aviso
 - **Saiu o aviso "Vire o celular"** (na Base e na batalha). O jogo não pede mais para girar.
 - **App Android:** já abre deitado (travado em paisagem no AndroidManifest e pelo plugin de orientação desde a abertura).

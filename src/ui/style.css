@@ -1627,3 +1627,36 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .hub-tag.up { bottom: auto; top: -6%; }
 .account-box.hub-top .hub-dl { text-decoration: none; border-color: #2fb8ff; border-radius: 999px; flex: none; }
 .hub-tag.left { left: auto; right: 62%; bottom: auto; top: 50%; transform: translateY(-50%); }
+
+/* v0.47.0: carta de grade assada numa imagem só (mesmo visual; as camadas ficam escondidas por baixo) */
+.card.flat > :not(.card-bake), .card.flat::before, .card.flat::after { visibility: hidden !important; animation: none !important; }
+.card.flat { background: none !important; box-shadow: none !important; border-color: transparent !important; filter: none !important; }
+.card-bake { position: absolute; left: calc(-1 * var(--bp)); top: calc(-1 * var(--bp)); width: calc(100% + 2 * var(--bp)); height: calc(100% + 2 * var(--bp)); pointer-events: none; z-index: 20; visibility: visible !important; }
+
+/* v0.47.0: 10 cartas do Banner em 2 fileiras de 5, ocupando a tela (deitada) */
+.modal:has(.pull-reveal.pull-10) { width: min(1100px, 98vw); max-height: 98dvh; padding: 8px 14px 10px; }
+.modal:has(.pull-reveal.pull-10) h2.win { margin: 0 0 4px; font-size: 20px; }
+.modal:has(.pull-reveal.pull-10) .pull-exit { position: absolute; top: 6px; right: 8px; margin: 0; }
+.modal:has(.pull-reveal.pull-10) .pity-line { margin: 4px 0; }
+.modal:has(.pull-reveal.pull-10) .pull-again { margin: 2px 0 0; }
+.modal:has(.pull-reveal) .pull-reveal.pull-10 { max-height: none; overflow: visible; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px 10px; --pc: min(17vw, calc(((98dvh - 150px) / 2 - 24px) * 0.68)); }
+.pull-reveal.pull-10 .unlock { margin: 0; padding: 4px 2px; gap: 2px; border-width: 2px; flex-direction: column; justify-content: flex-start; }
+.pull-reveal.pull-10 .unlock .card { width: var(--pc); }
+.pull-reveal.pull-10 .unlock > div:not(.card) { font-size: 0; line-height: 1; }
+.pull-reveal.pull-10 .unlock > div:not(.card) > b:first-child { font-size: 11px; }
+.pull-reveal.pull-10 .unlock > div:not(.card) > :not(b:first-child) { display: none; }
+
+/* v0.47.0: hub — trancado acende só a arte com cadeado; nomes em faixa (estandarte) */
+.hub-locked { transition: filter .12s ease-out; }
+.hub-locked.on { filter: brightness(1.35) drop-shadow(0 0 10px rgba(255,214,102,.85)); }
+.hub-tag { background: none; border: 0; padding: 0; }
+.hub-ribbon { position: relative; display: inline-block; padding: .18em 1.1em .22em; font-size: clamp(9px, 1.1vw, 14px); font-weight: 900; letter-spacing: .02em; color: #fff7d6; text-shadow: 0 1px 0 #3a1800, 0 0 3px #000;
+  background: linear-gradient(180deg, #c8402e 0%, #8e1f1a 55%, #6a1413 100%); border-top: 2px solid #ffd46b; border-bottom: 2px solid #b8862a;
+  box-shadow: 0 2px 0 #2a0806, 0 3px 6px rgba(0,0,0,.55); border-radius: 2px; }
+.hub-ribbon::before, .hub-ribbon::after { content: ''; position: absolute; top: 18%; width: .9em; height: 100%; background: #5a100f; z-index: -1; border-top: 2px solid #b8862a; border-bottom: 2px solid #8a6420; }
+.hub-ribbon::before { left: -.55em; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 38% 50%); }
+.hub-ribbon::after { right: -.55em; clip-path: polygon(0 0, 100% 0, 62% 50%, 100% 100%, 0 100%); }
+.hub-spot.locked .hub-ribbon { color: #e3e6f5; background: linear-gradient(180deg, #4d5578 0%, #2f3552 55%, #222740 100%); border-top-color: #aab3d6; border-bottom-color: #6c7499; }
+.hub-spot.locked .hub-ribbon::before, .hub-spot.locked .hub-ribbon::after { background: #1b2036; border-color: #6c7499; }
+.hub-tag { isolation: isolate; }
+.account-box.hub-top .hub-dl { color: #fff; }

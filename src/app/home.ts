@@ -11,7 +11,7 @@ import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from '../u
 import { createAccount, login, NAME_MAX, PASS_MIN } from '../ui/accounts';
 import { app, accounts, openAccountSave, save, setSave, firstChar, setTrainSel, persist, resPills } from './state';
 import { bindNav, go } from './ui';
-import { HUB_SPOTS, hitBox, type HubSpot } from './hubConfig';
+import { HUB_SPOTS, hitBox, moved, type HubSpot } from './hubConfig';
 import { HUB_BOXES } from '../ui/hubLayers';
 
 const HUB_FILES = import.meta.glob('../assets/hub/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
@@ -27,22 +27,23 @@ export function home(): void {
   if (!tutorialDone(save)) return tutorial(); // v0.25.0: o jogador novo começa pelo tutorial
   if (save.tutBanner && (save.gems ?? 0) > 0) return bannerGuide(); // v0.33.0: passo guiado do Banner
   leaveBattleMode();
-  const lay = (k: string, extra = '') => {
-    const b = HUB_BOXES[k];
+  const lay = (k: string, spot: HubSpot, extra = '') => {
+    const b0 = HUB_BOXES[k];
+    const b = b0 && moved(b0, spot);
     const u = HUB_IMG[k];
     if (!b || !u) return '';
     const h = hitBox(b);
     return `<img class="hub-layer${extra}" data-layer="${k}" src="${u}" alt="" draggable="false" style="left:${h.left}%;top:${h.top}%;width:${h.width}%;height:${h.height}%">`;
   };
   app.innerHTML = `<div class="screen home hub">
-    <div class="hub-stage"><div class="hub-map" style="background-image:url('${HUB_IMG.mapa}')">
-      ${HUB_SPOTS.filter((s) => !s.nav).map((s) => lay(`${s.key}-locked`)).join('')}
-      ${HUB_SPOTS.map((s) => lay(`${s.key}-glow`, ' hub-glow')).join('')}
+    <div class="hub-stage"><div class="hub-map" style="background-image:url('${HUB_IMG.vazio}')">
+      ${HUB_SPOTS.map((s) => (s.nav ? lay(s.key, s) : lay(`${s.key}-locked`, s, ' hub-locked'))).join('')}
+      ${HUB_SPOTS.filter((s) => s.nav).map((s) => lay(`${s.key}-glow`, s, ' hub-glow')).join('')}
       ${HUB_SPOTS.map((s, i) => {
         const b = HUB_BOXES[s.key];
         if (!b) return '';
-        const h = hitBox(b, s.pad ?? 0);
-        return `<button class="hub-spot${s.nav ? '' : ' locked'}" data-spot="${i}" aria-label="${esc(s.label)}${s.nav ? '' : ' (em breve)'}" style="left:${h.left}%;top:${h.top}%;width:${h.width}%;height:${h.height}%"><span class="hub-tag${s.tagUp ? ' up' : ''}${s.tagLeft ? ' left' : ''}">${s.nav ? '' : '🔒 '}${esc(s.label)}</span></button>`;
+        const h = hitBox(moved(b, s), s.pad ?? 0);
+        return `<button class="hub-spot${s.nav ? '' : ' locked'}" data-spot="${i}" aria-label="${esc(s.label)}${s.nav ? '' : ' (em breve)'}" style="left:${h.left}%;top:${h.top}%;width:${h.width}%;height:${h.height}%"><span class="hub-tag${s.tagUp ? ' up' : ''}${s.tagLeft ? ' left' : ''}"><span class="hub-ribbon">${s.nav ? '' : '🔒 '}${esc(s.label)}</span></span></button>`;
       }).join('')}
     </div></div>
     <div class="account-box hub-top">${profileCardHTML()}
@@ -62,7 +63,8 @@ let tapping = false;
 function tapSpot(s: HubSpot) {
   if (tapping) return;
   tapping = true;
-  const g = app.querySelector<HTMLElement>(`[data-layer="${s.key}-glow"]`);
+  // v0.47.0: trancado acende só a própria arte com cadeado (nunca a versão liberada)
+  const g = app.querySelector<HTMLElement>(s.nav ? `[data-layer="${s.key}-glow"]` : `[data-layer="${s.key}-locked"]`);
   g?.classList.add('on');
   setTimeout(() => {
     tapping = false;

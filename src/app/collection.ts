@@ -2,6 +2,7 @@
  * Coleção & Baralho, Comandante (evoluir) e detalhes das cartas.
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
  */
+import { bakeCards } from '../ui/cardBake';
 import { waitFor } from '../core/battle';
 import { PLAYABLE, RACE_INFO, getChar, isComingSoon } from '../core/characters';
 import { MAX_STEP, TIER_NAMES, statsFor, stepOf, tierLabel } from '../core/progression';
@@ -146,6 +147,7 @@ export function collection() {
     ),
   );
   app.querySelector('#lpEvolve')?.addEventListener('click', () => void evolveDialog());
+  bakeCards(app); // v0.47.0: cartas da grade viram uma imagem só (rolagem sem buracos)
 }
 
 export function cardDetail(id: string, previewStars?: number) {
