@@ -1247,3 +1247,6 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 ## Nomes do hub (v0.49.1)
 - Nome embaixo de cada prédio, numa faixa quase transparente com lados abertos e texto com contorno suave; trancados com 🔒 pequeno e texto mais apagado (sem blocos sólidos).
 - Nomes curtos no hub: Aventura, Baralho, Treinar, Loja, Altar, Inventário, Acampamento, Torre, Invasão de Chefe (2 linhas), Arena, Masmorra em Dupla, Santuário, Eventos, Mina. As janelas "Em breve" usam esses mesmos nomes.
+
+## Perfil do hub (v0.50.0)
+- Canto de cima à esquerda: retrato grande escolhível (moldura na cor da raridade do personagem), selo de nível no canto de baixo à esquerda, barra de XP embaixo do retrato (com XP atual/necessário) e nome embaixo da barra. Foto → trocar foto; nome → opções da conta.
