@@ -1706,3 +1706,13 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .account-box.hub-top { padding-top: max(10px, calc(env(safe-area-inset-top) + 6px)); }
 .tut-tip { top: calc(72px + env(safe-area-inset-top)); }
 .shop-screen { --shop-top: 76px; }
+
+/* v0.52.1: compra com Gemas ou Ouro, lado a lado */
+.buy-pair { display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px 4px 10px; border-radius: 14px; background: rgba(10,14,34,.55); border: 1px solid rgba(255,207,74,.35); }
+.buy-pair-t { font-weight: 800; font-size: 13px; color: #ffe7a8; white-space: nowrap; }
+.buy-pair .btn.buy-opt { padding: 6px 12px; min-width: 0; }
+/* v0.52.1: sem a linha do ✕ embaixo, a carta do Banner aparece inteira */
+.modal:has(.pull-reveal.pull-1) { padding: 10px 16px 12px; max-height: 98dvh; }
+.modal:has(.pull-reveal.pull-1) h2.win { margin: 0 0 6px; font-size: 22px; }
+.modal:has(.pull-reveal) .pull-reveal.pull-1 { max-height: calc(98dvh - 175px); }
+.modal:has(.pull-reveal) .pity-line { margin: 6px 0; }

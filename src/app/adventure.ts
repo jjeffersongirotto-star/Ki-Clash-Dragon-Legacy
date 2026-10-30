@@ -434,7 +434,7 @@ export function finishBattle(stageId: number, diff: Difficulty, winner: string, 
     // v0.33.0: no lugar do pacote de personagens, 💠 Gemas de Invocação na primeira vitória (fases 3, 6, 9 e 10)
     const gems = first ? gemsFor(stageId) : 0;
     save.gems = (save.gems ?? 0) + gems;
-    const gemLine = gems ? `<div class="res big"><span>${gemHTML(`+${gems}`)} ${gems > 1 ? 'Gemas' : 'Gema'} de Invocação</span></div><p class="hint">Use na 🏪 Loja: cada gema compra 1 carta do 🎴 Banner.</p>` : '';
+    const gemLine = gems ? `<div class="res big"><span>${gemHTML(`+${gems}`)} ${gems > 1 ? 'Gemas' : 'Gema'} de Invocação</span></div><p class="hint">Use na 🏪 Loja: cada gema compra 1 carta do ${ico('banner', '🎴')} Banner.</p>` : '';
     // v0.41.0: ✦ carta de feitiço na primeira vitória das fases 2, 5 e 8 de cada região
     const spell = first ? spellRewardFor(stageId, diff) : undefined;
     const unlocked = gemLine + (spell ? grantOne(spell) : '');

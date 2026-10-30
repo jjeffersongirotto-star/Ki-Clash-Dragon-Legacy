@@ -121,7 +121,7 @@ function dupesHTML(dupes: NonNullable<typeof save.dupes>): string {
       <button class="btn small ${mode === 'geral' ? 'primary on' : ''}" data-mode="geral">${ico('desmanchar', '♻')} Desmanchar geral</button>
     </div>
     <p class="hint">${explain} O baralho usa até 3 cópias de cada personagem; a última cópia e as que estão no baralho não podem ser desmanchadas.</p>
-    ${rows || '<p class="hint">Nenhuma cópia repetida guardada. Personagens repetidos do 🎴 Banner aparecem aqui.</p>'}
+    ${rows || `<p class="hint">Nenhuma cópia repetida guardada. Personagens repetidos do ${ico('banner', '🎴')} Banner aparecem aqui.</p>`}
     ${spellDupesHTML()}`;
 }
 
@@ -147,7 +147,7 @@ function spellDupesHTML(): string {
     .join('');
   return `<h3 class="sec-title">✦ Feitiços repetidos</h3>
     <p class="hint">Feitiço não tem XP: a cópia que sobra vira <b>Orbes</b> (como no Desmanchar geral). A 1ª cópia e as que estão no baralho ficam.</p>
-    ${rows || '<p class="hint">Nenhum feitiço repetido. Feitiços repetidos do 🎴 Banner e das fases aparecem aqui.</p>'}`;
+    ${rows || `<p class="hint">Nenhum feitiço repetido. Feitiços repetidos do ${ico('banner', '🎴')} Banner e das fases aparecem aqui.</p>`}`;
 }
 
 /** v0.44.0: aviso de confirmação do Desmanchar, com o que vai acontecer (modo direcionado ou geral). */

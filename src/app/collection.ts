@@ -9,7 +9,7 @@ import { MAX_STEP, TIER_NAMES, statsFor, stepOf, tierLabel } from '../core/progr
 import { playerLeaderImg, unitSpriteHTML } from '../ui/art';
 import { cardPower } from '../core/power';
 import { canEvolve, evolveLeader, leaderHp, leaderMaxLevel, nextRequirement } from '../core/leaders';
-import { abilityListHTML, cardHTML, raceIcon, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML } from '../ui/components';
+import { abilityListHTML, cardHTML, raceIcon, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML, gemHTML } from '../ui/components';
 import { ico } from '../ui/icons';
 import { SPELLS, getSpell, isSpell } from '../core/spells';
 import { gameAlert, showDialog } from '../ui/dialog';
@@ -91,7 +91,7 @@ export function collection() {
   const owned = PLAYABLE.filter((d) => save.cards[d.id] && matchRace(d.id)).map((d) => d.id).sort(byPower);
   const lockOrder = (id: string) => (isComingSoon(getChar(id)) ? 999 : unlockStage(id) ?? 99);
   const locked = PLAYABLE.filter((d) => !save.cards[d.id] && matchRace(d.id)).sort((a, b) => lockOrder(a.id) - lockOrder(b.id));
-  const lockBadge = (id: string) => (unlockStage(id) ? `🔒 Fase ${unlockStage(id)}` : '🎴 Banner'); // v0.33.0: sem pacote de fase, tudo vem do Banner
+  const lockBadge = (id: string) => (unlockStage(id) ? `🔒 Fase ${unlockStage(id)}` : `${ico('banner', '🎴')} Banner`); // v0.33.0: sem pacote de fase, tudo vem do Banner
   // v0.41.0: feitiços que você tem primeiro; os outros aparecem bloqueados (vêm do Banner e das fases)
   const ownedSpells = SPELLS.filter((sp) => spellCopies(save, sp.id) > 0);
   const lockedSpells = SPELLS.filter((sp) => spellCopies(save, sp.id) <= 0).sort((a, b) => a.rarity - b.rarity);
@@ -122,10 +122,10 @@ export function collection() {
     <div class="card-grid spell-grid">${ownedSpells.map((sp) => spellCardHTML(sp.id, { attrs: `data-card="${sp.id}"`, badge: save.deck.includes(sp.id) ? `✔ ×${copiesIn(save, sp.id)}` : `×${spellCopies(save, sp.id)}`, extraClass: save.deck.includes(sp.id) ? 'grid-card in-deck' : 'grid-card' })).join('')}</div>
     ${lockedSpells.length ? `<div class="divider"><span>🔒 Feitiços ainda não obtidos (${lockedSpells.length})</span></div>
     <div class="card-grid spell-grid locked-grid">${lockedSpells.map((sp) => spellCardHTML(sp.id, { locked: true, extraClass: 'grid-card', attrs: `data-card="${sp.id}"`, badge: `🔒 ${TIER_NAMES[sp.rarity]}` })).join('')}</div>
-    <p class="hint soon-note">✦ <b>Feitiços:</b> saem no 🎴 Banner (na raridade de cada um) e na 1ª vitória das fases 2, 5 e 8 de cada região.</p>` : ''}
+    <p class="hint soon-note">✦ <b>Feitiços:</b> saem no ${ico('banner', '🎴')} Banner (na raridade de cada um) e na 1ª vitória das fases 2, 5 e 8 de cada região.</p>` : ''}
     ${locked.length ? `<div class="divider"><span>🔒 Ainda não obtidos (${locked.length})</span></div>
     <div class="card-grid locked-grid">${locked.map((def) => cardHTML({ charId: def.id, stars: def.minStars }, { locked: true, grid: true, extraClass: isComingSoon(def) ? 'soon' : '', attrs: `data-card="${def.id}"`, badge: lockBadge(def.id) })).join('')}</div>
-    ${locked.length ? `<p class="hint soon-note">🎴 <b>No Banner:</b> ${locked.length > 3 ? `${locked.length} personagens` : locked.map((d) => esc(d.name)).join(' e ')} — compre cartas no Banner da 🏪 Loja (com Ouro de Dragão ou 💠 Gemas de Invocação).</p>` : ''}` : ''}
+    ${locked.length ? `<p class="hint soon-note">${ico('banner', '🎴')} <b>No Banner:</b> ${locked.length > 3 ? `${locked.length} personagens` : locked.map((d) => esc(d.name)).join(' e ')} — compre cartas no Banner da 🏪 Loja (com Ouro de Dragão ou ${gemHTML()} Gemas de Invocação).</p>` : ''}` : ''}
   </div>`;
   bindNav();
   app.querySelectorAll<HTMLElement>('[data-rf]').forEach((el) =>
@@ -169,7 +169,7 @@ export function cardDetail(id: string, previewStars?: number) {
   const actions = owned
     ? `<button class="act-tile primary" data-m="deck"><i>${inDeck ? ico('tirar', '📤') : ico('colecao', '🃏')}</i><span>${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</span></button><button class="act-tile" data-m="train"><i>${ico('treinar', '🔥')}</i><span>Treinar</span></button>`
     : '';
-  const lockNote = owned ? '' : !unlockStage(id) ? `<p class="hint">🎴 Personagem ${tierLabel(def.minStars)}: sai no <b>Banner</b> da 🏪 Loja (com Ouro de Dragão ou 💠 Gemas de Invocação).</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id)} pela primeira vez para desbloquear.</p>`;
+  const lockNote = owned ? '' : !unlockStage(id) ? `<p class="hint">${ico('banner', '🎴')} Personagem ${tierLabel(def.minStars)}: sai no <b>Banner</b> da 🏪 Loja (com Ouro de Dragão ou ${gemHTML()} Gemas de Invocação).</p>` : `<p class="hint">🔒 Vença a fase ${unlockStage(id)} pela primeira vez para desbloquear.</p>`;
   modal(`<button class="modal-x" data-m="close" aria-label="Fechar" title="Fechar">${ico('fechar', '✕')}</button><div class="detail" style="${starStyle(stars)}">
     <div class="detail-left">
       <div class="detail-acts">${actions}</div>
@@ -233,7 +233,7 @@ export function spellDetail(id: string) {
       <div class="detail-badges"><span class="tier-tag" style="--rc:#7c5cff;--rg:#b9a8ff">✦ Feitiço</span> ${tierHTML(sp.rarity)}</div>
       <h2>${sp.icon} ${esc(sp.name)}</h2><div class="subtitle">Conjurador: ${esc(spellCastersLabel(sp))}</div>
       ${spellInfoHTML(id)}
-      ${have ? `<p class="hint">Você tem <b>${have}</b> ${have === 1 ? 'cópia' : 'cópias'} (o baralho usa até ${MAX_COPIES}).${inDeck ? ` No baralho: <b>×${copiesIn(save, id)}</b> (ajuste com − / + na barra do baralho).` : ''}</p>` : `<p class="hint">🔒 Ainda não obtido. Feitiço ${TIER_NAMES[sp.rarity]}: sai no <b>🎴 Banner</b> da 🏪 Loja e na 1ª vitória das fases 2, 5 e 8 de cada região.</p>`}
+      ${have ? `<p class="hint">Você tem <b>${have}</b> ${have === 1 ? 'cópia' : 'cópias'} (o baralho usa até ${MAX_COPIES}).${inDeck ? ` No baralho: <b>×${copiesIn(save, id)}</b> (ajuste com − / + na barra do baralho).` : ''}</p>` : `<p class="hint">🔒 Ainda não obtido. Feitiço ${TIER_NAMES[sp.rarity]}: sai no <b>${ico('banner', '🎴')} Banner</b> da 🏪 Loja e na 1ª vitória das fases 2, 5 e 8 de cada região.</p>`}
     </div></div>
     <div class="row">${have ? `<button class="btn primary" data-m="deck">${inDeck ? 'Tirar do baralho' : 'Colocar no baralho'}</button>` : ''}<button class="btn ghost" data-m="close">Fechar</button></div>`,
     (m) => {

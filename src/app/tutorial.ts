@@ -207,7 +207,7 @@ export function finishTutorial() {
   const items = Object.keys(gear).map((k) => { const [id, r] = k.split(':'); return gearHTML(id, Number(r), `+${gear[k]}`); }).join('');
   resultModalWith(
     `<h2 class="win">🎓 Batalhas concluídas!</h2><p>Recompensa:</p><div class="res big"><span>${essIcon()} +${TUTORIAL_REWARD.essencias}</span>${orbBagHTML(TUTORIAL_REWARD.orbs)}${items}<span>${gemHTML(`+${TUTORIAL_GEMS}`)} Gemas</span></div>
-    <p class="hint">Com as <b>💠 Gemas de Invocação</b> você compra cartas novas no <b>${ico('banner', '🎴')} Banner</b>. Vamos usar as 2 agora!</p>`,
+    <p class="hint">Com as <b>${gemHTML()} Gemas de Invocação</b> você compra cartas novas no <b>${ico('banner', '🎴')} Banner</b>. Vamos usar as 2 agora!</p>`,
     [{ label: `${ico('banner', '🎴')} Ir ao Banner`, primary: true, run: bannerGuide }],
   );
 }
@@ -226,7 +226,7 @@ export function bannerGuide() {
     save.tutBanner = false;
     persist();
     resultModalWith(
-      `<h2 class="win">🎓 Tutorial concluído!</h2><p class="hint">Em <b>🔥 Treinar</b>, use os Orbes para encher a barra de XP e depois <b>Desperte</b> cada personagem para o "+" com os itens. Depois, vá para a <b>⚔ Aventura</b>. Personagens e feitiços novos vêm do <b>🎴 Banner</b> (com Ouro de Dragão ou 💠 Gemas, que as fases 3, 6, 9 e 10 dão na primeira vitória); as fases 2, 5 e 8 dão um <b>✦ feitiço</b> na primeira vitória.</p>`,
+      `<h2 class="win">🎓 Tutorial concluído!</h2><p class="hint">Em <b>🔥 Treinar</b>, use os Orbes para encher a barra de XP e depois <b>Desperte</b> cada personagem para o "+" com os itens. Depois, vá para a <b>⚔ Aventura</b>. Personagens e feitiços novos vêm do <b>${ico('banner', '🎴')} Banner</b> (com Ouro de Dragão ou ${gemHTML()} Gemas, que as fases 3, 6, 9 e 10 dão na primeira vitória); as fases 2, 5 e 8 dão um <b>✦ feitiço</b> na primeira vitória.</p>`,
       [{ label: '🔥 Treinar', primary: true, run: () => train() }, { label: 'Base', run: home }],
     );
   };
@@ -235,10 +235,10 @@ export function bannerGuide() {
     const modalOpen = document.querySelector('.modal-bg');
     const gems = save.gems ?? 0;
     if (!modalOpen && gems <= 0) return done();
-    if (!modalOpen && !document.querySelector('[data-pull="1"]')) return; // ainda montando a Loja
-    if (!modalOpen) return spotlight(document.querySelector('[data-pull="1"]'), 'Este é o <b>🎴 Banner</b>. Cada <b>💠 Gema</b> compra 1 carta (um personagem ou um feitiço numa raridade sorteada). Toque em <b>Comprar 1 carta</b>.', { onSkip: done });
-    if (gems > 0) return spotlight(document.querySelector('[data-again="1"]'), 'Carta nova entra na sua coleção; repetida vira mais 1 cópia (até 3 no baralho). Use a outra Gema: toque em <b>Comprar 1</b>.', { onSkip: done });
-    spotlight(document.querySelector('.pull-x'), 'Pronto! Toque no <b>✕</b> para sair do Banner.', { onSkip: done });
+    if (!modalOpen && !document.querySelector('[data-pull="1"][data-pay="gem"]')) return; // ainda montando a Loja
+    if (!modalOpen) return spotlight(document.querySelector('[data-pull="1"][data-pay="gem"]'), `Este é o <b>${ico('banner', '🎴')} Banner</b>. Cada <b>${gemHTML()} Gema</b> compra 1 carta (um personagem ou um feitiço numa raridade sorteada). Toque em <b>Comprar 1 carta</b>.`, { onSkip: done });
+    if (gems > 0) return spotlight(document.querySelector('[data-again="1"][data-pay="gem"]'), 'Carta nova entra na sua coleção; repetida vira mais 1 cópia (até 3 no baralho). Use a outra Gema: toque em <b>Comprar 1 carta</b> com a Gema.', { onSkip: done });
+    spotlight(document.querySelector('.modal-bg .modal-x'), 'Pronto! Toque no <b>✕</b> para sair do Banner.', { onSkip: done });
   }, 150);
 }
 
