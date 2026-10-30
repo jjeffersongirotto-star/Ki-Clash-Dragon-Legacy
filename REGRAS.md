@@ -1269,3 +1269,8 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - Toda janela fecha pelo ✕ no canto de cima à direita (e Esc no computador). Não há botão "Fechar"; os botões que sobram são ações.
 - Loja: a primeira tela é o banner; as abas de itens e orbes ficam abaixo, rolando.
 - Foto de perfil: o rosto de cada personagem que você tem, recortado e centralizado.
+
+## Janela da fase (v0.52.1)
+- Mostra: região e dificuldade, Destaques do rival (2 melhores cartas), recompensa, ícones dos itens que podem cair (ⓘ = chances), os 3 objetivos de estrela em texto, ouro e XP por vitória, Jogar/Repetir.
+- **Primeira vitória:** escolha 1 entre 3 cartas do rival. Raridade de cada vaga pelas chances do pacote; no mesmo tipo, a mais forte no rival aparece menos. Sem exclusivos do Banner nem feitiços.
+- **Banner:** cada compra pode ser paga com Gemas de Invocação (1 gema = 1 carta) ou com Ouro de Dragão; o jogador escolhe no botão.

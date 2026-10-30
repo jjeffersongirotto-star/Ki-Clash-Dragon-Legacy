@@ -40,7 +40,7 @@ export function gearBagDialog() {
     const owned = GEAR_SETS[cat].flatMap((g) => GEAR_RARITIES.filter((r) => gearCount(bag, g.id, r) > 0).map((r) => gearHTML(g.id, r, gearCount(bag, g.id, r))));
     return `<div class="gear-cat">${catIcon(cat)} ${CATEGORY_INFO[cat].label}: <small>${GEAR_SETS[cat].map((g) => g.name).join(', ')}</small></div><div class="gear-bag">${owned.join('') || '<small>nenhum ainda</small>'}</div>`;
   }).join('');
-  modal(`<h2>🎒 Itens de ascensão</h2><p class="hint">Cada fase dá 3 itens. A cor do fundo é a raridade (cinza, verde, azul, roxo, laranja). Cada degrau pede 3 / 4 / 5 itens ("+" / "++" / nova raridade): 1 / 2 / 3 deles da raridade <b>um acima</b> da carta e 2 da raridade dela (cartas Lendárias e Míticas: só laranja). ${DIFFICULTIES.map((d) => `${DIFFICULTY_LABEL[d]}: ${STAR_COLORS[GEAR_DROP[d][0]].label} ${100 - GEAR_RARE_CHANCE[d] * 100}% / ${STAR_COLORS[GEAR_DROP[d][1]].label} ${GEAR_RARE_CHANCE[d] * 100}%`).join(' · ')}.</p>${rows}<div class="row"><button class="btn primary" data-m="close">Fechar</button></div>`, (m) => {
+  modal(`<h2>${ico('inventario', '🎒')} Itens de ascensão</h2><p class="hint">Cada fase dá 3 itens. A cor do fundo é a raridade (cinza, verde, azul, roxo, laranja). Cada degrau pede 3 / 4 / 5 itens ("+" / "++" / nova raridade): 1 / 2 / 3 deles da raridade <b>um acima</b> da carta e 2 da raridade dela (cartas Lendárias e Míticas: só laranja). ${DIFFICULTIES.map((d) => `${DIFFICULTY_LABEL[d]}: ${STAR_COLORS[GEAR_DROP[d][0]].label} ${100 - GEAR_RARE_CHANCE[d] * 100}% / ${STAR_COLORS[GEAR_DROP[d][1]].label} ${GEAR_RARE_CHANCE[d] * 100}%`).join(' · ')}.</p>${rows}<div class="row"><button class="btn primary" data-m="close">Fechar</button></div>`, (m) => {
     m.querySelector('[data-m=close]')!.addEventListener('click', closeModal);
   });
 }
@@ -66,7 +66,7 @@ export function train() {
     : '';
   const ascendBtn = nt
     ? `${needHTML}<button class="btn primary" id="ascend" ${canAscend(card) && gearOk && save.essencias >= ascendCost(card) ? '' : 'disabled'}>✨ Subir para ${ntLabel} (${essIcon()} ${ascendCost(card)})</button>
-       <p class="hint">${full ? '' : 'Encha a barra de XP para subir o degrau. '}${gearOk ? '' : '<span class="warn">Faltam itens de ascensão (as fases dão itens; veja quais em 🎒 Itens).</span> '}${nt.stars === card.stars ? `${ntLabel} dá +17% de ataque e de vida (habilidades e visual iguais).` : `${ntLabel} é uma <b>nova raridade</b>: evolui roupa, armadura, aura, habilidades e status.`}${save.essencias < ascendCost(card) ? ` <span class="warn">Você tem ${essIcon()} ${save.essencias}.</span>` : ''}</p>`
+       <p class="hint">${full ? '' : 'Encha a barra de XP para subir o degrau. '}${gearOk ? '' : `<span class="warn">Faltam itens de ascensão (as fases dão itens; veja quais em ${ico('inventario', '🎒')} Itens).</span> `}${nt.stars === card.stars ? `${ntLabel} dá +17% de ataque e de vida (habilidades e visual iguais).` : `${ntLabel} é uma <b>nova raridade</b>: evolui roupa, armadura, aura, habilidades e status.`}${save.essencias < ascendCost(card) ? ` <span class="warn">Você tem ${essIcon()} ${save.essencias}.</span>` : ''}</p>`
     : '<p class="hint">Raridade máxima com "++": este personagem chegou ao topo!</p>';
   app.innerHTML = `<div class="screen">${topbar('Treinar')}
     <div class="row"><button class="btn small" id="gearBag">🎒 Itens de ascensão</button></div>

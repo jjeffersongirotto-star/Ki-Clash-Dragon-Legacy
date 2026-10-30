@@ -4,6 +4,7 @@
  */
 import { CATEGORY_INFO, RACE_INFO, STAR_COLORS } from '../core/characters';
 import { TIER_NAMES } from '../core/progression';
+import { ico } from '../ui/icons';
 import { catIcon, goldHTML, essIcon, raceIcon } from '../ui/components';
 import { leaveBattleMode } from '../ui/orientation';
 import { ENERGY_COST } from '../core/profile';
@@ -24,7 +25,7 @@ export function help() {
       <li>Toque em <b>LUTAR</b> (ou ligue o modo <b>Auto</b>): seus personagens caminham (<b>MOVE</b>), saltam, disparam feixes de Ki ou golpes corpo a corpo (<b>HIT</b>), sofrem dano e vão para a <b>Necropolis</b> quando derrotados.</li></ol>
     <h3>Cartas e baralho</h3><ul>
       <li>Cada carta (personagem ou <b>feitiço ✦</b>) entra no baralho com <b>1 a 3 cópias</b> (botões − / + em Coleção & Baralho). O baralho precisa ter de <b>20</b> até <b>28 + 2 × nível de perfil</b> cartas (30 no nível 1, 40 no nível 6+) e pelo menos 1 personagem.</li>
-      <li><b>Feitiços ✦:</b> esperam <b>custo − 1</b> rodadas e precisam de um <b>aliado da categoria em campo</b> (o de maior ataque conjura; a força vem do ataque dele). Toque no feitiço e numa casa <b>roxa</b>. Depois de lançado, volta para o Baralho. Os feitiços são cartas colecionáveis (Comum a Épico): vêm do 🎴 Banner, da 1ª vitória das fases 2, 5 e 8 de cada região e do tutorial; o baralho usa até 3 cópias, só as que você tem.</li>
+      <li><b>Feitiços ✦:</b> esperam <b>custo − 1</b> rodadas e precisam de um <b>aliado da categoria em campo</b> (o de maior ataque conjura; a força vem do ataque dele). Toque no feitiço e numa casa <b>roxa</b>. Depois de lançado, volta para o Baralho. Os feitiços são cartas colecionáveis (Comum a Épico): vêm do ${ico('banner', '🎴')} Banner, da 1ª vitória das fases 2, 5 e 8 de cada região e do tutorial; o baralho usa até 3 cópias, só as que você tem.</li>
       <li>A <b>mão tem 6 cartas</b>. Você começa com 6 diferentes e, a cada rodada, <b>compra o que faltar para voltar a 6</b> (jogou 3, compra 3; com a mão cheia, não compra). Cartas não usadas ficam na mão.</li>
       <li>À esquerda da mão fica o <b>Baralho</b> (quantas cartas ainda podem vir); à direita, a <b>Necropolis (Derrotadas)</b>.</li>
       <li>A carta jogada vira unidade em campo. Quando a unidade <b>morre</b>, aquela cópia vai para a <b>Necropolis</b> e só volta com Necromancia (Vorax) ou o feitiço Chamado da Necropolis.</li>
@@ -51,7 +52,7 @@ export function help() {
       <li><b>Jogar ou Repetir</b> uma fase gasta energia: <b>Fácil ${ENERGY_COST.facil} · Normal ${ENERGY_COST.normal} · Difícil ${ENERGY_COST.dificil}</b>. Na batalha ela é gasta ao começar (a derrota também gasta). O tutorial é grátis.</li>
       <li>A energia <b>recupera 1 a cada 6 minutos</b> até o máximo do seu nível de perfil (nível 1 = 20 … nível 100 = 300).</li>
       <li>O <b>nível de perfil</b> sobe com XP de perfil: <b>1 por energia gasta</b> e mais um bônus a cada vitória ou Repetir (em dobro na primeira vitória). Ao subir de nível, você <b>ganha a energia máxima do nível novo</b>, que pode passar do máximo. O nível também aumenta o tamanho do baralho.</li>
-      <li>Cada vitória ou Repetir dá <b>Ouro de Dragão</b> (mais nas fases altas e nas dificuldades difíceis; em dobro na primeira vitória). Gaste na <b>🏪 Loja</b> em itens de ascensão, Orbes e cartas do <b>🎴 Banner</b> (personagem repetido vira mais 1 cópia: o baralho usa até 3 de cada, e as sobras você desmancha em XP no <b>🎒 Inventário</b>).</li></ul>
+      <li>Cada vitória ou Repetir dá <b>Ouro de Dragão</b> (mais nas fases altas e nas dificuldades difíceis; em dobro na primeira vitória). Gaste na <b>🏪 Loja</b> em itens de ascensão, Orbes e cartas do <b>${ico('banner', '🎴')} Banner</b> (personagem repetido vira mais 1 cópia: o baralho usa até 3 de cada, e as sobras você desmancha em XP no <b>🎒 Inventário</b>).</li></ul>
     <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.entries(CATEGORY_INFO).map(([k, c]) => `<li><b>${catIcon(k)} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
   </div></div>`;
   bindNav();

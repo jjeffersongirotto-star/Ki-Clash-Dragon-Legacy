@@ -343,3 +343,6 @@ function orbRewards(stageId: number, diff: Difficulty, rng: () => number): { ess
   if (rng() < HARD_MYTHIC_CHANCE) orbs.orbe6 = (orbs.orbe6 ?? 0) + 1;
   return { essencias: base.essencias, orbs };
 }
+
+/** v0.52.1: objetivo de estrela só em texto (sem o emoji do começo), igual nos três. */
+export const goalPlain = (text: string) => text.replace(/^\P{L}+\s/u, '');
