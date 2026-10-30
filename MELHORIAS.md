@@ -9,6 +9,9 @@
 - **Arte própria do Comandante de cada fase:** hoje cada fase usa a arte de um personagem do baralho dela (minotauro só na fase 10).
 - **Modo online:** a conferência das partidas já existe (`verifyMatch`); faltam o servidor e as contas online.
 
+- **Locais do hub em breve (🔒):** Torre, Invasão de Chefe, Arena, Masmorra em Dupla, Santuário dos 7 Diamantes, Praça de Eventos e Mina de Cristais — hoje só abrem "Em breve".
+- **Arte do hub:** Aventura, Coleção & Baralho, Torre e Invasão de Chefe ainda usam a arte do 1º pacote; caminhante, dragão, faíscas de ki e quadros de animação dos prédios ainda não estão no jogo.
+
 ## 💡 Ideias anotadas (ainda sem data)
 - **Tipo do personagem com função — bônus de equipe:** ter 3 ou mais personagens do mesmo tipo (Humano, Extraterrestre, Monstro, Mago Arcano, Androide, Necromante) no baralho dá um bônus pequeno a eles (ex.: 3 Androides = +5% de vida para os Androides). Hoje o tipo é só visual e filtro da Coleção.
 - **Tipo do personagem nos objetivos:** objetivos de estrela ou missões ligados ao tipo (ex.: "vencer com 3 Humanos no baralho").

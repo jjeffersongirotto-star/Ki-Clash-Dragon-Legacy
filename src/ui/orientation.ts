@@ -1,26 +1,20 @@
 /**
- * v0.11.0 — Batalha deitada (paisagem).
+ * Tela deitada (paisagem) em todo o jogo.
  *
- * Ao entrar na batalha num aparelho de toque, tenta tela cheia + travar a orientação em
- * paisagem (Screen Orientation API). No Chrome Android a trava só funciona em TELA CHEIA e
- * precisa de um toque do jogador (por isso é chamada no toque de "Lutar" ou no botão do aviso).
- * Se não der (iPhone, navegador sem suporte, jogador recusou), nada quebra: o jogo mostra o
- * aviso de girar e o layout em pé continua funcionando.
- * Ao sair da batalha, sai da tela cheia e destrava.
+ * v0.11.0: começou só na batalha. v0.46.0/v0.46.1: o jogo inteiro é deitado e não há aviso para girar.
+ * - App Android: trava em paisagem desde a abertura (AndroidManifest + plugin) e não destrava.
+ * - Site: o navegador só deixa travar depois de um toque; o primeiro toque (e o "Lutar") tenta tela cheia + paisagem.
+ *   Se não der (iPhone, navegador sem suporte), nada quebra: o layout continua funcionando.
+ * v0.50.1: sair da batalha não destrava nem sai da tela cheia (antes voltava a ficar em pé no site).
  */
 import { Capacitor } from '@capacitor/core';
 import { ScreenOrientation } from '@capacitor/screen-orientation';
 
-/**
- * v0.20.0 — no app Android a batalha SEMPRE deita a tela sozinha (trava em paisagem pelo plugin nativo, sem
- * precisar de tela cheia nem de toque) e o aviso de girar não aparece. Ao sair, a tela fica livre de novo.
- */
 const native = () => Capacitor.isNativePlatform();
 
 type OrientationLike = { lock?: (o: string) => Promise<void>; unlock?: () => void };
 
 const isTouch = () => typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches;
-let weEnteredFullscreen = false;
 
 export async function requestLandscape(): Promise<boolean> {
   if (typeof document === 'undefined' || !isTouch()) return false;
@@ -29,7 +23,6 @@ export async function requestLandscape(): Promise<boolean> {
     if (!document.fullscreenElement) {
       if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: 'hide' } as FullscreenOptions);
       else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
-      weEnteredFullscreen = !!document.fullscreenElement;
     }
   } catch {
     /* sem tela cheia: segue sem trava */
@@ -60,15 +53,7 @@ export function enterBattleMode(): void {
 export function leaveBattleMode(): void {
   if (typeof document === 'undefined' || !document.body.classList.contains('in-battle')) return;
   document.body.classList.remove('in-battle');
-  // v0.46.0: no app o jogo inteiro fica deitado — não destrava ao sair da batalha
-  if (native()) return;
-  try {
-    (screen as unknown as { orientation?: OrientationLike }).orientation?.unlock?.();
-  } catch {
-    /* ok */
-  }
-  if (weEnteredFullscreen && document.fullscreenElement) void document.exitFullscreen().catch(() => {});
-  weEnteredFullscreen = false;
+  // v0.46.0/v0.50.1: o jogo inteiro é deitado (app e site) — sair da batalha não destrava nem sai da tela cheia
 }
 
 /** v0.46.1: o jogo inteiro é deitado, sem aviso para girar o celular. No app trava em paisagem desde a abertura
