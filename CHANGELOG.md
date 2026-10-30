@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.50.0] — 30/10/2026 · Perfil no estilo Mighty Party
+- No hub, o perfil virou um **retrato grande** (a foto que você escolhe) no canto de cima à esquerda, com o **nível** num selo redondo no canto de baixo à esquerda do retrato, a **barra de XP** logo abaixo e o **nome** embaixo da barra.
+- Tocar na foto continua trocando a foto; tocar no nome continua abrindo as opções/conta.
+- A barra de cima do hub não bloqueia mais os toques nos prédios atrás dela (só os botões dela recebem toque).
+
 ## [0.49.1] — 30/10/2026 · Nomes do hub mais leves
 - Os nomes dos locais saíram das faixas vermelhas/cinzas e agora ficam numa **faixa quase transparente**, aberta dos lados, com texto branco de **contorno suave** (estilo Mighty Party). Trancados: texto um pouco mais apagado e 🔒 pequeno.
 - **Nomes curtos:** Baralho, Treinar, Altar, Acampamento, Santuário, Eventos e Mina. **Invasão de Chefe** em 2 linhas.

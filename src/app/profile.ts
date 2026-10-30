@@ -41,13 +41,14 @@ export function profileCardHTML(): string {
   const pct = max ? 100 : Math.max(0, Math.min(100, (100 * into) / need));
   const id = avatarId();
   const frame = id ? starStyle(save.cards[id]?.stars ?? getChar(id).minStars) : '';
-  return `<div class="pcard">
-    <button class="pcard-avatar" id="pAvatar" style="${frame}" title="Trocar foto de perfil" aria-label="Trocar foto de perfil">${avatarImg(id)}</button>
-    <div class="pcard-info">
-      <button class="pcard-name" id="pName" title="Opções" aria-label="Opções do perfil">${esc(displayName())}${acc?.admin ? ' <small>teste</small>' : ''}</button>
-      <div class="pcard-lv" title="Nível de perfil: sobe com XP de perfil (1 por energia gasta e ao vencer ou repetir fases)">NV <b>${lv}</b>${max ? ' <small>máx.</small>' : ` <small>${into}/${need}</small>`}</div>
-      <div class="pcard-bar"><i style="width:${pct.toFixed(1)}%"></i></div>
+  // v0.50.0: estilo Mighty Party — retrato grande, nível no canto de baixo à esquerda, barra de XP e nome embaixo
+  return `<div class="pcard pcard-v2">
+    <div class="pcard-port">
+      <button class="pcard-avatar" id="pAvatar" style="${frame}" title="Trocar foto de perfil" aria-label="Trocar foto de perfil">${avatarImg(id)}</button>
+      <span class="pcard-lvbadge" title="Nível de perfil: sobe com XP de perfil (1 por energia gasta e ao vencer ou repetir fases)">${lv}</span>
     </div>
+    <div class="pcard-bar" title="${max ? 'Nível máximo' : `XP ${into}/${need}`}"><i style="width:${pct.toFixed(1)}%"></i><span>${max ? 'máx.' : `${into}/${need}`}</span></div>
+    <button class="pcard-name" id="pName" title="Opções" aria-label="Opções do perfil">${esc(displayName())}${acc?.admin ? ' <small>teste</small>' : ''}</button>
   </div>`;
 }
 
