@@ -1229,3 +1229,9 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - Ao tocar um local, o brilho aparece por ~0,25 s e depois a tela abre. O mapa não tem animação contínua.
 - Perfil, recursos, versão, ⟳ e Baixar ficam na barra de cima, fora dos prédios.
 - **O jogo inteiro é deitado:** o app Android trava em paisagem desde a abertura (também no AndroidManifest). **(v0.46.1)** Não existe aviso para girar o celular, nem na Base nem na batalha. No site, o primeiro toque do jogador tenta tela cheia + paisagem em silêncio (o navegador exige um toque); se não der, o layout continua funcionando.
+
+## Banner 2×5, hub e cartas assadas (v0.47.0)
+- **Comprar 10 no Banner:** as 10 cartas aparecem juntas em 2 fileiras de 5, sem rolagem, com a janela ocupando a tela deitada.
+- **Hub:** fundo = céu sem prédios (`vazio.webp`); cada prédio é uma camada própria na posição do local (deslocamento `dx`/`dy` em `src/app/hubConfig.ts`), sem esticar a arte. Locais liberados usam a arte normal e o brilho ao tocar; trancados usam só a arte com cadeado, que acende ao tocar.
+- **Nomes do hub:** estandarte (faixa com pontas dobradas) embaixo ou ao lado do prédio; vermelho = liberado, cinza = 🔒.
+- **Cartas da grade (Coleção e Baralho):** depois de montada, cada carta vira uma imagem única com o mesmo visual (`src/ui/cardBake.ts`). As camadas originais continuam por baixo para toques; a foto é refeita sozinha quando a carta muda.

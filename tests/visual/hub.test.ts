@@ -16,7 +16,7 @@ describe('v0.46.0 hub', () => {
         expect(existsSync(`src/assets/hub/${k}.webp`), k).toBe(true);
       }
     }
-    expect(existsSync('src/assets/hub/mapa.webp')).toBe(true);
+    expect(existsSync('src/assets/hub/vazio.webp')).toBe(true);
   });
   it('a Mina tem área de toque maior que a arte, sem sair do mapa', () => {
     const mina = HUB_SPOTS.find((s) => s.key === '14-mina')!;
@@ -37,5 +37,32 @@ describe('v0.46.1 tela deitada sem aviso', () => {
       expect(src, f).not.toContain('Deitar a tela');
     }
     expect(readFileSync('android/app/src/main/AndroidManifest.xml', 'utf8')).toContain('android:screenOrientation="sensorLandscape"');
+  });
+});
+
+describe('v0.47.0 hub espalhado, trancados e cartas assadas', () => {
+  it('prédios movidos ficam dentro do mapa', async () => {
+    const { moved, HUB_W, HUB_H } = await import('../../src/app/hubConfig');
+    for (const s of HUB_SPOTS) {
+      const b = moved(HUB_BOXES[s.key], s);
+      expect(b[0], s.key).toBeGreaterThanOrEqual(0);
+      expect(b[1], s.key).toBeGreaterThanOrEqual(0);
+      expect(b[2], s.key).toBeLessThanOrEqual(HUB_W);
+      expect(b[3], s.key).toBeLessThanOrEqual(HUB_H);
+    }
+  });
+  it('local trancado acende só a arte com cadeado; nomes em faixa', async () => {
+    const { readFileSync } = await import('node:fs');
+    const src = readFileSync('src/app/home.ts', 'utf8');
+    expect(src).toContain('-locked"]`');
+    expect(src).toContain('hub-ribbon');
+    expect(src).toContain("HUB_SPOTS.filter((s) => s.nav).map((s) => lay(`${s.key}-glow`");
+  });
+  it('Coleção e Baralho usam a carta assada numa imagem só', async () => {
+    const { readFileSync } = await import('node:fs');
+    expect(readFileSync('src/app/collection.ts', 'utf8')).toContain('bakeCards(app)');
+    const { BAKE_SEL } = await import('../../src/ui/cardBake');
+    expect(BAKE_SEL).toContain('.card-grid .card');
+    expect(BAKE_SEL).toContain('.deck-slots .card');
   });
 });

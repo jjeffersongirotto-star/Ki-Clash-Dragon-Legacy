@@ -3,7 +3,8 @@ Uso: python3 scripts/hub/build_hub.py <pasta Ki_Clash_Hub_Completo>"""
 import json, os, sys
 from PIL import Image
 src = sys.argv[1]; out = 'src/assets/hub'; os.makedirs(out, exist_ok=True)
-Image.open(f'{src}/hub-00-mapa.png').convert('RGB').save(f'{out}/mapa.webp', quality=80, method=6)
+
+Image.open(f'{src}/hub-00-mapa-vazio.png').convert('RGB').save(f'{out}/vazio.webp', quality=80, method=6)
 lay = f'{src}/camadas_2340x1080'; boxes = {}
 for f in sorted(os.listdir(lay)):
     if not f.endswith('.png'): continue
