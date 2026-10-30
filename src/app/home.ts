@@ -3,13 +3,14 @@
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
  */
 import { ico } from '../ui/icons';
-import { esc, essIcon } from '../ui/components';
+import { esc, energyHTML, goldHTML } from '../ui/components';
+import { energyMax } from '../core/profile';
 import { gameAlert, gameConfirm, showDialog } from '../ui/dialog';
 import { leaveBattleMode } from '../ui/orientation';
 import { tutorialDone } from '../ui/save';
 import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from '../ui/update';
 import { createAccount, login, NAME_MAX, PASS_MIN } from '../ui/accounts';
-import { app, accounts, openAccountSave, save, setSave, firstChar, setTrainSel, persist, resPills } from './state';
+import { app, accounts, openAccountSave, save, setSave, firstChar, setTrainSel, persist, energyNow, prof, fmt } from './state';
 import { bindNav, go } from './ui';
 import { HUB_SPOTS, hitBox, moved, type HubSpot } from './hubConfig';
 import { HUB_BOXES } from '../ui/hubLayers';
@@ -20,8 +21,6 @@ import { bannerGuide, tutorial } from './tutorial';
 import { bindProfileCard, profileCardHTML } from './profile';
 
 // ---------------- BASE ----------------
-/** v0.32.0: cópias repetidas guardadas (todas as raridades) */
-const dupesTotal = () => Object.values(save.dupes ?? {}).reduce((n, row) => n + Object.values(row).reduce((a, k) => a + k, 0), 0);
 
 export function home(): void {
   if (!tutorialDone(save)) return tutorial(); // v0.25.0: o jogador novo começa pelo tutorial
@@ -49,7 +48,7 @@ export function home(): void {
       }).join('')}
     </div></div>
     <div class="account-box hub-top">${profileCardHTML()}
-      <div class="res">${resPills()}<span>${essIcon()} ${save.essencias}</span><span title="Repetidos">🎒 ${dupesTotal()}</span></div>
+      <div class="res hub-res"><span>${goldHTML(fmt(prof().gold))}</span><span class="res-energy">${energyHTML(energyNow(), energyMax(prof()))}</span></div>
       <span class="app-version">v${APP_VERSION}</span>
       ${isNativeApp() ? '' : `<a class="btn small hub-dl" href="${APK_DOWNLOAD_URL}" rel="noopener" title="Baixar o app Android (APK)">${ico('baixar', '⬇')} Baixar</a>`}
       <button class="btn small upd-btn" id="updBtn" title="Procurar atualização" aria-label="Procurar atualização">${ico('atualizar', '<svg class="upd-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M20.5 3.5v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'upd-ico')}</button></div>

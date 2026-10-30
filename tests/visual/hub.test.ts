@@ -94,3 +94,18 @@ describe('v0.50.1 limpeza', () => {
     expect(css).not.toContain('rotate-all');
   });
 });
+
+describe('v0.51.0 Loja em abas e hub enxuto', () => {
+  it('Loja: título central só com Ouro, ⓘ do banner, abas Itens de Ascensão / Orbes', async () => {
+    const { readFileSync } = await import('node:fs');
+    const shop = readFileSync('src/app/shop.ts', 'utf8');
+    expect(shop).toContain('data-binfo');
+    expect(shop).toContain('export function bannerInfo');
+    expect(shop).toContain('data-tab="gear"');
+    expect(shop).toContain('data-tab="orbs"');
+    expect(shop).not.toContain('<div class="banner-odds">${odds}</div>\n    <div class="pity-mark"');
+    const home = readFileSync('src/app/home.ts', 'utf8');
+    expect(home).toContain('hub-res');
+    expect(home).not.toContain('essIcon()');
+  });
+});

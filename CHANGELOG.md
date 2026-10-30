@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.51.0] — 30/10/2026 · Loja em abas e hub mais limpo
+- **Hub:** o perfil foi mais para a esquerda e ficou um pouco menor (não cobre mais a Torre); a barra de XP tem a mesma largura do retrato. Ao lado do perfil ficam só **Ouro** (em cima) e **Energia** (embaixo); Gemas, Essências e repetidos continuam nas outras telas.
+- **Loja:** título **LOJA** centralizado e só o **Ouro** no canto de cima à direita, na mesma linha.
+- **Banner:** as porcentagens saíram da frente do banner; o botão **ⓘ** ao lado de "Despertar do Dragão" abre uma janela com as chances de cada raridade, a Lendária garantida, a garantia do Comprar 10 e como as Gemas pagam.
+- **Abas da Loja:** "Itens de Ascensão" (com as sub-abas Faltando no baralho, Tanque, Suporte, DPS, Mago, Arqueiro, Assassino e as raridades) e "Orbes". A compra continua igual.
+
 ## [0.50.1] — 30/10/2026 · Limpeza: textos e regras desatualizados, código morto
 - **Como jogar:** dizia "2 fileiras × 12 colunas"; agora mostra o tamanho real da arena (2 × 10), lido do jogo.
 - **Site deitado:** sair da batalha não destrava mais a tela nem sai da tela cheia (antes o site voltava a ficar em pé depois de cada batalha).

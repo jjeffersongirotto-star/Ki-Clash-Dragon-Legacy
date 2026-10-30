@@ -1254,3 +1254,8 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 ## Limpeza (v0.50.1)
 - "Como jogar" lê o tamanho da arena do código (ROWS × COLS), para não ficar desatualizado de novo.
 - Site: a trava deitada/tela cheia, uma vez obtida, continua depois da batalha. Manifesto PWA com `"orientation": "landscape"`.
+
+## Loja em abas e hub enxuto (v0.51.0)
+- Hub: perfil no canto de cima à esquerda sem cobrir prédios; barra de XP com a largura do retrato; ao lado só Ouro (linha de cima) e Energia (linha de baixo).
+- Loja: título centralizado, só Ouro à direita. Banner sem porcentagens na frente; ⓘ abre as chances, a garantia a cada 80 e a do Comprar 10.
+- Loja em abas: **Itens de Ascensão** (sub-abas por categoria e raridade, como antes) e **Orbes**. A aba escolhida fica guardada enquanto o jogo está aberto.
