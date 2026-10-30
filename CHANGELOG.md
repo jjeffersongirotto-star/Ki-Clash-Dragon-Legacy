@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.51.1] — 30/10/2026 · Acabamento do hub
+- **Ouro e Energia:** mais juntos e um pouco mais para cima, em cápsulas menores (borda e espaçamento menores). A Energia não encosta mais na Torre, e o número atual tem o mesmo tamanho do máximo (ex.: 9962/300).
+- **Nível do perfil:** sem o selo azul com aro; agora é um número pequeno dentro do canto de baixo à esquerda do retrato, como no Mighty Party.
+- **Versão:** saiu do canto de cima à direita do hub. Ela continua aparecendo ao tocar em ⟳ (Procurar atualização).
+- **Android:** o app volta para a tela cheia também ao reabrir (onResume) e desenha atrás do recorte da câmera, para que as barras do sistema não fiquem por cima do jogo.
+
 ## [0.51.0] — 30/10/2026 · Loja em abas e hub mais limpo
 - **Hub:** o perfil foi mais para a esquerda e ficou um pouco menor (não cobre mais a Torre); a barra de XP tem a mesma largura do retrato. Ao lado do perfil ficam só **Ouro** (em cima) e **Energia** (embaixo); Gemas, Essências e repetidos continuam nas outras telas.
 - **Loja:** título **LOJA** centralizado e só o **Ouro** no canto de cima à direita, na mesma linha.
