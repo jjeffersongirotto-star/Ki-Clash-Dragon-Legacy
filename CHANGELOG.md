@@ -7,6 +7,7 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
 - **Rival:** saíram a vida do Comandante inimigo e o "Inimigos até…". No lugar, **Destaques do rival** com o rosto das 2 cartas mais fortes dele (e os feitiços, se tiver).
 - **Itens:** só os ícones dos itens que podem cair, sem porcentagem. O **ⓘ** ao lado abre as chances de cada raridade (e, no Difícil, as dos orbes extras).
 - **Estrelas:** os três objetivos agora são só texto (antes dois tinham símbolo e um não), também na tela de vitória.
+- **Topo das telas:** a barra de cima (e a dos passos do tutorial) desceu um pouco e respeita a área segura do celular, sem ficar grudada na borda.
 - **Nova recompensa — primeira vitória:** ao vencer uma fase pela primeira vez (em cada dificuldade), você **escolhe 1 entre 3 cartas do rival**. Cada vaga sorteia a raridade com as chances do pacote (Comum 25% · Incomum 30% · Raro 25% · Épico 15% · Lendário 4% · Mítico 1%) e mostra a carta do rival mais próxima dessa raridade; entre cartas do mesmo tipo, a mais forte no rival aparece menos (peso 1/(1+força)). Kenji e Vorax (só do Banner) e feitiços não entram. Continuar/Treinar liberam depois da escolha. A carta vem na raridade inicial; se já tiver, vira cópia guardada.
 
 ## [0.52.0] — 30/10/2026 · Janelas com ✕, banner em tela cheia e rostos centralizados

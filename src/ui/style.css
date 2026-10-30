@@ -1701,3 +1701,8 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .first-pick-opt { all: unset; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px; border-radius: 12px; border: 2px solid var(--rc); background: rgba(10,14,34,.7); width: 84px; font-size: 12px; }
 .first-pick-opt img { width: 64px; height: 64px; border-radius: 8px; object-fit: cover; }
 .first-pick-opt:hover { box-shadow: 0 0 12px var(--rc); }
+/* v0.52.1: o topo do jogo não fica grudado na borda de cima */
+.screen { padding-top: max(18px, calc(env(safe-area-inset-top) + 10px)); }
+.account-box.hub-top { padding-top: max(10px, calc(env(safe-area-inset-top) + 6px)); }
+.tut-tip { top: calc(72px + env(safe-area-inset-top)); }
+.shop-screen { --shop-top: 76px; }
