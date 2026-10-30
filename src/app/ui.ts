@@ -16,11 +16,12 @@ import { shop } from './shop';
 import { help } from './help';
 import { inventory } from './inventory';
 
-export function topbar(title: string, back = true) {
-  return `<header class="topbar">
+/** v0.51.0: `res` troca os recursos da direita (ex.: Loja só com Ouro) e centraliza o título. */
+export function topbar(title: string, back = true, res?: string) {
+  return `<header class="topbar${res != null ? ' tb-center' : ''}">
     ${back ? `<button class="btn small ghost" data-nav="home">${ico('voltar', '←')} Base</button>` : '<span></span>'}
     <h2>${title}</h2>
-    <div class="res">${resPills()}<span title="Essências Estelares">${essIcon()} ${save.essencias}</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>
+    ${res != null ? `<div class="res">${res}</div>` : `<div class="res">${resPills()}<span title="Essências Estelares">${essIcon()} ${save.essencias}</span>${XP_ITEMS.filter((i) => save.items[i.id] > 0).map((i) => `<span class="orb-pill">${orbHTML(i.id, save.items[i.id])}</span>`).join('')}</div>`}
   </header>`;
 }
 
