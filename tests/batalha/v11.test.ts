@@ -6,11 +6,11 @@ import { describe, expect, it } from 'vitest';
 import { requestLandscape, enterBattleMode, leaveBattleMode } from '../../src/ui/orientation';
 
 describe('v0.11.0 — batalha deitada', () => {
-  it('manifesto do app: tela cheia, ícones e SEM travar orientação global (menus são em pé)', () => {
+  it('manifesto do app: tela cheia, ícones e deitado (v0.50.1: o jogo inteiro é deitado)', () => {
     const m = JSON.parse(manifestRaw);
     expect(m.display).toBe('fullscreen');
     expect(m.icons.map((i: { sizes: string }) => i.sizes)).toEqual(expect.arrayContaining(['192x192', '512x512']));
-    expect(m.orientation).toBeUndefined();
+    expect(m.orientation).toBe('landscape');
     expect(indexHtml).toContain('rel="manifest"');
   });
 

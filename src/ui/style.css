@@ -43,21 +43,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .topbar h2 { margin: 0; font-size: 22px; flex: 1; text-align: center; letter-spacing: 1px; text-transform: uppercase; background: linear-gradient(180deg, #fff, #ffcf4a); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .res { display: flex; gap: 10px; font-size: 14px; flex-wrap: wrap; }
 .res > span { background: rgba(255,255,255,.06); padding: 4px 9px; border-radius: 99px; border: 1px solid rgba(255,255,255,.08); }
-.res.big { justify-content: center; font-size: 16px; margin: 12px 0; }
 
 /* ---- base ---- */
-.home { text-align: center; padding-top: 24px; }
-.logo { margin: 8px 0 6px; }
-.logo-ki { font-size: clamp(44px, 12vw, 92px); font-weight: 900; font-style: italic; letter-spacing: 2px; line-height: .95; background: linear-gradient(180deg, #fff6c9 0%, #ffcf4a 40%, #ff6a00 75%, #b31d00 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 4px 0 #2a0a00) drop-shadow(0 0 22px rgba(255,140,0,.55)); }
-.logo-sub { font-size: clamp(16px, 4.5vw, 30px); font-weight: 800; letter-spacing: 10px; color: #8fe3ff; text-shadow: 0 0 14px #00b4ff; }
-.home-heroes { display: flex; justify-content: center; gap: 12px; margin: 18px 0; }
-.home-hero { width: clamp(80px, 24vw, 150px); aspect-ratio: 3/4; border-radius: 14px; overflow: hidden; border: 3px solid var(--rc); box-shadow: 0 0 24px var(--rc); animation: floaty 3s ease-in-out infinite; }
-.home-hero:nth-child(2) { animation-delay: -1s; transform: scale(1.08); }
-.home-hero:nth-child(3) { animation-delay: -2s; }
-.home-hero svg { height: 100%; width: auto; margin-left: -12%; min-width: 125%; }
 @keyframes floaty { 50% { translate: 0 -8px; } }
-.menu { display: grid; gap: 12px; max-width: 420px; margin: 10px auto; }
-.menu .btn { font-size: 19px; padding: 14px; }
 
 /* ---- cartas e filtros de raça ---- */
 .card.in-deck { outline: 2px solid var(--gold); outline-offset: 2px; }
@@ -386,6 +374,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .mini-card .mc-cat { position: absolute; top: 2px; right: 2px; font-style: normal; font-size: 12px; }
 .float.heal { color: #7dff9a; }
 
+.res.big { justify-content: center; font-size: 16px; margin: 12px 0; }
 /* ---- diálogos do jogo ---- */
 .dialog-bg { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 14px; background: rgba(3,4,12,.8); backdrop-filter: blur(3px); animation: fade .18s; }
 .dialog-bg.closing { opacity: 0; transition: opacity .15s; }
@@ -650,13 +639,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
 @keyframes premiumVeil { 50% { opacity: 1; } }
 .card-grid .card-metal::after, .deck-slots .card-metal::after, .train-list .card-metal::after, .swap-grid .card-metal::after { animation: none !important; }
 @media (prefers-reduced-motion: reduce) {
-  .card-metal::after, .home-hero, .spr-figure, .hero-svg, .cell.can, .evo-rays { animation: none !important; }
+  .card-metal::after, .spr-figure, .hero-svg, .cell.can, .evo-rays { animation: none !important; }
 }
 /* o desfoque de fundo (backdrop-filter) era refeito a cada quadro por baixo de qualquer janela
    (detalhes, troca, fim de luta, carta na batalha) e derrubava o FPS pela metade; o fundo já
    fica escurecido a ~80%, então o desfoque sai e a cor da camada fica igual */
 .modal-bg, .dialog-bg, .battle-card-modal-bg { backdrop-filter: none; -webkit-backdrop-filter: none; }
-.home-hero img { height: 100%; width: auto; margin-left: -12%; min-width: 125%; display: block; }
 
 /* =====================================================================
    v0.10.2 — Rolagem fluida no celular
@@ -729,7 +717,6 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
    ===================================================================== */
 /* elementos novos — escondidos fora do layout deitado */
 .log-toggle, .info-close { display: none; }
-.rotate-prompt { display: none; }
 .info-wrap { flex: 1; display: flex; min-width: 0; }
 .info-wrap .info { flex: 1; }
 
@@ -806,19 +793,7 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 }
 
 /* celular EM PÉ na batalha: aviso para girar (some se o jogador escolher "Jogar em pé") */
-@media (orientation: portrait) and (max-width: 700px) {
-  body.in-battle .battle:not(.rotate-dismissed) .rotate-prompt { display: grid; position: fixed; inset: 0; z-index: 70; place-items: center; padding: 18px; background: rgba(3,4,12,.9); }
-  .rp-box { width: min(340px, 100%); text-align: center; padding: 22px 18px 18px; border-radius: 18px; background: linear-gradient(180deg, #1f2650, #10142c); border: 2px solid #ffcf4a; box-shadow: 0 0 0 1px #000, 0 0 28px rgba(255,207,74,.25); }
-  .rp-icon { font-size: 54px; line-height: 1; display: inline-block; transform: rotate(90deg); margin-bottom: 8px; }
-  .rp-title { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 6px; }
-  .rp-msg { color: #c9d1f5; font-size: 14px; margin: 0 0 14px; }
-  .rp-btns { display: grid; gap: 8px; }
-}
 /* menus deitados (celular): Comandantes da Base cabem pela altura, o menu aparece sem rolar tanto */
-@media (orientation: landscape) and (max-height: 500px) {
-  .home-hero { width: clamp(64px, 26dvh, 130px); }
-  .logo-ki { font-size: clamp(36px, 14dvh, 72px); }
-}
 
 /* =====================================================================
    v0.11.1 — Proporção da referência: Comandantes GRANDES nas pontas,
@@ -1165,22 +1140,18 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .stage-dialog .dialog-title { font-size: 17px; padding: 0 26px; }
 
 /* v0.20.0: no app a tela deita sozinha na batalha — o aviso "Gire o celular" nunca aparece */
-body.native-landscape .rotate-prompt { display: none !important; }
 
 /* v0.20.0: botão Baixar (APK) no canto inferior direito da Base — só no site */
-.download-btn { position: fixed; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); z-index: 30; text-decoration: none; padding: 10px 16px; border-radius: 999px; box-shadow: 0 3px 0 #0c1030, 0 0 16px rgba(47,184,255,.35); border-color: #2fb8ff; }
 
 /* ---- v0.20.0: telas grandes (monitor Full HD, 2K, 4K) — a interface cresce junto com a tela.
    O zoom também aumenta as medidas da tela (vw/dvh), por isso elas são divididas pelo mesmo fator. ---- */
 @media (min-width: 1700px) and (min-height: 950px) {
-  .screen:not(.battle-screen) { zoom: 1.3; }
+  .screen:not(.battle-screen):not(.hub) { zoom: 1.3; }
   .screen.adventure { height: calc(100dvh / 1.3); }
-  .download-btn { zoom: 1.3; }
 }
 @media (min-width: 2300px) and (min-height: 1300px) {
-  .screen:not(.battle-screen) { zoom: 1.75; }
+  .screen:not(.battle-screen):not(.hub) { zoom: 1.75; }
   .screen.adventure { height: calc(100dvh / 1.75); }
-  .download-btn { zoom: 1.75; }
 }
 @media (orientation: landscape) and (min-width: 1700px) and (min-height: 950px) {
   .battle-screen { zoom: 1.3; --vw: calc((100vw - var(--sal) - var(--sar)) / 1.3); --vh: calc(100dvh / 1.3); }
@@ -1196,12 +1167,7 @@ body.native-landscape .rotate-prompt { display: none !important; }
   .battle .hero { width: var(--hero-w); flex: 0 0 var(--hero-w); }
 }
 /* a Base deixa espaço embaixo para o botão Baixar não cobrir o último botão */
-.screen.home { padding-bottom: 84px; }
 /* celular pequeno: o botão Baixar fica no fim da Base, à direita (sem cobrir os outros botões) */
-@media (max-width: 480px) and (max-height: 760px) {
-  .download-btn { position: static; display: table; margin: 14px 0 0 auto; }
-  .screen.home { padding-bottom: 24px; }
-}
 
 /* ---- v0.21.0: ⭐ estrelas por fase ---- */
 .stars-row { display: inline-flex; gap: 1px; letter-spacing: 0; }
@@ -1351,34 +1317,10 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .hero-cmd svg { transform-origin: 50% 100%; }
 
 /* v0.28.5: tela inicial cabe na altura do celular em pé, sem rolar (tamanhos pela altura da tela) */
-@media (orientation: portrait) and (max-width: 700px) {
-  .screen.home { padding-top: 1.2dvh; padding-bottom: 1.2dvh; }
-  .home .logo { margin: .6dvh 0 .4dvh; }
-  .home .logo-ki { font-size: min(12vw, 6.4dvh); }
-  .home .logo-sub { font-size: min(4.5vw, 2.6dvh); letter-spacing: min(10px, 1.6vw); }
-  .home-heroes { margin: 1.4dvh 0; gap: 10px; }
-  .home-hero { width: min(24vw, 12.5dvh); }
-  .home .res.big { margin: 1dvh 0; gap: .8dvh 8px; font-size: min(16px, 2dvh); }
-  .home .menu { gap: 1.1dvh; margin: .6dvh auto; }
-  .home .menu .btn { font-size: min(19px, 2.4dvh); padding: 1.3dvh 14px; }
-  .home .link-btn { margin-top: 1dvh; }
-}
 /* v0.34.1: em pé, o conteúdo da tela inicial fica centralizado na altura (faixa vazia igual em cima e embaixo) */
-@media (orientation: portrait) and (max-width: 700px) {
-  .screen.home { min-height: 100dvh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;
-    padding-top: max(1.2dvh, env(safe-area-inset-top)); padding-bottom: max(1.2dvh, env(safe-area-inset-bottom)); }
-  .screen.home > * { flex: none; }
-  .home .account-box { margin-top: 0; }
-}
-@media (orientation: portrait) and (max-width: 700px) and (max-height: 760px) {
-  .home-hero { width: min(22vw, 10.5dvh); }
-  .home .menu .btn { padding: 1dvh 12px; }
-  .home .res.big { margin: .6dvh 0; }
-}
 
 /* ---- v0.29.0: artes ilustradas dos personagens ---- */
-.card-bg img.char-art, .home-hero img.char-art, .evo-old img.char-art, .evo-new img.char-art { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; display: block; }
-.home-hero img.char-art { margin-left: 0; min-width: 0; }
+.card-bg img.char-art, .evo-old img.char-art, .evo-new img.char-art { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; display: block; }
 .card-fig:empty { display: none; }
 /* unidade na arena, sprites da Coleção/Treinar/banner e Comandante da fase: retrato emoldurado */
 .art-sprite { position: relative; height: 100%; aspect-ratio: .82; width: auto; max-width: 100%; margin: 0 auto; border-radius: 14%; overflow: hidden;
@@ -1466,8 +1408,6 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .modal:has(.pull-reveal) .pull-reveal { max-height: calc(92dvh - 290px); }
 
 /* v0.32.0: 🎒 Inventário (Itens / Personagens repetidos) e Desmanchar */
-.menu-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.menu-pair .btn { min-width: 0; }
 .inv-tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
 .inv-section { background: rgba(0,0,0,.25); border: 1px solid #2f3870; border-radius: 12px; padding: 10px; margin: 10px 0; text-align: left; }
 .inv-section h3 { margin: 0 0 8px; }
@@ -1528,8 +1468,6 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .spot-arrow .ico { width: 48px; height: 48px; vertical-align: top; }
 .spot-arrow.up .ico { transform: rotate(180deg); }
 .dialog-icon .ico { width: 1.6em; height: 1.6em; vertical-align: middle; }
-.rp-icon .ico { width: 1.2em; height: 1.2em; vertical-align: middle; }
-.rp-icon:has(.ico) { transform: none; }
 /* v0.42.1: tutorial — as 6 casas da zona de invocação destacadas juntas; a casa sugerida ganha um círculo */
 .spot-zone { position: fixed; border: 3px dashed #5fd8ff; border-radius: 12px; box-shadow: 0 0 16px rgba(95,216,255,.7), inset 0 0 18px rgba(95,216,255,.35); pointer-events: none; }
 .spot-frame.ring { border-radius: 50%; border-width: 4px; }
@@ -1613,14 +1551,6 @@ body.native-landscape .rotate-prompt { display: none !important; }
 .account-box.hub-top .res > span { background: rgba(16,22,50,.85); border: 1px solid #3a4580; border-radius: 10px; padding: 3px 8px; }
 
 /* ===== v0.46.0: jogo inteiro deitado ===== */
-.rotate-all { display: none; }
-@media (orientation: portrait) and (pointer: coarse) {
-  body:not(.native-landscape):not(.in-battle) .rotate-all { display: grid; position: fixed; inset: 0; z-index: 9000; place-items: center; background: rgba(6,8,24,.94); color: #fff; text-align: center; padding: 24px; }
-}
-.rotate-all .ra-box { max-width: 320px; }
-.rotate-all .ra-ico { font-size: 54px; display: block; margin-bottom: 10px; }
-.rotate-all .ra-title { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
-.rotate-all p { color: #b9c0e6; margin: 0 0 14px; }
 @media (orientation: landscape) {
   .screen:not(.hub) { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
 }

@@ -2,6 +2,14 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.50.1] — 30/10/2026 · Limpeza: textos e regras desatualizados, código morto
+- **Como jogar:** dizia "2 fileiras × 12 colunas"; agora mostra o tamanho real da arena (2 × 10), lido do jogo.
+- **Site deitado:** sair da batalha não destrava mais a tela nem sai da tela cheia (antes o site voltava a ficar em pé depois de cada batalha).
+- **Atalho na tela inicial (PWA):** o manifesto agora pede tela deitada, como o resto do jogo.
+- **Telas grandes (≥1700 px):** o zoom das telas não se aplica mais ao hub (o mapa ficava desalinhado).
+- **Código morto removido:** estilos da tela inicial antiga (logo, heróis, menu de botões, botão Baixar flutuante) e dos avisos "Gire/Vire o celular".
+- **REGRAS/MELHORIAS:** arena 2 × 10, jogo inteiro deitado, sem aviso para girar e o que falta do hub agora estão atualizados.
+
 ## [0.50.0] — 30/10/2026 · Perfil no estilo Mighty Party
 - No hub, o perfil virou um **retrato grande** (a foto que você escolhe) no canto de cima à esquerda, com o **nível** num selo redondo no canto de baixo à esquerda do retrato, a **barra de XP** logo abaixo e o **nome** embaixo da barra.
 - Tocar na foto continua trocando a foto; tocar no nome continua abrindo as opções/conta.

@@ -81,3 +81,16 @@ describe('v0.49.1 nomes curtos do hub', () => {
     expect(inv.label.slice(0, inv.br)).toBe('Invasão');
   });
 });
+
+describe('v0.50.1 limpeza', () => {
+  it('Como jogar usa o tamanho real da arena; manifesto deitado; sem CSS do aviso de girar', async () => {
+    const { readFileSync } = await import('node:fs');
+    const help = readFileSync('src/app/help.ts', 'utf8');
+    expect(help).not.toContain('2 fileiras × 12 colunas');
+    expect(help).toContain('${COLS} colunas');
+    expect(JSON.parse(readFileSync('public/manifest.webmanifest', 'utf8')).orientation).toBe('landscape');
+    const css = readFileSync('src/ui/style.css', 'utf8');
+    expect(css).not.toContain('rotate-prompt');
+    expect(css).not.toContain('rotate-all');
+  });
+});

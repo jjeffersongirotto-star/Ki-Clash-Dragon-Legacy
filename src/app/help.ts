@@ -7,6 +7,7 @@ import { TIER_NAMES } from '../core/progression';
 import { catIcon, goldHTML, essIcon, raceIcon } from '../ui/components';
 import { leaveBattleMode } from '../ui/orientation';
 import { ENERGY_COST } from '../core/profile';
+import { COLS, ROWS } from '../core/battle';
 import { app } from './state';
 import { topbar, bindNav } from './ui';
 
@@ -15,7 +16,7 @@ export function help() {
   leaveBattleMode();
   app.innerHTML = `<div class="screen">${topbar('Como jogar')}
   <div class="help">
-    <h3>Objetivo</h3><p>A arena tem <b>2 fileiras × 12 colunas</b>. Cada Comandante fica posicionado nas extremidades da arena. Zere a vida do <b>Comandante inimigo</b> (à direita) antes que ele zere a sua.</p>
+    <h3>Objetivo</h3><p>A arena tem <b>${ROWS} fileiras × ${COLS} colunas</b>. Cada Comandante fica posicionado nas extremidades da arena. Zere a vida do <b>Comandante inimigo</b> (à direita) antes que ele zere a sua.</p>
     <h3>Raças e Origens Anime</h3><ul>${Object.entries(RACE_INFO).map(([k, r]) => `<li><b>${raceIcon(k)} ${r.label}</b> — ${r.desc}</li>`).join('')}</ul>
     <h3>Seu turno</h3><ol>
       <li>Na batalha, as cartas não gastam energia: cada carta da mão tem uma <b>contagem de rodadas ⏳</b> (o número na gota). Ela começa em <b>2 × custo − 1</b> (3, 5, 7, 9 ou 11), cai 1 no início de cada turno seu e a carta só pode ser invocada quando chega a <b>0</b> — dá para invocar <b>todas</b> as prontas no mesmo turno. A mão inicial começa 2 rodadas adiantada. Depois, você compra <b>as cartas que faltarem para a mão voltar a ter 6</b>.</li>

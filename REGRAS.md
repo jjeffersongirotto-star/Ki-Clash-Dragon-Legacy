@@ -7,7 +7,7 @@
 Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandante do jogador: **20** de vida no nível 1, até **110** no nível 10 (ver seção 15). Comandante inimigo: de **12** (fase 1) a **75** (fase 10).
 
 ## 2. Arena e Lutadores Interativos
-- **2 fileiras × 12 colunas (v0.16.0; antes 2 × 7).** Você fica à esquerda, o inimigo à direita. As casas ficam menores para caber as 12 colunas: deitado no celular (915 × 412) cada casa tem ~52 px; no computador (1366 × 768) ~80 px; em pé (412 × 915) ~25 px, sem as coordenadas das casas e com a placa `ATQ | VIDA` mais enxuta.
+- **2 fileiras × 10 colunas (v0.36.0; v0.16.0 a v0.35 era 2 × 12; antes 2 × 7).** *(Os tamanhos de casa abaixo são da época das 12 colunas.)* Você fica à esquerda, o inimigo à direita. As casas ficam menores para caber as 12 colunas: deitado no celular (915 × 412) cada casa tem ~52 px; no computador (1366 × 768) ~80 px; em pé (412 × 915) ~25 px, sem as coordenadas das casas e com a placa `ATQ | VIDA` mais enxuta.
 - Cada Comandante aparece em **corpo inteiro** logo **depois da última coluna** do seu lado (com barra de vida no topo da tela e nos pés). Ele conta como uma unidade parada numa **coluna virtual** após o fim da arena, alcançável pelas **duas fileiras**.
 - **Zona de invocação:** as **3 primeiras colunas** do seu lado (colunas 1–3). A IA usa as 3 do lado dela (colunas 10–12). Entre as duas zonas ficam **6 colunas livres**.
 - **Unidades na Arena:** cada carta invocada entra em campo como um **lutador anime de corpo inteiro** sobre um círculo tático de invocação, exibindo `ATQ | VIDA` nos pés e animando cada ação:
@@ -44,7 +44,7 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 - **Sair (✕):** abre a confirmação do jogo. **Cancelar** volta à luta sem mudar nada (o **Auto continua** como estava). **Sair** interrompe na hora as animações e turnos em andamento; a luta abandonada não dá recompensa nem derrota.
 
 ### Layout da batalha deitada (paisagem) — v0.11.0
-- **Quando:** sempre que a tela está **mais larga que alta** (celular deitado, tablet ou computador). Só a tela de batalha muda; os menus continuam pensados para o celular em pé e também funcionam deitados.
+- **Quando:** sempre que a tela está **mais larga que alta**. *(Desde a v0.46.0 o jogo inteiro é deitado; ver "Hub da Base e tela deitada".)*
 - **Sem rolagem:** a batalha ocupa exatamente a altura visível (`100dvh`, acompanha a barra de endereço do Chrome) e respeita os recortes da tela (safe-area). Nenhuma parte da tela rola.
 - **Topo:** HUD VS fino (vida dos dois Comandantes, turno), com **Sair**, **Auto**, velocidade, **Em campo (N)** e **📜** (registro) à direita.
 - **Centro:** a arena (2 × 12 desde a v0.16.0) fica **o maior possível**, com as colunas dos Comandantes visíveis nas pontas.
@@ -52,9 +52,9 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 - **Painel de informações:** vira uma **janela sobreposta** sobre a metade inimiga da arena (com **✕** para fechar). Ela abre ao selecionar uma carta/unidade e **fecha sozinha ao tocar LUTAR** (não cobre a luta). Se o texto for longo, rola só por dentro da janela.
 - **Registro da batalha:** fica escondido; o botão **📜** abre/fecha uma gaveta lateral.
 - **Janela de detalhes da carta:** cabe na altura da tela deitada, rola por dentro, ✕ sempre visível.
-- **Celular em pé na batalha:** aparece o aviso do jogo **"Gire o celular para jogar deitado"** (ícone de girar). **⟳ Tela cheia deitada** tenta entrar em tela cheia e travar a tela deitada; **Jogar em pé** fecha o aviso (até fechar o jogo) e usa o layout em pé de sempre. Girar o celular também resolve.
+- *(Removido na v0.46.1: não há mais aviso para girar.)* ~~**Celular em pé na batalha:** aparece o aviso do jogo **"Gire o celular para jogar deitado"** (ícone de girar). **⟳ Tela cheia deitada** tenta entrar em tela cheia e travar a tela deitada; **Jogar em pé** fecha o aviso (até fechar o jogo) e usa o layout em pé de sempre. Girar o celular também resolve.~~
 - **Tela cheia e trava de orientação:** ao entrar numa batalha pelo toque, no celular (tela de toque) o jogo **tenta** abrir em tela cheia e travar deitado (`screen.orientation.lock`). Se o navegador não permitir, nada quebra e o jogo segue normal. Ao sair da batalha (vitória, derrota ou Sair), a tela é destravada e sai da tela cheia (se foi o jogo que entrou). No computador não entra em tela cheia.
-- **App na tela inicial:** o jogo tem um manifesto (nome, ícones, `display: fullscreen`) para **"Adicionar à tela inicial"** abrir como app em tela cheia. A orientação **não** é forçada no manifesto (menus em pé continuam valendo).
+- **App na tela inicial:** o jogo tem um manifesto (nome, ícones, `display: fullscreen`) para **"Adicionar à tela inicial"** abrir como app em tela cheia. **(v0.50.1)** O manifesto pede orientação **deitada** (`"orientation": "landscape"`), como o resto do jogo.
 - **Proporção na arena (v0.11.1, como na referência):** os **Comandantes são as maiores figuras da arena** — corpo inteiro com cerca de **2 fileiras de altura**, em pé na sua ponta, com a barra de vida logo abaixo. As **unidades invocadas cabem dentro da própria casa** (não invadem as casas vizinhas), com a placa ATQ | VIDA e a barra de vida legíveis. No celular em pé a coluna do Comandante também ficou maior.
 - **Comandante Aliado (v0.12.0):** o seu Comandante, na coluna da esquerda, é o **bárbaro** (cabelo e barba pretos, machado de duas lâminas, saiote de pele): arte animada própria com **respiração em loop**, de pé sobre o piso da coluna, com cerca de 2 fileiras de altura e a barra de vida logo abaixo. Vale deitado e em pé. Ao levar dano, a coluna treme como antes. 
 - **Comandante Adversário (v0.12.1):** o Comandante da direita é o **minotauro** (pelo marrom, chifres, machado de pedra com runas laranja), também animado com respiração. Fica sem espelhar: o machado já aponta para a arena. Os textos "Comandante Aliado"/"Comandante Inimigo" saíram: as figuras ocupam a altura toda da coluna, de pé no piso, com a barra e os números de vida embaixo. Atrás de cada Comandante há uma **aura fixa**: azul/ciano do seu lado, rosa/magenta do adversário.
@@ -665,7 +665,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 
 ## 18. App Android (v0.19.0)
 - O jogo também roda como **app Android** (APK), baixado da página de **Releases** do GitHub (`Ki-Clash-<versão>.apk`). As regras são as mesmas do site: é o mesmo jogo.
-- O app abre em **tela cheia** (as barras do sistema aparecem por um instante ao deslizar da borda). A orientação segue o celular, como no site: menus em pé e a batalha melhor deitada, com o mesmo aviso **"Gire o celular para jogar deitado"**.
+- O app abre em **tela cheia** (as barras do sistema aparecem por um instante ao deslizar da borda). **(v0.46.0)** O app fica sempre deitado, desde a abertura, sem aviso para girar.
 - Funciona **sem internet**. O progresso (e as contas locais) fica guardado **no app**, separado do progresso do site no navegador.
 - Toda versão do APK tem a **mesma assinatura**: instalar uma versão nova por cima mantém o progresso. Desinstalar o app apaga o progresso.
 - Requer Android 7.0 ou mais novo.
@@ -704,7 +704,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 
 ### Batalha
 - **Comandantes maiores (deitado):** o Bárbaro e o minotauro ocupam a **altura do retângulo** das pontas (antes ficavam com a altura de 2 casas, que ficou pequena com a arena de 12 colunas). A imagem não distorce.
-- **Tela deitada automática:** no **app (APK)** a batalha **sempre deita a tela sozinha** e o aviso "Gire o celular" não aparece; ao sair, a tela fica livre de novo. No **site**, o jogo continua tentando tela cheia deitada ao entrar na batalha (o navegador só deixa em tela cheia); quando o navegador não deixa, o aviso continua como plano B.
+- **Tela deitada automática:** *(atualizado na v0.46.1/v0.50.1)* o app fica sempre deitado; no site o primeiro toque tenta tela cheia deitada e, depois disso, sair da batalha não destrava. Não existe mais aviso para girar.
 
 ### Botões sem explicação
 - Os botões mostram só a ação, sem texto explicativo: saiu "Suba nível e evolua de cor" do **🔥 Treinar & Despertar** e a janela da fase usa só **⚔ Jogar** / **⟲ Repetir**. (Informações como a próxima fase, a contagem de personagens e custos continuam; ver MELHORIAS.md.)
@@ -1250,3 +1250,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 ## Perfil do hub (v0.50.0)
 - Canto de cima à esquerda: retrato grande escolhível (moldura na cor da raridade do personagem), selo de nível no canto de baixo à esquerda, barra de XP embaixo do retrato (com XP atual/necessário) e nome embaixo da barra. Foto → trocar foto; nome → opções da conta.
+
+## Limpeza (v0.50.1)
+- "Como jogar" lê o tamanho da arena do código (ROWS × COLS), para não ficar desatualizado de novo.
+- Site: a trava deitada/tela cheia, uma vez obtida, continua depois da batalha. Manifesto PWA com `"orientation": "landscape"`.
