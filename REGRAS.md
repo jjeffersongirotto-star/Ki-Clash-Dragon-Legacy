@@ -1272,3 +1272,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 ## Janela da fase (v0.52.1)
 - Mostra: região e dificuldade, Destaques do rival (2 melhores cartas), recompensa, ícones dos itens que podem cair (ⓘ = chances), os 3 objetivos de estrela em texto, ouro e XP por vitória, Jogar/Repetir.
+- **Primeira vitória:** escolha 1 entre 3 cartas do rival. Raridade de cada vaga pelas chances do pacote; no mesmo tipo, a mais forte no rival aparece menos. Sem exclusivos do Banner nem feitiços.

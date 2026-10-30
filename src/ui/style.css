@@ -1693,3 +1693,11 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
   .stage-dialog .stage-actions { display: grid; gap: 8px; }
 }
 .stage-dialog .stage-cmd { height: auto; max-height: 112px; margin: 0 auto 8px; }
+
+/* v0.52.1: escolha de carta na primeira vitória */
+.first-pick { margin: 10px 0 4px; }
+.first-pick-t { margin: 0 0 6px; font-weight: 800; color: var(--gold); }
+.first-pick-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.first-pick-opt { all: unset; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px; border-radius: 12px; border: 2px solid var(--rc); background: rgba(10,14,34,.7); width: 84px; font-size: 12px; }
+.first-pick-opt img { width: 64px; height: 64px; border-radius: 8px; object-fit: cover; }
+.first-pick-opt:hover { box-shadow: 0 0 12px var(--rc); }

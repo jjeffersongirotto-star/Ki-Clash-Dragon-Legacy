@@ -14,13 +14,14 @@ import { gameAlert, showDialog } from '../ui/dialog';
 import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
 import { MAX_COPIES, addToDeck, copiesIn, maxCopiesFor, setCopies, deckMin, deckCards, deckCount, deckIssue, deckMax, teamReady } from '../ui/save';
 import { GEAR_RARE_CHANCE, addGear, stageGearDrop, stageGearIds, stageGearRarity } from '../core/gear';
-import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, gemsFor, spellRewardFor, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, regionUnlocked, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from '../core/adventure';
+import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, gemsFor, spellRewardFor, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, goalPlain, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, regionUnlocked, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from '../core/adventure';
 import { enemyCommanderArt, faceUrl } from '../ui/art';
 import { ico } from '../ui/icons';
 import { arenaAttrs } from '../ui/arenas';
 const regionIcon = (r: { id: number; icon: string }) => ico(`regiao-${r.id}`, r.icon);
 const LOCK = () => ico('bloqueado', '🔒');
 import { grantCard, type GrantResult } from '../core/banner';
+import { firstClearOffer } from '../core/firstPick';
 import { ENERGY_COST, energyMax, goldFor, profileXpFor, spendEnergy } from '../core/profile';
 import { app, save, persist, activeLeader, leaderLevel, prof, energyNow, levelNote, grantProfileAndGold, pendingLevelNote, setPendingLevelNote, noEnergy } from './state';
 import { topbar, bindNav, modal, closeModal } from './ui';
@@ -253,8 +254,6 @@ export function stageDialog(stageId: number) {
   });
 }
 
-/** v0.52.1: objetivo de estrela só em texto (sem o emoji do começo), igual nos três. */
-export const goalPlain = (text: string) => text.replace(/^\P{L}+\s/u, '');
 
 /** v0.52.1: ⓘ dos itens da fase — as chances detalhadas, fora da frente da janela. */
 function dropInfo(stageId: number, diff: Difficulty) {
@@ -346,6 +345,19 @@ export function repeatStage(stageId: number, diff: Difficulty) {
 
 export function resultModal(html: string) {
   modal(`${html}<div class="row"><button class="btn primary" data-m="adv">Continuar</button><button class="btn" data-m="train">Treinar</button></div>`, (m) => {
+    // v0.52.1: com escolha de carta pendente, Continuar/Treinar só liberam depois de escolher
+    const box = m.querySelector<HTMLElement>('[data-pick-box]');
+    if (box) {
+      const btns = [...m.querySelectorAll<HTMLButtonElement>('[data-m=adv], [data-m=train]')];
+      btns.forEach((b) => (b.disabled = true));
+      box.querySelectorAll<HTMLButtonElement>('[data-pick]').forEach((el) =>
+        el.addEventListener('click', () => {
+          box.innerHTML = grantOne(el.dataset.pick!);
+          persist();
+          btns.forEach((b) => (b.disabled = false));
+        }),
+      );
+    }
     m.querySelector('[data-m=adv]')!.addEventListener('click', () => {
       closeModal();
       adventure(save.region);
@@ -432,8 +444,11 @@ export function finishBattle(stageId: number, diff: Difficulty, winner: string, 
     // v0.39.0: vencer a fase 10 de uma região libera a próxima região (nesta dificuldade)
     const nextRegion = first && localOf(stageId) === STAGES_PER_REGION && regionOf(stageId) < REGION_COUNT ? REGIONS[regionOf(stageId)] : undefined;
     const regionOpened = nextRegion ? `<p class="hint">${ico('liberado', '🗺')} Nova região liberada: <b>${regionIcon(nextRegion)} ${esc(nextRegion.name)}</b>!</p>` : '';
+    // v0.52.1: primeira vitória — escolha 1 entre 3 cartas do rival
+    const offer = first ? firstClearOffer(stage.enemyDeck) : [];
+    const pickLine = offer.length ? `<div class="first-pick" data-pick-box><p class="first-pick-t">Escolha 1 carta do rival</p><div class="first-pick-row">${offer.map((id) => { const c = getChar(id); return `<button class="first-pick-opt" data-pick="${id}" style="${starStyle(c.minStars)}">${faceUrl(id) ? `<img src="${faceUrl(id)}" alt="" draggable="false">` : ''}<b>${esc(c.name.split(' ')[0])}</b><small>${tierHTML(c.minStars)}</small></button>`; }).join('')}</div></div>` : '';
     html = `<h2 class="win">${ico('vitoria', '🏆')} Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : `Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.`}</p>
-      ${starsLine}${got}${opened ? `<p class="hint">🔓 Fase ${stageLabel(stageId)} liberada no <b>${DIFFICULTY_LABEL[opened]}</b>!</p>` : ''}${regionOpened}${unlocked}`;
+      ${starsLine}${got}${opened ? `<p class="hint">🔓 Fase ${stageLabel(stageId)} liberada no <b>${DIFFICULTY_LABEL[opened]}</b>!</p>` : ''}${regionOpened}${unlocked}${pickLine}`;
   } else {
     save.items.orbe1 += 1;
     html = `<h2 class="lose">${winner === 'empate' ? `${ico('empate', '⏱')} Empate` : `${ico('derrota', '💀')} Derrota`}</h2><p>Treine seus personagens com Orbes e tente de novo! (+1 Orbe Comum)</p>`;

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { goalPlain } from '../../src/app/adventure';
+import { goalPlain } from '../../src/core/adventure';
 
 const src = readFileSync('src/app/adventure.ts', 'utf8');
 
