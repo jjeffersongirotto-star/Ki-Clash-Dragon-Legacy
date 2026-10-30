@@ -61,3 +61,12 @@ describe('v0.52.1 Loja com Gemas ou Ouro e ícones atuais', () => {
     }
   });
 });
+
+describe('v0.52.2 fechar a vitória volta para as fases', () => {
+  it('o ✕ do resultado leva à seleção de fases e espera a escolha de carta', () => {
+    const src = readFileSync('src/app/adventure.ts', 'utf8');
+    expect(src).toContain('<button data-m="close" hidden></button>');
+    expect(src).toMatch(/\[data-m=close\]'\)!\.addEventListener\('click', \(\) => \{\n\s*closeModal\(\);\n\s*adventure\(save\.region\);/);
+    expect(src).toContain("'[data-m=adv], [data-m=train], [data-m=close]'");
+  });
+});
