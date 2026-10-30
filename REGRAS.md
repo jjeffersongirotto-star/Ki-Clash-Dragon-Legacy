@@ -1243,3 +1243,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 ## Hub com 10 prédios refeitos (v0.49.0)
 - Arte do hub: 03, 04, 05, 06, 07, 10, 11, 12, 13 e 14 vêm do pacote refeito (normal + cadeado + brilho); 01, 02, 08 e 09 continuam do pacote original (01 e 02 com o brilho do pacote novo). Posições em `src/app/hubConfig.ts` (dx/dy).
+
+## Nomes do hub (v0.49.1)
+- Nome embaixo de cada prédio, numa faixa quase transparente com lados abertos e texto com contorno suave; trancados com 🔒 pequeno e texto mais apagado (sem blocos sólidos).
+- Nomes curtos no hub: Aventura, Baralho, Treinar, Loja, Altar, Inventário, Acampamento, Torre, Invasão de Chefe (2 linhas), Arena, Masmorra em Dupla, Santuário, Eventos, Mina. As janelas "Em breve" usam esses mesmos nomes.

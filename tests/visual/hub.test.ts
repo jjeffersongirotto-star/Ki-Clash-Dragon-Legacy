@@ -66,3 +66,18 @@ describe('v0.47.0 hub espalhado, trancados e cartas assadas', () => {
     expect(BAKE_SEL).toContain('.deck-slots .card');
   });
 });
+
+describe('v0.49.1 nomes curtos do hub', () => {
+  it('nomes curtos e Invasão de Chefe em 2 linhas', () => {
+    const by = Object.fromEntries(HUB_SPOTS.map((s) => [s.key, s]));
+    expect(by['14-mina'].label).toBe('Mina');
+    expect(by['13-eventos'].label).toBe('Eventos');
+    expect(by['02-colecao'].label).toBe('Baralho');
+    expect(by['07-tutorial'].label).toBe('Acampamento');
+    expect(by['05-invocacao'].label).toBe('Altar');
+    expect(by['03-treinar'].label).toBe('Treinar');
+    expect(by['12-desejos'].label).toBe('Santuário');
+    const inv = by['09-invasao'];
+    expect(inv.label.slice(0, inv.br)).toBe('Invasão');
+  });
+});

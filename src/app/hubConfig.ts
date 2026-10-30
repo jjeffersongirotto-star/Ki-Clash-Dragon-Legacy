@@ -15,6 +15,8 @@ export interface HubSpot {
   tagUp?: boolean;
   /** nome à esquerda do prédio */
   tagLeft?: boolean;
+  /** v0.49.1: quebra o nome em 2 linhas no espaço desta posição */
+  br?: number;
   /** v0.47.0: deslocamento do prédio no mapa (px do mapa 2340×1080), para espalhar sem esticar a arte */
   dx?: number;
   dy?: number;
@@ -22,21 +24,21 @@ export interface HubSpot {
 
 export const HUB_SPOTS: HubSpot[] = [
   { key: '01-aventura', label: 'Aventura', nav: 'adventure' },
-  { key: '02-colecao', label: 'Coleção & Baralho', nav: 'collection' },
-  { key: '03-treinar', label: 'Treinar & Despertar', nav: 'train', dx: 20, dy: 20 },
+  { key: '02-colecao', label: 'Baralho', nav: 'collection' },
+  { key: '03-treinar', label: 'Treinar', nav: 'train', dx: 20, dy: 20 },
   { key: '04-loja', label: 'Loja', nav: 'shop' },
   // o Banner fica no topo da Loja (não há tela própria de Banner)
-  { key: '05-invocacao', label: 'Altar de Invocação', nav: 'shop', dy: 40 },
+  { key: '05-invocacao', label: 'Altar', nav: 'shop', dy: 40 },
   { key: '06-inventario', label: 'Inventário', nav: 'inventory' },
   // o tutorial guiado só roda uma vez; o Acampamento abre o "Como jogar"
-  { key: '07-tutorial', label: 'Acampamento do Iniciante', nav: 'help', dx: -20 },
+  { key: '07-tutorial', label: 'Acampamento', nav: 'help', dx: -20 },
   { key: '08-torre', label: 'Torre', nav: null, soon: 'Suba andares cada vez mais difíceis.' },
-  { key: '09-invasao', label: 'Invasão de Chefe', nav: null, soon: 'Chefes gigantes invadem o mundo por tempo limitado.' },
+  { key: '09-invasao', label: 'Invasão de Chefe', nav: null, br: 7, soon: 'Chefes gigantes invadem o mundo por tempo limitado.' },
   { key: '10-arena', label: 'Arena', nav: null, soon: 'Lute contra baralhos de outros jogadores controlados pela IA.', dy: 60 },
   { key: '11-masmorra-dupla', label: 'Masmorra em Dupla', nav: null, soon: 'Explore masmorras com um parceiro.', dx: -40, dy: 40 },
-  { key: '12-desejos', label: 'Santuário dos 7 Diamantes', nav: null, soon: 'Reúna os 7 diamantes e faça um desejo.' },
-  { key: '13-eventos', label: 'Praça de Eventos', nav: null, soon: 'Eventos especiais com prêmios por tempo limitado.' },
-  { key: '14-mina', label: 'Mina de Cristais', nav: null, pad: 20, dx: 60, dy: 40, tagLeft: true, soon: 'Recolha cristais com o tempo.' },
+  { key: '12-desejos', label: 'Santuário', nav: null, soon: 'Reúna os 7 diamantes e faça um desejo.' },
+  { key: '13-eventos', label: 'Eventos', nav: null, soon: 'Eventos especiais com prêmios por tempo limitado.' },
+  { key: '14-mina', label: 'Mina', nav: null, pad: 20, dx: 60, dy: 40, soon: 'Recolha cristais com o tempo.' },
 ];
 
 export const HUB_W = 2340;

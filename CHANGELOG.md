@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.49.1] — 30/10/2026 · Nomes do hub mais leves
+- Os nomes dos locais saíram das faixas vermelhas/cinzas e agora ficam numa **faixa quase transparente**, aberta dos lados, com texto branco de **contorno suave** (estilo Mighty Party). Trancados: texto um pouco mais apagado e 🔒 pequeno.
+- **Nomes curtos:** Baralho, Treinar, Altar, Acampamento, Santuário, Eventos e Mina. **Invasão de Chefe** em 2 linhas.
+- Todos os nomes ficam **embaixo** do prédio.
+
 ## [0.49.0] — 30/10/2026 · Hub com os 10 prédios refeitos
 - **Arte refeita (normal, com cadeado e brilho):** Treinar & Despertar, Loja, Altar de Invocação (desenho novo), Inventário, Acampamento do Iniciante, Arena, Masmorra em Dupla, Santuário dos 7 Diamantes, Praça de Eventos e Mina de Cristais.
 - **Mantidos:** Aventura, Coleção & Baralho, Torre e Invasão de Chefe (arte de antes; Aventura e Coleção com o brilho forte da v0.48).
