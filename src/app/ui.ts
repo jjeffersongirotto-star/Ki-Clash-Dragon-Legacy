@@ -59,6 +59,28 @@ export function modal(html: string, bind: (m: HTMLElement) => void) {
   m.innerHTML = `<div class="modal">${html}</div>`;
   document.body.appendChild(m);
   bind(m);
+  addCornerX(m);
+}
+
+/** v0.52.0: todo modal fecha pelo ✕ no canto de cima à direita. Um botão que só fecha
+ *  (Fechar / OK / ✕ fora do lugar) some e o ✕ do canto faz o mesmo que ele fazia. */
+export function addCornerX(m: HTMLElement) {
+  const box = m.querySelector<HTMLElement>('.modal')!;
+  if (box.querySelector(':scope > .modal-x')) return;
+  const dismiss = [...box.querySelectorAll<HTMLButtonElement>('[data-m=close], [data-m=ok]')].find((b) => /^(Fechar|OK|Ok|Entendi|✕)?$/.test(b.textContent!.trim()) || b.classList.contains('pull-x'));
+  if (!dismiss && box.querySelector('[data-b]')) return; // resultado de batalha: os botões são as próprias ações
+  const x = document.createElement('button');
+  x.className = 'modal-x';
+  x.setAttribute('aria-label', 'Fechar');
+  x.title = 'Fechar';
+  x.innerHTML = ico('fechar', '✕');
+  x.addEventListener('click', () => (dismiss ? dismiss.click() : closeModal()));
+  box.prepend(x);
+  if (dismiss) {
+    dismiss.hidden = true;
+    const row = dismiss.closest('.row') as HTMLElement | null;
+    if (row && ![...row.children].some((c) => !(c as HTMLElement).hidden)) row.hidden = true;
+  }
 }
 export function closeModal() {
   document.querySelector('.modal-bg')?.remove();

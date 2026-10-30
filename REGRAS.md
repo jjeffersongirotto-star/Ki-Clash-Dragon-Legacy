@@ -1264,3 +1264,8 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - Ouro e Energia em cápsulas pequenas, uma embaixo da outra, sem encostar na Torre; Energia atual e máxima com o mesmo tamanho de letra.
 - O nível do jogador fica num número pequeno no canto de baixo à esquerda do retrato.
 - O hub não mostra a versão; ela aparece no ⟳ (Procurar atualização).
+
+## Janelas e Loja (v0.52.0)
+- Toda janela fecha pelo ✕ no canto de cima à direita (e Esc no computador). Não há botão "Fechar"; os botões que sobram são ações.
+- Loja: a primeira tela é o banner; as abas de itens e orbes ficam abaixo, rolando.
+- Foto de perfil: o rosto de cada personagem que você tem, recortado e centralizado.

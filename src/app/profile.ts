@@ -64,8 +64,7 @@ async function avatarDialog(refresh: () => void) {
   const owned = Object.keys(save.cards).filter((id) => faceUrl(id));
   await showDialog({
     title: 'Foto de perfil',
-    html: `<p class="hint">Escolha o rosto de um personagem seu. Cada personagem novo que você ganhar libera o rosto dele.</p>
-      <div class="avatar-grid">${owned
+    html: `<div class="avatar-grid">${owned
         .map((id) => `<button class="avatar-opt${id === cur ? ' on' : ''}" data-av="${id}" style="${starStyle(save.cards[id].stars)}" title="${esc(getChar(id).name)}">${avatarImg(id)}<small>${esc(getChar(id).name.split(' ')[0])}</small></button>`)
         .join('')}</div>`,
     buttons: [{ label: 'Fechar', value: 'cancel', kind: 'ghost' }],

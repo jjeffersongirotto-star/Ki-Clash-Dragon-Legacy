@@ -1656,3 +1656,14 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .account-box.hub-top .res.hub-res .energy small { font-size: inherit; font-weight: inherit; }
 .account-box.hub-top .res.hub-res img, .account-box.hub-top .res.hub-res .coin-img { width: 15px; height: 15px; }
 .pcard-v2 .pcard-lvbadge { left: 3px; bottom: 3px; min-width: 0; height: auto; padding: 0 3px; border: 0; border-radius: 4px; background: rgba(0,0,0,.55); box-shadow: none; font-size: 10px; line-height: 13px; }
+
+/* ===== v0.52.0: ✕ do canto em todas as janelas ===== */
+.dialog { position: relative; }
+.dialog-x { position: absolute; top: 8px; right: 8px; z-index: 3; width: 34px; height: 34px; border-radius: 50%; border: 1px solid #4a5590; background: rgba(10,14,34,.9); color: #fff; font-size: 17px; font-weight: 900; line-height: 1; display: grid; place-items: center; cursor: pointer; padding: 0; }
+.dialog-x:hover { background: #2a3366; }
+.dialog-x img, .modal-x img { width: 18px; height: 18px; }
+.dialog .dialog-title { padding: 0 34px; }
+.modal > .modal-x + h2, .modal > .modal-x + .detail { margin-top: 4px; }
+/* ===== v0.52.0: Loja — o banner ocupa a primeira tela; as abas ficam logo abaixo (rolando) ===== */
+.shop-screen .banner-box { box-sizing: border-box; min-height: calc(100dvh - var(--shop-top, 70px)); display: flex; flex-direction: column; }
+.shop-screen .banner-box .banner-art { flex: 1 1 auto; min-height: 190px; height: auto; }

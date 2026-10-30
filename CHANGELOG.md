@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.52.0] — 30/10/2026 · Janelas com ✕, banner em tela cheia e rostos centralizados
+- **Loja:** o banner ocupa a primeira tela inteira; as abas Itens de Ascensão e Orbes aparecem ao rolar para baixo.
+- **Foto de perfil:** sem o texto de explicação; fecha só pelo ✕.
+- **Padrão das janelas:** em todo o jogo, fechar é pelo **✕ no canto de cima à direita**. Os botões que só fechavam (Fechar, Entendi, OK, Cancelar e o ✕ embaixo do resultado do Banner) saíram, e o ✕ faz o mesmo que eles faziam. Esc continua fechando no computador.
+  - Ficam os botões de **ação** (ex.: Comprar, Apagar, Colocar no baralho, Continuar/Treinar no fim da batalha). Num "tem certeza?", sobra só o botão de confirmar; o ✕ cancela.
+- **Rostos da foto de perfil:** corte mais justo e com o rosto no meio (Nara e outros 57 não mostram mais céu sobrando). Zarek, Kenji e Vorax ficaram como estavam. As artes das cartas não mudaram.
+
 ## [0.51.1] — 30/10/2026 · Acabamento do hub
 - **Ouro e Energia:** mais juntos e um pouco mais para cima, em cápsulas menores (borda e espaçamento menores). A Energia não encosta mais na Torre, e o número atual tem o mesmo tamanho do máximo (ex.: 9962/300).
 - **Nível do perfil:** sem o selo azul com aro; agora é um número pequeno dentro do canto de baixo à esquerda do retrato, como no Mighty Party.
