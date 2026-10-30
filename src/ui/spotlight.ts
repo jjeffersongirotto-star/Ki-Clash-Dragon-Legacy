@@ -10,6 +10,8 @@ let root: HTMLElement | null = null;
 let lastHtml = '';
 
 export interface SpotOptions {
+  /** v0.52.1: tela clara (sem escurecer), como numa partida normal — só a caixa de texto aparece */
+  clear?: boolean;
   /** "Pular tutorial" na caixa de texto */
   onSkip?: () => void;
   /** folga em volta do alvo (px) */
@@ -61,6 +63,13 @@ export function spotlight(target: Element | null, html: string, opts: SpotOption
   const hasT = !!tbox && tbox.width > 0;
   const box = abox ? { left: Math.min(abox.left, hasT ? tbox.left : abox.left), top: Math.min(abox.top, hasT ? tbox.top : abox.top), right: Math.max(abox.right, hasT ? tbox.right : abox.right), bottom: Math.max(abox.bottom, hasT ? tbox.bottom : abox.bottom), width: 1 } : tbox;
   zone.style.display = 'none';
+  if (opts.clear) {
+    for (const el of [t, b, l, rt]) place(el, 0, 0, 0, 0);
+    frame.style.display = arrow.style.display = 'none';
+    tip.style.top = '';
+    tip.style.bottom = '16px';
+    return;
+  }
   if (!box || box.width === 0) {
     place(t, 0, 0, vw, vh);
     for (const el of [b, l, rt]) place(el, 0, 0, 0, 0);

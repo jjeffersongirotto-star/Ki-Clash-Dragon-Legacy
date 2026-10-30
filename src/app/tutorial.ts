@@ -131,7 +131,9 @@ export function tutorialBattle(i: 0 | 1) {
     // nada cobre o alvo durante o tutorial (menos a descrição logo depois do passo de segurar, até escolher a carta)
     if (!(memo.held && view.selected == null && (view.state.stats?.player.cards ?? 0) === 0)) battleEl?.classList.remove('has-info');
     battleEl?.classList.remove('log-open');
-    if (view.busy || document.querySelector('.modal-bg, .battle-card-modal-bg')) return spotlight(null, guideText(i, { kind: 'watch' }, view.state), { onSkip: skip });
+    // v0.52.1: enquanto os personagens agem a tela fica clara, como numa partida normal; escurece de novo no próximo passo
+    if (view.busy) return spotlight(null, guideText(i, { kind: 'watch' }, view.state), { onSkip: skip, clear: true });
+    if (document.querySelector('.modal-bg, .battle-card-modal-bg')) return spotlight(null, guideText(i, { kind: 'watch' }, view.state), { onSkip: skip });
     const a = guideStep(i, view.state, view.selected, memo);
     const target =
       a.kind === 'card' || a.kind === 'hold'

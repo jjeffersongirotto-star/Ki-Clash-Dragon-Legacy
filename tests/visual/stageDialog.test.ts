@@ -20,3 +20,14 @@ describe('v0.52.1 janela da fase', () => {
     expect(src).toContain('.slice(0, 2)');
   });
 });
+
+describe('v0.52.1 tutorial e topo', () => {
+  it('durante a animação a tela do tutorial fica clara', () => {
+    const tut = readFileSync('src/app/tutorial.ts', 'utf8');
+    expect(tut).toMatch(/if \(view\.busy\) return spotlight\(null,[^\n]*clear: true/);
+    expect(readFileSync('src/ui/spotlight.ts', 'utf8')).toContain('if (opts.clear)');
+  });
+  it('topo das telas com margem segura', () => {
+    expect(readFileSync('src/ui/style.css', 'utf8')).toMatch(/\.screen \{ padding-top: max\(18px, calc\(env\(safe-area-inset-top\)/);
+  });
+});
