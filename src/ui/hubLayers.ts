@@ -1,10 +1,16 @@
 // Gerado por scripts/hub/build_hub.py — caixas (x0, y0, x1, y1) no mapa 2340×1080.
 export const HUB_BOXES: Record<string, [number, number, number, number]> = {
+ "01-aventura": [
+  954,
+  338,
+  1386,
+  752
+ ],
  "01-aventura-glow": [
-  947,
-  331,
-  1393,
-  757
+  943,
+  327,
+  1398,
+  762
  ],
  "01-aventura-locked": [
   954,
@@ -12,17 +18,17 @@ export const HUB_BOXES: Record<string, [number, number, number, number]> = {
   1386,
   752
  ],
- "01-aventura": [
-  954,
-  338,
-  1386,
-  752
+ "02-colecao": [
+  466,
+  198,
+  733,
+  492
  ],
  "02-colecao-glow": [
-  459,
-  191,
-  740,
-  499
+  455,
+  187,
+  745,
+  504
  ],
  "02-colecao-locked": [
   466,
@@ -30,17 +36,17 @@ export const HUB_BOXES: Record<string, [number, number, number, number]> = {
   733,
   492
  ],
- "02-colecao": [
-  466,
-  198,
-  733,
-  492
+ "03-treinar": [
+  1498,
+  618,
+  1751,
+  892
  ],
  "03-treinar-glow": [
-  1491,
-  612,
-  1758,
-  898
+  1487,
+  608,
+  1762,
+  902
  ],
  "03-treinar-locked": [
   1498,
@@ -48,17 +54,17 @@ export const HUB_BOXES: Record<string, [number, number, number, number]> = {
   1751,
   892
  ],
- "03-treinar": [
-  1498,
-  618,
-  1751,
-  892
+ "04-loja": [
+  1602,
+  198,
+  1838,
+  491
  ],
  "04-loja-glow": [
-  1595,
-  191,
-  1845,
-  498
+  1589,
+  185,
+  1851,
+  502
  ],
  "04-loja-locked": [
   1602,
@@ -66,41 +72,23 @@ export const HUB_BOXES: Record<string, [number, number, number, number]> = {
   1838,
   491
  ],
- "04-loja": [
-  1602,
-  198,
-  1838,
-  491
+ "05-invocacao": [
+  1034,
+  732,
+  1306,
+  978
  ],
  "05-invocacao-glow": [
-  1050,
-  772,
-  1289,
+  1023,
+  721,
+  1317,
   989
  ],
  "05-invocacao-locked": [
-  1057,
-  778,
-  1282,
-  982
- ],
- "05-invocacao": [
-  1057,
-  778,
-  1282,
-  982
- ],
- "06-inventario-glow": [
-  308,
-  611,
-  570,
-  876
- ],
- "06-inventario-locked": [
-  315,
-  618,
-  563,
-  870
+  1034,
+  732,
+  1306,
+  978
  ],
  "06-inventario": [
   315,
@@ -108,23 +96,41 @@ export const HUB_BOXES: Record<string, [number, number, number, number]> = {
   563,
   870
  ],
- "07-tutorial-glow": [
-  621,
-  727,
-  819,
-  902
+ "06-inventario-glow": [
+  303,
+  605,
+  575,
+  883
  ],
- "07-tutorial-locked": [
-  628,
-  734,
-  812,
-  895
+ "06-inventario-locked": [
+  315,
+  618,
+  563,
+  870
  ],
  "07-tutorial": [
-  628,
-  734,
-  812,
-  895
+  574,
+  480,
+  836,
+  709
+ ],
+ "07-tutorial-glow": [
+  563,
+  469,
+  847,
+  720
+ ],
+ "07-tutorial-locked": [
+  574,
+  480,
+  836,
+  709
+ ],
+ "08-torre": [
+  238,
+  155,
+  402,
+  554
  ],
  "08-torre-glow": [
   231,
@@ -138,11 +144,11 @@ export const HUB_BOXES: Record<string, [number, number, number, number]> = {
   402,
   554
  ],
- "08-torre": [
-  238,
-  155,
-  402,
-  554
+ "09-invasao": [
+  1908,
+  156,
+  2101,
+  414
  ],
  "09-invasao-glow": [
   1902,
@@ -156,11 +162,11 @@ export const HUB_BOXES: Record<string, [number, number, number, number]> = {
   2101,
   414
  ],
- "09-invasao": [
-  1908,
-  156,
-  2101,
-  414
+ "10-arena": [
+  1823,
+  568,
+  2087,
+  852
  ],
  "10-arena-glow": [
   1816,
@@ -174,82 +180,76 @@ export const HUB_BOXES: Record<string, [number, number, number, number]> = {
   2087,
   852
  ],
- "10-arena": [
-  1823,
-  568,
-  2087,
-  852
+ "11-masmorra-dupla": [
+  717,
+  739,
+  962,
+  991
  ],
  "11-masmorra-dupla-glow": [
-  831,
-  793,
-  1009,
-  976
+  706,
+  728,
+  973,
+  1001
  ],
  "11-masmorra-dupla-locked": [
-  838,
-  800,
-  1002,
-  969
- ],
- "11-masmorra-dupla": [
-  838,
-  800,
-  1002,
-  969
- ],
- "12-desejos-glow": [
-  837,
-  141,
-  1003,
-  318
- ],
- "12-desejos-locked": [
-  844,
-  148,
-  996,
-  311
+  717,
+  739,
+  962,
+  991
  ],
  "12-desejos": [
-  844,
-  148,
-  996,
-  311
+  812,
+  124,
+  1028,
+  355
  ],
- "13-eventos-glow": [
-  1332,
-  141,
-  1509,
-  319
+ "12-desejos-glow": [
+  801,
+  113,
+  1039,
+  366
  ],
- "13-eventos-locked": [
-  1338,
-  148,
-  1502,
-  312
+ "12-desejos-locked": [
+  812,
+  124,
+  1028,
+  355
  ],
  "13-eventos": [
-  1338,
-  148,
-  1502,
-  312
+  1309,
+  124,
+  1531,
+  345
  ],
- "14-mina-glow": [
-  1913,
-  862,
-  2057,
-  999
+ "13-eventos-glow": [
+  1298,
+  113,
+  1542,
+  356
  ],
- "14-mina-locked": [
-  1919,
-  868,
-  2051,
-  992
+ "13-eventos-locked": [
+  1309,
+  124,
+  1531,
+  345
  ],
  "14-mina": [
   1919,
-  868,
-  2051,
-  992
+  784,
+  2111,
+  965
+ ],
+ "14-mina-glow": [
+  1908,
+  773,
+  2121,
+  976
+ ],
+ "14-mina-locked": [
+  1919,
+  784,
+  2111,
+  965
  ]
 };

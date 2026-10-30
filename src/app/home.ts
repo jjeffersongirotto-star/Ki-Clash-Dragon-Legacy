@@ -37,6 +37,8 @@ export function home(): void {
   };
   app.innerHTML = `<div class="screen home hub">
     <div class="hub-stage"><div class="hub-map" style="background-image:url('${HUB_IMG.vazio}')">
+      <div class="hub-cena nuvem" style="background-image:url('${HUB_IMG['cena-nuvem-a']}')"></div>
+      <div class="hub-cena nevoa" style="background-image:url('${HUB_IMG['cena-nevoa']}')"></div>
       ${HUB_SPOTS.map((s) => (s.nav ? lay(s.key, s) : lay(`${s.key}-locked`, s, ' hub-locked'))).join('')}
       ${HUB_SPOTS.filter((s) => s.nav).map((s) => lay(`${s.key}-glow`, s, ' hub-glow')).join('')}
       ${HUB_SPOTS.map((s, i) => {
