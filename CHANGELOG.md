@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.52.2] — 30/10/2026 · Sair da vitória vai para as fases
+- Fechar a janela de recompensa (pelo ✕ do canto) leva sempre para a **seleção de fases**, nunca de volta à batalha já terminada. Com a escolha de carta da primeira vitória pendente, o ✕ só libera depois de escolher.
+
 ## [0.52.1] — 30/10/2026 · Janela da fase mais limpa
 - **Cabe inteira:** em paisagem a janela da fase usa duas colunas (rival e recompensas à esquerda; estrelas e Jogar/Repetir à direita); nada fica cortado nem grudado, sem rolar.
 - **Rival:** saíram a vida do Comandante inimigo e o "Inimigos até…". No lugar, **Destaques do rival** com o rosto das 2 cartas mais fortes dele (e os feitiços, se tiver).

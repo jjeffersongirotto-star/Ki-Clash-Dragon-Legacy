@@ -344,11 +344,16 @@ export function repeatStage(stageId: number, diff: Difficulty) {
 }
 
 export function resultModal(html: string) {
-  modal(`${html}<div class="row"><button class="btn primary" data-m="adv">Continuar</button><button class="btn" data-m="train">Treinar</button></div>`, (m) => {
+  // v0.52.2: o ✕ do canto (e qualquer saída) leva para a seleção de fases, nunca de volta à batalha terminada
+  modal(`${html}<div class="row"><button class="btn primary" data-m="adv">Continuar</button><button class="btn" data-m="train">Treinar</button><button data-m="close" hidden></button></div>`, (m) => {
+    m.querySelector('[data-m=close]')!.addEventListener('click', () => {
+      closeModal();
+      adventure(save.region);
+    });
     // v0.52.1: com escolha de carta pendente, Continuar/Treinar só liberam depois de escolher
     const box = m.querySelector<HTMLElement>('[data-pick-box]');
     if (box) {
-      const btns = [...m.querySelectorAll<HTMLButtonElement>('[data-m=adv], [data-m=train]')];
+      const btns = [...m.querySelectorAll<HTMLButtonElement>('[data-m=adv], [data-m=train], [data-m=close]')];
       btns.forEach((b) => (b.disabled = true));
       box.querySelectorAll<HTMLButtonElement>('[data-pick]').forEach((el) =>
         el.addEventListener('click', () => {
