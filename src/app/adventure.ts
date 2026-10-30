@@ -281,7 +281,7 @@ export function grantedHTML(g: GrantResult): string {
       return `<div class="unlock" style="${starStyle(g.stars)}">${spellCardHTML(sp.id, { compact: true })}<div><b>Novo feitiço!</b><br>${sp.icon} ${esc(sp.name)} · ${tierHTML(g.stars)}<br><small>Conjurador: ${esc(spellCastersLabel(sp))}${joined ? ' · entrou direto no seu baralho' : caster ? '' : ' · coloque no baralho (Coleção) quando tiver quem conjure'}</small></div></div>`;
     }
     const joined = save.deck.includes(sp.id) && g.copies <= MAX_COPIES && setCopiesIfRoom(sp.id);
-    return `<div class="unlock dup" style="${starStyle(g.stars)}">${spellCardHTML(sp.id, { compact: true })}<div><b>Repetido:</b> ${sp.icon} ${esc(sp.name)} ${tierHTML(g.stars)}<br>🃏 <b>+1 cópia</b> · agora você tem <b>${g.copies}</b><br><small>${joined ? 'A cópia entrou no seu baralho.' : g.copies > MAX_COPIES ? 'Sobra guardada no 🎒 Inventário (Desmanchar).' : 'Ajuste as cópias no baralho na Coleção.'}</small></div></div>`;
+    return `<div class="unlock dup" style="${starStyle(g.stars)}">${spellCardHTML(sp.id, { compact: true })}<div><b>Repetido:</b> ${sp.icon} ${esc(sp.name)} ${tierHTML(g.stars)}<br>${ico('colecao', '🃏')} <b>+1 cópia</b> · agora você tem <b>${g.copies}</b><br><small>${joined ? 'A cópia entrou no seu baralho.' : g.copies > MAX_COPIES ? `Sobra guardada no ${ico('inventario', '🎒')} Inventário (Desmanchar).` : 'Ajuste as cópias no baralho na Coleção.'}</small></div></div>`;
   }
   const def = getChar(g.charId);
   if (g.isNew) {
@@ -289,7 +289,7 @@ export function grantedHTML(g: GrantResult): string {
     return `<div class="unlock" style="${starStyle(g.stars)}">${cardHTML(save.cards[def.id], { compact: true })}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${raceHTML(def)} ${categoryHTML(def, true)} · ${tierHTML(g.stars)}${joined ? '<br><small>Entrou direto no seu baralho.</small>' : ''}</div></div>`;
   }
   // v0.32.0: o repetido vira mais 1 cópia guardada (o Desmanchar, no 🎒 Inventário, decide o que fazer com ela)
-  return `<div class="unlock dup" style="${starStyle(g.stars)}">${cardHTML({ charId: g.charId, stars: g.stars }, { compact: true })}<div><b>Repetido:</b> ${esc(def.name)} ${tierHTML(g.stars)}<br>🃏 <b>+1 cópia</b> · agora você tem <b>${g.copies}</b><br><small>Guardada no 🎒 Inventário (Desmanchar).</small></div></div>`;
+  return `<div class="unlock dup" style="${starStyle(g.stars)}">${cardHTML({ charId: g.charId, stars: g.stars }, { compact: true })}<div><b>Repetido:</b> ${esc(def.name)} ${tierHTML(g.stars)}<br>${ico('colecao', '🃏')} <b>+1 cópia</b> · agora você tem <b>${g.copies}</b><br><small>Guardada no ${ico('inventario', '🎒')} Inventário (Desmanchar).</small></div></div>`;
 }
 
 /** v0.41.0: feitiço repetido que já está no baralho ganha +1 cópia nele, se couber. */
@@ -325,7 +325,7 @@ export function grantPlayXp(stageId: number, first = false): string {
   const xp = playXp(stageId) * (first ? FIRST_WIN_XP_MULT : 1);
   let full = 0;
   for (const id of save.deck) if (!isSpell(id) && save.cards[id] && feedXp(save.cards[id], xp).filled) full++;
-  return `<p class="hint">📈 +${xp} XP para cada personagem do baralho${full ? ` · ${full} barra(s) cheia(s): suba o degrau em Treinar` : ''}</p>`;
+  return `<p class="hint">${ico('evoluir', '📈')} +${xp} XP para cada personagem do baralho${full ? ` · ${full} barra(s) cheia(s): suba o degrau em Treinar` : ''}</p>`;
 }
 
 /** Repetir: recompensa na hora, sem jogar a batalha (gasta 1 vez do dia). */
@@ -434,7 +434,7 @@ export function finishBattle(stageId: number, diff: Difficulty, winner: string, 
     // v0.33.0: no lugar do pacote de personagens, 💠 Gemas de Invocação na primeira vitória (fases 3, 6, 9 e 10)
     const gems = first ? gemsFor(stageId) : 0;
     save.gems = (save.gems ?? 0) + gems;
-    const gemLine = gems ? `<div class="res big"><span>${gemHTML(`+${gems}`)} ${gems > 1 ? 'Gemas' : 'Gema'} de Invocação</span></div><p class="hint">Use na 🏪 Loja: cada gema compra 1 carta do ${ico('banner', '🎴')} Banner.</p>` : '';
+    const gemLine = gems ? `<div class="res big"><span>${gemHTML(`+${gems}`)} ${gems > 1 ? 'Gemas' : 'Gema'} de Invocação</span></div><p class="hint">Use na ${ico('loja', '🏪')} Loja: cada gema compra 1 carta do ${ico('banner', '🎴')} Banner.</p>` : '';
     // v0.41.0: ✦ carta de feitiço na primeira vitória das fases 2, 5 e 8 de cada região
     const spell = first ? spellRewardFor(stageId, diff) : undefined;
     const unlocked = gemLine + (spell ? grantOne(spell) : '');

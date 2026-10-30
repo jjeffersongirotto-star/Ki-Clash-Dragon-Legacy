@@ -39,3 +39,25 @@ describe('v0.52.1 botão Ir ao Banner', () => {
     expect(tut).not.toContain("'🎴 Ir ao Banner'");
   });
 });
+
+describe('v0.52.1 Loja com Gemas ou Ouro e ícones atuais', () => {
+  it('cada compra do Banner tem as duas opções e a Loja mostra as Gemas', () => {
+    const shop = readFileSync('src/app/shop.ts', 'utf8');
+    expect(shop).toContain('export function buyPair');
+    expect(shop).toContain('data-pay="${kind}"');
+    expect(shop).toContain("${one('gem')}${one('gold')}");
+    expect(shop).toMatch(/topbar\([^\n]*gemHTML\(fmt\(save\.gems/);
+  });
+  it('tutorial do Banner aponta o botão de Gema e o ✕ do canto (a tela não trava)', () => {
+    const tut = readFileSync('src/app/tutorial.ts', 'utf8');
+    expect(tut).toContain('[data-pull="1"][data-pay="gem"]');
+    expect(tut).toContain("'.modal-bg .modal-x'");
+    expect(tut).not.toContain("'.pull-x'");
+  });
+  it('sem emoji antigo de Banner/Gema nos textos das telas', () => {
+    for (const f of ['tutorial', 'shop', 'collection', 'inventory', 'help', 'adventure']) {
+      const src = readFileSync(`src/app/${f}.ts`, 'utf8').split('\n').filter((l) => !/^\s*(\/\/|\*|\/\*\*)/.test(l)).join('\n');
+      expect(src.replace(/ico\('[a-z-]+', '[^']*'\)/g, '').replace(/\/\/.*$/gm, '')).not.toMatch(/🎴 Banner|💠 Gema/);
+    }
+  });
+});

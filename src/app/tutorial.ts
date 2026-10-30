@@ -38,7 +38,7 @@ export function tutorial(): void {
         ? `<p>Muito bem! Você ganhou um <b>pacote grátis</b> com 2 personagens novos e 1 feitiço.</p><div class="tut-pack" data-act="pack">🎁<small>Toque para abrir</small></div>`
         : `<p>Agora com 3 personagens. Os inimigos desta batalha mostram como as <b>habilidades</b> funcionam.</p><div class="tut-cards">${TUTORIAL_CHARS.map((id) => cardHTML(save.cards[id], { compact: true })).join('')}${spellCopies(save, TUTORIAL_SPELL) ? spellCardHTML(TUTORIAL_SPELL, { compact: true }) : ''}</div>`;
   app.innerHTML = `<div class="screen tutorial">
-    <h1>🎓 Tutorial</h1>
+    <h1>${ico('tutorial', '🎓')} Tutorial</h1>
     <ol class="tut-steps">${step(TUT_BATTLE1, 'Batalha 1')}${step(TUT_PACK, 'Pacote grátis')}${step(TUT_BATTLE2, 'Batalha 2')}</ol>
     <div class="tut-body">${body}</div>
     <div class="row">${t === TUT_PACK ? '' : `<button class="btn primary big" data-act="go">⚔ ${t === TUT_BATTLE1 ? 'Começar' : 'Lutar'}</button>`}</div>
@@ -206,7 +206,7 @@ export function finishTutorial() {
   persist();
   const items = Object.keys(gear).map((k) => { const [id, r] = k.split(':'); return gearHTML(id, Number(r), `+${gear[k]}`); }).join('');
   resultModalWith(
-    `<h2 class="win">🎓 Batalhas concluídas!</h2><p>Recompensa:</p><div class="res big"><span>${essIcon()} +${TUTORIAL_REWARD.essencias}</span>${orbBagHTML(TUTORIAL_REWARD.orbs)}${items}<span>${gemHTML(`+${TUTORIAL_GEMS}`)} Gemas</span></div>
+    `<h2 class="win">${ico('tutorial', '🎓')} Batalhas concluídas!</h2><p>Recompensa:</p><div class="res big"><span>${essIcon()} +${TUTORIAL_REWARD.essencias}</span>${orbBagHTML(TUTORIAL_REWARD.orbs)}${items}<span>${gemHTML(`+${TUTORIAL_GEMS}`)} Gemas</span></div>
     <p class="hint">Com as <b>${gemHTML()} Gemas de Invocação</b> você compra cartas novas no <b>${ico('banner', '🎴')} Banner</b>. Vamos usar as 2 agora!</p>`,
     [{ label: `${ico('banner', '🎴')} Ir ao Banner`, primary: true, run: bannerGuide }],
   );
@@ -226,8 +226,8 @@ export function bannerGuide() {
     save.tutBanner = false;
     persist();
     resultModalWith(
-      `<h2 class="win">🎓 Tutorial concluído!</h2><p class="hint">Em <b>🔥 Treinar</b>, use os Orbes para encher a barra de XP e depois <b>Desperte</b> cada personagem para o "+" com os itens. Depois, vá para a <b>⚔ Aventura</b>. Personagens e feitiços novos vêm do <b>${ico('banner', '🎴')} Banner</b> (com Ouro de Dragão ou ${gemHTML()} Gemas, que as fases 3, 6, 9 e 10 dão na primeira vitória); as fases 2, 5 e 8 dão um <b>✦ feitiço</b> na primeira vitória.</p>`,
-      [{ label: '🔥 Treinar', primary: true, run: () => train() }, { label: 'Base', run: home }],
+      `<h2 class="win">${ico('tutorial', '🎓')} Tutorial concluído!</h2><p class="hint">Em <b>${ico('treinar', '🔥')} Treinar</b>, use os Orbes para encher a barra de XP e depois <b>Desperte</b> cada personagem para o "+" com os itens. Depois, vá para a <b>⚔ Aventura</b>. Personagens e feitiços novos vêm do <b>${ico('banner', '🎴')} Banner</b> (com Ouro de Dragão ou ${gemHTML()} Gemas, que as fases 3, 6, 9 e 10 dão na primeira vitória); as fases 2, 5 e 8 dão um <b>✦ feitiço</b> na primeira vitória.</p>`,
+      [{ label: `${ico('treinar', '🔥')} Treinar`, primary: true, run: () => train() }, { label: 'Base', run: home }],
     );
   };
   document.querySelector('.banner-box')?.scrollIntoView({ block: 'center' });

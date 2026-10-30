@@ -76,7 +76,7 @@ function itemsHTML(): string {
   return `<div class="inv-section"><h3>${essIcon()} Essências: ${fmt(save.essencias)}</h3></div>
     <div class="inv-section"><h3>🔮 Orbes</h3><div class="inv-grid">${orbs}</div>
       <p class="hint">XP guardado do Desmanchar geral: <b>${fmt(save.genXp ?? 0)}</b> (vira Orbe ao completar 100).</p></div>
-    <div class="inv-section"><h3>🎒 Itens de ascensão</h3>${gear}</div>`;
+    <div class="inv-section"><h3>${ico('inventario', '🎒')} Itens de ascensão</h3>${gear}</div>`;
 }
 
 function dupesHTML(dupes: NonNullable<typeof save.dupes>): string {
