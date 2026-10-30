@@ -1,7 +1,8 @@
 """Gera as camadas do hub (céu + prédios recortados pelo contorno) em WebP e src/ui/hubLayers.ts.
 
 v0.46.0: um pacote só.  v0.48.0: dois pacotes —
-  python3 scripts/hub/build_hub.py <pacote antigo> [<pacote novo>]
+  python3 scripts/hub/build_hub.py <pacote antigo> [<pacote novo>] [<pacote refeito>]
+v0.49.0: o pacote refeito (3º) traz os 10 prédios REDO completos (normal + cadeado + brilho) e tem prioridade.
 Do pacote novo entram (normal + cadeado + brilho) só os prédios em NEW (os que cresceram certo).
 Para os prédios mantidos do pacote antigo que ficam liberados, o BRILHO vem do pacote novo (mais forte),
 reposicionado/escalado para casar com a arte antiga. Cadeado e normal desses continuam os antigos.
@@ -12,6 +13,8 @@ from PIL import Image
 
 old = sys.argv[1]
 new = sys.argv[2] if len(sys.argv) > 2 else None
+redo = sys.argv[3] if len(sys.argv) > 3 else None
+REDO = {'03-treinar', '04-loja', '05-invocacao', '06-inventario', '07-tutorial', '10-arena', '11-masmorra-dupla', '12-desejos', '13-eventos', '14-mina'}
 out = 'src/assets/hub'; os.makedirs(out, exist_ok=True)
 NEW = {'05-invocacao', '07-tutorial', '11-masmorra-dupla', '12-desejos', '13-eventos', '14-mina'}
 GLOW_FROM_NEW = {'01-aventura', '02-colecao', '03-treinar', '04-loja', '06-inventario'}
@@ -46,6 +49,12 @@ if new:
         boxes[f'{k}-glow'] = [x0, y0, x0 + w, y0 + h]
     for c in ('nuvem-a', 'nevoa'):
         Image.open(f'{new}/cenario/hub-anim-{c}.png').convert('RGBA').save(f'{out}/cena-{c}.webp', quality=80, method=6)
+
+if redo:
+    rl = f'{redo}/camadas_2340x1080'
+    for k in REDO:
+        for suf in ('', '-locked', '-glow'):
+            put(f'{rl}/hub-{k}{suf}.png', f'{k}{suf}')
 
 with open('src/ui/hubLayers.ts', 'w') as fh:
     fh.write('// Gerado por scripts/hub/build_hub.py — caixas (x0, y0, x1, y1) no mapa 2340×1080.\n')
