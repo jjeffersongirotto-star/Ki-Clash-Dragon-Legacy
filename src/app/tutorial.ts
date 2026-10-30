@@ -8,6 +8,7 @@ import { leaderHp } from '../core/leaders';
 import { BattleView } from '../ui/battleView';
 import { gemHTML, gearHTML, orbBagHTML, cardHTML, esc, spellCardHTML, essIcon } from '../ui/components';
 import { gameConfirm } from '../ui/dialog';
+import { ico } from '../ui/icons';
 import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
 import { MAX_COPIES, addToDeck, setCopies, spellCopies } from '../ui/save';
 import { addDupe, dupeCount } from '../core/banner';
@@ -206,8 +207,8 @@ export function finishTutorial() {
   const items = Object.keys(gear).map((k) => { const [id, r] = k.split(':'); return gearHTML(id, Number(r), `+${gear[k]}`); }).join('');
   resultModalWith(
     `<h2 class="win">🎓 Batalhas concluídas!</h2><p>Recompensa:</p><div class="res big"><span>${essIcon()} +${TUTORIAL_REWARD.essencias}</span>${orbBagHTML(TUTORIAL_REWARD.orbs)}${items}<span>${gemHTML(`+${TUTORIAL_GEMS}`)} Gemas</span></div>
-    <p class="hint">Com as <b>💠 Gemas de Invocação</b> você compra cartas novas no <b>🎴 Banner</b>. Vamos usar as 2 agora!</p>`,
-    [{ label: '🎴 Ir ao Banner', primary: true, run: bannerGuide }],
+    <p class="hint">Com as <b>💠 Gemas de Invocação</b> você compra cartas novas no <b>${ico('banner', '🎴')} Banner</b>. Vamos usar as 2 agora!</p>`,
+    [{ label: `${ico('banner', '🎴')} Ir ao Banner`, primary: true, run: bannerGuide }],
   );
 }
 

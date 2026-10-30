@@ -31,3 +31,11 @@ describe('v0.52.1 tutorial e topo', () => {
     expect(readFileSync('src/ui/style.css', 'utf8')).toMatch(/\.screen \{ padding-top: max\(18px, calc\(env\(safe-area-inset-top\)/);
   });
 });
+
+describe('v0.52.1 botão Ir ao Banner', () => {
+  it('usa o ícone atual do Banner', () => {
+    const tut = readFileSync('src/app/tutorial.ts', 'utf8');
+    expect(tut).toContain("label: `${ico('banner', '🎴')} Ir ao Banner`");
+    expect(tut).not.toContain("'🎴 Ir ao Banner'");
+  });
+});
