@@ -1269,3 +1269,6 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - Toda janela fecha pelo ✕ no canto de cima à direita (e Esc no computador). Não há botão "Fechar"; os botões que sobram são ações.
 - Loja: a primeira tela é o banner; as abas de itens e orbes ficam abaixo, rolando.
 - Foto de perfil: o rosto de cada personagem que você tem, recortado e centralizado.
+
+## Janela da fase (v0.52.1)
+- Mostra: região e dificuldade, Destaques do rival (2 melhores cartas), recompensa, ícones dos itens que podem cair (ⓘ = chances), os 3 objetivos de estrela em texto, ouro e XP por vitória, Jogar/Repetir.

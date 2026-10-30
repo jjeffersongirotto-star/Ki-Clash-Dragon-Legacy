@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.52.1] — 30/10/2026 · Janela da fase mais limpa
+- **Cabe inteira:** em paisagem a janela da fase usa duas colunas (rival e recompensas à esquerda; estrelas e Jogar/Repetir à direita); nada fica cortado nem grudado, sem rolar.
+- **Rival:** saíram a vida do Comandante inimigo e o "Inimigos até…". No lugar, **Destaques do rival** com o rosto das 2 cartas mais fortes dele (e os feitiços, se tiver).
+- **Itens:** só os ícones dos itens que podem cair, sem porcentagem. O **ⓘ** ao lado abre as chances de cada raridade (e, no Difícil, as dos orbes extras).
+- **Estrelas:** os três objetivos agora são só texto (antes dois tinham símbolo e um não), também na tela de vitória.
+
 ## [0.52.0] — 30/10/2026 · Janelas com ✕, banner em tela cheia e rostos centralizados
 - **Loja:** o banner ocupa a primeira tela inteira; as abas Itens de Ascensão e Orbes aparecem ao rolar para baixo.
 - **Foto de perfil:** sem o texto de explicação; fecha só pelo ✕.
