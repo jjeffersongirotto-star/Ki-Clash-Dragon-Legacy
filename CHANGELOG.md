@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.54.1] — 31/10/2026 · Rostos do jogador no jogo e editor temporário desligado
+- **62 rostos da foto de perfil** agora usam o recorte que você fez no editor (entram em `FACE_USER` no `scripts/art/build_thumbs.py`, por cima dos recortes anteriores). O Fen continua girado, de pé.
+- **Editor temporário desligado:** "segurar um rosto" e "Exportar" saíram da Foto de perfil. O código fica guardado em `src/app/tempProfileCropEditor.ts` com `TEMP_PROFILE_CROP_EDITOR = false`, sem ligação na tela, para reusar num próximo lote (como religar está no topo do arquivo).
+- Os recortes salvos no aparelho pelo editor (`kiclash.tempProfileCrops`) são apagados ao abrir o jogo.
+
 ## [0.54.0] — 31/10/2026 · TEMPORÁRIO: editor do recorte da foto de perfil
 - **Foto de perfil → segure um rosto:** abre a arte inteira do personagem com o quadrado da foto. **Arraste** para mover, **pinça com 2 dedos** (ou roda do mouse) para zoom, **toque** no quadrado para escolher (fora dele, o quadrado vai para onde você tocou). Ao lado aparece a prévia. **Salvar** usa esse recorte como foto desse personagem; **Padrão** volta ao recorte do jogo.
 - **Exportar N rostos** (embaixo da grade, só aparece se você editou algum): exporta **só os editados** num arquivo `ki-clash-rostos-N.json`, com os números de cada um (`cx, cy, sz`, no mesmo formato do `scripts/art/build_thumbs.py`), a imagem 128×128 de cada rosto e um trecho pronto para colar no `FACE_FIX`. No celular abre o menu de compartilhar; no PC baixa o arquivo. Se não baixar, a janela mostra o texto com "Copiar texto".

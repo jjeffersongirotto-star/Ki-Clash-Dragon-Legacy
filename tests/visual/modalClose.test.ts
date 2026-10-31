@@ -22,6 +22,5 @@ describe('v0.52.0 janelas fecham pelo ✕ do canto', () => {
     expect(readFileSync('src/ui/style.css', 'utf8')).toMatch(/\.shop-screen \.banner-box \{[^}]*min-height: calc\(100dvh/);
     const py = readFileSync('scripts/art/build_thumbs.py', 'utf8');
     expect(py).toContain("'nara': (");
-    expect(py).not.toMatch(/'(zarek|vorax)': \(/);
   });
 });

@@ -4,6 +4,10 @@
  * Serve só para o jogador acertar os rostos e mandar os números de volta; depois os valores entram
  * em scripts/art/build_thumbs.py (FACE_FIX) e este editor é apagado.
  *
+ * v0.54.1: DESLIGADO e sem ligação na tela (os recortes do 1º lote já estão em FACE_USER no build_thumbs.py).
+ * PARA REUSAR: TEMP_PROFILE_CROP_EDITOR = true e, em src/app/profile.ts, usar tempFaceUrl(id) ?? faceUrl(id) no avatarImg
+ * e chamar bindTempCropEditor(root, ...) no onMount da Foto de perfil (ver v0.54.0 no git).
+ *
  * COMO REMOVER (tudo isolado aqui):
  *   1. apagar este arquivo e o bloco "TEMP v0.54.0" no fim de src/ui/style.css;
  *   2. em src/app/profile.ts, apagar as linhas marcadas com "TEMP crop editor";
@@ -16,7 +20,7 @@ import { esc } from '../ui/components';
 import { showDialog, gameAlert } from '../ui/dialog';
 import { onLongPress } from '../ui/battleModals';
 
-export const TEMP_PROFILE_CROP_EDITOR = true;
+export const TEMP_PROFILE_CROP_EDITOR = false; // v0.54.1: desligado e fora da tela (religar e ligar em profile.ts para um novo lote)
 
 /** Recorte no mesmo formato do build_thumbs.py: centro x e lado em frações da LARGURA, centro y em fração da ALTURA. */
 export interface TempCrop { cx: number; cy: number; sz: number; png: string }
