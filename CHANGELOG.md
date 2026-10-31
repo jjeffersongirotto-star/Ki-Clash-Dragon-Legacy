@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.53.1] — 30/10/2026 · Rostos da foto de perfil ajustados
+- **Rosto no centro (27 personagens):** Borgo, Trokk, Skarr, Oculus, Grendar, Razor-V, Thessa, Orun, Velka (o queixo não é mais cortado), Fenra, Zynna, Gorm, Vexar, Bolt-12, Goro, Mestre Hayato, Tobi, Ren, Sylith, Kraz-9, Vex-4, Fen, Bram, Vesna, Dorian, Lamenta e Drakon.
+- **Fen:** a arte dele é de cabeça para baixo; o rosto da foto de perfil agora é girado e fica de pé.
+- Só o recorte da foto de perfil mudou; as artes das cartas são as mesmas.
+
 ## [0.53.0] — 30/10/2026 · Vitória mais clara e tutorial que mostra as habilidades
 - **Vitória:** o título "Vitória!" fica centralizado. Os três objetivos de estrela começam com "Vencer…" (o de derrotar inimigos virou "Vencer derrotando pelo menos N personagens inimigos").
 - **Primeira vitória:** a escolha de carta aparece no **começo** da janela, com as outras recompensas de primeira vitória. **Tocar** seleciona (dá para trocar tocando em outra), **segurar** mostra as habilidades como na partida, e **Continuar** (ou Treinar, ou o ✕) confirma a carta escolhida. Eles ficam travados até escolher.
