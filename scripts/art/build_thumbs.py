@@ -94,7 +94,17 @@ FACE_AUTO = {
     'yume': (0.503, 0.315, 0.308),
     'yuna': (0.528, 0.217, 0.336),
 }
-FACE = {**FACE_AUTO, **FACE}
+# v0.53.1: ajuste à mão pedido pelo jogador (rosto no centro; 'flip' = arte de cabeça para baixo, o rosto é girado 180°)
+FACE_FIX = {
+ 'borgo': (0.5, 0.24, 0.32), 'trokk': (0.5, 0.21, 0.3), 'skarr': (0.48, 0.3, 0.3), 'oculus': (0.5, 0.42, 0.45),
+ 'grendar': (0.47, 0.27, 0.45), 'razorv': (0.45, 0.27, 0.3), 'thessa': (0.48, 0.27, 0.28), 'orun': (0.55, 0.24, 0.3),
+ 'velka': (0.5, 0.2, 0.32), 'fenra': (0.66, 0.13, 0.32), 'zynna': (0.28, 0.36, 0.3), 'gorm': (0.58, 0.24, 0.3),
+ 'vexar': (0.36, 0.25, 0.3), 'bolt': (0.62, 0.27, 0.26), 'goro': (0.47, 0.28, 0.3), 'hayato': (0.43, 0.22, 0.3),
+ 'tobi': (0.47, 0.27, 0.3), 'ren': (0.47, 0.26, 0.28), 'sylith': (0.45, 0.48, 0.26), 'kraz9': (0.45, 0.28, 0.28),
+ 'vex4': (0.6, 0.27, 0.3), 'fen': (0.44, 0.75, 0.28, 'flip'), 'bram': (0.5, 0.3, 0.34), 'vesna': (0.36, 0.36, 0.28),
+ 'dorian': (0.5, 0.2, 0.28), 'lamenta': (0.5, 0.33, 0.26), 'drakon': (0.28, 0.44, 0.34),
+}
+FACE = {**FACE_AUTO, **FACE, **FACE_FIX}
 FACE_PX = 128
 fout = os.path.join(ROOT, 'src', 'assets', 'faces')
 os.makedirs(fout, exist_ok=True)
@@ -102,9 +112,13 @@ for p in sorted(glob.glob(os.path.join(ROOT, 'src', 'assets', 'chars', '*.webp')
     cid = os.path.basename(p)[:-5]
     im = Image.open(p).convert('RGB')
     w, h = im.size
-    cx, cy, sz = FACE.get(cid, FACE_DEFAULT)
+    v = FACE.get(cid, FACE_DEFAULT)
+    cx, cy, sz = v[:3]
     s = sz * w
     x0 = min(max(0, cx * w - s / 2), w - s)
     y0 = min(max(0, cy * h - s / 2), h - s)
-    im.crop((round(x0), round(y0), round(x0 + s), round(y0 + s))).resize((FACE_PX, FACE_PX), Image.LANCZOS).save(os.path.join(fout, f'{cid}.webp'), quality=80, method=6)
+    face = im.crop((round(x0), round(y0), round(x0 + s), round(y0 + s))).resize((FACE_PX, FACE_PX), Image.LANCZOS)
+    if len(v) > 3 and v[3] == 'flip':
+        face = face.rotate(180)
+    face.save(os.path.join(fout, f'{cid}.webp'), quality=80, method=6)
 print('rostos:', len(os.listdir(fout)))

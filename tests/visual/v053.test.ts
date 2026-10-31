@@ -25,3 +25,13 @@ describe('v0.53.0 vitória, escolha de carta e tutorial', () => {
     expect(readFileSync('src/ui/spotlight.ts', 'utf8')).toContain('if (opts.light)');
   });
 });
+
+describe('v0.53.1 rostos ajustados à mão', () => {
+  it('os 27 pedidos têm corte próprio e o Fen é girado', () => {
+    const py = readFileSync('scripts/art/build_thumbs.py', 'utf8');
+    for (const id of 'borgo trokk skarr oculus grendar razorv thessa orun velka fenra zynna gorm vexar bolt goro hayato tobi ren sylith kraz9 vex4 fen bram vesna dorian lamenta drakon'.split(' '))
+      expect(py).toMatch(new RegExp(`FACE_FIX = \\{[\\s\\S]*'${id}': \\(`));
+    expect(py).toContain("'fen': (0.44, 0.75, 0.28, 'flip')");
+    expect(py).toContain('face.rotate(180)');
+  });
+});
