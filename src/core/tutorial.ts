@@ -167,7 +167,11 @@ export function guideStep(i: 0 | 1, s: BattleState, selected: number | null, mem
     // v0.35.0: antes da 1ª invocação da Batalha 2, ensina a SEGURAR a carta para ver a descrição
     if (i === 1 && n === 0 && !memo.held) return { kind: 'hold', hand: pick.k, charId: pick.h.charId };
     if (selected !== pick.k) return { kind: 'card', hand: pick.k, charId: pick.h.charId };
-    const want = plan && pick.h.charId === plan.id && cells.some(([r, c]) => r === plan.r && c === plan.c) ? [plan.r, plan.c] : [...cells].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
+    // v0.55.3: Batalha 1 joga como partida normal — cada personagem corpo a corpo vai para a fileira que ainda
+    // não tem aliado (1 em cima, 1 embaixo), para nenhum ficar preso atrás do outro sem alcançar o inimigo
+    const mine = (r: number) => s.units.filter((u) => u.side === 'player' && u.hp > 0 && u.row === r).length;
+    const order = i === 0 ? (a: number[], b: number[]) => mine(a[0]) - mine(b[0]) || b[1] - a[1] || a[0] - b[0] : (a: number[], b: number[]) => b[1] - a[1] || a[0] - b[0];
+    const want = plan && pick.h.charId === plan.id && cells.some(([r, c]) => r === plan.r && c === plan.c) ? [plan.r, plan.c] : [...cells].sort(order)[0];
     return { kind: 'cell', r: want[0], c: want[1], charId: pick.h.charId };
   }
   return { kind: 'fight' };

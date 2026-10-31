@@ -28,7 +28,7 @@ export interface SpotOptions {
   /** v0.55.0: botão "Continuar ›" na caixa de texto (passo de explicação que avança ao tocar) */
   onNext?: () => void;
   /** v0.55.0: força a caixa de texto no alto ou embaixo da tela (para não cobrir o conteúdo) */
-  tipAt?: 'top' | 'bottom';
+  tipAt?: 'top' | 'bottom' | 'top-left';
   /** v0.55.2: põe a caixa de texto (compacta) numa faixa da tela — ex.: o espaço vago acima da arena */
   strip?: { top: number; height: number };
 }
@@ -80,6 +80,8 @@ export function spotlight(target: Element | null, html: string, opts: SpotOption
   r.querySelector<HTMLElement>('.spot-lock')!.style.display = opts.lock ? '' : 'none';
   const useStrip = !!opts.strip && opts.strip.height >= 24;
   tip.classList.toggle('strip', useStrip);
+  // v0.55.3: 'top-left' — balão encostado à esquerda (não cobre o painel de habilidades, que abre à direita)
+  tip.classList.toggle('left', opts.tipAt === 'top-left');
   tip.style.maxHeight = useStrip ? `${opts.strip!.height}px` : '';
   if (opts.clear) {
     for (const el of [t, b, l, rt]) place(el, 0, 0, 0, 0);
@@ -136,7 +138,7 @@ export function spotlight(target: Element | null, html: string, opts: SpotOption
   tip.style.top = tipBelow ? `${Math.min(vh - 140, y1 + 56)}px` : '';
   tip.style.bottom = tipBelow ? '' : `${Math.min(vh - 140, vh - y0 + 56)}px`;
   if (opts.tipAt) {
-    tip.style.top = opts.tipAt === 'top' ? '6px' : '';
+    tip.style.top = opts.tipAt === 'top' || opts.tipAt === 'top-left' ? '6px' : '';
     tip.style.bottom = opts.tipAt === 'bottom' ? '6px' : '';
   }
 }

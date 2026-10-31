@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.55.3] — 31/10/2026 · Tutorial: tudo em uma tela, dica fora da mão e 1 em cima/1 embaixo
+- **Início do tutorial em uma tela só:** boas-vindas, carta do Riku e **Começar** cabem juntos no celular deitado, sem arrastar.
+- **Pacote grátis em uma tela só:** presente, texto e "Pular tutorial" sem deslizar.
+- **Dica durante a luta:** no turno do inimigo e enquanto os personagens andam/atacam, a dica sai da mão e fica na faixa vazia entre as barras de vida e a arena.
+- **Batalha 1 como partida normal:** o 1º Riku vai para a frente de uma fileira e o 2º para a frente da **outra** (1 em cima, 1 embaixo) — nenhum corpo a corpo fica preso atrás do outro. A Batalha 2 segue igual (Sora atrás do Riku, Nara na outra fileira).
+- **Balão das habilidades à esquerda:** com a descrição da carta aberta, o balão de instrução fica no canto esquerdo e não cobre o painel.
+
 ## [0.55.2] — 31/10/2026 · Tutorial: casa certa, detalhe sem rolagem e dica acima da arena
 - **Só a casa indicada:** no passo guiado de jogar a carta, só a casa circulada aceita (toque ou arrasto). Qualquer outra casa não faz nada e o tutorial só segue na casa certa.
 - **Detalhe da carta sem rolagem quando cabe:** se tudo cabe na janela, ela não desliza nada; se não cabe, continua rolando.

@@ -24,7 +24,7 @@ describe('v0.52.1 janela da fase', () => {
 describe('v0.52.1 tutorial e topo', () => {
   it('durante a animação a tela do tutorial fica clara', () => {
     const tut = readFileSync('src/app/tutorial.ts', 'utf8');
-    expect(tut).toMatch(/if \(view\.busy\) \{[^}]*spotlight\(null,[^\n]*clear: true/);
+    expect(tut).toMatch(/if \(view\.busy \|\| \(view\.state\.active !== 'player'[^\n]*\{[^}]*spotlight\(null,[^\n]*clear: true, strip/);
     expect(readFileSync('src/ui/spotlight.ts', 'utf8')).toContain('if (opts.clear)');
   });
   it('topo das telas com margem segura', () => {

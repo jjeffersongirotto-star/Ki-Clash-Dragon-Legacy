@@ -1301,3 +1301,9 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 ## Contas de teste e filtros (v0.55.1)
 - ADM / 12345: tudo no máximo. adm2 / 12345: tudo na raridade mínima (para revisar equilíbrio).
 - Coleção & Baralho: filtros de Raça e Tipo com várias escolhas — OU dentro do mesmo filtro, E entre filtros.
+
+## Tutorial: uma tela, dica fora da mão e fileiras (v0.55.3)
+- As telas do tutorial (início e pacote grátis) cabem inteiras na tela deitada, sem rolagem.
+- No turno do inimigo e durante animações, a dica fica na faixa entre as barras de vida e a arena.
+- Batalha 1: cada invocação guiada vai para a fileira que ainda não tem aliado (frente), depois a casa mais à frente.
+- Com a descrição da carta aberta, o balão de instrução fica à esquerda.
