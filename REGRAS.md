@@ -1281,3 +1281,6 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - 1ª vitória: tocar seleciona a carta do rival, segurar mostra as habilidades, Continuar confirma.
 - Fora da batalha (escolha da 1ª vitória, tutorial, resultado do Banner), segurar ou tocar a carta abre os mesmos detalhes da partida.
 - Foto de perfil: o recorte põe o rosto no centro; arte de cabeça para baixo (Fen) tem o rosto girado de pé (v0.53.1).
+
+## TEMPORÁRIO: editor do recorte da foto de perfil (v0.54.0)
+- Na Foto de perfil, segurar um rosto abre o editor (arrastar, pinça, tocar, Salvar). "Exportar" manda só os rostos editados (números + imagem). Vale até os recortes entrarem no jogo; depois o editor é removido (ver CHANGELOG 0.54.0).

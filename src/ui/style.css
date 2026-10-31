@@ -1726,3 +1726,18 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .tut-card { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; vertical-align: top; }
 .tut-card-h { font-size: 11px; color: #8f9ad0; }
 .pull-card { -webkit-touch-callout: none; user-select: none; }
+/* ===== TEMP v0.54.0: editor temporário do recorte da foto de perfil (apagar junto com src/app/tempProfileCropEditor.ts) ===== */
+.tcrop-bg { position: fixed; inset: 0; z-index: 95; background: rgba(2,5,16,.88); display: grid; place-items: center; padding: 8px; }
+.tcrop { display: flex; gap: 14px; align-items: center; background: linear-gradient(180deg, #1f2650, #10142c); border: 2px solid #ffcf4a; border-radius: 16px; padding: 10px 12px; max-height: 98dvh; max-width: 98vw; }
+.tcrop-stage { position: relative; touch-action: none; user-select: none; line-height: 0; overflow: hidden; border-radius: 8px; flex: none; }
+.tcrop-img { height: min(88dvh, 560px); width: auto; display: block; }
+.tcrop-sq { position: absolute; border: 2px solid #ffd23f; border-radius: 12px; box-shadow: 0 0 0 9999px rgba(0,0,0,.55); pointer-events: none; }
+.tcrop-sq.picked { border-color: #7ef0a8; }
+.tcrop-side { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 220px; padding-top: 30px; }
+.tcrop-side .dialog-x { top: 0; right: 0; }
+.tcrop-name { color: var(--gold); text-align: center; }
+.tcrop-hint { margin: 0; font-size: 11px; text-align: center; }
+.tcrop-prev { width: 96px; height: 96px; border-radius: 12px; border: 3px solid #ffcf4a; }
+.tcrop-bar { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+.tcrop-text { width: 100%; min-height: 90px; font: 11px monospace; background: #0b0f26; color: #cfd6ff; border: 1px solid #3a4580; border-radius: 8px; }
+@media (orientation: portrait) { .tcrop { flex-direction: column; } .tcrop-img { height: min(60dvh, 520px); } }

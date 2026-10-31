@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.54.0] — 31/10/2026 · TEMPORÁRIO: editor do recorte da foto de perfil
+- **Foto de perfil → segure um rosto:** abre a arte inteira do personagem com o quadrado da foto. **Arraste** para mover, **pinça com 2 dedos** (ou roda do mouse) para zoom, **toque** no quadrado para escolher (fora dele, o quadrado vai para onde você tocou). Ao lado aparece a prévia. **Salvar** usa esse recorte como foto desse personagem; **Padrão** volta ao recorte do jogo.
+- **Exportar N rostos** (embaixo da grade, só aparece se você editou algum): exporta **só os editados** num arquivo `ki-clash-rostos-N.json`, com os números de cada um (`cx, cy, sz`, no mesmo formato do `scripts/art/build_thumbs.py`), a imagem 128×128 de cada rosto e um trecho pronto para colar no `FACE_FIX`. No celular abre o menu de compartilhar; no PC baixa o arquivo. Se não baixar, a janela mostra o texto com "Copiar texto".
+- Tocar num rosto continua escolhendo a foto, como antes. Os recortes ficam salvos só neste aparelho/navegador.
+- **Como remover depois:** apagar `src/app/tempProfileCropEditor.ts`, o bloco "TEMP v0.54.0" no fim de `src/ui/style.css`, as 3 linhas "TEMP crop editor" em `src/app/profile.ts` e `tests/visual/tempCropEditor.test.ts`. Para só desligar: `TEMP_PROFILE_CROP_EDITOR = false`.
+
 ## [0.53.1] — 30/10/2026 · Rostos da foto de perfil ajustados
 - **Rosto no centro (27 personagens):** Borgo, Trokk, Skarr, Oculus, Grendar, Razor-V, Thessa, Orun, Velka (o queixo não é mais cortado), Fenra, Zynna, Gorm, Vexar, Bolt-12, Goro, Mestre Hayato, Tobi, Ren, Sylith, Kraz-9, Vex-4, Fen, Bram, Vesna, Dorian, Lamenta e Drakon.
 - **Fen:** a arte dele é de cabeça para baixo; o rosto da foto de perfil agora é girado e fica de pé.

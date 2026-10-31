@@ -9,6 +9,7 @@ export const displayName = () => save.nick || (accounts.current ? accounts.accou
 import { getChar } from '../core/characters';
 import { PROFILE_MAX, totalXpFor, xpToNext } from '../core/profile';
 import { faceUrl } from '../ui/art';
+import { bindTempCropEditor, tempFaceUrl } from './tempProfileCropEditor'; // TEMP crop editor
 import { esc, starStyle } from '../ui/components';
 import { showDialog } from '../ui/dialog';
 import { ico } from '../ui/icons';
@@ -26,7 +27,7 @@ export function avatarId(): string | undefined {
 }
 
 const avatarImg = (id: string | undefined) => {
-  const u = id ? faceUrl(id) : undefined;
+  const u = id ? (tempFaceUrl(id) ?? faceUrl(id)) : undefined; // TEMP crop editor: tempFaceUrl
   return u ? `<img src="${u}" alt="" draggable="false">` : ico('perfil', '👤');
 };
 
@@ -77,6 +78,7 @@ async function avatarDialog(refresh: () => void) {
           refresh();
         }),
       );
+      bindTempCropEditor(root, () => { close('cancel'); refresh(); void avatarDialog(refresh); }); // TEMP crop editor
     },
   });
 }
