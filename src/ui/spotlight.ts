@@ -23,15 +23,23 @@ export interface SpotOptions {
    * uma moldura própria; o alvo (se houver) ganha o círculo e a seta. Sem alvo, só a área fica destacada.
    */
   area?: Element[];
+  /** v0.55.0: bloqueia TODOS os toques (menos a caixa de texto) — passo só de explicação */
+  lock?: boolean;
+  /** v0.55.0: botão "Continuar ›" na caixa de texto (passo de explicação que avança ao tocar) */
+  onNext?: () => void;
+  /** v0.55.0: força a caixa de texto no alto ou embaixo da tela (para não cobrir o conteúdo) */
+  tipAt?: 'top' | 'bottom';
 }
+let nextFn: (() => void) | undefined;
 
 function ensure(opts: SpotOptions): HTMLElement {
   if (root && document.body.contains(root)) return root;
   root = document.createElement('div');
   root.className = 'spot';
-  root.innerHTML = `<div class="spot-b" data-b="t"></div><div class="spot-b" data-b="b"></div><div class="spot-b" data-b="l"></div><div class="spot-b" data-b="r"></div>
+  root.innerHTML = `<div class="spot-lock"></div><div class="spot-b" data-b="t"></div><div class="spot-b" data-b="b"></div><div class="spot-b" data-b="l"></div><div class="spot-b" data-b="r"></div>
     <div class="spot-zone"></div><div class="spot-frame"></div><div class="spot-arrow">👇</div>
-    <div class="spot-tip"><p class="spot-text"></p>${opts.onSkip ? '<button class="link-btn spot-skip">Pular tutorial</button>' : ''}</div>`;
+    <div class="spot-tip"><p class="spot-text"></p><button class="btn small primary spot-next">Continuar ›</button>${opts.onSkip ? '<button class="link-btn spot-skip">Pular tutorial</button>' : ''}</div>`;
+  root.querySelector('.spot-next')?.addEventListener('click', () => nextFn?.());
   root.querySelector('.spot-skip')?.addEventListener('click', () => opts.onSkip?.());
   document.body.appendChild(root);
   lastHtml = '';
@@ -65,6 +73,9 @@ export function spotlight(target: Element | null, html: string, opts: SpotOption
   const hasT = !!tbox && tbox.width > 0;
   const box = abox ? { left: Math.min(abox.left, hasT ? tbox.left : abox.left), top: Math.min(abox.top, hasT ? tbox.top : abox.top), right: Math.max(abox.right, hasT ? tbox.right : abox.right), bottom: Math.max(abox.bottom, hasT ? tbox.bottom : abox.bottom), width: 1 } : tbox;
   zone.style.display = 'none';
+  nextFn = opts.onNext;
+  r.querySelector<HTMLElement>('.spot-next')!.style.display = opts.onNext ? '' : 'none';
+  r.querySelector<HTMLElement>('.spot-lock')!.style.display = opts.lock ? '' : 'none';
   if (opts.clear) {
     for (const el of [t, b, l, rt]) place(el, 0, 0, 0, 0);
     frame.style.display = arrow.style.display = 'none';
@@ -119,6 +130,10 @@ export function spotlight(target: Element | null, html: string, opts: SpotOption
   const tipBelow = (y0 + y1) / 2 < vh / 2;
   tip.style.top = tipBelow ? `${Math.min(vh - 140, y1 + 56)}px` : '';
   tip.style.bottom = tipBelow ? '' : `${Math.min(vh - 140, vh - y0 + 56)}px`;
+  if (opts.tipAt) {
+    tip.style.top = opts.tipAt === 'top' ? '6px' : '';
+    tip.style.bottom = opts.tipAt === 'bottom' ? '6px' : '';
+  }
 }
 
 export function clearSpotlight() {

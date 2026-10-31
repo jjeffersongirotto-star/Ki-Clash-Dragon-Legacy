@@ -12,7 +12,7 @@ import { ico } from '../ui/icons';
 import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
 import { MAX_COPIES, addToDeck, setCopies, spellCopies } from '../ui/save';
 import { addDupe, dupeCount } from '../core/banner';
-import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_PACK, TUTORIAL_REWARD, TUTORIAL_SEEDS, TUTORIAL_SPELL, TUTORIAL_SPELL_COPIES, TUTORIAL_STARTER, TUT_BATTLE1, TUT_BATTLE2, TUT_DONE, TUT_PACK, guideStep, guideText, newGuideMemo, tutorialGear } from '../core/tutorial';
+import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_PACK, TUTORIAL_REWARD, TUTORIAL_SEEDS, TUTORIAL_SPELL, TUTORIAL_SPELL_COPIES, TUTORIAL_STARTER, TUT_BATTLE1, TUT_BATTLE2, TUT_DONE, TUT_PACK, guideStep, guideText, holdPhase, newGuideMemo, tutorialGear } from '../core/tutorial';
 import { deployCells } from '../core/battle';
 import { isSpell } from '../core/spells';
 import { clearSpotlight, spotlight } from '../ui/spotlight';
@@ -117,8 +117,8 @@ export function tutorialBattle(i: 0 | 1) {
   });
   const memo = newGuideMemo();
   // v0.42.1: na 1ª invocação da Batalha 1, primeiro só as 6 casas da zona acendem; o círculo na casa sugerida vem depois
-  let zoneIntroEnd = 0;
-  const ZONE_INTRO_MS = 3200;
+  // v0.55.0: a explicação das casas trava a tela e só sai pelo "Continuar ›"
+  let zoneIntroDone = false;
   // v0.35.0: passo "segure a carta" — o texto muda no celular (toque) e no PC (mouse)
   const touch = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
   view.onInfo = () => {
@@ -133,17 +133,20 @@ export function tutorialBattle(i: 0 | 1) {
     if (view.disposed || !document.body.contains(view.root)) return stop();
     if (view.state.winner) return clearSpotlight();
     const battleEl = view.root.querySelector('.battle');
-    // nada cobre o alvo durante o tutorial (menos a descrição logo depois do passo de segurar, até escolher a carta)
-    if (!(memo.held && view.selected == null && (view.state.stats?.player.cards ?? 0) === 0)) battleEl?.classList.remove('has-info');
+    // nada cobre o alvo durante o tutorial (menos a descrição logo depois do passo de segurar, até fechá-la)
+    const reading = memo.held && !memo.infoDone && (view.state.stats?.player.cards ?? 0) === 0;
+    if (!reading) battleEl?.classList.remove('has-info');
     battleEl?.classList.remove('log-open');
     // v0.52.1: enquanto os personagens agem a tela fica clara, como numa partida normal; escurece de novo no próximo passo
     if (view.busy) return spotlight(null, guideText(i, { kind: 'watch' }, view.state), { onSkip: skip, clear: true });
     if (document.querySelector('.modal-bg, .battle-card-modal-bg')) return spotlight(null, guideText(i, { kind: 'watch' }, view.state), { onSkip: skip });
     const a = guideStep(i, view.state, view.selected, memo);
-    // v0.53.0: depois de segurar a carta, a tela clareia e a descrição das habilidades fica destacada para ler
+    // v0.55.0: depois de segurar a carta, SÓ a descrição fica destacada (o resto escuro e travado); ao fechar no ✕,
+    // o roteiro segue direto para jogar a carta (não precisa abrir de novo)
     const infoWrap = view.root.querySelector('.info-wrap');
-    if (memo.held && view.selected == null && (view.state.stats?.player.cards ?? 0) === 0 && battleEl?.classList.contains('has-info') && infoWrap)
-      return spotlight(infoWrap, 'Esta é a <b>descrição</b> da carta: as habilidades dela, como em qualquer partida. Quando terminar de ler, toque na carta do <b>Riku</b>.', { onSkip: skip, light: true });
+    if (reading && holdPhase(memo, !!(battleEl?.classList.contains('has-info') && infoWrap)) === 'info')
+      return spotlight(infoWrap, 'Esta é a <b>descrição</b> da carta: as habilidades dela, como em qualquer partida. Quando terminar de ler, toque no <b>✕</b> para continuar.', { onSkip: skip, tipAt: 'top' });
+    if (memo.held && view.selected != null) memo.infoDone = true;
     const target =
       a.kind === 'card' || a.kind === 'hold'
         ? view.root.querySelector(`.hand [data-i="${a.hand}"]`)
@@ -156,9 +159,9 @@ export function tutorialBattle(i: 0 | 1) {
     if (a.kind === 'cell' && !isSpell(a.charId)) {
       const area = deployCells(view.state, 'player').map(([r, c]) => view.root.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`)).filter((el): el is Element => !!el);
       const first = i === 0 && (view.state.stats?.player.cards ?? 0) === 0;
-      if (first && !zoneIntroEnd) zoneIntroEnd = Date.now() + ZONE_INTRO_MS;
-      const intro = first && Date.now() < zoneIntroEnd;
-      return spotlight(intro ? null : target, guideText(i, a, view.state, touch, intro), { onSkip: skip, area });
+      const intro = first && !zoneIntroDone;
+      // v0.55.0: na explicação das casas nada recebe toque (não dá para jogar antes da hora)
+      return spotlight(intro ? null : target, guideText(i, a, view.state, touch, intro), { onSkip: skip, area, lock: intro, onNext: intro ? () => (zoneIntroDone = true) : undefined });
     }
     spotlight(target, guideText(i, a, view.state, touch), { onSkip: skip });
   }, 150);
@@ -239,16 +242,31 @@ export function bannerGuide() {
     );
   };
   document.querySelector('.banner-box')?.scrollIntoView({ block: 'center' });
+  // v0.55.0: 1º o Banner destacado com uma breve explicação (Continuar ›); depois o "Comprar 1 carta"
+  let introDone = false;
+  // v0.55.0: carta ganha — 1º só a carta (texto embaixo, sem moldura por cima); depois o botão do passo
+  let seenPulls = -1;
+  let cardSeen = false;
   timer = window.setInterval(() => {
     const modalOpen = document.querySelector('.modal-bg');
     const gems = save.gems ?? 0;
     if (!modalOpen && gems <= 0) return done();
+    // detalhes da carta abertos (segurou a carta): nada do tutorial por cima, só o ✕ da janela
+    if (document.querySelector('.battle-card-modal-bg')) return clearSpotlight();
     if (!modalOpen && !document.querySelector('[data-pull="1"][data-pay="gem"]')) return; // ainda montando a Loja
-    if (!modalOpen) return spotlight(document.querySelector('[data-pull="1"][data-pay="gem"]'), `Este é o <b>${ico('banner', '🎴')} Banner</b>. Cada <b>${gemHTML()} Gema</b> compra 1 carta (um personagem ou um feitiço numa raridade sorteada). Toque em <b>Comprar 1 carta</b>.`, { onSkip: done });
-    // v0.53.0: depois da compra a tela não fica escura — a carta ganha fica destacada (segure para ver os efeitos)
-    const reveal = [...document.querySelectorAll('.modal-bg .pull-reveal')];
-    if (gems > 0) return spotlight(document.querySelector('[data-again="1"][data-pay="gem"]'), 'Esta é a carta que você ganhou! <b>Segure</b> a carta para ver as habilidades. Carta nova entra na coleção; repetida vira mais 1 cópia. Depois use a outra Gema: toque em <b>Comprar 1 carta</b> com a Gema.', { onSkip: done, area: reveal, light: true });
-    spotlight(document.querySelector('.modal-bg .modal-x'), 'Esta é a carta que você ganhou! <b>Segure</b> a carta para ver as habilidades. Quando quiser, toque no <b>✕</b> para continuar.', { onSkip: done, area: reveal, light: true });
+    if (!modalOpen && !introDone) {
+      const box = document.querySelector('.banner-box .banner-art') ?? document.querySelector('.banner-box');
+      return spotlight(box, `Este é o <b>${ico('banner', '🎴')} Banner</b>: aqui você compra cartas novas. Cada compra sorteia um <b>personagem</b> ou um <b>feitiço</b> numa raridade; a cada 80 compras sai uma <b>Lendária</b> garantida.`, { onSkip: done, lock: true, onNext: () => (introDone = true), tipAt: 'bottom' });
+    }
+    if (!modalOpen) return spotlight(document.querySelector('[data-pull="1"][data-pay="gem"]'), `Cada <b>${gemHTML()} Gema</b> compra 1 carta. Toque em <b>Comprar 1 carta</b> com a Gema.`, { onSkip: done });
+    if (gems !== seenPulls) {
+      seenPulls = gems;
+      cardSeen = false;
+    }
+    if (!cardSeen)
+      return spotlight(null, 'Esta é a carta que você ganhou! <b>Segure</b> a carta para ver as habilidades. Carta nova entra na coleção; repetida vira mais 1 cópia.', { onSkip: done, clear: true, onNext: () => (cardSeen = true) });
+    if (gems > 0) return spotlight(document.querySelector('.modal-bg [data-again="1"][data-pay="gem"]'), 'Agora use a outra Gema: toque em <b>Comprar 1 carta</b> com a Gema.', { onSkip: done, tipAt: 'top' });
+    spotlight(document.querySelector('.modal-bg .modal-x'), 'Quando quiser, toque no <b>✕</b> para continuar.', { onSkip: done, tipAt: 'bottom' });
   }, 150);
 }
 

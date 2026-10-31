@@ -2,6 +2,15 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.55.0] — 31/10/2026 · Ajustes do tutorial e janela da fase
+- **Detalhes da carta inteiros:** a carta da janela de detalhes (tutorial, pacote e Banner) diminui conforme a altura da tela e aparece inteira, com ataque e vida embaixo, sem cortar.
+- **Segurar a carta (Batalha 2):** ao pedir para segurar, a carta do Riku fica destacada; ao abrir, **só a descrição** fica destacada (o resto escuro); ao fechar no ✕, o tutorial **segue direto** para jogar a carta (não precisa abrir de novo).
+- **Sem ação fora de hora:** na explicação das casas da zona de invocação a tela fica travada (não dá para jogar a carta antes) e só avança no **Continuar ›**. Nos passos guiados só o que foi pedido recebe toque.
+- **Banner:** primeiro o Banner aparece destacado com uma breve explicação (**Continuar ›**); depois vem o passo **Comprar 1 carta**.
+- **Carta ganha no Banner:** o texto do tutorial fica embaixo, sem moldura pontilhada nem círculo por cima da carta; com os detalhes da carta abertos, o tutorial some até fechar. Depois do Continuar, o tutorial aponta o próximo botão.
+- **Mãozinha:** quando aponta para cima (ex.: ✕), fica espelhada e a ponta do dedo cai no botão.
+- **Janela da fase:** saiu o texto "(em dobro na primeira vitória)" da linha de recompensa.
+
 ## [0.54.1] — 31/10/2026 · Rostos do jogador no jogo e editor temporário desligado
 - **62 rostos da foto de perfil** agora usam o recorte que você fez no editor (entram em `FACE_USER` no `scripts/art/build_thumbs.py`, por cima dos recortes anteriores). O Fen continua girado, de pé.
 - **Editor temporário desligado:** "segurar um rosto" e "Exportar" saíram da Foto de perfil. O código fica guardado em `src/app/tempProfileCropEditor.ts` com `TEMP_PROFILE_CROP_EDITOR = false`, sem ligação na tela, para reusar num próximo lote (como religar está no topo do arquivo).

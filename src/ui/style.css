@@ -1466,7 +1466,7 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .pile-draw .pile-ico { display: none; }
 .pile-ico .ico { width: 80%; height: 80%; vertical-align: middle; }
 .spot-arrow .ico { width: 48px; height: 48px; vertical-align: top; }
-.spot-arrow.up .ico { transform: rotate(180deg); }
+.spot-arrow.up .ico { transform: scaleY(-1); } /* v0.55.0: espelhada (a ponta do dedo continua do mesmo lado) */
 .dialog-icon .ico { width: 1.6em; height: 1.6em; vertical-align: middle; }
 /* v0.42.1: tutorial — as 6 casas da zona de invocação destacadas juntas; a casa sugerida ganha um círculo */
 .spot-zone { position: fixed; border: 3px dashed #5fd8ff; border-radius: 12px; box-shadow: 0 0 16px rgba(95,216,255,.7), inset 0 0 18px rgba(95,216,255,.35); pointer-events: none; }
@@ -1741,3 +1741,13 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .tcrop-bar { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
 .tcrop-text { width: 100%; min-height: 90px; font: 11px monospace; background: #0b0f26; color: #cfd6ff; border: 1px solid #3a4580; border-radius: 8px; }
 @media (orientation: portrait) { .tcrop { flex-direction: column; } .tcrop-img { height: min(60dvh, 520px); } }
+
+/* v0.55.0: tutorial — trava de toques, botão Continuar e carta inteira nos detalhes */
+.spot-lock { position: fixed; inset: 0; pointer-events: auto; background: transparent; }
+.spot-tip { z-index: 1; }
+.spot-next { margin: 2px 8px 2px 0; }
+@media (min-width: 641px) {
+  .bcm-left { width: min(210px, calc((100dvh - 150px) * .66)); justify-self: center; }
+  .bcm-body { grid-template-columns: auto 1fr; }
+}
+@media (max-height: 520px) { .bcm-body { padding: 10px 14px; } .bcm-hint { margin-top: 4px; } }

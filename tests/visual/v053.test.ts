@@ -19,8 +19,8 @@ describe('v0.53.0 vitória, escolha de carta e tutorial', () => {
   it('tutorial: cartas da tela abrem os detalhes; descrição destacada sem escurecer; Banner com a carta em destaque', () => {
     expect(tut).toContain('data-tc=');
     expect(tut).toMatch(/cardDetails\(isSpell\(id\)/);
-    expect(tut).toMatch(/spotlight\(infoWrap,[^\n]*light: true/);
-    expect(tut).toMatch(/area: reveal, light: true/);
+    // v0.55.0: a descrição passou a ser destacada com o resto escuro, e a carta ganha fica sem moldura por cima
+    expect(tut).toMatch(/spotlight\(infoWrap,/);
     expect(readFileSync('src/app/shop.ts', 'utf8')).toContain("onLongPress(el, () => cardDetails(got[i]))");
     expect(readFileSync('src/ui/spotlight.ts', 'utf8')).toContain('if (opts.light)');
   });
