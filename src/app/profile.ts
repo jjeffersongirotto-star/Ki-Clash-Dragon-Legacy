@@ -55,7 +55,7 @@ export function profileCardHTML(): string {
       <span class="pcard-lvbadge" title="Nível de perfil: sobe com XP de perfil (1 por energia gasta e ao vencer ou repetir fases)">${lv}</span>
     </div>
     <div class="pcard-bar" title="${max ? 'Nível máximo' : `XP ${into}/${need}`}"><i style="width:${pct.toFixed(1)}%"></i><span>${max ? 'máx.' : `${into}/${need}`}</span></div>
-    <button class="pcard-name" id="pName" title="Opções" aria-label="Opções do perfil">${esc(displayName())}${acc?.admin ? ' <small>teste</small>' : ''}</button>
+    <button class="pcard-name" id="pName" title="Opções" aria-label="Opções do perfil">${esc(displayName())}${acc?.admin || acc?.adminMin ? ' <small>teste</small>' : ''}</button>
   </div>`;
 }
 

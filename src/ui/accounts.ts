@@ -20,10 +20,13 @@ export const GUEST_SAVE_KEY = 'kicdl-save-v1';
 /** conta de testes pré-criada: perfil no nível máximo */
 export const ADMIN_NAME = 'ADM';
 export const ADMIN_PASS = '12345';
+/** v0.55.1: 2ª conta de testes — todas as cartas na raridade MÍNIMA (para revisar o equilíbrio de ataque/vida) */
+export const ADMIN_MIN_NAME = 'adm2';
+export const ADMIN_MIN_PASS = '12345';
 export const NAME_MAX = 16;
 export const PASS_MIN = 3;
 
-export interface Account { name: string; hash: string; admin?: boolean }
+export interface Account { name: string; hash: string; admin?: boolean; adminMin?: boolean }
 export interface AccountStore { accounts: Record<string, Account>; current: string | null }
 
 /** "hash" simples (FNV-1a) só para não guardar a senha em texto puro — NÃO é criptografia. */
@@ -60,6 +63,7 @@ export function loadAccounts(): AccountStore {
   }
   // a conta ADM sempre existe, com a senha padrão
   st.accounts[accountId(ADMIN_NAME)] = { name: ADMIN_NAME, hash: weakHash(ADMIN_PASS), admin: true };
+  st.accounts[accountId(ADMIN_MIN_NAME)] = { name: ADMIN_MIN_NAME, hash: weakHash(ADMIN_MIN_PASS), adminMin: true };
   if (st.current && !st.accounts[st.current]) st.current = null;
   return st;
 }
@@ -143,5 +147,24 @@ export function adminSave(): SaveData {
   // v0.26.0: perfil no nível 100, muita energia e Ouro de Dragão
   d.profile = { xp: totalXpFor(PROFILE_MAX), energy: 9999, at: Date.now(), gold: 999999 };
   d.leaders = Object.fromEntries(LEADERS.map((l) => [l.id, { level: l.hpByLevel.length }]));
+  return d;
+}
+
+/**
+ * v0.55.1: perfil da conta adm2 — igual à ADM (fases, itens, nível), mas cada personagem na raridade MÍNIMA dele
+ * (sem "+"), para comparar ataque e vida no Baralho e na Coleção.
+ */
+export function adminMinSave(): SaveData {
+  const d = adminSave();
+  const cards: Record<string, OwnedCard> = {};
+  for (const def of PLAYABLE) {
+    if (!CHAR_BY_ID[def.id]) continue;
+    cards[def.id] = { charId: def.id, xp: 0, stars: def.minStars, plus: 0 };
+  }
+  d.cards = cards;
+  d.dupes = Object.fromEntries(Object.values(cards).map((c) => [c.charId, { [c.stars]: 9 }]));
+  const deck = autoDeck(Object.values(cards).map((c) => ({ charId: c.charId, stars: c.stars, plus: c.plus })), deckMaxFor(PROFILE_MAX_LEVEL), 10);
+  d.deck = deck.map((c) => c.charId);
+  d.copies = Object.fromEntries(deck.map((c) => [c.charId, c.copies ?? 3]));
   return d;
 }

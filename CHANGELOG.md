@@ -2,6 +2,10 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.55.1] — 31/10/2026 · Conta adm2 e filtro por tipo
+- **Conta de testes adm2 / 12345:** igual à ADM (fases, itens, nível), mas com **todas as cartas na raridade mínima** de cada personagem (sem "+"), para comparar ataque e vida no Baralho e na Coleção. A ADM continua no máximo.
+- **Coleção & Baralho — filtro por Tipo** (DPS, Tanque, Suporte, …) além da Raça. Dá para marcar vários: dentro do mesmo filtro vale qualquer um (Humano ou Elfo) e entre filtros valem os dois (Humano **e** DPS). "Todos" limpa. Feitiços seguem o filtro de tipo e somem com filtro de raça.
+
 ## [0.55.0] — 31/10/2026 · Ajustes do tutorial e janela da fase
 - **Detalhes da carta inteiros:** a carta da janela de detalhes (tutorial, pacote e Banner) diminui conforme a altura da tela e aparece inteira, com ataque e vida embaixo, sem cortar.
 - **Segurar a carta (Batalha 2):** ao pedir para segurar, a carta do Riku fica destacada; ao abrir, **só a descrição** fica destacada (o resto escuro); ao fechar no ✕, o tutorial **segue direto** para jogar a carta (não precisa abrir de novo).

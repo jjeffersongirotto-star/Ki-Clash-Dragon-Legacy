@@ -1292,3 +1292,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - Banner: primeiro a explicação com o Banner destacado, depois "Comprar 1 carta". A carta ganha fica livre (sem moldura nem texto por cima).
 - Detalhes da carta: a carta sempre aparece inteira na tela.
 - A janela da fase não fala mais em recompensa em dobro na primeira vitória.
+
+## Contas de teste e filtros (v0.55.1)
+- ADM / 12345: tudo no máximo. adm2 / 12345: tudo na raridade mínima (para revisar equilíbrio).
+- Coleção & Baralho: filtros de Raça e Tipo com várias escolhas — OU dentro do mesmo filtro, E entre filtros.
