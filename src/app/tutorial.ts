@@ -139,7 +139,8 @@ export function tutorialBattle(i: 0 | 1) {
     battleEl?.classList.remove('log-open');
     // v0.52.1: enquanto os personagens agem a tela fica clara, como numa partida normal; escurece de novo no próximo passo
     // v0.55.2: e a dica sobe para a faixa vazia acima da arena (não cobre cartas nem o campo)
-    if (view.busy) {
+    // v0.55.3: também no turno do inimigo (personagens andando/atacando) — a dica nunca fica sobre a mão
+    if (view.busy || (view.state.active !== 'player' && !view.state.winner)) {
       view.cellGate = null;
       return spotlight(null, guideText(i, { kind: 'watch' }, view.state), { onSkip: skip, clear: true, strip: topStrip(view.root) });
     }
@@ -151,7 +152,7 @@ export function tutorialBattle(i: 0 | 1) {
     // o roteiro segue direto para jogar a carta (não precisa abrir de novo)
     const infoWrap = view.root.querySelector('.info-wrap');
     if (reading && holdPhase(memo, !!(battleEl?.classList.contains('has-info') && infoWrap)) === 'info')
-      return spotlight(infoWrap, 'Esta é a <b>descrição</b> da carta: as habilidades dela, como em qualquer partida. Quando terminar de ler, toque no <b>✕</b> para continuar.', { onSkip: skip, tipAt: 'top' });
+      return spotlight(infoWrap, 'Esta é a <b>descrição</b> da carta: as habilidades dela, como em qualquer partida. Quando terminar de ler, toque no <b>✕</b> para continuar.', { onSkip: skip, tipAt: 'top-left' });
     if (memo.held && view.selected != null) memo.infoDone = true;
     const target =
       a.kind === 'card' || a.kind === 'hold'
