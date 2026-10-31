@@ -53,6 +53,21 @@ export function openCardModal(view: BattleView, card: CardInstance, side: Side) 
  * v0.53.0: janela de detalhes da carta (as mesmas habilidades da partida), também fora da batalha:
  * escolha da 1ª vitória, cartas do tutorial e resultado do Banner.
  */
+/** v0.55.2: se o conteúdo cabe na janela, sem rolagem nenhuma (nem o "deslizar um pouco"); se não cabe, rola */
+export function fitNoScroll(bg: HTMLElement) {
+  const body = bg.querySelector<HTMLElement>('.bcm-body');
+  if (!body) return;
+  const check = () => {
+    if (!bg.isConnected) return window.removeEventListener('resize', check);
+    body.classList.remove('fits');
+    body.classList.toggle('fits', body.scrollHeight - body.clientHeight <= 8);
+    if (body.classList.contains('fits')) body.scrollTop = 0;
+  };
+  requestAnimationFrame(check);
+  window.addEventListener('resize', check);
+  bg.querySelectorAll('img').forEach((im) => im.addEventListener('load', check, { once: true }));
+}
+
 export function cardDetails(card: CardInstance, leader?: string, onClose?: () => void) {
   document.querySelector('.battle-card-modal-bg')?.remove();
   if (isSpell(card.charId)) return spellDetails(card.charId, onClose);
@@ -82,6 +97,7 @@ export function cardDetails(card: CardInstance, leader?: string, onClose?: () =>
     <div class="bcm-hint">Toque no botão '✕' ou fora da janela para fechar os detalhes da carta.</div>
   `;
   document.body.appendChild(bg);
+  fitNoScroll(bg);
   const close = () => {
     bg.remove();
     onClose?.();
@@ -118,6 +134,7 @@ export function spellDetails(id: string, onClose?: () => void) {
     </div>
     <div class="bcm-hint">Toque no botão '✕' ou fora da janela para fechar.</div>`;
   document.body.appendChild(bg);
+  fitNoScroll(bg);
   const close = () => {
     bg.remove();
     onClose?.();

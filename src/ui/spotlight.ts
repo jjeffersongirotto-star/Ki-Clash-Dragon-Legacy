@@ -29,6 +29,8 @@ export interface SpotOptions {
   onNext?: () => void;
   /** v0.55.0: força a caixa de texto no alto ou embaixo da tela (para não cobrir o conteúdo) */
   tipAt?: 'top' | 'bottom';
+  /** v0.55.2: põe a caixa de texto (compacta) numa faixa da tela — ex.: o espaço vago acima da arena */
+  strip?: { top: number; height: number };
 }
 let nextFn: (() => void) | undefined;
 
@@ -76,11 +78,14 @@ export function spotlight(target: Element | null, html: string, opts: SpotOption
   nextFn = opts.onNext;
   r.querySelector<HTMLElement>('.spot-next')!.style.display = opts.onNext ? '' : 'none';
   r.querySelector<HTMLElement>('.spot-lock')!.style.display = opts.lock ? '' : 'none';
+  const useStrip = !!opts.strip && opts.strip.height >= 24;
+  tip.classList.toggle('strip', useStrip);
+  tip.style.maxHeight = useStrip ? `${opts.strip!.height}px` : '';
   if (opts.clear) {
     for (const el of [t, b, l, rt]) place(el, 0, 0, 0, 0);
     frame.style.display = arrow.style.display = 'none';
-    tip.style.top = '';
-    tip.style.bottom = '16px';
+    tip.style.top = useStrip ? `${opts.strip!.top}px` : '';
+    tip.style.bottom = useStrip ? '' : '16px';
     return;
   }
   if (!box || box.width === 0) {

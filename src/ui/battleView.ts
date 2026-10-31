@@ -38,6 +38,8 @@ export class BattleView {
   root: HTMLElement;
   selected: number | null = null;
   busy = false;
+  /** v0.55.2: o tutorial pode limitar em qual casa a carta entra (outras casas não fazem nada) */
+  cellGate: ((r: number, c: number) => boolean) | null = null;
   autoMode = false;
   /** unidades do jogador vindas de cartas (para animar o monte de derrotadas) */
   mine = new Set<number>();
@@ -257,6 +259,11 @@ export class BattleView {
   /** v0.14.4: soltar a carta arrastada numa casa — mesmas regras do toque (carta pronta, zona, casa livre) */
   async dropCard(i: number, r: number, c: number) {
     if (this.busy) return;
+    if (this.cellGate && !this.cellGate(r, c)) {
+      this.renderHand();
+      this.highlight();
+      return;
+    }
     const res = this.useCard(i, r, c);
     if (!res.ok) {
       this.toast(res.reason ?? 'Inválido');
@@ -319,6 +326,7 @@ export class BattleView {
 
   async onCell(r: number, c: number) {
     if (this.busy) return;
+    if (this.cellGate && !this.cellGate(r, c)) return;
     const u = unitAt(this.state, r, c);
     // v0.35.0: tocar numa casa/unidade sem carta escolhida não abre mais a descrição (só segurando)
     if (this.selected == null) return;

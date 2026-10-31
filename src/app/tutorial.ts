@@ -12,7 +12,7 @@ import { ico } from '../ui/icons';
 import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
 import { MAX_COPIES, addToDeck, setCopies, spellCopies } from '../ui/save';
 import { addDupe, dupeCount } from '../core/banner';
-import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_PACK, TUTORIAL_REWARD, TUTORIAL_SEEDS, TUTORIAL_SPELL, TUTORIAL_SPELL_COPIES, TUTORIAL_STARTER, TUT_BATTLE1, TUT_BATTLE2, TUT_DONE, TUT_PACK, guideStep, guideText, holdPhase, newGuideMemo, tutorialGear } from '../core/tutorial';
+import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_PACK, TUTORIAL_REWARD, TUTORIAL_SEEDS, TUTORIAL_SPELL, TUTORIAL_SPELL_COPIES, TUTORIAL_STARTER, TUT_BATTLE1, TUT_BATTLE2, TUT_DONE, TUT_PACK, cellOnly, guideStep, guideText, holdPhase, newGuideMemo, tutorialGear } from '../core/tutorial';
 import { deployCells } from '../core/battle';
 import { isSpell } from '../core/spells';
 import { clearSpotlight, spotlight } from '../ui/spotlight';
@@ -138,9 +138,15 @@ export function tutorialBattle(i: 0 | 1) {
     if (!reading) battleEl?.classList.remove('has-info');
     battleEl?.classList.remove('log-open');
     // v0.52.1: enquanto os personagens agem a tela fica clara, como numa partida normal; escurece de novo no próximo passo
-    if (view.busy) return spotlight(null, guideText(i, { kind: 'watch' }, view.state), { onSkip: skip, clear: true });
+    // v0.55.2: e a dica sobe para a faixa vazia acima da arena (não cobre cartas nem o campo)
+    if (view.busy) {
+      view.cellGate = null;
+      return spotlight(null, guideText(i, { kind: 'watch' }, view.state), { onSkip: skip, clear: true, strip: topStrip(view.root) });
+    }
     if (document.querySelector('.modal-bg, .battle-card-modal-bg')) return spotlight(null, guideText(i, { kind: 'watch' }, view.state), { onSkip: skip });
     const a = guideStep(i, view.state, view.selected, memo);
+    // v0.55.2: só a casa indicada aceita a carta; qualquer outra casa não faz nada
+    view.cellGate = a.kind === 'cell' ? cellOnly(a.r, a.c) : null;
     // v0.55.0: depois de segurar a carta, SÓ a descrição fica destacada (o resto escuro e travado); ao fechar no ✕,
     // o roteiro segue direto para jogar a carta (não precisa abrir de novo)
     const infoWrap = view.root.querySelector('.info-wrap');
@@ -165,6 +171,15 @@ export function tutorialBattle(i: 0 | 1) {
     }
     spotlight(target, guideText(i, a, view.state, touch), { onSkip: skip });
   }, 150);
+}
+
+/** v0.55.2: faixa vazia entre o topo (barras de vida) e a arena, onde a dica fica enquanto os personagens agem */
+function topStrip(root: HTMLElement): { top: number; height: number } | undefined {
+  const hud = root.querySelector('.bhud')?.getBoundingClientRect();
+  const arena = (root.querySelector('.field') ?? root.querySelector('.board'))?.getBoundingClientRect();
+  if (!hud || !arena) return undefined;
+  const top = hud.bottom + 2;
+  return { top, height: Math.max(0, arena.top - 2 - top) };
 }
 
 /** Pular o tutorial: recebe o pacote e a recompensa do mesmo jeito. */

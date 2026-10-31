@@ -1754,3 +1754,10 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 /* v0.55.1: filtro de tipo */
 .type-filters { margin-top: 4px; align-items: center; }
 .rf-lbl { font-size: 13px; color: var(--muted); font-weight: 700; margin-right: 2px; }
+
+/* v0.55.2: detalhe da carta que cabe na janela não rola nada */
+.bcm-body.fits { overflow: hidden; overscroll-behavior: none; touch-action: none; }
+/* v0.55.2: dica do tutorial na faixa acima da arena enquanto os personagens agem */
+.spot-tip.strip { width: min(640px, calc(100vw - 260px)); padding: 3px 10px; overflow: hidden; display: flex; align-items: center; gap: 8px; }
+.spot-tip.strip .spot-text { margin: 0; font-size: 12px; line-height: 1.2; flex: 1; }
+.spot-tip.strip .spot-skip { font-size: 11px; white-space: nowrap; }

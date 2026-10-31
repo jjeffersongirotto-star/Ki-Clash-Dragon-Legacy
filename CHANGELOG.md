@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.55.2] — 31/10/2026 · Tutorial: casa certa, detalhe sem rolagem e dica acima da arena
+- **Só a casa indicada:** no passo guiado de jogar a carta, só a casa circulada aceita (toque ou arrasto). Qualquer outra casa não faz nada e o tutorial só segue na casa certa.
+- **Detalhe da carta sem rolagem quando cabe:** se tudo cabe na janela, ela não desliza nada; se não cabe, continua rolando.
+- **Dica durante o ataque:** enquanto o tutorial instrui, a dica fica onde estava; quando os personagens começam a agir, ela sobe para a faixa vazia acima da arena (embaixo das barras de vida), sem cobrir cartas nem o campo.
+
 ## [0.55.1] — 31/10/2026 · Conta adm2 e filtro por tipo
 - **Conta de testes adm2 / 12345:** igual à ADM (fases, itens, nível), mas com **todas as cartas na raridade mínima** de cada personagem (sem "+"), para comparar ataque e vida no Baralho e na Coleção. A ADM continua no máximo.
 - **Coleção & Baralho — filtro por Tipo** (DPS, Tanque, Suporte, …) além da Raça. Dá para marcar vários: dentro do mesmo filtro vale qualquer um (Humano ou Elfo) e entre filtros valem os dois (Humano **e** DPS). "Todos" limpa. Feitiços seguem o filtro de tipo e somem com filtro de raça.
