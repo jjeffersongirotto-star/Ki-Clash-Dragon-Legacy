@@ -231,7 +231,7 @@ export function stageDialog(stageId: number) {
       <p class="stage-line stage-items">Itens: ${stageGearIds(stageId).map((id) => gearHTML(id, stageGearRarity(stageId, diff)[0])).join(' ')} <button class="banner-info stage-info" data-dropinfo aria-label="Chances dos itens" title="Chances dos itens">i</button></p>
       </div><div class="stage-col">
       <ul class="stage-goals">${starGoals(diff, stageId).map((g, i) => `<li class="${mask & (1 << i) ? 'on' : ''}"><i>${ico(mask & (1 << i) ? 'estrela' : 'estrela-vazia', '★')}</i> ${esc(goalPlain(g.text))}</li>`).join('')}</ul>
-      <p class="stage-line stage-xp">Por vitória ou Repetir: ${goldHTML(goldFor(stageId, diff))} · ${ico('perfil', '👤')} +${profileXpFor(stageId, diff)} XP de perfil${done ? '' : ' <small>(em dobro na primeira vitória)</small>'} · você tem ${energyHTML(energyNow(), energyMax(prof()))}</p>
+      <p class="stage-line stage-xp">Por vitória ou Repetir: ${goldHTML(goldFor(stageId, diff))} · ${ico('perfil', '👤')} +${profileXpFor(stageId, diff)} XP de perfil · você tem ${energyHTML(energyNow(), energyMax(prof()))}</p>
       ${done ? `<p class="stage-left ${left ? '' : 'out'}">${left ? `Hoje: <b>${left}/${DAILY_LIMIT}</b> restantes` : 'Limite de hoje atingido. Volta amanhã.'}</p>` : ''}
       <div class="stage-actions">
         <button class="btn primary big" data-act="play" ${play ? '' : 'disabled'}>${ico('lutar', '⚔')} Jogar <span class="cost">${ico('energia', '⚡')}${ENERGY_COST[diff]}</span></button>

@@ -63,7 +63,7 @@ export function tutorialGear(): GearBag {
 export const TUTORIAL_TIPS: { icon: string; title: string; text: string }[][] = [
   [
     { icon: '🎯', title: 'Objetivo', text: 'Derrube a vida do Comandante inimigo (lá na direita) antes que ele derrube a do seu (na esquerda).' },
-    { icon: '🃏', title: 'Invocar', text: 'Toque na carta do Riku na sua mão e depois em um dos 6 quadrados destacados: essa é a sua zona de invocação.' },
+    { icon: '🃏', title: 'Invocar', text: 'Toque na carta do Riku na sua mão e depois em um dos 6 quadrados destacados: essa é a sua zona de invocação. Toque em <b>Continuar</b>.' },
     { icon: '⚔', title: 'Lutar', text: 'Toque em LUTAR. Seus personagens andam para a direita e atacam. Quem chega ao fim da arena bate no Comandante inimigo.' },
     { icon: '❤', title: 'Vida do Comandante', text: 'As barras lá em cima mostram a vida dos dois Comandantes. Se a sua chegar a 0, você perde.' },
   ],
@@ -93,8 +93,21 @@ export interface GuideMemo {
   cardsAtTurn: number;
   /** v0.35.0: já segurou uma carta para ver a descrição (passo da Batalha 2) */
   held: boolean;
+  /** v0.55.0: já leu e FECHOU a descrição (o roteiro segue para jogar a carta) */
+  infoDone?: boolean;
 }
-export const newGuideMemo = (): GuideMemo => ({ turn: -1, cardsAtTurn: 0, held: false });
+export const newGuideMemo = (): GuideMemo => ({ turn: -1, cardsAtTurn: 0, held: false, infoDone: false });
+
+/**
+ * v0.55.0: fase do passo "segure a carta" (Batalha 2). Depois de segurar, enquanto a descrição está aberta, só ela
+ * fica destacada ('info'); ao fechar, o roteiro AVANÇA para jogar a carta ('guide') e não volta a pedir a descrição.
+ */
+export function holdPhase(memo: GuideMemo, infoOpen: boolean): 'info' | 'guide' {
+  if (!memo.held || memo.infoDone) return 'guide';
+  if (infoOpen) return 'info';
+  memo.infoDone = true;
+  return 'guide';
+}
 
 /** Batalha 2: ordem das primeiras invocações e a casa de cada uma (fileira, coluna). */
 const PLAN2: { id: string; r: number; c: number }[] = [
@@ -182,7 +195,7 @@ export function guideText(i: 0 | 1, a: GuideAction, s: BattleState, touch = true
   if (i === 0) {
     if (a.kind === 'card') return n === 0 ? 'Esta é a sua <b>mão</b>. Toque na carta do <b>Riku</b> para escolhê-la.' : 'Chegou carta nova na mão. Toque nela para invocar mais um <b>Riku</b>.';
     if (a.kind === 'cell') {
-      if (n === 0 && zoneIntro) return 'Você pode colocar o <b>Riku</b> em <b>qualquer um dos 6 quadrados destacados</b>: essa é a sua zona de invocação.';
+      if (n === 0 && zoneIntro) return 'Você pode colocar o <b>Riku</b> em <b>qualquer um dos 6 quadrados destacados</b>: essa é a sua zona de invocação. Toque em <b>Continuar</b>.';
       return n === 0 ? 'Coloque o <b>Riku</b> aqui: toque na <b>casa circulada</b>.' : 'Toque na <b>casa circulada</b> para invocar.';
     }
     if (s.turn <= 1) return 'Toque em <b>LUTAR ⚔</b>. Seus personagens andam para a direita e atacam quem estiver na frente.';

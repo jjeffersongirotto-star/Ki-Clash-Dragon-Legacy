@@ -1285,3 +1285,10 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 ## TEMPORÁRIO: editor do recorte da foto de perfil (v0.54.0)
 - Na Foto de perfil, segurar um rosto abre o editor (arrastar, pinça, tocar, Salvar). "Exportar" manda só os rostos editados (números + imagem). Vale até os recortes entrarem no jogo; depois o editor é removido (ver CHANGELOG 0.54.0).
 - v0.54.1: o editor temporário foi desligado; os rostos ajustados pelo jogador fazem parte do jogo.
+
+## Tutorial guiado (v0.55.0)
+- Em cada passo só a ação pedida recebe toque; passos só de explicação travam a tela e avançam pelo "Continuar ›".
+- Segurar a carta: destaca a carta; com a descrição aberta, só ela fica destacada; fechar a descrição avança para jogar a carta.
+- Banner: primeiro a explicação com o Banner destacado, depois "Comprar 1 carta". A carta ganha fica livre (sem moldura nem texto por cima).
+- Detalhes da carta: a carta sempre aparece inteira na tela.
+- A janela da fase não fala mais em recompensa em dobro na primeira vitória.
