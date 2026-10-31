@@ -16,6 +16,7 @@ import { MAX_COPIES, addToDeck, copiesIn, maxCopiesFor, setCopies, deckMin, deck
 import { GEAR_RARE_CHANCE, addGear, stageGearDrop, stageGearIds, stageGearRarity } from '../core/gear';
 import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, gemsFor, spellRewardFor, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, goalPlain, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, regionUnlocked, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from '../core/adventure';
 import { enemyCommanderArt, faceUrl } from '../ui/art';
+import { cardDetails, onLongPress } from '../ui/battleModals';
 import { ico } from '../ui/icons';
 import { arenaAttrs } from '../ui/arenas';
 const regionIcon = (r: { id: number; icon: string }) => ico(`regiao-${r.id}`, r.icon);
@@ -350,18 +351,28 @@ export function resultModal(html: string) {
       closeModal();
       adventure(save.region);
     });
-    // v0.52.1: com escolha de carta pendente, Continuar/Treinar só liberam depois de escolher
+    // v0.53.0: escolha da 1ª vitória — tocar seleciona (dá para trocar), segurar mostra as habilidades,
+    // e Continuar/Treinar/✕ confirmam a escolhida (ficam travados até escolher)
     const box = m.querySelector<HTMLElement>('[data-pick-box]');
     if (box) {
       const btns = [...m.querySelectorAll<HTMLButtonElement>('[data-m=adv], [data-m=train], [data-m=close]')];
       btns.forEach((b) => (b.disabled = true));
-      box.querySelectorAll<HTMLButtonElement>('[data-pick]').forEach((el) =>
+      let chosen = '';
+      box.querySelectorAll<HTMLButtonElement>('[data-pick]').forEach((el) => {
+        onLongPress(el, () => cardDetails({ charId: el.dataset.pick!, stars: getChar(el.dataset.pick!).minStars }));
         el.addEventListener('click', () => {
-          box.innerHTML = grantOne(el.dataset.pick!);
-          persist();
+          chosen = el.dataset.pick!;
+          box.querySelectorAll('[data-pick]').forEach((o) => o.classList.toggle('on', o === el));
           btns.forEach((b) => (b.disabled = false));
-        }),
-      );
+        });
+      });
+      for (const b of btns)
+        b.addEventListener('click', () => {
+          if (!chosen) return;
+          grantOne(chosen);
+          chosen = '';
+          persist();
+        }, true);
     }
     m.querySelector('[data-m=adv]')!.addEventListener('click', () => {
       closeModal();
@@ -451,9 +462,9 @@ export function finishBattle(stageId: number, diff: Difficulty, winner: string, 
     const regionOpened = nextRegion ? `<p class="hint">${ico('liberado', '🗺')} Nova região liberada: <b>${regionIcon(nextRegion)} ${esc(nextRegion.name)}</b>!</p>` : '';
     // v0.52.1: primeira vitória — escolha 1 entre 3 cartas do rival
     const offer = first ? firstClearOffer(stage.enemyDeck) : [];
-    const pickLine = offer.length ? `<div class="first-pick" data-pick-box><p class="first-pick-t">Escolha 1 carta do rival</p><div class="first-pick-row">${offer.map((id) => { const c = getChar(id); return `<button class="first-pick-opt" data-pick="${id}" style="${starStyle(c.minStars)}">${faceUrl(id) ? `<img src="${faceUrl(id)}" alt="" draggable="false">` : ''}<b>${esc(c.name.split(' ')[0])}</b><small>${tierHTML(c.minStars)}</small></button>`; }).join('')}</div></div>` : '';
-    html = `<h2 class="win">${ico('vitoria', '🏆')} Vitória!</h2><p>${first ? 'Primeira vitória nesta fase!' : `Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.`}</p>
-      ${starsLine}${got}${opened ? `<p class="hint">🔓 Fase ${stageLabel(stageId)} liberada no <b>${DIFFICULTY_LABEL[opened]}</b>!</p>` : ''}${regionOpened}${unlocked}${pickLine}`;
+    const pickLine = offer.length ? `<div class="first-pick" data-pick-box><p class="first-pick-t">Recompensa da primeira vitória: escolha 1 carta do rival</p><p class="hint first-pick-h">Toque para escolher · segure para ver as habilidades · Continuar confirma</p><div class="first-pick-row">${offer.map((id) => { const c = getChar(id); return `<button class="first-pick-opt" data-pick="${id}" style="${starStyle(c.minStars)}">${faceUrl(id) ? `<img src="${faceUrl(id)}" alt="" draggable="false">` : ''}<b>${esc(c.name.split(' ')[0])}</b><small>${tierHTML(c.minStars)}</small></button>`; }).join('')}</div></div>` : '';
+    html = `<h2 class="win">${ico('vitoria', '🏆')} Vitória!</h2>${pickLine}${unlocked}<p>${first ? 'Primeira vitória nesta fase!' : `Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.`}</p>
+      ${starsLine}${got}${opened ? `<p class="hint">🔓 Fase ${stageLabel(stageId)} liberada no <b>${DIFFICULTY_LABEL[opened]}</b>!</p>` : ''}${regionOpened}`;
   } else {
     save.items.orbe1 += 1;
     html = `<h2 class="lose">${winner === 'empate' ? `${ico('empate', '⏱')} Empate` : `${ico('derrota', '💀')} Derrota`}</h2><p>Treine seus personagens com Orbes e tente de novo! (+1 Orbe Comum)</p>`;

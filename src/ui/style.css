@@ -1716,3 +1716,13 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .modal:has(.pull-reveal.pull-1) h2.win { margin: 0 0 6px; font-size: 22px; }
 .modal:has(.pull-reveal) .pull-reveal.pull-1 { max-height: calc(98dvh - 175px); }
 .modal:has(.pull-reveal) .pity-line { margin: 6px 0; }
+
+/* v0.53.0: vitória centralizada; escolha da 1ª vitória no topo, com seleção */
+.modal h2.win, .modal h2.lose { text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.first-pick { margin: 4px 0 10px; }
+.first-pick-h { margin: 0 0 6px; font-size: 12px; }
+.first-pick-opt { -webkit-touch-callout: none; user-select: none; transition: transform .12s; }
+.first-pick-opt.on { transform: translateY(-3px); box-shadow: 0 0 0 2px #fff, 0 0 16px var(--rc); background: rgba(255,207,74,.18); }
+.tut-card { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; vertical-align: top; }
+.tut-card-h { font-size: 11px; color: #8f9ad0; }
+.pull-card { -webkit-touch-callout: none; user-select: none; }

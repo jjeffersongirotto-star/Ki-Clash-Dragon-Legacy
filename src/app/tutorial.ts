@@ -16,6 +16,7 @@ import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_PACK, TUTORIA
 import { deployCells } from '../core/battle';
 import { isSpell } from '../core/spells';
 import { clearSpotlight, spotlight } from '../ui/spotlight';
+import { cardDetails } from '../ui/battleModals';
 import { app, accounts, save, persist, activeLeader, leaderLevel } from './state';
 import { resultModalWith, closeModal } from './ui';
 import { home, accountDialog } from './home';
@@ -31,12 +32,14 @@ export function tutorial(): void {
   const t = save.tutorial ?? TUT_DONE;
   if (t >= TUT_DONE) return home();
   const step = (n: number, label: string) => `<li class="${t > n ? 'done' : t === n ? 'now' : ''}">${t > n ? '✔' : n + 1}. ${label}</li>`;
+  // v0.53.0: cada carta mostrada abre os detalhes (as habilidades, como na partida) ao tocar
+  const tc = (id: string, html: string) => `<div class="tut-card" data-tc="${id}" role="button" tabindex="0" title="Ver habilidades">${html}<small class="tut-card-h">Toque para ver</small></div>`;
   const body =
     t === TUT_BATTLE1
-      ? `<p>Bem-vindo! Antes da Aventura, uma batalha rápida para aprender. Você começa com o <b>${esc(getChar(TUTORIAL_STARTER).name)}</b>.</p>${cardHTML(save.cards[TUTORIAL_STARTER], { compact: true })}`
+      ? `<p>Bem-vindo! Antes da Aventura, uma batalha rápida para aprender. Você começa com o <b>${esc(getChar(TUTORIAL_STARTER).name)}</b>.</p>${tc(TUTORIAL_STARTER, cardHTML(save.cards[TUTORIAL_STARTER], { compact: true }))}`
       : t === TUT_PACK
         ? `<p>Muito bem! Você ganhou um <b>pacote grátis</b> com 2 personagens novos e 1 feitiço.</p><div class="tut-pack" data-act="pack">🎁<small>Toque para abrir</small></div>`
-        : `<p>Agora com 3 personagens. Os inimigos desta batalha mostram como as <b>habilidades</b> funcionam.</p><div class="tut-cards">${TUTORIAL_CHARS.map((id) => cardHTML(save.cards[id], { compact: true })).join('')}${spellCopies(save, TUTORIAL_SPELL) ? spellCardHTML(TUTORIAL_SPELL, { compact: true }) : ''}</div>`;
+        : `<p>Agora com 3 personagens. Os inimigos desta batalha mostram como as <b>habilidades</b> funcionam.</p><div class="tut-cards">${TUTORIAL_CHARS.map((id) => tc(id, cardHTML(save.cards[id], { compact: true }))).join('')}${spellCopies(save, TUTORIAL_SPELL) ? tc(TUTORIAL_SPELL, spellCardHTML(TUTORIAL_SPELL, { compact: true })) : ''}</div>`;
   app.innerHTML = `<div class="screen tutorial">
     <h1>${ico('tutorial', '🎓')} Tutorial</h1>
     <ol class="tut-steps">${step(TUT_BATTLE1, 'Batalha 1')}${step(TUT_PACK, 'Pacote grátis')}${step(TUT_BATTLE2, 'Batalha 2')}</ol>
@@ -45,6 +48,7 @@ export function tutorial(): void {
     <button class="link-btn" data-act="skip">Pular tutorial</button>
     ${accounts.current ? '' : '<button class="btn small ghost tut-acc" data-act="acc">👤 Já tenho conta</button>'}
   </div>`;
+  app.querySelectorAll<HTMLElement>('[data-tc]').forEach((el) => el.addEventListener('click', () => { const id = el.dataset.tc!; cardDetails(isSpell(id) ? { charId: id, stars: 1 } : save.cards[id]); }));
   app.querySelector('[data-act=acc]')?.addEventListener('click', accountDialog);
   app.querySelector('[data-act=go]')?.addEventListener('click', () => tutorialBattle(t === TUT_BATTLE1 ? 0 : 1));
   app.querySelector('[data-act=pack]')?.addEventListener('click', openTutorialPack);
@@ -136,6 +140,10 @@ export function tutorialBattle(i: 0 | 1) {
     if (view.busy) return spotlight(null, guideText(i, { kind: 'watch' }, view.state), { onSkip: skip, clear: true });
     if (document.querySelector('.modal-bg, .battle-card-modal-bg')) return spotlight(null, guideText(i, { kind: 'watch' }, view.state), { onSkip: skip });
     const a = guideStep(i, view.state, view.selected, memo);
+    // v0.53.0: depois de segurar a carta, a tela clareia e a descrição das habilidades fica destacada para ler
+    const infoWrap = view.root.querySelector('.info-wrap');
+    if (memo.held && view.selected == null && (view.state.stats?.player.cards ?? 0) === 0 && battleEl?.classList.contains('has-info') && infoWrap)
+      return spotlight(infoWrap, 'Esta é a <b>descrição</b> da carta: as habilidades dela, como em qualquer partida. Quando terminar de ler, toque na carta do <b>Riku</b>.', { onSkip: skip, light: true });
     const target =
       a.kind === 'card' || a.kind === 'hold'
         ? view.root.querySelector(`.hand [data-i="${a.hand}"]`)
@@ -237,8 +245,10 @@ export function bannerGuide() {
     if (!modalOpen && gems <= 0) return done();
     if (!modalOpen && !document.querySelector('[data-pull="1"][data-pay="gem"]')) return; // ainda montando a Loja
     if (!modalOpen) return spotlight(document.querySelector('[data-pull="1"][data-pay="gem"]'), `Este é o <b>${ico('banner', '🎴')} Banner</b>. Cada <b>${gemHTML()} Gema</b> compra 1 carta (um personagem ou um feitiço numa raridade sorteada). Toque em <b>Comprar 1 carta</b>.`, { onSkip: done });
-    if (gems > 0) return spotlight(document.querySelector('[data-again="1"][data-pay="gem"]'), 'Carta nova entra na sua coleção; repetida vira mais 1 cópia (até 3 no baralho). Use a outra Gema: toque em <b>Comprar 1 carta</b> com a Gema.', { onSkip: done });
-    spotlight(document.querySelector('.modal-bg .modal-x'), 'Pronto! Toque no <b>✕</b> para sair do Banner.', { onSkip: done });
+    // v0.53.0: depois da compra a tela não fica escura — a carta ganha fica destacada (segure para ver os efeitos)
+    const reveal = [...document.querySelectorAll('.modal-bg .pull-reveal')];
+    if (gems > 0) return spotlight(document.querySelector('[data-again="1"][data-pay="gem"]'), 'Esta é a carta que você ganhou! <b>Segure</b> a carta para ver as habilidades. Carta nova entra na coleção; repetida vira mais 1 cópia. Depois use a outra Gema: toque em <b>Comprar 1 carta</b> com a Gema.', { onSkip: done, area: reveal, light: true });
+    spotlight(document.querySelector('.modal-bg .modal-x'), 'Esta é a carta que você ganhou! <b>Segure</b> a carta para ver as habilidades. Quando quiser, toque no <b>✕</b> para continuar.', { onSkip: done, area: reveal, light: true });
   }, 150);
 }
 

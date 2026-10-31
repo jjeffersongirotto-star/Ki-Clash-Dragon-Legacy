@@ -44,8 +44,18 @@ export function showUnitInfo(view: BattleView, u: Unit) {
 }
 
 export function openCardModal(view: BattleView, card: CardInstance, side: Side) {
+  cardDetails(card, side === 'player' ? 'Você' : view.stage.name, () => {
+    if (view.selected != null) view.clearSelection();
+  });
+}
+
+/**
+ * v0.53.0: janela de detalhes da carta (as mesmas habilidades da partida), também fora da batalha:
+ * escolha da 1ª vitória, cartas do tutorial e resultado do Banner.
+ */
+export function cardDetails(card: CardInstance, leader?: string, onClose?: () => void) {
   document.querySelector('.battle-card-modal-bg')?.remove();
-  if (isSpell(card.charId)) return view.openSpellModal(card.charId);
+  if (isSpell(card.charId)) return spellDetails(card.charId, onClose);
   const def = getChar(card.charId);
   const race = RACE_INFO[def.race];
   const bg = document.createElement('div');
@@ -58,7 +68,7 @@ export function openCardModal(view: BattleView, card: CardInstance, side: Side) 
         ${cardHTML(card)}
       </div>
       <div class="bcm-right">
-        <div class="bcm-leader">Comandante: ${side === 'player' ? 'Você' : esc(view.stage.name)}</div>
+        ${leader ? `<div class="bcm-leader">Comandante: ${esc(leader)}</div>` : ''}
         <h3 class="bcm-title">${esc(def.name)}</h3>
         <div class="bcm-sub">${esc(def.title)} · ${raceIcon(def.race)} ${race.label}</div>
         <div class="bcm-tags">${categoryHTML(def, true)} ${tierHTML(card.stars, stepOf(card))}</div>
@@ -72,10 +82,9 @@ export function openCardModal(view: BattleView, card: CardInstance, side: Side) 
     <div class="bcm-hint">Toque no botão '✕' ou fora da janela para fechar os detalhes da carta.</div>
   `;
   document.body.appendChild(bg);
-  // ao fechar, a carta não fica selecionada
   const close = () => {
     bg.remove();
-    if (view.selected != null) view.clearSelection();
+    onClose?.();
   };
   bg.querySelector('.bcm-close')!.addEventListener('click', close);
   bg.addEventListener('click', (e) => {
@@ -84,6 +93,13 @@ export function openCardModal(view: BattleView, card: CardInstance, side: Side) 
 }
 
 export function openSpellModal(view: BattleView, id: string) {
+  spellDetails(id, () => {
+    if (view.selected != null) view.clearSelection();
+  });
+}
+
+export function spellDetails(id: string, onClose?: () => void) {
+  document.querySelector('.battle-card-modal-bg')?.remove();
   const sp = getSpell(id);
   const bg = document.createElement('div');
   bg.className = 'battle-card-modal-bg';
@@ -104,10 +120,33 @@ export function openSpellModal(view: BattleView, id: string) {
   document.body.appendChild(bg);
   const close = () => {
     bg.remove();
-    if (view.selected != null) view.clearSelection();
+    onClose?.();
   };
   bg.querySelector('.bcm-close')!.addEventListener('click', close);
   bg.addEventListener('click', (e) => {
     if (e.target === bg) close();
   });
+}
+
+/** v0.53.0: segurar (long-press) abre os detalhes; um toque rápido segue normal. */
+export function onLongPress(el: HTMLElement, fn: () => void, ms = 450) {
+  let t = 0;
+  let fired = false;
+  el.addEventListener('pointerdown', () => {
+    fired = false;
+    t = window.setTimeout(() => {
+      fired = true;
+      fn();
+    }, ms);
+  });
+  for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) el.addEventListener(ev, () => clearTimeout(t));
+  el.addEventListener('contextmenu', (e) => e.preventDefault());
+  // o clique que vem depois de segurar não conta como toque
+  el.addEventListener('click', (e) => {
+    if (fired) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      fired = false;
+    }
+  }, true);
 }

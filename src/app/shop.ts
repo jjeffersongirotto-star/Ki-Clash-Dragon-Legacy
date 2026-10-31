@@ -7,6 +7,7 @@ import { CATEGORY_INFO, STAR_COLORS, getChar } from '../core/characters';
 import { TIER_NAMES, XP_ITEMS, type XpItemId } from '../core/progression';
 import { unitSpriteHTML } from '../ui/art';
 import { ico } from '../ui/icons';
+import { cardDetails, onLongPress } from '../ui/battleModals';
 import { catIcon, gemHTML, goldHTML, gearHTML, orbHTML, esc, starStyle } from '../ui/components';
 import { leaveBattleMode } from '../ui/orientation';
 import { GEAR_BY_ID, GEAR_CATEGORIES, GEAR_RARITIES, GEAR_SETS, gearCount, gearNeeded } from '../core/gear';
@@ -125,6 +126,8 @@ export function buyCards(banner: Banner, n: 1 | 10, after: () => void = shop, ki
         closeModal();
         after();
       });
+      // v0.53.0: segurar a carta tirada mostra as habilidades (como na partida)
+      m.querySelectorAll<HTMLElement>('.pull-card').forEach((el, i) => onLongPress(el, () => cardDetails(got[i])));
       m.querySelectorAll<HTMLElement>('[data-again]').forEach((el) => el.addEventListener('click', () => buyCards(banner, Number(el.dataset.again) as 1 | 10, after, el.dataset.pay as 'gem' | 'gold')));
     },
   );

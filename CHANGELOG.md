@@ -2,6 +2,14 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.53.0] — 30/10/2026 · Vitória mais clara e tutorial que mostra as habilidades
+- **Vitória:** o título "Vitória!" fica centralizado. Os três objetivos de estrela começam com "Vencer…" (o de derrotar inimigos virou "Vencer derrotando pelo menos N personagens inimigos").
+- **Primeira vitória:** a escolha de carta aparece no **começo** da janela, com as outras recompensas de primeira vitória. **Tocar** seleciona (dá para trocar tocando em outra), **segurar** mostra as habilidades como na partida, e **Continuar** (ou Treinar, ou o ✕) confirma a carta escolhida. Eles ficam travados até escolher.
+- **Tutorial — cartas antes da batalha:** tocar em cada carta (personagens e feitiço) abre os detalhes com as habilidades, igual na partida.
+- **Tutorial — segurar a carta:** depois de segurar, a tela clareia e a descrição das habilidades fica destacada para ler; depois é só tocar na carta do Riku.
+- **Tutorial — compra no Banner:** a tela não fica mais toda escura. A carta ganha fica destacada; segure para ver as habilidades; depois use a outra Gema e, no fim, o ✕ para continuar.
+- **Resultado do Banner:** segurar uma carta tirada mostra as habilidades dela (fora do tutorial também).
+
 ## [0.52.2] — 30/10/2026 · Sair da vitória vai para as fases
 - Fechar a janela de recompensa (pelo ✕ do canto) leva sempre para a **seleção de fases**, nunca de volta à batalha já terminada. Com a escolha de carta da primeira vitória pendente, o ✕ só libera depois de escolher.
 
