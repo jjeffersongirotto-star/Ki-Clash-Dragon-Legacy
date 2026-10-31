@@ -1275,3 +1275,8 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Primeira vitória:** escolha 1 entre 3 cartas do rival. Raridade de cada vaga pelas chances do pacote; no mesmo tipo, a mais forte no rival aparece menos. Sem exclusivos do Banner nem feitiços.
 - **Banner:** cada compra pode ser paga com Gemas de Invocação (1 gema = 1 carta) ou com Ouro de Dragão; o jogador escolhe no botão.
 - Depois de uma batalha, fechar o resultado volta para a seleção de fases.
+
+## Vitória e detalhes das cartas (v0.53.0)
+- Objetivos de estrela sempre escritos como "Vencer…".
+- 1ª vitória: tocar seleciona a carta do rival, segurar mostra as habilidades, Continuar confirma.
+- Fora da batalha (escolha da 1ª vitória, tutorial, resultado do Banner), segurar ou tocar a carta abre os mesmos detalhes da partida.

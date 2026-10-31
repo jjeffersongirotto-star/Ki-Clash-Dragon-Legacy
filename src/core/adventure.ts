@@ -218,7 +218,7 @@ export const goalText = (g: StarGoal): string =>
         ? '🪄 Vencer sem usar feitiços'
         : g.kind === 'spells'
           ? `🪄 Vencer usando pelo menos ${g.n} feitiços`
-          : `💀 Derrotar pelo menos ${g.n} personagens inimigos e vencer`;
+          : `💀 Vencer derrotando pelo menos ${g.n} personagens inimigos`;
 
 /** Número de estrelas por fase. */
 export const STAR_COUNT = 3;

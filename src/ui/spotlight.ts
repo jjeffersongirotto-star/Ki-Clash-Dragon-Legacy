@@ -12,6 +12,8 @@ let lastHtml = '';
 export interface SpotOptions {
   /** v0.52.1: tela clara (sem escurecer), como numa partida normal — só a caixa de texto aparece */
   clear?: boolean;
+  /** v0.53.0: destaca o alvo com a moldura mas sem escurecer o resto (tudo continua tocável) */
+  light?: boolean;
   /** "Pular tutorial" na caixa de texto */
   onSkip?: () => void;
   /** folga em volta do alvo (px) */
@@ -87,6 +89,7 @@ export function spotlight(target: Element | null, html: string, opts: SpotOption
   place(b, 0, y1, vw, vh - y1);
   place(l, 0, y0, x0, y1 - y0);
   place(rt, x1, y0, vw - x1, y1 - y0);
+  if (opts.light) for (const el of [t, b, l, rt]) place(el, 0, 0, 0, 0);
   frame.style.display = arrow.style.display = '';
   place(frame, x0, y0, x1 - x0, y1 - y0);
   frame.classList.remove('ring');
