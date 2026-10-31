@@ -4,12 +4,13 @@
  */
 import { bakeCards } from '../ui/cardBake';
 import { waitFor } from '../core/battle';
-import { PLAYABLE, RACE_INFO, getChar, isComingSoon } from '../core/characters';
+import { CATEGORY_INFO, PLAYABLE, RACE_INFO, getChar, isComingSoon } from '../core/characters';
+import { cardMatches, toggleSel } from '../core/cardFilter';
 import { MAX_STEP, TIER_NAMES, statsFor, stepOf, tierLabel } from '../core/progression';
 import { playerLeaderImg, unitSpriteHTML } from '../ui/art';
 import { cardPower } from '../core/power';
 import { canEvolve, evolveLeader, leaderHp, leaderMaxLevel, nextRequirement } from '../core/leaders';
-import { abilityListHTML, cardHTML, raceIcon, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML, gemHTML } from '../ui/components';
+import { abilityListHTML, cardHTML, raceIcon, catIcon, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML, gemHTML } from '../ui/components';
 import { ico } from '../ui/icons';
 import { SPELLS, getSpell, isSpell } from '../core/spells';
 import { gameAlert, showDialog } from '../ui/dialog';
@@ -19,7 +20,9 @@ import { app, save, setTrainSel, persist, unlockStage, entryName, teamPower, act
 import { topbar, bindNav, modal, closeModal, bakeAllGrid } from './ui';
 import { train } from './train';
 
-let raceFilter: string = 'all';
+// v0.55.1: filtros com várias escolhas — OU dentro do mesmo filtro, E entre filtros (ex.: Humano + DPS)
+const raceSel = new Set<string>();
+const typeSel = new Set<string>();
 
 export function leaderPanelHTML(): string {
   const def = activeLeader();
@@ -87,14 +90,15 @@ export function collection() {
     const A = save.cards[a], B = save.cards[b];
     return cardPower(B) - cardPower(A) || B.stars - A.stars || stepOf(B) - stepOf(A) || getChar(a).cost - getChar(b).cost;
   };
-  const matchRace = (id: string) => raceFilter === 'all' || getChar(id).race === raceFilter;
+  const matchRace = (id: string) => cardMatches(getChar(id).race, [getChar(id).category], raceSel, typeSel);
   const owned = PLAYABLE.filter((d) => save.cards[d.id] && matchRace(d.id)).map((d) => d.id).sort(byPower);
   const lockOrder = (id: string) => (isComingSoon(getChar(id)) ? 999 : unlockStage(id) ?? 99);
   const locked = PLAYABLE.filter((d) => !save.cards[d.id] && matchRace(d.id)).sort((a, b) => lockOrder(a.id) - lockOrder(b.id));
   const lockBadge = (id: string) => (unlockStage(id) ? `🔒 Fase ${unlockStage(id)}` : `${ico('banner', '🎴')} Banner`); // v0.33.0: sem pacote de fase, tudo vem do Banner
   // v0.41.0: feitiços que você tem primeiro; os outros aparecem bloqueados (vêm do Banner e das fases)
-  const ownedSpells = SPELLS.filter((sp) => spellCopies(save, sp.id) > 0);
-  const lockedSpells = SPELLS.filter((sp) => spellCopies(save, sp.id) <= 0).sort((a, b) => a.rarity - b.rarity);
+  const spellOk = (sp: (typeof SPELLS)[number]) => cardMatches(null, sp.categories, raceSel, typeSel);
+  const ownedSpells = SPELLS.filter((sp) => spellOk(sp) && spellCopies(save, sp.id) > 0);
+  const lockedSpells = SPELLS.filter((sp) => spellOk(sp) && spellCopies(save, sp.id) <= 0).sort((a, b) => a.rarity - b.rarity);
   const count = deckCount(save);
   const max = deckMax(save);
   const issue = deckIssue(save);
@@ -112,8 +116,12 @@ export function collection() {
       <div class="deck-slots deck-copies">${save.deck.map(entryHTML).join('')}${count < max ? '<div class="slot">+</div>' : ''}</div>
     </section>
     <div class="race-filters">
-      <button class="rf-btn ${raceFilter === 'all' ? 'active' : ''}" data-rf="all">🌟 Todos (${PLAYABLE.length})</button>
-      ${Object.entries(RACE_INFO).map(([k, r]) => `<button class="rf-btn ${raceFilter === k ? 'active' : ''}" data-rf="${k}" style="--race-c:${r.color}">${raceIcon(k)} ${r.label}</button>`).join('')}
+      <button class="rf-btn ${raceSel.size + typeSel.size === 0 ? 'active' : ''}" data-rf="all">🌟 Todos (${PLAYABLE.length})</button>
+      ${Object.entries(RACE_INFO).map(([k, r]) => `<button class="rf-btn ${raceSel.has(k) ? 'active' : ''}" data-rf="${k}" style="--race-c:${r.color}">${raceIcon(k)} ${r.label}</button>`).join('')}
+    </div>
+    <div class="race-filters type-filters">
+      <span class="rf-lbl">Tipo:</span>
+      ${Object.entries(CATEGORY_INFO).map(([k, c]) => `<button class="rf-btn ${typeSel.has(k) ? 'active' : ''}" data-tf="${k}">${catIcon(k)} ${c.label}</button>`).join('')}
     </div>
     <p class="hint">Toque numa carta para inspecionar a evolução visual de raridade em raridade (Comum → Mítico), ver o sprite de arena e editar a equipe.</p>
     <h3 class="sec-title">Seus personagens <small>(${owned.length})</small></h3>
@@ -130,7 +138,17 @@ export function collection() {
   bindNav();
   app.querySelectorAll<HTMLElement>('[data-rf]').forEach((el) =>
     el.addEventListener('click', () => {
-      raceFilter = el.dataset.rf!;
+      const k = el.dataset.rf!;
+      if (k === 'all') {
+        raceSel.clear();
+        typeSel.clear();
+      } else toggleSel(raceSel, k);
+      collection();
+    }),
+  );
+  app.querySelectorAll<HTMLElement>('[data-tf]').forEach((el) =>
+    el.addEventListener('click', () => {
+      toggleSel(typeSel, el.dataset.tf!);
       collection();
     }),
   );

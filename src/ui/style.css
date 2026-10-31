@@ -1751,3 +1751,6 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
   .bcm-body { grid-template-columns: auto 1fr; }
 }
 @media (max-height: 520px) { .bcm-body { padding: 10px 14px; } .bcm-hint { margin-top: 4px; } }
+/* v0.55.1: filtro de tipo */
+.type-filters { margin-top: 4px; align-items: center; }
+.rf-lbl { font-size: 13px; color: var(--muted); font-weight: 700; margin-right: 2px; }

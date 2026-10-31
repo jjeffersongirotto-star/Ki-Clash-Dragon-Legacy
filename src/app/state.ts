@@ -12,7 +12,7 @@ import { gameAlert } from '../ui/dialog';
 import { allSpells, rawSaveHas, deckMax, hasSave, loadSave, setSaveKey, writeSave, type SaveData } from '../ui/save';
 import type { Difficulty } from '../core/adventure';
 import { FIRST_WIN_MULT, PROFILE_MAX, addProfileXp, energyMax, goldFor, msToNextEnergy, profileXpFor, tickEnergy, totalXpFor, newProfile, type ProfileState } from '../core/profile';
-import { adminSave, loadAccounts, saveKeyFor } from '../ui/accounts';
+import { adminMinSave, adminSave, loadAccounts, saveKeyFor } from '../ui/accounts';
 
 export const app = document.getElementById('app')!;
 // v0.16.0: contas locais — cada conta tem o seu progresso neste aparelho
@@ -21,6 +21,7 @@ export function openAccountSave(): SaveData {
   const id = accounts.current;
   setSaveKey(saveKeyFor(id));
   if (id && accounts.accounts[id]?.admin && !hasSave()) writeSave(adminSave());
+  if (id && accounts.accounts[id]?.adminMin && !hasSave()) writeSave(adminMinSave()); // v0.55.1: conta adm2
   // v0.17.0: a ADM que já existia ganha uma vez o baralho de 40 com feitiços
   if (id && accounts.accounts[id]?.admin && !rawSaveHas('"v17":true')) {
     const d = loadSave();
