@@ -217,3 +217,5 @@ export function guideText(i: 0 | 1, a: GuideAction, s: BattleState, touch = true
   if (n >= 3 && s.turn <= 4) return 'Os inimigos também têm habilidades: <b>Daichi</b> devolve dano, <b>Hana</b> atira de longe e <b>Tobi</b> dá ataque aos vizinhos. Toque em <b>LUTAR</b>.';
   return 'Toque em <b>LUTAR</b>. Dica: segure uma carta ou unidade para ver as habilidades e use o <b>Auto</b> para jogar mais rápido.';
 }
+/** v0.55.2: só a casa (r, c) aceita a carta no passo guiado */
+export const cellOnly = (r: number, c: number) => (rr: number, cc: number) => rr === r && cc === c;

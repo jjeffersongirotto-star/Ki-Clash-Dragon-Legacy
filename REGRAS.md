@@ -1293,6 +1293,11 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - Detalhes da carta: a carta sempre aparece inteira na tela.
 - A janela da fase não fala mais em recompensa em dobro na primeira vitória.
 
+## Tutorial: casa certa e dica no ataque (v0.55.2)
+- No passo guiado de jogar uma carta, **só a casa indicada** aceita a carta (toque ou arrasto); as outras não fazem nada.
+- Enquanto os personagens agem, a dica do tutorial fica na **faixa vazia acima da arena**; na instrução, fica no lugar de sempre.
+- Janela de detalhes da carta: **sem rolagem** quando o conteúdo cabe; rola só se não couber.
+
 ## Contas de teste e filtros (v0.55.1)
 - ADM / 12345: tudo no máximo. adm2 / 12345: tudo na raridade mínima (para revisar equilíbrio).
 - Coleção & Baralho: filtros de Raça e Tipo com várias escolhas — OU dentro do mesmo filtro, E entre filtros.
