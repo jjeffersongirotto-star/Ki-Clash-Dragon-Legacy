@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.58.0] — 01/11/2026 · Editor TEMP: abas por raridade
+- Editor de balanceamento (segurar carta no Baralho/Coleção) agora tem **uma aba para cada raridade** da carta (inicial..final). Mudar raridade inicial/final refaz as abas sem perder o que já foi digitado.
+- Em cada aba: **Ataque** e **Vida** daquela raridade (valem no jogo; os degraus "+" continuam crescendo a partir deles) e, para cada habilidade, o **Nível** (força naquela raridade; começa no valor atual) e a **descrição editável**.
+- **Espera (rodadas)** só se edita na raridade inicial; nas outras abas aparece travada (🔒) com o mesmo valor — uma espera por personagem.
+- "Baixar alterações" exporta por carta: raridades, espera, ATQ/Vida por raridade e habilidades com `nivel`/`nivelOriginal`, `descricao` e `descricaoOriginal` quando mudou; `_conflitos` lista habilidades com textos diferentes entre cartas editadas. Ao aplicar, o assistente pergunta se a mudança da habilidade vale para **todos os personagens** ou **só para essa carta** (com aviso das cartas em conflito, opção "só não editadas" ou "todas", e sempre opção de voltar).
+
 ## [0.57.1] — 01/11/2026 · Cartas da grade sem "assar"
 - Removida a foto 3D/brilhante das cartas (Coleção e Baralho, `cardBake`/html-to-image): o visual **flat ao vivo** (o mesmo do gameplay) é o único. Acaba a troca de visual (nome prata → dourado, gota) e o trabalho pesado de ~11s ao abrir a tela.
 
