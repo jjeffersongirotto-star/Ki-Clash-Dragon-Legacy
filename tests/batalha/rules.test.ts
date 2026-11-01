@@ -110,7 +110,7 @@ describe('só a própria fileira (exceto diagonais)', () => {
   it('Instinto Predador (Yume): menor vida da fileira até 2 casas + execução', () => {
     const s = empty();
     const y = placeUnit(s, c('yume', 1, 3), 'player', 0, 2, { atk: 4 });
-    placeUnit(s, c('gorath'), 'enemy', 0, 3);
+    placeUnit(s, c('gorath'), 'enemy', 0, 3, { hp: 20 });
     const weak = placeUnit(s, c('riku'), 'enemy', 0, 4, { hp: 10 });
     expect(findTarget(s, y)).toBe(weak);
     weak.hp = 5; // metade da vida

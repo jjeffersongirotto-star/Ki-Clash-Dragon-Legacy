@@ -113,6 +113,8 @@ export interface CharacterDef {
   cost: number;
   atk: number;
   hp: number;
+  /** v0.57.0: rodadas de espera na mão (1–9). Independente da raridade; sem valor = min(9, 2×custo−1). */
+  wait?: number;
   damageType: DamageType;
   physRes: number;
   magRes: number;
