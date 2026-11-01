@@ -1312,3 +1312,6 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - O jogo abre na tela de login (contas locais). Sair volta para ela. "Salvar login e senha" guarda no aparelho.
 - Tutorial: no turno do inimigo/animações a dica fica sempre na faixa acima da arena, nunca na mão.
 - TEMP: editor de balanceamento (segurar carta no Baralho/Coleção) muda os valores no aparelho; alcance e tipo de ataque não são habilidades.
+
+## Editor temporário: descrição das habilidades (v0.56.1)
+- TEMP: no editor de balanceamento cada habilidade da lista mostra abaixo a descrição do registro de habilidades.

@@ -96,7 +96,7 @@ export async function openCardEditor(id: string, refresh: () => void) {
   const abil = [...d.abilities] as string[];
   const opts = (sel: number) => RARITY.map((n, i) => (i ? `<option value="${i}"${i === sel ? ' selected' : ''}>${n}</option>` : '')).join('');
   const abilRow = (a: string, i: number) =>
-    `<div class="tbe-ab" data-i="${i}"><select data-ab="${i}"><option value="">✏ nova (texto)</option>${Object.values(ABILITIES).map((x) => `<option value="${x.id}"${x.id === a ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select>${a in ABILITIES ? '' : `<input data-abt="${i}" placeholder="descreva a habilidade" value="${esc(a)}">`}<button type="button" class="btn small" data-rm="${i}">✕</button></div>`;
+    `<div class="tbe-ab" data-i="${i}"><select data-ab="${i}"><option value="">✏ nova (texto)</option>${Object.values(ABILITIES).map((x) => `<option value="${x.id}"${x.id === a ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select>${a in ABILITIES ? '' : `<input data-abt="${i}" placeholder="descreva a habilidade" value="${esc(a)}">`}<button type="button" class="btn small" data-rm="${i}">✕</button></div>${a in ABILITIES ? `<p class="tbe-abd">${esc(ABILITIES[a as AbilityId].description)}</p>` : ''}`;
   await showDialog({
     title: `Editar ${d.name}`,
     icon: '🛠',
