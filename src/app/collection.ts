@@ -1,3 +1,4 @@
+import { bindCardEditor } from './tempCardBalanceEditor'; // TEMP card balance editor
 /**
  * Coleção & Baralho, Comandante (evoluir) e detalhes das cartas.
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
@@ -152,6 +153,7 @@ export function collection() {
       collection();
     }),
   );
+  bindCardEditor(app, collection); // TEMP card balance editor
   app.querySelectorAll<HTMLElement>('[data-card]').forEach((el) => el.addEventListener('click', () => (isSpell(el.dataset.card!) ? spellDetail(el.dataset.card!) : cardDetail(el.dataset.card!))));
   app.querySelectorAll<HTMLElement>('[data-copies]').forEach((box) =>
     box.querySelectorAll<HTMLButtonElement>('[data-cp]').forEach((b) =>

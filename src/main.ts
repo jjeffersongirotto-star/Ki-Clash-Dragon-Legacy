@@ -8,13 +8,15 @@ import { installLandscape } from './ui/orientation';
 import { migrateV17 } from './ui/save';
 import { app, save } from './app/state';
 import { bakeAllGrid } from './app/ui';
-import { home } from './app/home';
+import { applyEdits } from './app/tempCardBalanceEditor'; // TEMP card balance editor
+import { loginScreen } from './app/login';
 
 // garante que o save tem todos os campos e personagens válidos
+applyEdits(); // TEMP card balance editor
 migrateV17(save);
 installPerfGuards(app);
 installLandscape();
-home();
+loginScreen(); // v0.56.0: o jogo abre na tela de login
 void bakeAllGrid();
 warmLeader();
 warmPortraits([

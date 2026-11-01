@@ -1307,3 +1307,8 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - No turno do inimigo e durante animações, a dica fica na faixa entre as barras de vida e a arena.
 - Batalha 1: cada invocação guiada vai para a fileira que ainda não tem aliado (frente), depois a casa mais à frente.
 - Com a descrição da carta aberta, o balão de instrução fica à esquerda.
+
+## Login, dica e editor temporário (v0.56.0)
+- O jogo abre na tela de login (contas locais). Sair volta para ela. "Salvar login e senha" guarda no aparelho.
+- Tutorial: no turno do inimigo/animações a dica fica sempre na faixa acima da arena, nunca na mão.
+- TEMP: editor de balanceamento (segurar carta no Baralho/Coleção) muda os valores no aparelho; alcance e tipo de ataque não são habilidades.

@@ -12,7 +12,8 @@ import { faceUrl } from '../ui/art';
 import { esc, starStyle } from '../ui/components';
 import { showDialog } from '../ui/dialog';
 import { ico } from '../ui/icons';
-import { logout, NAME_MAX } from '../ui/accounts';
+import { NAME_MAX } from '../ui/accounts';
+import { exitToLogin } from './login';
 import { gameConfirm } from '../ui/dialog';
 import { profileLevel, resetSave } from '../ui/save';
 import { saveSettings, settings, vibrate } from '../ui/settings';
@@ -143,11 +144,7 @@ async function optionsDialog(refresh: () => void, enter: () => void) {
       });
       on('exit', () => {
         close('ok');
-        persist();
-        logout(accounts);
-        setSave(openAccountSave());
-        setTrainSel(firstChar());
-        refresh();
+        exitToLogin(); // v0.56.0: sair volta para a tela de login
       });
     },
   });

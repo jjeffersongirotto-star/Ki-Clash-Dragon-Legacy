@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.56.0] — 31/10/2026 · Login, dica fora da mão, gotas iguais e editor de balanceamento
+- **Tela de login ao abrir o jogo:** nome + senha, 👁 para mostrar/esconder a senha e "Salvar login e senha" (abre já preenchido). Também dá para criar conta. **Sair** no perfil volta para o login.
+- **Dica do tutorial nunca sobre a mão:** no turno do inimigo e enquanto os personagens agem, a dica vai sempre para a faixa entre as barras de vida e a arena (a faixa era medida errada e a dica caía de volta na mão).
+- **Gotas de espera iguais:** na Coleção/Baralho todas as gotas ficam no mesmo azul (antes umas saíam apagadas nas cartas já "assadas").
+- **TEMP — editor de balanceamento:** em Baralho/Coleção, **segure** um personagem para mudar Ataque, Vida, raridade inicial/final, espera, tipo de ataque, alcance e habilidades (quantas quiser). **⬇ Balanceamento** baixa um JSON só com as cartas mudadas. Desliga com `TEMP_CARD_BALANCE_EDITOR = false`.
+
 ## [0.55.3] — 31/10/2026 · Tutorial: tudo em uma tela, dica fora da mão e 1 em cima/1 embaixo
 - **Início do tutorial em uma tela só:** boas-vindas, carta do Riku e **Começar** cabem juntos no celular deitado, sem arrastar.
 - **Pacote grátis em uma tela só:** presente, texto e "Pular tutorial" sem deslizar.

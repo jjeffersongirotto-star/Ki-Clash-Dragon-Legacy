@@ -78,7 +78,9 @@ export function spotlight(target: Element | null, html: string, opts: SpotOption
   nextFn = opts.onNext;
   r.querySelector<HTMLElement>('.spot-next')!.style.display = opts.onNext ? '' : 'none';
   r.querySelector<HTMLElement>('.spot-lock')!.style.display = opts.lock ? '' : 'none';
-  const useStrip = !!opts.strip && opts.strip.height >= 24;
+  // v0.56.0: com faixa pedida, a dica SEMPRE vai para ela (nunca cai sobre a mão), mesmo se a faixa for baixa
+  const useStrip = !!opts.strip;
+  if (opts.strip && opts.strip.height < 26) opts.strip = { top: Math.max(0, opts.strip.top + opts.strip.height - 26), height: 26 };
   tip.classList.toggle('strip', useStrip);
   // v0.55.3: 'top-left' — balão encostado à esquerda (não cobre o painel de habilidades, que abre à direita)
   tip.classList.toggle('left', opts.tipAt === 'top-left');
