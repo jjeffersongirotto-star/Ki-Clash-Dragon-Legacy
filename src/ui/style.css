@@ -1804,3 +1804,12 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .tbe-tier-basica { background: #6b7280; color: #fff; }
 .tbe-tier-normal { background: #2563eb; color: #fff; }
 .tbe-tier-epica { background: #9333ea; color: #fff; }
+
+/* TEMP v0.58.2 editor: seletor de habilidades */
+.tbe-pick { flex: 1; min-width: 0; text-align: left; font: inherit; font-size: 14px; padding: 5px 8px; border-radius: 8px; border: 1px solid #3a4580; background: #0c1130; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tbp { max-height: 62dvh; overflow: auto; display: grid; gap: 4px; text-align: left; }
+.tbp-h { margin: 8px 0 2px; color: #f5b301; font-size: 14px; position: sticky; top: 0; background: #141a3c; padding: 2px 0; }
+.tbp-item { display: grid; gap: 2px; padding: 6px 8px; border-radius: 8px; border: 1px solid #3a4580; background: #0c1130; color: #fff; font: inherit; text-align: left; }
+.tbp-item.on { border-color: #f5b301; }
+.tbp-name { font-weight: 700; font-size: 14px; }
+.tbp-blurb { font-size: 12px; opacity: 0.8; }

@@ -177,3 +177,21 @@ describe('v0.58.1 escopo da habilidade escolhido ao salvar', () => {
     for (const t of ['Todos os personagens', 'Apenas este personagem', 'Só nas cartas ainda não editadas', 'Para todos', '"Voltar"']) expect(s).toContain(t);
   });
 });
+
+describe('v0.58.2 seletor de habilidades', () => {
+  it('toda habilidade tem grupo e frase curta sem números; picker em 3 seções', async () => {
+    const { ABILITIES } = await import('../../src/core/abilities');
+    const { ABILITY_INFO } = await import('../../src/app/tempAbilityInfo');
+    const { pickerHtml } = await import('../../src/app/tempCardBalanceEditor');
+    for (const id of Object.keys(ABILITIES)) {
+      const i = (ABILITY_INFO as any)[id];
+      expect(i, id).toBeTruthy();
+      expect(['perto', 'longe', 'hibrido']).toContain(i.g);
+      expect(i.b).not.toMatch(/\d/);
+    }
+    expect(ABILITY_INFO.vampirismo.g).toBe('hibrido');
+    const h = pickerHtml('vampirismo');
+    for (const t of ['Ataque de perto', 'Ataque de longe', 'Híbrido', 'Básica', 'Normal', 'Épica']) expect(h).toContain(t);
+    expect((h.match(/data-pick=/g) ?? []).length).toBe(Object.keys(ABILITIES).length + 1);
+  });
+});

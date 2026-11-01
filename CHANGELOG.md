@@ -2,6 +2,10 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.58.2] — 01/11/2026 · Editor TEMP: seletor de habilidades com resumo e grupos
+- A escolha de habilidade no editor virou uma lista do jogo (✕ para fechar): cada habilidade mostra o nível (Básica/Normal/Épica), o nome e, logo abaixo, uma **frase curta do que faz, sem números** (ex.: "Ganha ataque a cada inimigo abatido"). A descrição completa continua no detalhe da carta.
+- Lista dividida em **Ataque de perto**, **Ataque de longe** e **Híbrido** (funciona com qualquer tipo de ataque, ex.: Vampirismo). Mapa em `src/app/tempAbilityInfo.ts`.
+
 ## [0.58.1] — 01/11/2026 · Editor TEMP: escopo da habilidade escolhido ao salvar
 - Ao **Salvar** uma carta com descrição/nível de habilidade alterado, o editor pergunta na hora: **Todos os personagens** / **Apenas este personagem** / **Voltar** (volta à edição sem salvar).
 - Em "Todos", se outras cartas já editadas têm essa habilidade com outro valor, aparece aviso com os **nomes** dessas cartas e as opções **Só nas cartas ainda não editadas** / **Para todos** / **Voltar**.
