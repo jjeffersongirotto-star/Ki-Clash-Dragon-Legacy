@@ -58,12 +58,10 @@ describe('v0.47.0 hub espalhado, trancados e cartas assadas', () => {
     expect(src).toContain('hub-ribbon');
     expect(src).toContain("HUB_SPOTS.filter((s) => s.nav).map((s) => lay(`${s.key}-glow`");
   });
-  it('Coleção e Baralho usam a carta assada numa imagem só', async () => {
-    const { readFileSync } = await import('node:fs');
-    expect(readFileSync('src/app/collection.ts', 'utf8')).toContain('bakeCards(app)');
-    const { BAKE_SEL } = await import('../../src/ui/cardBake');
-    expect(BAKE_SEL).toContain('.card-grid .card');
-    expect(BAKE_SEL).toContain('.deck-slots .card');
+  it('v0.57.1: Coleção e Baralho sem carta assada (visual flat ao vivo)', async () => {
+    const { readFileSync, existsSync } = await import('node:fs');
+    expect(readFileSync('src/app/collection.ts', 'utf8')).not.toContain('bakeCards');
+    expect(existsSync('src/ui/cardBake.ts')).toBe(false);
   });
 });
 

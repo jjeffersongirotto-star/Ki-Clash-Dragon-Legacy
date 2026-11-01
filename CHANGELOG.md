@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.57.1] — 01/11/2026 · Cartas da grade sem "assar"
+- Removida a foto 3D/brilhante das cartas (Coleção e Baralho, `cardBake`/html-to-image): o visual **flat ao vivo** (o mesmo do gameplay) é o único. Acaba a troca de visual (nome prata → dourado, gota) e o trabalho pesado de ~11s ao abrir a tela.
+
 ## [0.57.0] — 01/11/2026 · Balanceamento: ATQ/vida menores e espera própria por carta
 - **Espera própria (1–9) por personagem**, independente da raridade: definida pelo contrapeso **ATQ + vida + habilidades** (nível Básica/Normal/Épica) + alcance/resistências/quanto a carta evolui. Toda raridade tem cartas de espera baixa e alta; 1★ vai até 4, 2★ até 5, 3★ até 7, 4★ até 8, 5–6★ até 9 (teto). Lendárias/Míticas não ficam presas em espera alta só por serem raras. Feitiços mantêm a fórmula antiga.
 - **ATQ/vida base cortados** (o base vale para todas as raridades): tanque ATQ ×0,5 vida ×0,65; DPS ATQ ×0,67; assassino ATQ ×0,75; arqueiro ATQ ×0,67; mago ATQ ×0,7; suporte ATQ ×0,6; vida ×0,7 nos demais (mín. 1). Comum fica perto da referência (~1–2 ATQ, 3–5 vida).
