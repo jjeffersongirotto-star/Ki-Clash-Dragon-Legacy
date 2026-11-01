@@ -14,6 +14,7 @@
  *   3. apagar tests/baralho/tempCardBalanceEditor.test.ts.
  */
 import { ABILITIES } from '../core/abilities';
+import { TIER_LABEL, TIER_ORDER, tierOf } from './tempAbilityTiers';
 import { CHAR_BY_ID } from '../core/characters';
 import { TEMP_WAIT } from '../core/tempOverrides';
 import type { AbilityId, CharacterDef } from '../core/types';
@@ -96,7 +97,7 @@ export async function openCardEditor(id: string, refresh: () => void) {
   const abil = [...d.abilities] as string[];
   const opts = (sel: number) => RARITY.map((n, i) => (i ? `<option value="${i}"${i === sel ? ' selected' : ''}>${n}</option>` : '')).join('');
   const abilRow = (a: string, i: number) =>
-    `<div class="tbe-ab" data-i="${i}"><select data-ab="${i}"><option value="">✏ nova (texto)</option>${Object.values(ABILITIES).map((x) => `<option value="${x.id}"${x.id === a ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select>${a in ABILITIES ? '' : `<input data-abn="${i}" placeholder="nome (opcional)" value="${esc(splitCustom(a).name)}"><input data-abt="${i}" placeholder="descrição (obrigatória)" required value="${esc(splitCustom(a).desc)}">`}<button type="button" class="btn small" data-rm="${i}">✕</button></div>${a in ABILITIES ? `<p class="tbe-abd">${esc(ABILITIES[a as AbilityId].description)}</p>` : ''}`;
+    `<div class="tbe-ab" data-i="${i}"><select data-ab="${i}"><option value="">✏ nova (texto)</option>${TIER_ORDER.map((t) => `<optgroup label="${TIER_LABEL[t]}">${Object.values(ABILITIES).filter((x) => tierOf(x.id) === t).map((x) => `<option value="${x.id}"${x.id === a ? ' selected' : ''}>[${TIER_LABEL[t]}] ${esc(x.name)}</option>`).join('')}</optgroup>`).join('')}</select>${a in ABILITIES ? '' : `<input data-abn="${i}" placeholder="nome (opcional)" value="${esc(splitCustom(a).name)}"><input data-abt="${i}" placeholder="descrição (obrigatória)" required value="${esc(splitCustom(a).desc)}">`}<button type="button" class="btn small" data-rm="${i}">✕</button></div>${a in ABILITIES ? `<p class="tbe-abd"><span class="tbe-tier tbe-tier-${tierOf(a)}">${TIER_LABEL[tierOf(a)]}</span> ${esc(ABILITIES[a as AbilityId].description)}</p>` : ''}`;
   await showDialog({
     title: `Editar ${d.name}`,
     icon: '🛠',
