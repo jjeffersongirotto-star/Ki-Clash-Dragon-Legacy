@@ -95,7 +95,7 @@ describe("v0.58.0 editor: abas por raridade", () => {
       descricao: "texto novo",
       descricaoAlterada: true,
     });
-    expect(j._comoAplicar).toContain("TODOS");
+    expect(j._comoAplicar).toContain("escopo");
     applyEdits({});
     expect(statsFor(d, lo, 0).atk).not.toBe(11);
   });
