@@ -137,3 +137,43 @@ describe("v0.58.0 editor: abas por raridade", () => {
     expect(s).toContain("data-tab=");
   });
 });
+
+describe('v0.58.1 escopo da habilidade escolhido ao salvar', () => {
+  it('changedAbilities / abilityConflicts / propagateAbility', async () => {
+    const m = await import('../../src/app/tempCardBalanceEditor');
+    const ids = Object.keys(CHAR_BY_ID);
+    const a = ids.map((k) => CHAR_BY_ID[k].abilities[0]).find((x) => x && ids.filter((k) => CHAR_BY_ID[k].abilities.includes(x)).length >= 3)!;
+    const [c1, c2, c3] = ids.filter((k) => CHAR_BY_ID[k].abilities.includes(a));
+    const mk = (id: string, t: string) => {
+      const d = CHAR_BY_ID[id];
+      const abil = [...d.abilities] as string[];
+      const rar: Record<string, any> = {};
+      for (let st = d.minStars; st <= d.maxStars; st++) {
+        const r = m.defaultRar(d, st, abil);
+        if (t) r.ds[abil.indexOf(a)] = t;
+        rar[st] = r;
+      }
+      return { abilities: abil, rar };
+    };
+    expect(m.changedAbilities(mk(c1, ''))).toEqual([]);
+    expect(m.changedAbilities(mk(c1, 'X'))).toEqual([a]);
+    const edits: Record<string, any> = { [c2]: mk(c2, 'Y') };
+    const e1 = mk(c1, 'X');
+    expect(m.abilityConflicts(edits, c1, a, e1)).toEqual([c2]);
+    edits[c1] = e1;
+    m.propagateAbility(edits, c1, a, 'uneditedOnly');
+    const at = (id: string) => { const e = edits[id]; const st = Object.keys(e.rar)[0]; return e.rar[st].ds[e.abilities.indexOf(a)]; };
+    expect(at(c2)).toBe('Y');
+    expect(at(c3)).toBe('X');
+    expect(edits[c3].escopo[a]).toBe('uneditedOnly');
+    m.propagateAbility(edits, c1, a, 'all');
+    expect(at(c2)).toBe('X');
+    const before = JSON.stringify(edits);
+    m.propagateAbility(edits, c1, a, 'this');
+    expect(JSON.stringify(edits)).toBe(before);
+  });
+  it('pergunta na edição com Voltar', () => {
+    const s = readFileSync('src/app/tempCardBalanceEditor.ts', 'utf8');
+    for (const t of ['Todos os personagens', 'Apenas este personagem', 'Só nas cartas ainda não editadas', 'Para todos', '"Voltar"']) expect(s).toContain(t);
+  });
+});
