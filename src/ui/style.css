@@ -1793,4 +1793,5 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .tbe-abs, .tbe .acc-warn, .tbe .dialog-btns { grid-column: 1 / -1; }
 .tbe-ab { display: flex; gap: 6px; margin: 4px 0; }
 .tbe-ab select, .tbe-ab input { flex: 1; min-width: 0; }
+.tbe-abd { margin: -2px 0 6px; padding: 4px 8px; font-size: 0.8em; opacity: 0.85; background: rgba(255,255,255,0.06); border-radius: 6px; }
 .tbe-export { position: fixed; right: 10px; bottom: 10px; z-index: 40; }
