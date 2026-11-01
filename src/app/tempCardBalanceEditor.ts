@@ -33,6 +33,7 @@
  *   3. apagar tests/baralho/tempCardBalanceEditor.test.ts.
  */
 import { ABILITIES } from "../core/abilities";
+import { GROUP_LABEL, GROUP_ORDER, groupOf, blurbOf } from "./tempAbilityInfo";
 import { TIER_LABEL, TIER_ORDER, tierOf } from "./tempAbilityTiers";
 import { CHAR_BY_ID } from "../core/characters";
 import { TEMP_WAIT, TEMP_STATS } from "../core/tempOverrides";
@@ -386,6 +387,37 @@ const SCOPE_LABEL: Record<AbilityScope, string> = {
   uneditedOnly: "só não editadas",
 };
 
+/** v0.58.2: lista de habilidades em 3 grupos (perto / longe / híbrido), com nível e frase curta. null = fechou. */
+export function pickerHtml(current: string): string {
+  const item = (id: string, label: string, blurb: string, tier = "") =>
+    `<button type="button" class="tbp-item${id === current ? " on" : ""}" data-pick="${id}"><span class="tbp-name">${tier ? `<span class="tbe-tier tbe-tier-${tier}">${TIER_LABEL[tier as keyof typeof TIER_LABEL]}</span> ` : ""}${esc(label)}</span><span class="tbp-blurb">${esc(blurb)}</span></button>`;
+  return `<div class="tbp">${item("", "✏ nova (texto)", "Habilidade nova escrita à mão")}${GROUP_ORDER.map(
+    (g) =>
+      `<h4 class="tbp-h">${GROUP_LABEL[g]}</h4>${TIER_ORDER.flatMap((t) =>
+        Object.values(ABILITIES)
+          .filter((x) => groupOf(x.id) === g && tierOf(x.id) === t)
+          .map((x) =>
+            item(x.id, `[${TIER_LABEL[t]}] ${x.name}`, blurbOf(x.id), t),
+          ),
+      ).join("")}`,
+  ).join("")}</div>`;
+}
+async function pickAbility(current: string): Promise<string | null> {
+  const v = await showDialog({
+    title: "Escolher habilidade",
+    icon: "✨",
+    html: pickerHtml(current in ABILITIES ? current : ""),
+    buttons: [{ label: "Fechar", value: "\u0000" }],
+    onMount: (root, close) =>
+      root
+        .querySelectorAll<HTMLButtonElement>("[data-pick]")
+        .forEach((b) =>
+          b.addEventListener("click", () => close(b.dataset.pick!)),
+        ),
+  });
+  return v === "\u0000" ? null : v;
+}
+
 export async function openCardEditor(id: string, refresh: () => void) {
   const d = CHAR_BY_ID[id];
   if (!d) return;
@@ -417,18 +449,7 @@ export async function openCardEditor(id: string, refresh: () => void) {
         : "",
     ).join("");
   const abilRow = (a: string, i: number, r: RarEdit) =>
-    `<div class="tbe-ab" data-i="${i}"><select data-ab="${i}"><option value="">✏ nova (texto)</option>${TIER_ORDER.map(
-      (t) =>
-        `<optgroup label="${TIER_LABEL[t]}">${Object.values(ABILITIES)
-          .filter((x) => tierOf(x.id) === t)
-          .map(
-            (x) =>
-              `<option value="${x.id}"${x.id === a ? " selected" : ""}>[${TIER_LABEL[t]}] ${esc(x.name)}</option>`,
-          )
-          .join("")}</optgroup>`,
-    ).join(
-      "",
-    )}</select>${a in ABILITIES ? "" : `<input data-abn="${i}" placeholder="nome (opcional)" value="${esc(splitCustom(a).name)}">`}<label class="tbe-lv">Nível<input type="number" step="any" data-lv="${i}" value="${r.lv[i] ?? 0}"></label><button type="button" class="btn small" data-rm="${i}">✕</button></div>` +
+    `<div class="tbe-ab" data-i="${i}"><button type="button" class="tbe-pick" data-ab="${i}">${a in ABILITIES ? `[${TIER_LABEL[tierOf(a)]}] ${esc(ABILITIES[a as AbilityId].name)}` : "✏ nova (texto)"} ▾</button>${a in ABILITIES ? "" : `<input data-abn="${i}" placeholder="nome (opcional)" value="${esc(splitCustom(a).name)}">`}<label class="tbe-lv">Nível<input type="number" step="any" data-lv="${i}" value="${r.lv[i] ?? 0}"></label><button type="button" class="btn small" data-rm="${i}">✕</button></div>` +
     `<div class="tbe-abd">${a in ABILITIES ? `<span class="tbe-tier tbe-tier-${tierOf(a)}">${TIER_LABEL[tierOf(a)]}</span>` : ""}<textarea data-ds="${i}" rows="2" placeholder="descrição${a in ABILITIES ? "" : " (obrigatória)"}">${esc(r.ds[i] ?? "")}</textarea></div>`;
   await showDialog({
     title: `Editar ${d.name}`,
@@ -484,13 +505,15 @@ export async function openCardEditor(id: string, refresh: () => void) {
               "input",
               (ev) => (wait = Number((ev.target as HTMLInputElement).value)),
             );
-        pane.querySelectorAll<HTMLSelectElement>("[data-ab]").forEach((s) =>
-          s.addEventListener("change", () => {
+        pane.querySelectorAll<HTMLButtonElement>("[data-ab]").forEach((s) =>
+          s.addEventListener("click", async () => {
             const i = +s.dataset.ab!;
-            abil[i] = s.value;
+            const v = await pickAbility(abil[i]);
+            if (v == null || v === abil[i]) return;
+            abil[i] = v;
             for (const [k, x] of Object.entries(rar)) {
-              x.lv[i] = defaultLevel(s.value, +k);
-              x.ds[i] = defaultDesc(s.value);
+              x.lv[i] = defaultLevel(v, +k);
+              x.ds[i] = defaultDesc(v);
             }
             draw();
           }),
