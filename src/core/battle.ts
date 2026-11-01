@@ -1,3 +1,4 @@
+import { TEMP_WAIT } from './tempOverrides'; // TEMP card balance editor
 import { ABILITIES, MINION_CAP, RES_CAP, has } from './abilities';
 import { getChar } from './characters';
 import { statsFor, tierLabel, stepOf } from './progression';
@@ -33,7 +34,7 @@ export const HAND_MAX = HAND_SIZE;
  * e só pode ser invocada quando chega a 0. Escolhido pela simulação das 10 fases
  * (espera = custo deixava as fases 4–6 e 10 muito difíceis: enxurrada de unidades caras).
  */
-export const waitFor = (charId: string) => (isSpell(charId) ? Math.max(1, getSpell(charId).cost - 1) : Math.max(1, 2 * getChar(charId).cost - 1));
+export const waitFor = (charId: string) => (TEMP_WAIT[charId] != null ? TEMP_WAIT[charId] : isSpell(charId) ? Math.max(1, getSpell(charId).cost - 1) : Math.max(1, 2 * getChar(charId).cost - 1));
 /** A mão inicial começa 2 rodadas adiantada: cartas de custo 2 ficam prontas já no turno 1. */
 export const OPENING_HEADSTART = 2;
 

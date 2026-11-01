@@ -177,9 +177,10 @@ export function tutorialBattle(i: 0 | 1) {
 /** v0.55.2: faixa vazia entre o topo (barras de vida) e a arena, onde a dica fica enquanto os personagens agem */
 function topStrip(root: HTMLElement): { top: number; height: number } | undefined {
   const hud = root.querySelector('.bhud')?.getBoundingClientRect();
-  const arena = (root.querySelector('.field') ?? root.querySelector('.board'))?.getBoundingClientRect();
-  if (!hud || !arena) return undefined;
-  const top = hud.bottom + 2;
+  // v0.56.0: mede até o tabuleiro (não o .field, que inclui os retratos e deixava a faixa com altura 0)
+  const arena = (root.querySelector('.board-wrap') ?? root.querySelector('.board') ?? root.querySelector('.field'))?.getBoundingClientRect();
+  const top = (hud?.bottom ?? 0) + 2;
+  if (!arena) return { top, height: 26 };
   return { top, height: Math.max(0, arena.top - 2 - top) };
 }
 
