@@ -1560,9 +1560,7 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
 .hub-tag.left { left: auto; right: 62%; bottom: auto; top: 50%; transform: translateY(-50%); }
 
 /* v0.47.0: carta de grade assada numa imagem só (mesmo visual; as camadas ficam escondidas por baixo) */
-.card.flat > :not(.card-bake), .card.flat::before, .card.flat::after { visibility: hidden !important; animation: none !important; }
 .card.flat { background: none !important; box-shadow: none !important; border-color: transparent !important; filter: none !important; }
-.card-bake { position: absolute; left: calc(-1 * var(--bp)); top: calc(-1 * var(--bp)); width: calc(100% + 2 * var(--bp)); height: calc(100% + 2 * var(--bp)); pointer-events: none; z-index: 20; visibility: visible !important; }
 
 /* v0.47.0: 10 cartas do Banner em 2 fileiras de 5, ocupando a tela (deitada) */
 .modal:has(.pull-reveal.pull-10) { width: min(1100px, 98vw); max-height: 98dvh; padding: 8px 14px 10px; }

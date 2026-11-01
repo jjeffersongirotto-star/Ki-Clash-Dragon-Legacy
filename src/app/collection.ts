@@ -3,7 +3,6 @@ import { bindCardEditor } from './tempCardBalanceEditor'; // TEMP card balance e
  * Coleção & Baralho, Comandante (evoluir) e detalhes das cartas.
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
  */
-import { bakeCards } from '../ui/cardBake';
 import { waitFor } from '../core/battle';
 import { CATEGORY_INFO, PLAYABLE, RACE_INFO, getChar, isComingSoon } from '../core/characters';
 import { cardMatches, toggleSel } from '../core/cardFilter';
@@ -167,7 +166,6 @@ export function collection() {
     ),
   );
   app.querySelector('#lpEvolve')?.addEventListener('click', () => void evolveDialog());
-  bakeCards(app); // v0.47.0: cartas da grade viram uma imagem só (rolagem sem buracos)
 }
 
 export function cardDetail(id: string, previewStars?: number) {
