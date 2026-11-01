@@ -4,6 +4,7 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
 
 ## [0.56.1] — 01/11/2026 · Editor de balanceamento: descrição das habilidades
 - **TEMP — editor de balanceamento:** abaixo de cada habilidade da lista aparece uma breve descrição do que ela faz (atualiza ao trocar a habilidade no seletor).
+- **Habilidade nova:** campos **nome (opcional)** e **descrição (obrigatória)** — sem descrição não salva; nome vazio fica para ser criado depois.
 
 ## [0.56.0] — 31/10/2026 · Login, dica fora da mão, gotas iguais e editor de balanceamento
 - **Tela de login ao abrir o jogo:** nome + senha, 👁 para mostrar/esconder a senha e "Salvar login e senha" (abre já preenchido). Também dá para criar conta. **Sair** no perfil volta para o login.

@@ -96,7 +96,7 @@ export async function openCardEditor(id: string, refresh: () => void) {
   const abil = [...d.abilities] as string[];
   const opts = (sel: number) => RARITY.map((n, i) => (i ? `<option value="${i}"${i === sel ? ' selected' : ''}>${n}</option>` : '')).join('');
   const abilRow = (a: string, i: number) =>
-    `<div class="tbe-ab" data-i="${i}"><select data-ab="${i}"><option value="">✏ nova (texto)</option>${Object.values(ABILITIES).map((x) => `<option value="${x.id}"${x.id === a ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select>${a in ABILITIES ? '' : `<input data-abt="${i}" placeholder="descreva a habilidade" value="${esc(a)}">`}<button type="button" class="btn small" data-rm="${i}">✕</button></div>${a in ABILITIES ? `<p class="tbe-abd">${esc(ABILITIES[a as AbilityId].description)}</p>` : ''}`;
+    `<div class="tbe-ab" data-i="${i}"><select data-ab="${i}"><option value="">✏ nova (texto)</option>${Object.values(ABILITIES).map((x) => `<option value="${x.id}"${x.id === a ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select>${a in ABILITIES ? '' : `<input data-abn="${i}" placeholder="nome (opcional)" value="${esc(splitCustom(a).name)}"><input data-abt="${i}" placeholder="descrição (obrigatória)" required value="${esc(splitCustom(a).desc)}">`}<button type="button" class="btn small" data-rm="${i}">✕</button></div>${a in ABILITIES ? `<p class="tbe-abd">${esc(ABILITIES[a as AbilityId].description)}</p>` : ''}`;
   await showDialog({
     title: `Editar ${d.name}`,
     icon: '🛠',
@@ -123,7 +123,12 @@ export async function openCardEditor(id: string, refresh: () => void) {
             draw();
           }),
         );
-        box.querySelectorAll<HTMLInputElement>('[data-abt]').forEach((t) => t.addEventListener('input', () => (abil[+t.dataset.abt!] = t.value)));
+        const upd = (i: number) => {
+          const n = box.querySelector<HTMLInputElement>(`[data-abn="${i}"]`)!.value;
+          const t = box.querySelector<HTMLInputElement>(`[data-abt="${i}"]`)!.value;
+          abil[i] = joinCustom(n, t);
+        };
+        box.querySelectorAll<HTMLInputElement>('[data-abt],[data-abn]').forEach((t) => t.addEventListener('input', () => upd(+(t.dataset.abt ?? t.dataset.abn)!)));
         box.querySelectorAll<HTMLButtonElement>('[data-rm]').forEach((b) =>
           b.addEventListener('click', () => {
             abil.splice(+b.dataset.rm!, 1);
@@ -140,6 +145,10 @@ export async function openCardEditor(id: string, refresh: () => void) {
       root.querySelector('[data-t=dl]')!.addEventListener('click', () => close('dl'));
       root.querySelector('[data-t=reset]')!.addEventListener('click', () => close('reset'));
       root.querySelector('[data-t=save]')!.addEventListener('click', () => {
+        if (abil.some((a) => !(a in ABILITIES) && !splitCustom(a).desc.trim())) {
+          void gameAlert('Falta descrição', 'Habilidade nova precisa de descrição (o nome é opcional).');
+          return;
+        }
         const e: CardEdit = {
           atk: num('#tbAtk'),
           hp: num('#tbHp'),
@@ -148,7 +157,7 @@ export async function openCardEditor(id: string, refresh: () => void) {
           wait: num('#tbWait'),
           damageType: (root.querySelector('#tbDmg') as HTMLSelectElement).value as 'fisico' | 'magico',
           range: num('#tbRange'),
-          abilities: abil.map((a) => a.trim()).filter(Boolean),
+          abilities: abil.filter((a) => a in ABILITIES || splitCustom(a).desc.trim()).map((a) => (a in ABILITIES ? a : joinCustom(splitCustom(a).name.trim(), splitCustom(a).desc.trim()))),
         };
         edits[id] = e;
         localStorage.setItem(BALANCE_KEY, JSON.stringify(edits));
@@ -166,6 +175,13 @@ export async function openCardEditor(id: string, refresh: () => void) {
     refresh();
   });
 }
+
+/** Habilidade nova (texto): "nome :: descrição"; nome vazio = a definir depois. */
+export const splitCustom = (a: string) => {
+  const k = a.indexOf(' :: ');
+  return k < 0 ? { name: '', desc: a } : { name: a.slice(0, k), desc: a.slice(k + 4) };
+};
+export const joinCustom = (name: string, desc: string) => (name || desc ? `${name} :: ${desc}` : '');
 
 /** Liga o "segurar a carta" nas grades do Baralho/Coleção. */
 export function bindCardEditor(root: HTMLElement, refresh: () => void) {

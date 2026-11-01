@@ -1315,3 +1315,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 ## Editor temporário: descrição das habilidades (v0.56.1)
 - TEMP: no editor de balanceamento cada habilidade da lista mostra abaixo a descrição do registro de habilidades.
+- TEMP: habilidade nova no editor exige descrição; o nome é opcional (exportado como "nome :: descrição").
