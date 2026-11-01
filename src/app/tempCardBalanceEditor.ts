@@ -12,7 +12,13 @@
  * e a DESCRIÇÃO (editável). Espera (rodadas) só se edita na aba da menor raridade; nas outras fica travada
  * mostrando o mesmo valor (uma espera por personagem). Mudar mín/máx refaz as abas sem perder o já digitado.
  *
- * COMO O ASSISTENTE APLICA O JSON EXPORTADO (fluxo combinado com o jogador):
+ * v0.58.1 — ESCOPO DA HABILIDADE NA EDIÇÃO (não no export): ao Salvar, cada habilidade com descrição/nível
+ * alterado pergunta "Todos os personagens" / "Apenas este personagem" / "Voltar". Em "Todos", se outras
+ * cartas já editadas têm essa habilidade com outro valor, avisa os nomes e oferece "Só nas cartas ainda não
+ * editadas" / "Para todos" / "Voltar". A escolha é aplicada na hora nas outras cartas (propagateAbility) e
+ * fica salva em `escopo`/`conflitos`/`via` — o export só carrega o que já foi decidido.
+ *
+ * (Histórico v0.58.0) COMO O ASSISTENTE APLICA O JSON EXPORTADO:
  *   - ATQ/Vida/espera/raridades/habilidades da carta: aplica direto naquela carta.
  *   - Habilidade com descrição ou nível alterado: PERGUNTAR "mudar a habilidade para TODOS os personagens
  *     ou só para ESTE?". Se outra carta já editada (no JSON ou no código) tem essa habilidade com valor
@@ -51,7 +57,14 @@ export interface CardEdit {
   abilities?: string[];
   /** v0.58.0: por raridade (chave = estrelas). lv/ds alinhados com `abilities`. */
   rar?: Record<string, RarEdit>;
+  /** v0.58.1: escolhido AO SALVAR, por habilidade alterada: todos | só esta carta | só cartas não editadas. */
+  escopo?: Record<string, AbilityScope>;
+  /** v0.58.1: cartas (nomes) que já tinham essa habilidade editada com outro valor, avisadas ao salvar. */
+  conflitos?: Record<string, string[]>;
+  /** v0.58.1: carta criada/alterada por propagação de habilidade de outra carta (id da origem). */
+  via?: Record<string, string>;
 }
+export type AbilityScope = "all" | "this" | "uneditedOnly";
 export interface RarEdit {
   atk: number;
   hp: number;
@@ -170,6 +183,7 @@ export function exportJSON(edits = loadEdits()): string {
             nivel: r.lv[i] ?? 0,
             nivelOriginal: defaultLevel(a, st),
             descricao: desc,
+            ...(known && e.escopo?.[a] ? { escopo: e.escopo[a] } : {}),
             ...(desc.trim() !== defaultDesc(a).trim()
               ? { descricaoOriginal: defaultDesc(a), descricaoAlterada: true }
               : {}),
@@ -196,7 +210,7 @@ export function exportJSON(edits = loadEdits()): string {
       conflitos[k] = cards; // mesma habilidade com textos diferentes entre cartas
   }
   out._comoAplicar =
-    'Habilidade com descrição/nível alterado: perguntar se muda para TODOS os personagens ou só para esta carta; se houver conflito (outras cartas editadas com valor diferente), avisar os nomes e oferecer "só não editadas" ou "todas"; sempre com opção de voltar.';
+    'O escopo de cada habilidade alterada já foi escolhido no editor ao salvar (campo "escopo": all = todos os personagens, this = só esta carta, uneditedOnly = só cartas ainda não editadas). Aplicar como está.';
   out._conflitos = conflitos;
   return JSON.stringify(out, null, 2);
 }
@@ -218,10 +232,159 @@ function download() {
   void navigator.clipboard?.writeText(txt).catch(() => {});
   void gameAlert(
     "Exportado",
-    "Ao aplicar, mudanças na descrição/nível de uma habilidade podem valer para todos os personagens ou só para esta carta — vou perguntar antes.",
+    "O escopo de cada habilidade alterada (todos / só esta carta) já foi escolhido ao salvar e vai junto no arquivo.",
     "ℹ️",
   );
 }
+
+/** v0.58.1: habilidades do registro que a carta alterou (descrição ou nível diferente do padrão em alguma raridade). */
+export function changedAbilities(e: CardEdit): string[] {
+  const abil = e.abilities ?? [];
+  return abil.filter(
+    (a, i) =>
+      a in ABILITIES &&
+      Object.entries(e.rar ?? {}).some(
+        ([k, r]) =>
+          (r.ds[i] ?? defaultDesc(a)).trim() !== defaultDesc(a).trim() ||
+          (r.lv[i] ?? defaultLevel(a, +k)) !== defaultLevel(a, +k),
+      ),
+  );
+}
+const abilAt = (e: CardEdit, a: string, st: number) => {
+  const i = (e.abilities ?? []).indexOf(a);
+  const r = e.rar?.[st];
+  return i < 0 || !r
+    ? undefined
+    : {
+        ds: (r.ds[i] ?? defaultDesc(a)).trim(),
+        lv: r.lv[i] ?? defaultLevel(a, st),
+      };
+};
+/** v0.58.1: ids das outras cartas já editadas com essa habilidade alterada e valor DIFERENTE do da carta salva. */
+export function abilityConflicts(
+  edits: Record<string, CardEdit>,
+  cardId: string,
+  a: string,
+  e: CardEdit,
+): string[] {
+  return Object.entries(edits)
+    .filter(
+      ([oid, oe]) =>
+        oid !== cardId &&
+        changedAbilities(oe).includes(a) &&
+        Object.keys(oe.rar ?? {}).some((k) => {
+          const mine =
+            abilAt(e, a, +k) ?? abilAt(e, a, +Object.keys(e.rar ?? {})[0]);
+          const theirs = abilAt(oe, a, +k);
+          return (
+            !!theirs &&
+            (!mine || mine.ds !== theirs.ds || mine.lv !== theirs.lv)
+          );
+        }),
+    )
+    .map(([oid]) => oid);
+}
+/** v0.58.1: copia descrição/nível da habilidade da carta salva para os outros personagens que a têm. */
+export function propagateAbility(
+  edits: Record<string, CardEdit>,
+  cardId: string,
+  a: string,
+  scope: AbilityScope,
+) {
+  if (scope === "this") return;
+  const src = edits[cardId];
+  const keys = Object.keys(src.rar ?? {}).map(Number);
+  for (const d of Object.values(CHAR_BY_ID)) {
+    if (d.id === cardId) continue;
+    const oe = edits[d.id];
+    const abil = oe?.abilities ?? [...d.abilities];
+    const i = abil.indexOf(a);
+    if (i < 0) continue;
+    if (scope === "uneditedOnly" && oe && changedAbilities(oe).includes(a))
+      continue;
+    const lo = oe?.minStars ?? d.minStars;
+    const hi = oe?.maxStars ?? d.maxStars;
+    const ne: CardEdit = oe
+      ? { ...oe, abilities: [...abil], rar: { ...(oe.rar ?? {}) } }
+      : { abilities: [...abil], rar: {} };
+    for (let st = lo; st <= hi; st++) {
+      const r = ne.rar![st]
+        ? { ...ne.rar![st], lv: [...ne.rar![st].lv], ds: [...ne.rar![st].ds] }
+        : defaultRar(d, st, abil);
+      const near = keys.length
+        ? keys.reduce((b, k) => (Math.abs(k - st) < Math.abs(b - st) ? k : b))
+        : st;
+      const v = abilAt(src, a, st) ?? abilAt(src, a, near);
+      if (v) {
+        r.ds[i] = v.ds;
+        r.lv[i] = abilAt(src, a, st) ? v.lv : defaultLevel(a, st);
+      }
+      ne.rar![st] = r;
+    }
+    ne.escopo = { ...(ne.escopo ?? {}), [a]: scope };
+    ne.via = { ...(ne.via ?? {}), [a]: cardId };
+    edits[d.id] = ne;
+  }
+}
+
+/** v0.58.1: pergunta o escopo de cada habilidade alterada. null = Voltar (não salva). */
+async function askScopes(
+  edits: Record<string, CardEdit>,
+  id: string,
+  e: CardEdit,
+): Promise<Record<string, AbilityScope> | null> {
+  const out: Record<string, AbilityScope> = {};
+  for (const a of changedAbilities(e)) {
+    const nm = ABILITIES[a as AbilityId].name;
+    const prev = edits[id]?.escopo?.[a];
+    for (;;) {
+      const v = await showDialog({
+        title: `Alterar ${nm}`,
+        icon: "🛠",
+        message: `A habilidade "${nm}" foi alterada. Aplicar a mudança para:${prev ? ` (antes: ${SCOPE_LABEL[prev]})` : ""}`,
+        buttons: [
+          { label: "Voltar", value: "back", kind: "ghost" },
+          { label: "Apenas este personagem", value: "this" },
+          { label: "Todos os personagens", value: "all", kind: "primary" },
+        ],
+      });
+      if (v !== "this" && v !== "all") return null;
+      if (v === "this") {
+        out[a] = "this";
+        break;
+      }
+      const conf = abilityConflicts(edits, id, a, e);
+      if (!conf.length) {
+        out[a] = "all";
+        break;
+      }
+      const w = await showDialog({
+        title: "Atenção",
+        icon: "⚠️",
+        message: `Estas cartas já têm "${nm}" editada com outro valor: ${conf.map((c) => CHAR_BY_ID[c]?.name ?? c).join(", ")}. Alterar:`,
+        buttons: [
+          { label: "Voltar", value: "back", kind: "ghost" },
+          { label: "Só nas cartas ainda não editadas", value: "uneditedOnly" },
+          { label: "Para todos", value: "all", kind: "primary" },
+        ],
+      });
+      if (w === "uneditedOnly" || w === "all") {
+        out[a] = w;
+        e.conflitos = {
+          ...(e.conflitos ?? {}),
+          [a]: conf.map((c) => CHAR_BY_ID[c]?.name ?? c),
+        };
+        break;
+      }
+    }
+  }
+  return out;
+}
+const SCOPE_LABEL: Record<AbilityScope, string> = {
+  all: "todos",
+  this: "só este",
+  uneditedOnly: "só não editadas",
+};
 
 export async function openCardEditor(id: string, refresh: () => void) {
   const d = CHAR_BY_ID[id];
@@ -400,63 +563,71 @@ export async function openCardEditor(id: string, refresh: () => void) {
       root
         .querySelector("[data-t=reset]")!
         .addEventListener("click", () => close("reset"));
-      root.querySelector("[data-t=save]")!.addEventListener("click", () => {
-        for (let st = lo; st <= hi; st++) ensure(st);
-        if (
-          abil.some(
-            (a, i) =>
-              !(a in ABILITIES) &&
-              !(splitCustom(a).desc.trim() || rar[lo].ds[i]?.trim()),
-          )
-        ) {
-          void gameAlert(
-            "Falta descrição",
-            "Habilidade nova precisa de descrição (o nome é opcional).",
-          );
-          return;
-        }
-        const keep = abil.map(
-          (a, i) =>
-            a in ABILITIES ||
-            !!(splitCustom(a).desc.trim() || rar[lo].ds[i]?.trim()),
-        );
-        const outR: Record<string, RarEdit> = {};
-        for (let st = lo; st <= hi; st++) {
-          const x = rar[st];
-          outR[st] = {
-            atk: x.atk,
-            hp: x.hp,
-            lv: x.lv.filter((_, i) => keep[i]),
-            ds: x.ds.filter((_, i) => keep[i]),
-          };
-        }
-        const base = rar[lo];
-        const e: CardEdit = {
-          minStars: lo,
-          maxStars: hi,
-          wait,
-          damageType: (root.querySelector("#tbDmg") as HTMLSelectElement)
-            .value as "fisico" | "magico",
-          range: Number(
-            (root.querySelector("#tbRange") as HTMLInputElement).value,
-          ),
-          abilities: abil
-            .map((a, i) =>
-              a in ABILITIES
-                ? a
-                : joinCustom(
-                    splitCustom(a).name.trim(),
-                    (splitCustom(a).desc || base.ds[i]).trim(),
-                  ),
+      root
+        .querySelector("[data-t=save]")!
+        .addEventListener("click", async () => {
+          for (let st = lo; st <= hi; st++) ensure(st);
+          if (
+            abil.some(
+              (a, i) =>
+                !(a in ABILITIES) &&
+                !(splitCustom(a).desc.trim() || rar[lo].ds[i]?.trim()),
             )
-            .filter((_, i) => keep[i]),
-          rar: outR,
-        };
-        edits[id] = e;
-        localStorage.setItem(BALANCE_KEY, JSON.stringify(edits));
-        applyEdits(edits);
-        close("save");
-      });
+          ) {
+            void gameAlert(
+              "Falta descrição",
+              "Habilidade nova precisa de descrição (o nome é opcional).",
+            );
+            return;
+          }
+          const keep = abil.map(
+            (a, i) =>
+              a in ABILITIES ||
+              !!(splitCustom(a).desc.trim() || rar[lo].ds[i]?.trim()),
+          );
+          const outR: Record<string, RarEdit> = {};
+          for (let st = lo; st <= hi; st++) {
+            const x = rar[st];
+            outR[st] = {
+              atk: x.atk,
+              hp: x.hp,
+              lv: x.lv.filter((_, i) => keep[i]),
+              ds: x.ds.filter((_, i) => keep[i]),
+            };
+          }
+          const base = rar[lo];
+          const e: CardEdit = {
+            minStars: lo,
+            maxStars: hi,
+            wait,
+            damageType: (root.querySelector("#tbDmg") as HTMLSelectElement)
+              .value as "fisico" | "magico",
+            range: Number(
+              (root.querySelector("#tbRange") as HTMLInputElement).value,
+            ),
+            abilities: abil
+              .map((a, i) =>
+                a in ABILITIES
+                  ? a
+                  : joinCustom(
+                      splitCustom(a).name.trim(),
+                      (splitCustom(a).desc || base.ds[i]).trim(),
+                    ),
+              )
+              .filter((_, i) => keep[i]),
+            rar: outR,
+          };
+          if (edits[id]?.conflitos) e.conflitos = { ...edits[id].conflitos };
+          const scopes = await askScopes(edits, id, e);
+          if (!scopes) return; // Voltar: continua editando, nada salvo
+          e.escopo = { ...(edits[id]?.escopo ?? {}), ...scopes };
+          edits[id] = e;
+          for (const [a, sc] of Object.entries(scopes))
+            propagateAbility(edits, id, a, sc);
+          localStorage.setItem(BALANCE_KEY, JSON.stringify(edits));
+          applyEdits(edits);
+          close("save");
+        });
     },
   }).then((v) => {
     if (v === "dl") download();

@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.58.1] — 01/11/2026 · Editor TEMP: escopo da habilidade escolhido ao salvar
+- Ao **Salvar** uma carta com descrição/nível de habilidade alterado, o editor pergunta na hora: **Todos os personagens** / **Apenas este personagem** / **Voltar** (volta à edição sem salvar).
+- Em "Todos", se outras cartas já editadas têm essa habilidade com outro valor, aparece aviso com os **nomes** dessas cartas e as opções **Só nas cartas ainda não editadas** / **Para todos** / **Voltar**.
+- A escolha é aplicada na hora nas outras cartas e fica salva (`escopo`, `conflitos`, `via`); o export só leva o que já foi decidido — não pergunta mais na hora de aplicar.
+
 ## [0.58.0] — 01/11/2026 · Editor TEMP: abas por raridade
 - Editor de balanceamento (segurar carta no Baralho/Coleção) agora tem **uma aba para cada raridade** da carta (inicial..final). Mudar raridade inicial/final refaz as abas sem perder o que já foi digitado.
 - Em cada aba: **Ataque** e **Vida** daquela raridade (valem no jogo; os degraus "+" continuam crescendo a partir deles) e, para cada habilidade, o **Nível** (força naquela raridade; começa no valor atual) e a **descrição editável**.
