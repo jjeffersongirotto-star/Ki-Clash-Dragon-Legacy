@@ -1,3 +1,4 @@
+import { TEMP_STATS } from './tempOverrides'; // TEMP card balance editor
 import { getChar } from './characters';
 import type { CharacterDef } from './types';
 
@@ -48,6 +49,8 @@ export function statMultiplier(stars: number, step = 0): number {
 
 export function statsFor(def: CharacterDef, stars: number, step = 0): { atk: number; hp: number } {
   const m = statMultiplier(stars, step);
+  const t = TEMP_STATS[def.id]?.[stars]; // TEMP card balance editor
+  if (t) return { atk: Math.max(1, Math.round(t.atk * m / statMultiplier(stars))), hp: Math.max(1, Math.round(t.hp * m / statMultiplier(stars))) }; // TEMP card balance editor
   return { atk: Math.max(1, Math.round(def.atk * m)), hp: Math.max(1, Math.round(def.hp * m)) };
 }
 
