@@ -1316,3 +1316,6 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 ## Editor temporário: descrição das habilidades (v0.56.1)
 - TEMP: no editor de balanceamento cada habilidade da lista mostra abaixo a descrição do registro de habilidades.
 - TEMP: habilidade nova no editor exige descrição; o nome é opcional (exportado como "nome :: descrição").
+
+## Editor temporário: nível das habilidades (v0.56.2)
+- TEMP: no editor de balanceamento as habilidades aparecem em 3 níveis (Básica, Normal, Épica), agrupadas no seletor e com selo na descrição. Só informativo; não tem função no jogo (mapa em `src/app/tempAbilityTiers.ts`).
