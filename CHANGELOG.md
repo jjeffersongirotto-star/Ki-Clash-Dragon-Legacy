@@ -2,6 +2,34 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.57.0] — 01/11/2026 · Balanceamento: ATQ/vida menores e espera própria por carta
+- **Espera própria (1–9) por personagem**, independente da raridade: definida pelo contrapeso **ATQ + vida + habilidades** (nível Básica/Normal/Épica) + alcance/resistências/quanto a carta evolui. Toda raridade tem cartas de espera baixa e alta; 1★ vai até 4, 2★ até 5, 3★ até 7, 4★ até 8, 5–6★ até 9 (teto). Lendárias/Míticas não ficam presas em espera alta só por serem raras. Feitiços mantêm a fórmula antiga.
+- **ATQ/vida base cortados** (o base vale para todas as raridades): tanque ATQ ×0,5 vida ×0,65; DPS ATQ ×0,67; assassino ATQ ×0,75; arqueiro ATQ ×0,67; mago ATQ ×0,7; suporte ATQ ×0,6; vida ×0,7 nos demais (mín. 1). Comum fica perto da referência (~1–2 ATQ, 3–5 vida).
+- Ponto de partida para revisar no editor TEMP (segurar carta no Baralho) — o editor continua ligado. Script do passe: `scripts/balance/v057_balance.py`.
+
+| Raridade mín. | Cartas | ATQ antes→depois | Vida antes→depois | Espera antes→depois |
+|---|---|---|---|---|
+| 1★ | 24 | 2.3 → 1.5 | 6.3 → 4.6 | 3.8 → 2.5 (faixa 1–4) |
+| 2★ | 24 | 3.0 → 2.1 | 5.5 → 4.0 | 5.1 → 3.0 (faixa 1–5) |
+| 3★ | 24 | 2.8 → 1.8 | 6.5 → 4.5 | 6.3 → 4.0 (faixa 1–7) |
+| 4★ | 18 | 2.8 → 1.8 | 6.6 → 4.6 | 7.1 → 4.5 (faixa 1–8) |
+| 5★ | 20 | 2.7 → 1.7 | 6.7 → 4.8 | 9.1 → 5.0 (faixa 1–9) |
+| 6★ | 10 | 2.9 → 1.9 | 5.7 → 4.2 | 11.0 → 5.0 (faixa 1–9) |
+
+| Categoria | Cartas | ATQ antes→depois | Vida antes→depois | Espera média |
+|---|---|---|---|---|
+| arqueiro | 11 | 2.9 → 1.9 | 5.0 → 4.0 | 2.8 |
+| assassino | 18 | 3.9 → 2.9 | 4.2 → 3.2 | 5.0 |
+| dps | 29 | 3.0 → 2.0 | 6.2 → 4.3 | 4.0 |
+| mago | 22 | 2.9 → 1.9 | 4.3 → 3.2 | 3.5 |
+| suporte | 18 | 1.7 → 1.0 | 5.8 → 4.1 | 2.7 |
+| tanque | 22 | 2.0 → 1.0 | 10.9 → 7.2 | 4.5 |
+
+**Espera (cartas por valor):** 1: 14 · 2: 23 · 3: 24 · 4: 20 · 5: 13 · 6: 11 · 7: 7 · 8: 5 · 9: 3
+
+**Maiores cortes:** toru 2/11→1/7, gorath 2/12→1/8, goro 2/11→1/7, tetsuo 2/12→1/8, brakk 2/11→1/7, gorm 2/12→1/8, titanx 2/12→1/8, sentinel0 2/12→1/8, varo 2/11→1/7, magra 2/11→1/7
+
+
 ## [0.56.2] — 01/11/2026 · Editor de balanceamento: nível das habilidades
 - **TEMP — editor de balanceamento:** habilidades separadas em 3 níveis (da pior para a melhor): **Básica**, **Normal** e **Épica**. No seletor ficam agrupadas por nível e a descrição mostra o selo do nível. Só informativo para editar — não muda nada no jogo.
 

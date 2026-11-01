@@ -39,6 +39,7 @@ for c in d['cartas']:
     cost: {c['espera']},
     atk: {c['atk']},
     hp: {c['hp']},
+    wait: {c.get('rodadas', 0)},
     damageType: {json.dumps(c['dano'])},
     abilities: {json.dumps(c['habs'])},
     palette: {{ primary: '{p}', secondary: '{sec}', hair: '#{hsh % 0xffffff:06x}', aura: '{p}', skin: '{SKIN[c['raca']]}', eyes: '#{(hsh >> 24) % 0xffffff:06x}' }},

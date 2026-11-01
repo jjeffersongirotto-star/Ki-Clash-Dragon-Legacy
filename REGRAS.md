@@ -18,7 +18,7 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 
 ## 3. Turnos, contagem de rodadas e modo Auto
 **v0.16.0: a energia acabou.** Cada carta na mão tem uma **contagem de rodadas ⏳**, mostrada na **gota** da carta (no canto superior esquerdo):
-- Ao entrar na mão, a carta espera **2 × custo − 1** rodadas: custo 2 → **3**, custo 3 → **5**, custo 4 → **7**, custo 5 → **9**, custo 6 → **11**. Fora da batalha (Coleção, detalhes) a gota mostra essa espera cheia; na mão, quantas rodadas **faltam**.
+- **v0.57.0:** cada personagem tem a **própria espera (1 a 9 rodadas)**, independente da raridade — paga o contrapeso de ATQ + vida + habilidades (carta forte espera mais; carta 1–2★ quase nunca espera muito). Sem valor próprio, vale **min(9, 2 × custo − 1)**. Feitiços: custo − 1. Fora da batalha (Coleção, detalhes) a gota mostra essa espera cheia; na mão, quantas rodadas **faltam**.
 - No **início de cada turno seu**, a contagem das cartas que já estavam na mão cai **1**. A carta só pode ser invocada quando chega a **0** (fica colorida; as que ainda esperam ficam apagadas, não acendem casas e não podem ser arrastadas para o campo).
 - **A mão inicial começa 2 rodadas adiantada:** as cartas de custo 2 já ficam prontas no turno 1, as de custo 3 no turno 3, e assim por diante.
 - Não há limite por turno: dá para invocar **todas as cartas prontas** no mesmo turno, se houver casa livre. Uma carta pronta que você não joga continua pronta.

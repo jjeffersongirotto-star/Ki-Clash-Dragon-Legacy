@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { COLS, Ctx, DEPLOY_DEPTH, OPENING_HEADSTART, ROWS, createBattle, deploy, endPlayerTurn, findTarget, isDeployCell, placeUnit, rangeOf, resolveSide, waitFor, waitOf } from '../../src/core/battle';
+import { COLS, Ctx, DEPLOY_DEPTH, OPENING_HEADSTART, ROWS, createBattle, deploy, endPlayerTurn, findTarget, isDeployCell, placeUnit, rangeOf, resolveSide, charWait, waitFor, waitOf } from '../../src/core/battle';
 import { aiDeploy } from '../../src/core/ai';
 import { PLAYABLE, getChar } from '../../src/core/characters';
 import { LEADERS } from '../../src/core/leaders';
@@ -50,8 +50,14 @@ describe('v0.16.0 — arena (2 × 10 desde a v0.36.0)', () => {
 });
 
 describe('v0.16.0 — contagem de rodadas no lugar da energia', () => {
-  it('espera = 2 × custo − 1 (custo 2 → 3 … custo 6 → 11)', () => {
-    expect(['riku', 'toru', 'gorath', 'kenji', 'vorax'].map(waitFor)).toEqual([3, 5, 7, 9, 11]);
+  it('espera: `wait` próprio da carta (v0.57.0, 1–9); sem ele, min(9, 2 × custo − 1)', () => {
+    expect(['riku', 'toru', 'gorath', 'kenji', 'vorax'].map(waitFor)).toEqual(['riku', 'toru', 'gorath', 'kenji', 'vorax'].map((id) => getChar(id).wait));
+    expect([2, 3, 4, 5, 6].map((cost) => charWait({ cost }))).toEqual([3, 5, 7, 9, 9]);
+    expect(charWait({ cost: 6, wait: 12 })).toBe(9);
+    for (const d of PLAYABLE) {
+      expect(waitFor(d.id)).toBeGreaterThanOrEqual(1);
+      expect(waitFor(d.id)).toBeLessThanOrEqual(9);
+    }
     expect(OPENING_HEADSTART).toBe(2);
   });
   it('mão inicial começa 2 rodadas adiantada e anda 1 por turno: custo 2 pronta no turno 1', () => {
@@ -92,7 +98,7 @@ describe('v0.16.0 — contagem de rodadas no lugar da energia', () => {
     expect(s.decks.enemy.hand.every((h) => waitOf(h) === 3)).toBe(true);
   });
   it('a gota da carta mostra as rodadas: na mão, as que faltam; fora da batalha, a espera cheia', () => {
-    expect(cardHTML(c('toru'))).toContain('<span>5</span>');
+    expect(cardHTML(c('toru'))).toContain('<span>3</span>');
     expect(cardHTML(c('toru'), { wait: 2 })).toContain('<span>2</span>');
     expect(cardHTML(c('toru'), { wait: 0 })).toContain('ck-cost ready');
   });
