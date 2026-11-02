@@ -62,10 +62,10 @@ export const spellOwned = (d: HeroSave, id: string) => (d.spells?.[id] ?? 0) > 0
 
 export interface Reward { gold: number; gems: number; xp: number }
 /** Prêmios (ver REGRAS): tipo dentro do grupo < grupo inteiro < todos os personagens; feitiços: todos. */
-export const REWARD_TYPE: Reward = { gold: 300, gems: 5, xp: 50 };
-export const REWARD_GROUP: Reward = { gold: 1500, gems: 20, xp: 200 };
-export const REWARD_ALL: Reward = { gold: 5000, gems: 80, xp: 600 };
-export const REWARD_SPELLS: Reward = { gold: 2000, gems: 30, xp: 300 };
+export const REWARD_TYPE: Reward = { gold: 200, gems: 0, xp: 50 };
+export const REWARD_GROUP: Reward = { gold: 600, gems: 10, xp: 150 };
+export const REWARD_ALL: Reward = { gold: 1500, gems: 20, xp: 400 };
+export const REWARD_SPELLS: Reward = { gold: 600, gems: 2, xp: 150 };
 
 export interface Goal { key: string; label: string; done: number; total: number; reward: Reward }
 export function heroGoals(d: HeroSave, groups = heroGroups()): Goal[] {
