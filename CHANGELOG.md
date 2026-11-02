@@ -3,7 +3,7 @@
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
 ## [0.59.2] — 02/11/2026 · Heróis: novo ícone na Base
-- Ícone dos **Heróis** (canto inferior direito da Base) trocado pela arte nova do elmo espartano (PNG com fundo transparente, `src/assets/hub/herois-icone.png`).
+- Ícone dos **Heróis** (canto inferior direito da Base) trocado pela arte nova do elmo espartano (PNG com fundo transparente, `src/assets/hub/album-elmo.png`).
 - A **Mina** foi para a esquerda na Base para não ficar em cima do ícone dos Heróis.
 
 ## [0.59.1] — 02/11/2026 · Heróis: prêmios rebalanceados

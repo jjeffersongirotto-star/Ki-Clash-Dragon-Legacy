@@ -3,7 +3,7 @@
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
  */
 import { ico } from '../ui/icons';
-import heroisIconUrl from '../assets/hub/herois-icone.png'; // v0.59.2
+import albumIconUrl from '../assets/hub/album-elmo.png'; // v0.59.2
 import { esc, energyHTML, goldHTML } from '../ui/components';
 import { energyMax } from '../core/profile';
 import { gameAlert, gameConfirm, showDialog } from '../ui/dialog';
@@ -48,7 +48,7 @@ export function home(): void {
         return `<button class="hub-spot${s.nav ? '' : ' locked'}" data-spot="${i}" aria-label="${esc(s.label)}${s.nav ? '' : ' (em breve)'}" style="left:${h.left}%;top:${h.top}%;width:${h.width}%;height:${h.height}%"><span class="hub-tag${s.tagUp ? ' up' : ''}${s.tagLeft ? ' left' : ''}"><span class="hub-ribbon">${s.nav ? '' : '<span class="lk">🔒</span> '}${s.br ? esc(s.label.slice(0, s.br)) + '<br>' + esc(s.label.slice(s.br + 1)) : esc(s.label)}</span></span></button>`;
       }).join('')}
     </div></div>
-    <button class="hub-heroes" id="hubHeroes" aria-label="Heróis"><img class="hh-ico" src="${heroisIconUrl}" alt="" aria-hidden="true" draggable="false"><span class="hub-ribbon">Heróis</span></button>
+    <button class="hub-heroes" id="hubHeroes" aria-label="Heróis"><img class="hh-ico" src="${albumIconUrl}" alt="" aria-hidden="true" draggable="false"><span class="hub-ribbon">Heróis</span></button>
     <div class="account-box hub-top">${profileCardHTML()}
       <div class="res hub-res"><span>${goldHTML(fmt(prof().gold))}</span><span class="res-energy">${energyHTML(energyNow(), energyMax(prof()))}</span></div>
       <span class="hub-spacer"></span>
