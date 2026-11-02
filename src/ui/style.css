@@ -1813,3 +1813,22 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .tbp-item.on { border-color: #f5b301; }
 .tbp-name { font-weight: 700; font-size: 14px; }
 .tbp-blurb { font-size: 12px; opacity: 0.8; }
+
+/* v0.59.0 Heróis */
+.hub-heroes { position: fixed; right: max(10px, env(safe-area-inset-right)); bottom: max(8px, env(safe-area-inset-bottom)); z-index: 6; display: grid; justify-items: center; gap: 2px; background: none; border: 0; padding: 0; cursor: pointer; }
+.hub-heroes .hh-ico { width: clamp(44px, 6.5vw, 76px); height: auto; filter: drop-shadow(0 0 6px rgba(255,190,60,.55)) drop-shadow(0 3px 3px #000); }
+.hub-heroes:active .hh-ico { transform: scale(.94); }
+.heroes .hr-head, .heroes .hr-type h4, .heroes .sec-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.hr-goal { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: 13px; }
+.hr-goal.done .hr-count { color: #7dff9a; }
+.hr-count { font-weight: 900; }
+.hr-ok { color: #7dff9a; font-weight: 800; font-size: 12px; }
+.hr-type { margin: 6px 0 12px; }
+.hr-type h4 { margin: 6px 0; color: #ffd76a; }
+.hr-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.06); content-visibility: auto; contain-intrinsic-size: auto 200px; }
+.hr-name { flex: 0 0 90px; font-weight: 800; font-size: 13px; }
+.hr-cards { display: flex; gap: 8px; overflow-x: auto; }
+.hr-cell { flex: 0 0 auto; width: 96px; display: grid; gap: 4px; justify-items: center; }
+.hr-cell .card { width: 100%; }
+.hr-claim { font-size: 11px; padding: 2px 6px; }
+.card.hr-dark .card-art, .card.hr-dark .card-fig { filter: brightness(.08) !important; }

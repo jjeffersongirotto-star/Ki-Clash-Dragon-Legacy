@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.59.0] — 02/11/2026 · Heróis (álbum de personagens)
+- Nova tela **Heróis** (ícone de elmo grego com crina vermelha no canto inferior direito da Base): todos os personagens por **grupo** (raça) e, dentro, por **tipo**; uma linha por personagem com as raridades lado a lado. Ordem no tipo: raridade inicial menor primeiro; empate = menos raridades primeiro. Contadores por tipo, por grupo e no total; feitiços em seção própria.
+- **Cada raridade acende sozinha**: raridade que você nunca teve aparece escura (silhueta). Ter a Comum NÃO acende a Incomum. Conta a raridade atual de cada personagem, as cópias guardadas (pacote/banner/prêmio repetido) e cada raridade alcançada ao subir a carta. Save antigo: acende da raridade mínima até a atual do personagem (supõe que subiu passando por elas).
+- **Prêmios com Resgatar** (uma vez cada): tipo completo dentro do grupo 300 Ouro + 5 Gemas + 50 XP de perfil; grupo completo 1500 Ouro + 20 Gemas + 200 XP; todos os personagens 5000 Ouro + 80 Gemas + 600 XP; todos os feitiços 2000 Ouro + 30 Gemas + 300 XP.
+- **Prêmio por raridade nova** (cada carta × raridade, inclusive as já acesas em saves antigos): Comum e Incomum 100 Ouro; Raro 1 Orbe Raro; Épico 1 Orbe Épico; Lendário 1 Gema; Mítico 3 Gemas (`VARIANT_REWARD` em `src/core/heroes.ts`).
+- O **Baralho** (antes "Coleção & Baralho") agora só organiza o baralho e mostra só as cartas que você tem; as que faltam ficam nos Heróis. O editor TEMP de balanceamento (segurar a carta e "⬇ Balanceamento") saiu do Baralho e foi para os Heróis.
+
 ## [0.58.2] — 01/11/2026 · Editor TEMP: seletor de habilidades com resumo e grupos
 - A escolha de habilidade no editor virou uma lista do jogo (✕ para fechar): cada habilidade mostra o nível (Básica/Normal/Épica), o nome e, logo abaixo, uma **frase curta do que faz, sem números** (ex.: "Ganha ataque a cada inimigo abatido"). A descrição completa continua no detalhe da carta.
 - Lista dividida em **Ataque de perto**, **Ataque de longe** e **Híbrido** (funciona com qualquer tipo de ataque, ex.: Vampirismo). Mapa em `src/app/tempAbilityInfo.ts`.

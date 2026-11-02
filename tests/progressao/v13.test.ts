@@ -170,9 +170,9 @@ describe('v0.13 — campanha e batalha', () => {
 
 describe('v0.13.1 — herói principal se chama Comandante', () => {
   const files = import.meta.glob(['../../src/**/*.ts', '../../src/ui/style.css'], { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
-  it('nenhum texto do jogo usa "Líder" ou "herói"', () => {
+  it('nenhum texto do jogo usa "Líder" ou "herói" (v0.59.0: exceto a tela Heróis, o álbum)', () => {
     expect(Object.keys(files).length).toBeGreaterThan(10);
-    for (const [f, src] of Object.entries(files)) expect(src, f).not.toMatch(/L[íi]der|LÍDER|[Hh]er[óo]i(s)?\b|HERÓI/);
+    for (const [f, src] of Object.entries(files)) expect(src.replace(/Heróis/g, ''), f).not.toMatch(/L[íi]der|LÍDER|[Hh]er[óo]i(s)?\b|HERÓI/);
   });
   it('painel, janela de evoluir e batalha falam em Comandante', () => {
     expect(mainSrc).toContain('👑 Comandante ${esc(def.name)}');

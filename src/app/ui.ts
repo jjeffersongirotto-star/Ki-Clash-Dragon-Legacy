@@ -2,6 +2,7 @@
  * Peças de tela comuns: barra do topo, navegação, janelas (modal) e cartas de grade.
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
  */
+import { heroes } from './heroes';
 import { PLAYABLE } from '../core/characters';
 import { XP_ITEMS } from '../core/progression';
 import { orbHTML, essIcon } from '../ui/components';
@@ -38,6 +39,7 @@ export function go(screen: string) {
   else if (screen === 'help') help();
   else if (screen === 'shop') shop();
   else if (screen === 'inventory') inventory();
+  else if (screen === 'heroes') heroes();
 }
 
 export function resultModalWith(html: string, buttons: { label: string; primary?: boolean; run: () => void }[]) {

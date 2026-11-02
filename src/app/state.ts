@@ -1,3 +1,5 @@
+import { CHAR_BY_ID } from '../core/characters';
+import { syncSeen } from '../core/heroes';
 /**
  * Estado do app: conta e save abertos, Comandante, perfil, energia e Ouro de Dragão.
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
@@ -71,7 +73,10 @@ export const firstChar = () => save.deck.find((id) => !isSpell(id) && save.cards
 export let trainSel: string = firstChar();
 export const setTrainSel = (id: string) => (trainSel = id);
 
-export const persist = () => writeSave(save);
+export const persist = () => {
+  syncSeen(save, CHAR_BY_ID); // v0.59.0: Heróis — raridades obtidas
+  writeSave(save);
+};
 export const unlockStage = (charId: string) => STAGES.find((s) => s.pack.includes(charId))?.id;
 
 // ---------------- v0.13: PODER e COMANDANTE ----------------

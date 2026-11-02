@@ -1,4 +1,3 @@
-import { bindCardEditor } from './tempCardBalanceEditor'; // TEMP card balance editor
 /**
  * Coleção & Baralho, Comandante (evoluir) e detalhes das cartas.
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
@@ -82,7 +81,9 @@ export async function evolveDialog() {
   await gameAlert(`Comandante ${def.name} Nv.${r.level}!`, `Vida máxima do Comandante: ${leaderHp(def, r.level)}.`, '👑');
 }
 
-// ---------------- COLEÇÃO ----------------
+// ---------------- BARALHO ----------------
+/** v0.59.0: o Baralho só organiza o baralho — cartas que você não tem aparecem só na tela Heróis. */
+export const SHOW_UNOWNED = false;
 export function collection() {
   leaveBattleMode();
   void bakeAllGrid();
@@ -93,12 +94,12 @@ export function collection() {
   const matchRace = (id: string) => cardMatches(getChar(id).race, [getChar(id).category], raceSel, typeSel);
   const owned = PLAYABLE.filter((d) => save.cards[d.id] && matchRace(d.id)).map((d) => d.id).sort(byPower);
   const lockOrder = (id: string) => (isComingSoon(getChar(id)) ? 999 : unlockStage(id) ?? 99);
-  const locked = PLAYABLE.filter((d) => !save.cards[d.id] && matchRace(d.id)).sort((a, b) => lockOrder(a.id) - lockOrder(b.id));
+  const locked = PLAYABLE.filter((d) => SHOW_UNOWNED && !save.cards[d.id] && matchRace(d.id)).sort((a, b) => lockOrder(a.id) - lockOrder(b.id)); // v0.59.0: Baralho só mostra o que você tem (os outros ficam nos Heróis)
   const lockBadge = (id: string) => (unlockStage(id) ? `🔒 Fase ${unlockStage(id)}` : `${ico('banner', '🎴')} Banner`); // v0.33.0: sem pacote de fase, tudo vem do Banner
   // v0.41.0: feitiços que você tem primeiro; os outros aparecem bloqueados (vêm do Banner e das fases)
   const spellOk = (sp: (typeof SPELLS)[number]) => cardMatches(null, sp.categories, raceSel, typeSel);
   const ownedSpells = SPELLS.filter((sp) => spellOk(sp) && spellCopies(save, sp.id) > 0);
-  const lockedSpells = SPELLS.filter((sp) => spellOk(sp) && spellCopies(save, sp.id) <= 0).sort((a, b) => a.rarity - b.rarity);
+  const lockedSpells = SPELLS.filter((sp) => SHOW_UNOWNED && spellOk(sp) && spellCopies(save, sp.id) <= 0).sort((a, b) => a.rarity - b.rarity);
   const count = deckCount(save);
   const max = deckMax(save);
   const issue = deckIssue(save);
@@ -109,7 +110,7 @@ export function collection() {
       : cardHTML(save.cards[id], { compact: true, grid: true, attrs: `data-card="${id}"`, power: cardPower(save.cards[id]) });
     return `<div class="deck-entry">${card}<div class="copies" data-copies="${id}"><button class="cp-btn" data-cp="-1" aria-label="Menos uma cópia" ${n <= 1 ? 'disabled' : ''}>−</button><b>×${n}</b><button class="cp-btn" data-cp="1" aria-label="Mais uma cópia" title="${n >= maxCopiesFor(save, id) && n < MAX_COPIES ? `Você tem ${maxCopiesFor(save, id)} cópia(s) desta carta` : ''}" ${n >= maxCopiesFor(save, id) || count >= max ? 'disabled' : ''}>+</button></div></div>`;
   };
-  app.innerHTML = `<div class="screen">${topbar('Coleção & Baralho')}
+  app.innerHTML = `<div class="screen">${topbar('Baralho')}
     ${leaderPanelHTML()}
     <section class="deck-bar">
       <div class="deck-title"><span class="deck-power" title="Poder do baralho = soma do Poder de cada personagem do baralho (uma vez cada; feitiços não contam)">⚡ ${fmt(teamPower())}</span> Baralho <b>${count}/${max}</b> <small>(nível de perfil ${profileLevel(save)} · mínimo ${deckMin(save)} · até ${MAX_COPIES} cópias por carta${issue ? ` · <span class="warn">${esc(issue)}</span>` : ''})</small></div>
@@ -152,7 +153,6 @@ export function collection() {
       collection();
     }),
   );
-  bindCardEditor(app, collection); // TEMP card balance editor
   app.querySelectorAll<HTMLElement>('[data-card]').forEach((el) => el.addEventListener('click', () => (isSpell(el.dataset.card!) ? spellDetail(el.dataset.card!) : cardDetail(el.dataset.card!))));
   app.querySelectorAll<HTMLElement>('[data-copies]').forEach((box) =>
     box.querySelectorAll<HTMLButtonElement>('[data-cp]').forEach((b) =>
