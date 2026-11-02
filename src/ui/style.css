@@ -1832,3 +1832,6 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .hr-cell .card { width: 100%; }
 .hr-claim { font-size: 11px; padding: 2px 6px; }
 .card.hr-dark .card-art, .card.hr-dark .card-fig { filter: brightness(.08) !important; }
+
+/* v0.59.3: Resgatar todos nos Heróis */
+.heroes .hr-claimall { display: flex; justify-content: center; margin: 6px 0 2px; }

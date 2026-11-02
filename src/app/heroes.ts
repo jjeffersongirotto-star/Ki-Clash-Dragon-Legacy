@@ -8,7 +8,7 @@ import { CATEGORY_INFO, CHAR_BY_ID, RACE_INFO } from '../core/characters';
 import { SPELLS } from '../core/spells';
 import { addProfileXp } from '../core/profile';
 import type { XpItemId } from '../core/progression';
-import { claimGoal, claimVariant, goalClaimed, hasRarity, heroGoals, heroGroups, spellOwned, syncSeen, variantClaimable, VARIANT_REWARD, type Goal, type Reward } from '../core/heroes';
+import { claimAll, claimableCount, claimGoal, claimVariant, goalClaimed, hasRarity, heroGoals, heroGroups, spellOwned, syncSeen, variantClaimable, VARIANT_REWARD, type Goal, type Reward } from '../core/heroes';
 import { cardHTML, catIcon, esc, gemHTML, goldHTML, orbHTML, raceIcon, spellCardHTML } from '../ui/components';
 import { gameAlert } from '../ui/dialog';
 import { leaveBattleMode } from '../ui/orientation';
@@ -48,7 +48,9 @@ export function heroes() {
   };
   const all = goals['all'];
   const sp = goals['spells'];
+  const nClaim = claimableCount(save);
   app.innerHTML = `<div class="screen heroes">${topbar('Heróis')}
+    ${nClaim ? `<div class="hr-claimall"><button class="btn primary" id="hrClaimAll">🎁 Resgatar todos (${nClaim})</button></div>` : ''}
     <section class="hr-head"><b>Todos os personagens</b>${goalHTML(all)}</section>
     <p class="hint">Cada raridade acende sozinha: ter a Comum não acende a Incomum. Toda raridade nova dá um prêmio para resgatar.</p>
     ${heroGroups().map((g) => `<section class="hr-group"><h3 class="sec-title">${raceIcon(g.race)} ${RACE_INFO[g.race as keyof typeof RACE_INFO].label}${goalHTML(goals[`g:${g.race}`])}</h3>
@@ -78,7 +80,19 @@ export function heroes() {
       give(r);
       persist();
       b.replaceWith(Object.assign(document.createElement('span'), { className: 'hr-ok', textContent: '✔' }));
+      const ca = app.querySelector<HTMLButtonElement>('#hrClaimAll');
+      if (ca) { const n = claimableCount(save); if (n) ca.textContent = `🎁 Resgatar todos (${n})`; else ca.parentElement!.remove(); }
     }),
   );
+  app.querySelector<HTMLButtonElement>('#hrClaimAll')?.addEventListener('click', () => {
+    const t = claimAll(save);
+    if (!t.count) return;
+    give({ gold: t.gold, gems: t.gems, xp: t.xp });
+    for (const [o, n] of Object.entries(t.orbs)) give({ gold: 0, gems: 0, xp: 0, orb: o, orbs: n });
+    persist();
+    heroes();
+    const parts = [rewardHTML({ gold: t.gold, gems: t.gems, xp: t.xp }), ...Object.entries(t.orbs).map(([o, n]) => orbHTML(o as XpItemId, `+${n}`))].filter(Boolean).join(' ');
+    void gameAlert('Prêmios resgatados!', `${t.count} prêmio${t.count > 1 ? 's' : ''}: ${parts}`, '🏆');
+  });
   bindCardEditor(app, heroes); // TEMP card balance editor
 }

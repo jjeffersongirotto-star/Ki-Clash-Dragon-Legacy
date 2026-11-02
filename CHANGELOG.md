@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.59.3] — 02/11/2026 · Heróis: Resgatar todos
+- Botão **🎁 Resgatar todos (N)** no topo da tela Heróis: resgata de uma vez todos os prêmios disponíveis (raridades novas, metas de tipo/grupo/todos e feitiços) e mostra o total ganho (Ouro, Gemas, Orbes e XP) numa janela. Só aparece quando há pelo menos um prêmio para resgatar (`claimAll` em `src/core/heroes.ts`).
+
 ## [0.59.2] — 02/11/2026 · Heróis: novo ícone na Base
 - Ícone dos **Heróis** (canto inferior direito da Base) trocado pela arte nova do elmo espartano (PNG com fundo transparente, `src/assets/hub/album-elmo.png`).
 - A **Mina** foi para a esquerda na Base para não ficar em cima do ícone dos Heróis.

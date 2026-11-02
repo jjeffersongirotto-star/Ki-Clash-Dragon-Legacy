@@ -62,3 +62,27 @@ describe('v0.59.0 Heróis', () => {
     expect(readFileSync('src/app/home.ts', 'utf8')).toContain('id="hubHeroes"');
   });
 });
+
+describe('v0.59.3 — Resgatar todos', () => {
+  it('soma igual a resgatar um por um e não sobra nada', async () => {
+    const H = await import('../../src/core/heroes');
+    const mk = (): HeroSave => {
+      const heroSeen: Record<string, number[]> = {};
+      for (const g of heroGroups()) for (const t of g.types) for (const c of t.chars) heroSeen[c.id] = Array.from({ length: c.maxStars - c.minStars + 1 }, (_, i) => c.minStars + i);
+      return { cards: {}, spells: {}, heroSeen, heroClaims: [] } as unknown as HeroSave;
+    };
+    const a = mk(), b = mk();
+    expect(H.claimableCount(a)).toBeGreaterThan(0);
+    const tot = H.claimAll(a);
+    const ind = { gold: 0, gems: 0, xp: 0, orbs: {} as Record<string, number>, count: 0 };
+    for (const g of heroGroups()) for (const t of g.types) for (const c of t.chars) for (let st = c.minStars; st <= c.maxStars; st++) {
+      const r = claimVariant(b, c.id, st); if (!r) continue;
+      ind.gold += r.gold; ind.gems += r.gems; ind.xp += r.xp; ind.count++; if (r.orb) ind.orbs[r.orb] = (ind.orbs[r.orb] ?? 0) + (r.orbs ?? 1);
+    }
+    for (const g of heroGoals(b)) { const r = claimGoal(b, g); if (r) { ind.gold += r.gold; ind.gems += r.gems; ind.xp += r.xp; ind.count++; } }
+    expect(tot).toEqual(ind);
+    expect(H.claimableCount(a)).toBe(0);
+    expect(H.claimAll(a).count).toBe(0);
+    expect([...a.heroClaims!].sort()).toEqual([...b.heroClaims!].sort());
+  });
+});
