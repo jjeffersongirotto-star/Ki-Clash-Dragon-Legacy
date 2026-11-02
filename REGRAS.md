@@ -1326,6 +1326,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 
 ## Heróis (v0.59.0)
+- **Raridade que falta (v0.59.7):** carta inteira em tons de cinza (`grayscale(1) brightness(.75) contrast(1.05)` na arte), desenho visível; antes era quase preta.
 - **Filtros (v0.59.6):** Grupo e Tipo, 1 de cada no máximo (Todos = sem filtro), combinados. Filtro ativo esconde os Feitiços; contadores, prêmios e Resgatar todos ignoram o filtro.
 - **Editor TEMP (v0.59.5):** sem abas; abre na raridade da carta segurada (nome da raridade no topo). Outra raridade = segurar a carta daquela raridade.
 - **Janela de prêmios (v0.59.4):** em tópicos — uma linha por tipo (ícone + nome + quantidade), só valores maiores que zero, e o total de prêmios resgatados.

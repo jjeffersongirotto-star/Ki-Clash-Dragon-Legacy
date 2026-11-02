@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.59.7] — 02/11/2026 · Heróis: cartas que faltam em preto e branco
+- Nos Heróis, a raridade que você ainda não tem deixou de ficar quase preta: agora aparece em **preto, branco e cinza** (como o final da novela Avenida Brasil), só um pouco mais escura, dando para ver bem o desenho. Moldura, medalhões, ataque e vida também ficam cinza. Filtro fixo de CSS, sem custo por quadro.
+
 ## [0.59.6] — 02/11/2026 · Heróis: filtros Grupo e Tipo
 - Filtros no topo da tela Heróis: **Grupo** (raça) e **Tipo**, cada um com uma escolha só ("Todos" é o padrão) e combinados (ex.: Humano + DPS mostra só os DPS humanos). Com filtro ativo, a seção de Feitiços some (feitiço não tem grupo nem tipo). Contadores e prêmios continuam contando o progresso inteiro, e o Resgatar todos resgata tudo (`filterHeroGroups` em `src/core/heroes.ts`).
 
