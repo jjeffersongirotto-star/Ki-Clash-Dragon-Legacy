@@ -1326,6 +1326,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 
 ## Heróis (v0.59.0)
+- **Janela de prêmios (v0.59.4):** em tópicos — uma linha por tipo (ícone + nome + quantidade), só valores maiores que zero, e o total de prêmios resgatados.
 - **Resgatar todos (v0.59.3):** botão no topo da tela, só aparece com prêmio disponível; resgata tudo de uma vez (igual a resgatar um por um) e mostra o total.
 - **Ícone na Base (v0.59.2):** arte do elmo espartano em PNG transparente (`src/assets/hub/album-elmo.png`); a Mina fica mais à esquerda para não encostar nele.
 - Nova tela **Heróis** (ícone de elmo grego com crina vermelha no canto inferior direito da Base): todos os personagens por **grupo** (raça) e, dentro, por **tipo**; uma linha por personagem com as raridades lado a lado. Ordem no tipo: raridade inicial menor primeiro; empate = menos raridades primeiro. Contadores por tipo, por grupo e no total; feitiços em seção própria.

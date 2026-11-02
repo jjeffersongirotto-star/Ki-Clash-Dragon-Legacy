@@ -10,7 +10,8 @@ import { addProfileXp } from '../core/profile';
 import type { XpItemId } from '../core/progression';
 import { claimAll, claimableCount, claimGoal, claimVariant, goalClaimed, hasRarity, heroGoals, heroGroups, spellOwned, syncSeen, variantClaimable, VARIANT_REWARD, type Goal, type Reward } from '../core/heroes';
 import { cardHTML, catIcon, esc, gemHTML, goldHTML, orbHTML, raceIcon, spellCardHTML } from '../ui/components';
-import { gameAlert } from '../ui/dialog';
+import { showDialog } from '../ui/dialog';
+import { rewardListHTML } from '../ui/rewardList';
 import { leaveBattleMode } from '../ui/orientation';
 import { app, persist, prof, save } from './state';
 import { bindNav, topbar } from './ui';
@@ -18,6 +19,8 @@ import { bindNav, topbar } from './ui';
 type R = Reward & { orb?: string; orbs?: number };
 export const rewardHTML = (r: R) =>
   [r.gold ? goldHTML(`+${r.gold}`) : '', r.gems ? gemHTML(`+${r.gems}`) : '', r.xp ? `👤 +${r.xp} XP` : '', r.orb ? orbHTML(r.orb as XpItemId, `+${r.orbs ?? 1}`) : ''].filter(Boolean).join(' ');
+
+const rewardModal = (title: string, html: string) => void showDialog({ title, icon: '🏆', html, buttons: [{ label: 'Entendi', value: 'ok', kind: 'primary' }] });
 
 function give(r: R) {
   prof().gold += r.gold;
@@ -68,7 +71,7 @@ export function heroes() {
       give(r);
       persist();
       heroes();
-      void gameAlert('Prêmio resgatado!', `${esc(goals[b.dataset.goal!].label)}: ${rewardHTML(r)}`, '🏆');
+      rewardModal('Prêmio resgatado!', `<p class="rw-count">${esc(goals[b.dataset.goal!].label)}</p>${rewardListHTML(r)}`);
     }),
   );
   app.querySelectorAll<HTMLButtonElement>('[data-var]').forEach((b) =>
@@ -91,8 +94,7 @@ export function heroes() {
     for (const [o, n] of Object.entries(t.orbs)) give({ gold: 0, gems: 0, xp: 0, orb: o, orbs: n });
     persist();
     heroes();
-    const parts = [rewardHTML({ gold: t.gold, gems: t.gems, xp: t.xp }), ...Object.entries(t.orbs).map(([o, n]) => orbHTML(o as XpItemId, `+${n}`))].filter(Boolean).join(' ');
-    void gameAlert('Prêmios resgatados!', `${t.count} prêmio${t.count > 1 ? 's' : ''}: ${parts}`, '🏆');
+    rewardModal('Prêmios resgatados!', rewardListHTML(t));
   });
   bindCardEditor(app, heroes); // TEMP card balance editor
 }
