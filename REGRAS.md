@@ -1326,6 +1326,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 
 ## Heróis (v0.59.0)
+- **Filtros (v0.59.6):** Grupo e Tipo, 1 de cada no máximo (Todos = sem filtro), combinados. Filtro ativo esconde os Feitiços; contadores, prêmios e Resgatar todos ignoram o filtro.
 - **Editor TEMP (v0.59.5):** sem abas; abre na raridade da carta segurada (nome da raridade no topo). Outra raridade = segurar a carta daquela raridade.
 - **Janela de prêmios (v0.59.4):** em tópicos — uma linha por tipo (ícone + nome + quantidade), só valores maiores que zero, e o total de prêmios resgatados.
 - **Resgatar todos (v0.59.3):** botão no topo da tela, só aparece com prêmio disponível; resgata tudo de uma vez (igual a resgatar um por um) e mostra o total.

@@ -1843,3 +1843,10 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .rw-q { color: #ffd76a; font-size: 1.05em; }
 .rw-count { margin: 6px 0 0; font-size: .85em; opacity: .75; }
 @media (max-height: 480px) { .rw-list-wrap { max-height: 46vh; } .rw-row { padding: 4px 8px; } }
+/* v0.59.6: filtros dos Heróis */
+.heroes .hr-filters { display: grid; gap: 6px; margin: 6px 0; }
+.heroes .hr-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.heroes .hr-chips-l { font-weight: 700; opacity: .8; min-width: 48px; }
+.heroes .hr-chip { border: 1px solid rgba(245,179,1,.35); background: rgba(20,24,56,.85); color: #e8e6f5; border-radius: 999px; padding: 4px 12px; font: inherit; font-size: .9em; cursor: pointer; }
+.heroes .hr-chip.on { background: linear-gradient(#ffb43a, #e8791a); color: #1a1006; border-color: #ffd76a; font-weight: 700; }
+.heroes .hr-chip:active { transform: scale(.96); }
