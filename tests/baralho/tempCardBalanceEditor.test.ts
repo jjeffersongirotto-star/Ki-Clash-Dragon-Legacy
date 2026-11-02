@@ -134,7 +134,9 @@ describe("v0.58.0 editor: abas por raridade", () => {
   it("espera só editável na raridade inicial (travada nas outras)", () => {
     const s = readFileSync("src/app/tempCardBalanceEditor.ts", "utf8");
     expect(s).toContain('disabled title="Só na raridade inicial"');
-    expect(s).toContain("data-tab=");
+    expect(s).not.toContain("data-tab="); // v0.59.5: sem abas
+    expect(s).toContain("tbe-rar-name");
+    expect(readFileSync("src/app/heroes.ts", "utf8")).toContain('data-stars="${st}"');
   });
 });
 

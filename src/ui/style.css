@@ -1792,8 +1792,8 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .tbe-ab { display: flex; gap: 6px; margin: 4px 0; }
 .tbe-ab select, .tbe-ab input { flex: 1; min-width: 0; }
 .tbe-abd { margin: -2px 0 6px; padding: 4px 8px; font-size: 0.8em; opacity: 0.85; background: rgba(255,255,255,0.06); border-radius: 6px; }
-.tbe-tabs { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; }
-.tbe-tab.on { background: #f5b301; color: #1a1a1a; }
+.tbe-rar { grid-column: 1 / -1; font-size: .95em; }
+.tbe-rar-name { color: #f5b301; }
 .tbe-pane { grid-column: 1 / -1; }
 .tbe-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 10px; }
 .tbe-lv { flex: 0 0 70px !important; font-size: 11px !important; }

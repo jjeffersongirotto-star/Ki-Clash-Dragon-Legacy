@@ -418,7 +418,7 @@ async function pickAbility(current: string): Promise<string | null> {
   return v === "\u0000" ? null : v;
 }
 
-export async function openCardEditor(id: string, refresh: () => void) {
+export async function openCardEditor(id: string, refresh: () => void, stars?: number) {
   const d = CHAR_BY_ID[id];
   if (!d) return;
   const edits = loadEdits();
@@ -440,7 +440,8 @@ export async function openCardEditor(id: string, refresh: () => void) {
   };
   let lo = d.minStars;
   let hi = d.maxStars;
-  let cur = lo;
+  // v0.59.5: sem abas — o editor abre fixo na raridade da carta segurada (outra raridade = abrir aquela carta)
+  let cur = stars != null && stars >= lo && stars <= hi ? stars : lo;
   let wait = waitFor(id);
   const opts = (sel: number) =>
     RARITY.map((n, i) =>
@@ -459,33 +460,22 @@ export async function openCardEditor(id: string, refresh: () => void) {
       <label>Raridade final<select id="tbMax">${opts(hi)}</select></label>
       <label>Tipo de ataque<select id="tbDmg"><option value="fisico"${d.damageType === "fisico" ? " selected" : ""}>Físico</option><option value="magico"${d.damageType === "magico" ? " selected" : ""}>Mágico</option></select></label>
       <label>Alcance (casas)<input type="number" min="1" id="tbRange" value="${d.range}"></label>
-      <div class="tbe-tabs" id="tbTabs"></div>
+      <div class="tbe-rar" id="tbRar"></div>
       <div class="tbe-pane" id="tbPane"></div>
       <p class="acc-warn">Atacar de longe é o <b>alcance</b>, não habilidade. Mudanças: ${Object.keys(edits).length} carta(s).</p>
       <div class="dialog-btns"><button type="button" class="btn ghost" data-t="dl">Baixar alterações</button><button type="button" class="btn ghost" data-t="reset">Restaurar</button><button type="button" class="btn primary" data-t="save">Salvar</button></div>
     </form>`,
     buttons: [],
     onMount: (root, close) => {
-      const tabs = root.querySelector("#tbTabs") as HTMLElement;
+      const rarLbl = root.querySelector("#tbRar") as HTMLElement;
       const pane = root.querySelector("#tbPane") as HTMLElement;
       const draw = () => {
-        if (cur < lo || cur > hi) cur = lo;
-        tabs.innerHTML = Array.from({ length: hi - lo + 1 }, (_, k) => lo + k)
-          .map(
-            (st) =>
-              `<button type="button" class="btn small tbe-tab${st === cur ? " on" : ""}" data-tab="${st}">${RARITY[st]}</button>`,
-          )
-          .join("");
+        cur = Math.min(hi, Math.max(lo, cur));
+        rarLbl.innerHTML = `Raridade: <b class="tbe-rar-name">${RARITY[cur]}</b>${cur === lo ? "" : ` <small>(espera vem da ${RARITY[lo]})</small>`}`;
         const r = ensure(cur);
         const locked = cur !== lo;
         pane.innerHTML = `<div class="tbe-row"><label>Ataque<input type="number" id="tbAtk" value="${r.atk}"></label><label>Vida<input type="number" id="tbHp" value="${r.hp}"></label><label>Espera (rodadas)${locked ? " 🔒" : ""}<input type="number" min="0" id="tbWait" value="${wait}"${locked ? ' disabled title="Só na raridade inicial"' : ""}></label></div>
           <div class="tbe-abs"><b>Habilidades — ${RARITY[cur]}</b><div id="tbAbs">${abil.map((a, i) => abilRow(a, i, r)).join("")}</div><button type="button" class="btn small" id="tbAdd">+ Habilidade</button></div>`;
-        tabs.querySelectorAll<HTMLButtonElement>("[data-tab]").forEach((b) =>
-          b.addEventListener("click", () => {
-            cur = +b.dataset.tab!;
-            draw();
-          }),
-        );
         pane
           .querySelector("#tbAtk")!
           .addEventListener(
@@ -679,7 +669,7 @@ export function bindCardEditor(root: HTMLElement, refresh: () => void) {
   root.querySelectorAll<HTMLElement>("[data-card]").forEach((el) => {
     const id = el.dataset.card!;
     if (!CHAR_BY_ID[id]) return; // só personagens
-    onLongPress(el, () => void openCardEditor(id, refresh), 550);
+    onLongPress(el, () => void openCardEditor(id, refresh, el.dataset.stars ? +el.dataset.stars : undefined), 550);
   });
   const bar = root.querySelector(".screen");
   if (bar && !root.querySelector("#tbExport")) {
