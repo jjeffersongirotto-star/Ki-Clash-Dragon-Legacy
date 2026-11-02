@@ -1326,6 +1326,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 
 ## Heróis (v0.59.0)
+- **Ícone na Base (v0.59.2):** arte do elmo espartano em PNG transparente (`src/assets/hub/herois-icone.png`); a Mina fica mais à esquerda para não encostar nele.
 - Nova tela **Heróis** (ícone de elmo grego com crina vermelha no canto inferior direito da Base): todos os personagens por **grupo** (raça) e, dentro, por **tipo**; uma linha por personagem com as raridades lado a lado. Ordem no tipo: raridade inicial menor primeiro; empate = menos raridades primeiro. Contadores por tipo, por grupo e no total; feitiços em seção própria.
 - **Cada raridade acende sozinha**: raridade que você nunca teve aparece escura (silhueta). Ter a Comum NÃO acende a Incomum. Conta a raridade atual de cada personagem, as cópias guardadas (pacote/banner/prêmio repetido) e cada raridade alcançada ao subir a carta. Save antigo: acende da raridade mínima até a atual do personagem (supõe que subiu passando por elas).
 - **Prêmios com Resgatar** (uma vez cada): tipo completo dentro do grupo 200 Ouro + 50 XP de perfil (sem gemas); grupo completo 600 Ouro + 10 Gemas + 150 XP; todos os personagens 1500 Ouro + 20 Gemas + 400 XP; todos os feitiços 600 Ouro + 2 Gemas + 150 XP (v0.59.1; 1 Gema = 1 pacote ≈ 300 Ouro).

@@ -2,6 +2,10 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.59.2] — 02/11/2026 · Heróis: novo ícone na Base
+- Ícone dos **Heróis** (canto inferior direito da Base) trocado pela arte nova do elmo espartano (PNG com fundo transparente, `src/assets/hub/herois-icone.png`).
+- A **Mina** foi para a esquerda na Base para não ficar em cima do ícone dos Heróis.
+
 ## [0.59.1] — 02/11/2026 · Heróis: prêmios rebalanceados
 - Prêmios de conclusão bem menores (1 Gema vale um pacote ≈ 300 Ouro): tipo completo dentro do grupo 200 Ouro + 50 XP de perfil (sem gemas); grupo completo 600 Ouro + 10 Gemas + 150 XP; todos os personagens 1500 Ouro + 20 Gemas + 400 XP; todos os feitiços 600 Ouro + 2 Gemas + 150 XP. Prêmios por raridade nova sem mudança.
 
