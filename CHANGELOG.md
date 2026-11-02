@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.59.5] — 02/11/2026 · Editor TEMP: raridade fixa
+- O editor de balanceamento (segurar a carta nos Heróis) não tem mais abas de raridade: abre fixo na raridade da carta segurada, com o nome da raridade em destaque. Para editar outra raridade, segure a carta daquela raridade. Espera continua editável só na raridade inicial (vale para todas) e travada nas outras; Ataque/Vida, nível e descrição das habilidades por raridade e a pergunta de escopo ao Salvar não mudaram.
+
 ## [0.59.4] — 02/11/2026 · Heróis: janela de prêmios corrigida
 - Corrigido: a janela "Prêmios resgatados!" (Resgatar todos e Resgatar de metas) mostrava código HTML como texto. Agora lista em tópicos, uma linha por tipo com ícone, nome e quantidade (Ouro de Dragão, Gemas, XP de perfil, cada Orbe), só o que for maior que zero, e uma linha com o número de prêmios. Lista rola no celular deitado; fecha no ✕ (`src/ui/rewardList.ts`).
 

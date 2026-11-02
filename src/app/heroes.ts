@@ -45,7 +45,7 @@ export function heroes() {
     for (let st = d.minStars; st <= d.maxStars; st++) {
       const has = hasRarity(save, id, st);
       const can = variantClaimable(save, id, st);
-      cells.push(`<div class="hr-cell">${cardHTML({ charId: id, stars: st, plus: 0 }, { grid: true, locked: !has, extraClass: has ? '' : 'hr-dark', attrs: `data-card="${id}"` })}${can ? `<button class="btn small primary hr-claim" data-var="${id}:${st}">Resgatar ${rewardHTML(VARIANT_REWARD[st])}</button>` : ''}</div>`);
+      cells.push(`<div class="hr-cell">${cardHTML({ charId: id, stars: st, plus: 0 }, { grid: true, locked: !has, extraClass: has ? '' : 'hr-dark', attrs: `data-card="${id}" data-stars="${st}"` })}${can ? `<button class="btn small primary hr-claim" data-var="${id}:${st}">Resgatar ${rewardHTML(VARIANT_REWARD[st])}</button>` : ''}</div>`);
     }
     return `<div class="hr-row"><div class="hr-name">${esc(d.name)}</div><div class="hr-cards">${cells.join('')}</div></div>`;
   };
