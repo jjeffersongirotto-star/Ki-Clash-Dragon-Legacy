@@ -82,6 +82,10 @@ export interface SaveData {
   spells?: SpellBag;
   /** migração v0.41.0: os feitiços que já estavam no baralho viram cópias suas */
   v41?: boolean;
+  /** v0.59.0: Heróis — raridades já obtidas de cada personagem (ver core/heroes.ts) */
+  heroSeen?: Record<string, number[]>;
+  /** v0.59.0: prêmios dos Heróis já resgatados */
+  heroClaims?: string[];
 }
 
 /** Carta como era salva até a v0.22.0 (com nível numerado e `plus` verdadeiro/falso). */
