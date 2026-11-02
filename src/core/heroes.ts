@@ -114,3 +114,23 @@ export function claimVariant(d: HeroSave, id: string, st: number) {
   (d.heroClaims ??= []).push(variantKey(id, st));
   return VARIANT_REWARD[st];
 }
+
+/** v0.59.3: tudo que dá para resgatar agora (raridades novas + metas). */
+export interface ClaimAllTotal { gold: number; gems: number; xp: number; orbs: Record<string, number>; count: number }
+export function claimableCount(d: HeroSave, groups = heroGroups()): number {
+  let n = heroGoals(d, groups).filter((g) => g.done >= g.total && !goalClaimed(d, g.key)).length;
+  for (const g of groups) for (const t of g.types) for (const c of t.chars) for (let st = c.minStars; st <= c.maxStars; st++) if (variantClaimable(d, c.id, st)) n++;
+  return n;
+}
+/** Resgata tudo de uma vez — mesmo resultado que resgatar um por um. Quem chama aplica o total e salva. */
+export function claimAll(d: HeroSave, groups = heroGroups()): ClaimAllTotal {
+  const t: ClaimAllTotal = { gold: 0, gems: 0, xp: 0, orbs: {}, count: 0 };
+  const add = (r: (Reward & { orb?: string; orbs?: number }) | null) => {
+    if (!r) return;
+    t.gold += r.gold; t.gems += r.gems; t.xp += r.xp; t.count++;
+    if (r.orb) t.orbs[r.orb] = (t.orbs[r.orb] ?? 0) + (r.orbs ?? 1);
+  };
+  for (const g of groups) for (const ty of g.types) for (const c of ty.chars) for (let st = c.minStars; st <= c.maxStars; st++) add(claimVariant(d, c.id, st));
+  for (const g of heroGoals(d, groups)) add(claimGoal(d, g));
+  return t;
+}
