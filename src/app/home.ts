@@ -3,6 +3,7 @@
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
  */
 import { ico } from '../ui/icons';
+import albumIconUrl from '../assets/hub/album-elmo.png'; // v0.59.2
 import { esc, energyHTML, goldHTML } from '../ui/components';
 import { energyMax } from '../core/profile';
 import { gameAlert, gameConfirm, showDialog } from '../ui/dialog';
@@ -47,7 +48,7 @@ export function home(): void {
         return `<button class="hub-spot${s.nav ? '' : ' locked'}" data-spot="${i}" aria-label="${esc(s.label)}${s.nav ? '' : ' (em breve)'}" style="left:${h.left}%;top:${h.top}%;width:${h.width}%;height:${h.height}%"><span class="hub-tag${s.tagUp ? ' up' : ''}${s.tagLeft ? ' left' : ''}"><span class="hub-ribbon">${s.nav ? '' : '<span class="lk">🔒</span> '}${s.br ? esc(s.label.slice(0, s.br)) + '<br>' + esc(s.label.slice(s.br + 1)) : esc(s.label)}</span></span></button>`;
       }).join('')}
     </div></div>
-    <button class="hub-heroes" id="hubHeroes" aria-label="Heróis"><svg class="hh-ico" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="hhG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset=".55" stop-color="#d39a2a"/><stop offset="1" stop-color="#7a4a10"/></linearGradient><linearGradient id="hhR" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff5a4a"/><stop offset="1" stop-color="#a3121a"/></linearGradient></defs><path d="M10 26 C10 6 52 2 58 22 C52 14 40 10 30 12 C20 14 14 20 10 26Z" fill="url(#hhR)" stroke="#4a0606" stroke-width="2"/><path d="M14 22 q6 -8 14 -9 M22 18 q8 -6 16 -5 M32 14 q8 -2 16 2" stroke="#ffb3a8" stroke-width="1.6" fill="none" opacity=".7"/><path d="M16 30 C16 20 48 20 48 30 L48 52 L40 56 L40 40 L36 38 L36 58 L28 58 L28 38 L24 40 L24 56 L16 52Z" fill="url(#hhG)" stroke="#3a2205" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 30 C22 25 42 25 44 30" stroke="#fff3c4" stroke-width="2" fill="none" opacity=".8"/></svg><span class="hub-ribbon">Heróis</span></button>
+    <button class="hub-heroes" id="hubHeroes" aria-label="Heróis"><img class="hh-ico" src="${albumIconUrl}" alt="" aria-hidden="true" draggable="false"><span class="hub-ribbon">Heróis</span></button>
     <div class="account-box hub-top">${profileCardHTML()}
       <div class="res hub-res"><span>${goldHTML(fmt(prof().gold))}</span><span class="res-energy">${energyHTML(energyNow(), energyMax(prof()))}</span></div>
       <span class="hub-spacer"></span>

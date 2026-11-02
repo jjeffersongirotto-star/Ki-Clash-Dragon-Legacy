@@ -38,7 +38,7 @@ export const HUB_SPOTS: HubSpot[] = [
   { key: '11-masmorra-dupla', label: 'Masmorra em Dupla', nav: null, soon: 'Explore masmorras com um parceiro.', dx: -40, dy: 40 },
   { key: '12-desejos', label: 'Santuário', nav: null, soon: 'Reúna os 7 diamantes e faça um desejo.' },
   { key: '13-eventos', label: 'Eventos', nav: null, soon: 'Eventos especiais com prêmios por tempo limitado.' },
-  { key: '14-mina', label: 'Mina', nav: null, pad: 20, dx: 60, dy: 40, soon: 'Recolha cristais com o tempo.' },
+  { key: '14-mina', label: 'Mina', nav: null, pad: 20, dx: -160, dy: 40, soon: 'Recolha cristais com o tempo.' },
 ];
 
 export const HUB_W = 2340;
