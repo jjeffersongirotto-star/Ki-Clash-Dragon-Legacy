@@ -134,3 +134,13 @@ export function claimAll(d: HeroSave, groups = heroGroups()): ClaimAllTotal {
   for (const g of heroGoals(d, groups)) add(claimGoal(d, g));
   return t;
 }
+
+/** v0.59.6: filtros da tela Heróis — no máximo 1 Grupo (raça) e 1 Tipo; null = Todos. Só muda o que aparece. */
+export function filterHeroGroups(groups: HeroGroup[], race: string | null, cat: string | null): HeroGroup[] {
+  return groups
+    .filter((g) => !race || g.race === race)
+    .map((g) => ({ ...g, types: g.types.filter((t) => !cat || t.cat === cat) }))
+    .filter((g) => g.types.length > 0);
+}
+/** Feitiços só aparecem sem filtro (não têm grupo nem tipo). */
+export const showSpellsWith = (race: string | null, cat: string | null) => !race && !cat;

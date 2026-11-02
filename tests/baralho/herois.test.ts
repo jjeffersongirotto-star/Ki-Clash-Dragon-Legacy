@@ -86,3 +86,23 @@ describe('v0.59.3 — Resgatar todos', () => {
     expect([...a.heroClaims!].sort()).toEqual([...b.heroClaims!].sort());
   });
 });
+
+describe('v0.59.6 — filtros Grupo e Tipo', () => {
+  it('combina 1 grupo + 1 tipo; Todos = sem filtro', async () => {
+    const H = await import('../../src/core/heroes');
+    const all = heroGroups();
+    expect(H.filterHeroGroups(all, null, null)).toEqual(all);
+    const race = all[0].race, cat = all[0].types[0].cat;
+    const r = H.filterHeroGroups(all, race, null);
+    expect(r.map((g) => g.race)).toEqual([race]);
+    const c = H.filterHeroGroups(all, null, cat);
+    expect(c.every((g) => g.types.every((t) => t.cat === cat))).toBe(true);
+    const rc = H.filterHeroGroups(all, race, cat);
+    expect(rc).toHaveLength(1);
+    expect(rc[0].types.map((t) => t.cat)).toEqual([cat]);
+    expect(rc[0].types[0].chars).toEqual(all[0].types[0].chars);
+    expect(H.showSpellsWith(null, null)).toBe(true);
+    expect(H.showSpellsWith(race, null)).toBe(false);
+    expect(H.showSpellsWith(null, cat)).toBe(false);
+  });
+});
