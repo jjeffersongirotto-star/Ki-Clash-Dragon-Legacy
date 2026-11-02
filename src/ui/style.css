@@ -1831,9 +1831,8 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .hr-cell { flex: 0 0 auto; width: 96px; display: grid; gap: 4px; justify-items: center; }
 .hr-cell .card { width: 100%; }
 .hr-claim { font-size: 11px; padding: 2px 6px; }
-/* v0.59.7: raridade que você não tem = preto e branco (como o final de Avenida Brasil), só um pouco escura; filtro fixo, sem animação */
+/* v0.59.8: raridade que você não tem = só o desenho em preto e branco (Avenida Brasil); moldura e medalhões mantêm a cor da raridade. Filtro fixo. */
 .card.hr-dark .card-art, .card.hr-dark .card-fig { filter: grayscale(1) brightness(.75) contrast(1.05) !important; }
-.card.hr-dark .ck-cost, .card.hr-dark .ck-cat, .card.hr-dark .ck-atk, .card.hr-dark .ck-hp, .card.hr-dark .ck-gem, .card.hr-dark .card-badge { filter: grayscale(1); }
 
 /* v0.59.3: Resgatar todos nos Heróis */
 .heroes .hr-claimall { display: flex; justify-content: center; margin: 6px 0 2px; }

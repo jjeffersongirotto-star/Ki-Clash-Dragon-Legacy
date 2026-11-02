@@ -50,7 +50,7 @@ export function heroes() {
     for (let st = d.minStars; st <= d.maxStars; st++) {
       const has = hasRarity(save, id, st);
       const can = variantClaimable(save, id, st);
-      cells.push(`<div class="hr-cell">${cardHTML({ charId: id, stars: st, plus: 0 }, { grid: true, locked: !has, extraClass: has ? '' : 'hr-dark', attrs: `data-card="${id}" data-stars="${st}"` })}${can ? `<button class="btn small primary hr-claim" data-var="${id}:${st}">Resgatar ${rewardHTML(VARIANT_REWARD[st])}</button>` : ''}</div>`);
+      cells.push(`<div class="hr-cell">${cardHTML({ charId: id, stars: st, plus: 0 }, { grid: true, locked: false, extraClass: has ? '' : 'hr-dark', attrs: `data-card="${id}" data-stars="${st}"` })}${can ? `<button class="btn small primary hr-claim" data-var="${id}:${st}">Resgatar ${rewardHTML(VARIANT_REWARD[st])}</button>` : ''}</div>`);
     }
     return `<div class="hr-row"><div class="hr-name">${esc(d.name)}</div><div class="hr-cards">${cells.join('')}</div></div>`;
   };
@@ -67,7 +67,7 @@ export function heroes() {
       ${g.types.map((t) => `<div class="hr-type"><h4>${catIcon(t.cat)} ${CATEGORY_INFO[t.cat as keyof typeof CATEGORY_INFO].label}${goalHTML(goals[`t:${g.race}:${t.cat}`])}</h4>${t.chars.map((c) => row(c.id)).join('')}</div>`).join('')}
     </section>`).join('')}
     ${showSpellsWith(fRace, fCat) ? `<section class="hr-group"><h3 class="sec-title">✦ Feitiços${goalHTML(sp)}</h3>
-      <div class="card-grid spell-grid">${[...SPELLS].sort((a, b) => a.rarity - b.rarity).map((s) => spellCardHTML(s.id, { locked: !spellOwned(save, s.id), extraClass: `grid-card${spellOwned(save, s.id) ? '' : ' hr-dark'}` })).join('')}</div>
+      <div class="card-grid spell-grid">${[...SPELLS].sort((a, b) => a.rarity - b.rarity).map((s) => spellCardHTML(s.id, { locked: false, extraClass: `grid-card${spellOwned(save, s.id) ? '' : ' hr-dark'}` })).join('')}</div>
     </section>` : ''}
   </div>`;
   bindNav();
