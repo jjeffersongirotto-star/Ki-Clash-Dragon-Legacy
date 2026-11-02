@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.59.4] — 02/11/2026 · Heróis: janela de prêmios corrigida
+- Corrigido: a janela "Prêmios resgatados!" (Resgatar todos e Resgatar de metas) mostrava código HTML como texto. Agora lista em tópicos, uma linha por tipo com ícone, nome e quantidade (Ouro de Dragão, Gemas, XP de perfil, cada Orbe), só o que for maior que zero, e uma linha com o número de prêmios. Lista rola no celular deitado; fecha no ✕ (`src/ui/rewardList.ts`).
+
 ## [0.59.3] — 02/11/2026 · Heróis: Resgatar todos
 - Botão **🎁 Resgatar todos (N)** no topo da tela Heróis: resgata de uma vez todos os prêmios disponíveis (raridades novas, metas de tipo/grupo/todos e feitiços) e mostra o total ganho (Ouro, Gemas, Orbes e XP) numa janela. Só aparece quando há pelo menos um prêmio para resgatar (`claimAll` em `src/core/heroes.ts`).
 

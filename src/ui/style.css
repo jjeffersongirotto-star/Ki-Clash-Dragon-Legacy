@@ -1835,3 +1835,11 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 
 /* v0.59.3: Resgatar todos nos Heróis */
 .heroes .hr-claimall { display: flex; justify-content: center; margin: 6px 0 2px; }
+/* v0.59.4: prêmios em tópicos */
+.rw-list-wrap { max-height: min(52vh, 320px); overflow-y: auto; -webkit-overflow-scrolling: touch; margin: 4px 0 8px; }
+.rw-list { list-style: none; margin: 0 auto; padding: 0; display: grid; gap: 6px; min-width: min(280px, 70vw); }
+.rw-row { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,.06); text-align: left; }
+.rw-ico { display: grid; place-items: center; font-size: 20px; }
+.rw-q { color: #ffd76a; font-size: 1.05em; }
+.rw-count { margin: 6px 0 0; font-size: .85em; opacity: .75; }
+@media (max-height: 480px) { .rw-list-wrap { max-height: 46vh; } .rw-row { padding: 4px 8px; } }
