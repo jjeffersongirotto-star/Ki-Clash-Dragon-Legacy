@@ -1337,3 +1337,6 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Prêmios com Resgatar** (uma vez cada): tipo completo dentro do grupo 200 Ouro + 50 XP de perfil (sem gemas); grupo completo 600 Ouro + 10 Gemas + 150 XP; todos os personagens 1500 Ouro + 20 Gemas + 400 XP; todos os feitiços 600 Ouro + 2 Gemas + 150 XP (v0.59.1; 1 Gema = 1 pacote ≈ 300 Ouro).
 - **Prêmio por raridade nova** (cada carta × raridade, inclusive as já acesas em saves antigos): Comum e Incomum 100 Ouro; Raro 1 Orbe Raro; Épico 1 Orbe Épico; Lendário 1 Gema; Mítico 3 Gemas (`VARIANT_REWARD` em `src/core/heroes.ts`).
 - O **Baralho** (antes "Coleção & Baralho") agora só organiza o baralho e mostra só as cartas que você tem; as que faltam ficam nos Heróis. O editor TEMP de balanceamento (segurar a carta e "⬇ Balanceamento") saiu do Baralho e foi para os Heróis.
+
+## Comandantes e arenas (v0.60.0)
+- Em 36 fases o Comandante inimigo foi escolhido à mão para combinar com a arena (`COMMANDER_OVERRIDE` em `src/core/campaign.ts`); nas outras, segue o sorteio de sempre. Só o Comandante muda: o baralho da fase continua o mesmo e o Comandante sorteado fica como carta comum. O escolhido precisa chegar a até 1 raridade da fase e não se repete na região.
