@@ -255,6 +255,51 @@ const rarityOfStep = (t: number) => Math.max(1, Math.min(6, Math.floor(t / 3) + 
 /** O personagem chega à raridade `r` (começa nela ou abaixo e termina nela ou acima)? */
 const fits = (id: string, r: number) => getChar(id).minStars <= r && getChar(id).maxStars >= r;
 
+/**
+ * v0.60.0: Comandantes escolhidos à mão para combinar com a ARENA da fase (só onde o sorteado destoava muito do
+ * cenário, ex.: a caveira costurada na Ponte de Arco-Íris). Fase global → personagem (precisa ter recorte limpo).
+ * Só troca o Comandante (o resto do baralho fica igual). Vale se o personagem chega a 1 raridade da fase (a carta fica
+ * no degrau mais perto); senão, fica o sorteado.
+ */
+export const COMMANDER_OVERRIDE: Record<number, string> = {
+  14: 'cryo6', // Gruta da Maré Baixa (cristais gelados)
+  16: 'lethe', // Baía das Sereias de Pedra (barqueira no barco)
+  20: 'suri', // Santuário do Coral Rubro (espírito do mar)
+  23: 'fenra', // Rio das Piranhas de Jade (fera da selva)
+  28: 'bufo', // Lagoa dos Sapos Gigantes (sapo)
+  29: 'mei', // Árvore-Mãe Ancestral (lótus, espírito da natureza)
+  30: 'kuro', // Coração da Selva (fera noturna da selva)
+  32: 'akemi', // Caravana Perdida (guerreira viajante)
+  33: 'sayuri', // Mar de Areia Cantante (dança com leques)
+  38: 'thane', // Cemitério de Colossos (cavaleiro caído no cavalo esqueleto)
+  40: 'ivra', // Trono do Faraó de Âmbar (rainha no trono)
+  47: 'bram', // Forja do Gigante (anão da bigorna)
+  49: 'kael', // Caldeira Adormecida (fogo)
+  50: 'ryuji', // Cume do Primeiro Raio (punho de tempestade)
+  55: 'ghor', // Mangue dos Ossos (abominação)
+  56: 'pira', // Capela Afundada (vela fúnebre)
+  58: 'nocturna', // Torre do Corvo Branco (bruxa vampira)
+  64: 'vex4', // Arsenal Silencioso (soldado ciborgue)
+  66: 'spike11', // Torre de Vapor (robô de pistão)
+  67: 'sentinel0', // Fábrica de Sentinelas (sentinela)
+  69: 'halo8', // Sala do Relojoeiro (androide reparadora)
+  70: 'bastion2', // Coração Mecânico (robô pesado)
+  72: 'tiberius', // Biblioteca Suspensa (mago das runas)
+  73: 'sylith', // Jardim de Cristal (tecelã de luz)
+  74: 'aethra', // Observatório Arcano (feiticeira dos cristais)
+  76: 'aurel', // Ponte de Arco-Íris (anjo de luz)
+  80: 'selene', // Torre do Arquimago (maga da lua)
+  84: 'spindra', // Nave-Colmeia (aranha)
+  85: 'brakk', // Nebulosa Carmesim (couraça de meteoro)
+  86: 'vesna', // Planeta de Gelo Negro (senhora do inverno)
+  87: 'phase3', // Portal Quântico (salto quântico)
+  89: 'nhyra', // Horizonte de Eventos (fantasma estelar)
+  92: 'rhazor', // Ponte de Lava (fera)
+  93: 'hayato', // Salão dos Ancestrais (mestre ancião)
+  99: 'aegis', // Vigília do Último Guardião (guardião)
+  100: 'brakk', // Despertar do Dragão Eterno (homem-dragão)
+};
+
 interface WorldPlan {
   pools: string[][];
   spells: string[][];
@@ -302,6 +347,31 @@ export function worldPlan(): WorldPlan {
     const n = local === 3 || local === 6 ? 1 : local >= 9 ? 2 : 0;
     const castable = shuffle(WORLD_SPELL_POOL, st).filter((sid) => getSpell(sid).categories.some((k) => pool.some((id) => getChar(id).category === k)));
     spells.push(castable.slice(0, n));
+  }
+  // v0.60.0: troca só o Comandante pelo escolhido à mão (o resto do baralho e o sorteio das outras fases não mudam)
+  for (const [k, want] of Object.entries(COMMANDER_OVERRIDE)) {
+    const i = Number(k) - 1 - POOLS.length;
+    if (i < 0 || !clean.includes(want)) continue;
+    const region = regionOf(i + POOLS.length + 1);
+    const r = rarityOfStep(lerp(WORLD_STEP_RANGE[region - 2], localOf(i + POOLS.length + 1)));
+    if (getChar(want).minStars > r + 1 || getChar(want).maxStars < r - 1) continue;
+    const casts = (p: string[]) => spells[i].every((sid) => getSpell(sid).categories.some((c) => p.some((id) => getChar(id).category === c)));
+    const at = pools[i].indexOf(want);
+    let pool: string[] | undefined;
+    if (at > 0) {
+      pool = [...pools[i]];
+      [pool[0], pool[at]] = [pool[at], pool[0]];
+    } else if (at < 0) {
+      // fora do baralho: entra na frente e sai uma carta do fim (a primeira que mantém conjurador para os feitiços);
+      // o Comandante sorteado continua no baralho como carta comum
+      for (let out = pools[i].length - 1; out >= 0 && !pool; out--) {
+        const p = [want, ...pools[i].filter((_, k) => k !== out)].slice(0, DECK_SLOTS);
+        if (casts(p)) pool = p;
+      }
+    } else pool = pools[i];
+    if (!pool) continue;
+    pools[i] = pool;
+    commanders[i] = want;
   }
   plan = { pools, spells, commanders };
   return plan;

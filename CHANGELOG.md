@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.60.0] — 03/11/2026 · Comandantes combinando com as arenas
+- **36 fases trocaram de Comandante inimigo** para combinar com o cenário (só onde o personagem destoava muito). Exemplos: na **Ponte de Arco-Íris** a abominação costurada saiu e entrou o **anjo Aurel**; a abominação foi para o **Mangue dos Ossos**. Também: sapo **Bufo** na Lagoa dos Sapos Gigantes, **Lethe** (barqueira) na Baía das Sereias, **Ivra** (rainha no trono) no Trono do Faraó, **Bram** (anão da bigorna) na Forja do Gigante, **Kael** (fogo) na Caldeira Adormecida, **Sentinel-0** na Fábrica de Sentinelas, **Tiberius** na Biblioteca Suspensa, **Vesna** (inverno) no Planeta de Gelo Negro, **Phase-3** (salto quântico) no Portal Quântico, **Aegis** na Vigília do Último Guardião e o homem-dragão **Brakk** no Despertar do Dragão Eterno.
+- Só o Comandante muda: o resto do baralho de cada fase continua igual (o Comandante sorteado antes fica como carta comum), então a dificuldade praticamente não muda. Nenhum Comandante se repete dentro da mesma região.
+- As outras 64 fases mantêm o Comandante de antes.
+
 ## [0.59.8] — 02/11/2026 · Heróis: cor da raridade aparece
 - Nas raridades que você não tem, só o **desenho do personagem** fica em preto e branco; moldura, borda e medalhões voltam a ter a cor da raridade (verde, azul, roxo…), para as cartas não ficarem todas iguais.
 
