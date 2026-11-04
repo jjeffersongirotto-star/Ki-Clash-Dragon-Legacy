@@ -1345,3 +1345,11 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - Cada versão publica, junto do APK, o instalador do Windows **Ki-Clash-Setup.exe** (Electron, pasta `desktop/`, gerado pela CI `.github/workflows/desktop.yml`). Ele roda o mesmo jogo do site numa janela própria, sem internet; F11 alterna a tela cheia.
 - Botão **Baixar** do site: APK no celular, instalador no computador. **Procurar atualização** no app do computador oferece o instalador novo (instala por cima, mantendo o progresso).
 - O save do app do computador fica no computador (não é o mesmo do site nem do celular).
+
+## Balanceamento v2.0 — escala enxuta (v0.62.0)
+- Fonte: `docs/balanceamento-v2.md`. ATQ e vida de cada personagem em cada raridade vêm da tabela `src/core/balanceV2.ts` (ATQ 1–9, vida 1–16), junto com a raridade mínima/máxima e a Espera. **Substitui** a regra de "+17% por degrau" (seção 22): o **"+"** dá +1 de vida (o "++" mantém esse +1) e o **"++"** dá +1 de ataque só na raridade máxima da carta.
+- Raridade máxima reduzida para **Raro**: Taro, Hana, Nara, Pip, Suri, Daichi e Sora. Saves antigos: a carta volta para Raro++ com reembolso das Essências e itens dos Despertares acima do topo; cópias repetidas acima do topo viram Raras.
+- **Vida do Comandante do jogador** por nível: 20, 26, 32, 38, 44, 48, 52, 56, 60, 64. **Requisitos de Poder**: 0, 120, 125, 145, 150, 155, 180, 185, 190, 215.
+- **Vida do Comandante inimigo:** região 1 = 14, 14, 16, 18, 20, 22, 24, 26, 28, 30; regiões 2–10 = de 32–40 (região 2) a 48–56 (região 10), subindo dentro de cada região.
+- **Fúria de batalha:** a partir do turno 8, +1 de ataque a cada 5 turnos.
+- Tutorial, Batalha 1: Riku contra **Ossian**.

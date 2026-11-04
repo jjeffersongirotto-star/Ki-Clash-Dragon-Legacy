@@ -95,7 +95,9 @@ export function enemyLeaderHp(i: number): number {
  * ENEMY_STEPS e ENEMY_SPELLS para a vitória ao chegar ficar ~90% nas fases 1–3, ~75% nas 4–7 e ~65% nas 8–10.
  * Até a v0.27.0: 12 + 7·i (12, 19, 26, 33, 40, 47, 54, 61, 68, 75).
  */
-export const ENEMY_HERO_HP = [14, 14, 18, 34, 36, 40, 36, 41, 39, 56];
+/* v0.62.0 (balanceamento v2.0, escala enxuta): vida do Comandante inimigo reduzida junto com o ataque das cartas
+   (até a v0.61.0: 14, 14, 18, 34, 36, 40, 36, 41, 39, 56). */
+export const ENEMY_HERO_HP = [14, 14, 16, 18, 20, 22, 24, 26, 28, 30];
 /* v0.37.0: com a IA esperta nas fases 4–10 (STAGE_AI), reequilibrado no simulador (scripts/balance/v28.ts, SIM_SPELLS=0).
    v0.36.0: 14, 14, 18, 32, 30, 37, 56, 62, 72, 106. */
 /* v0.36.0: arena de 10 colunas (os dois lados chegam mais rápido), reequilibrado no simulador (scripts/balance/v28.ts,
@@ -231,16 +233,17 @@ export const WORLD_STEP_RANGE: [number, number][] = [
   [15.5, 16.5],
 ];
 /** Vida do Comandante inimigo na fase 1 e na fase 10 de cada região (índice 0 = região 2). */
+// v0.62.0 (balanceamento v2.0): escala enxuta — antes 50–70 (região 2) … 130–160 (região 10)
 export const WORLD_HP_RANGE: [number, number][] = [
-  [50, 70],
-  [60, 80],
-  [70, 90],
-  [80, 100],
-  [90, 110],
-  [100, 120],
-  [110, 130],
-  [120, 140],
-  [130, 160],
+  [32, 40],
+  [34, 42],
+  [36, 44],
+  [38, 46],
+  [40, 48],
+  [42, 50],
+  [44, 52],
+  [46, 54],
+  [48, 56],
 ];
 /** XP dos Orbes de cada região em relação à fase de mesmo número da região 1 (multiplica por isto a cada região). */
 export const WORLD_XP_GROWTH = 2;
@@ -372,6 +375,22 @@ export function worldPlan(): WorldPlan {
     if (!pool) continue;
     pools[i] = pool;
     commanders[i] = want;
+  }
+  // um escolhido à mão pode ter sido sorteado em outra fase da mesma região: essa outra fase troca de Comandante
+  // por outro personagem do próprio baralho (recorte limpo, ainda não usado na região)
+  for (let i = 0; i < commanders.length; i++) {
+    const g = i + POOLS.length;
+    if (COMMANDER_OVERRIDE[g + 1]) continue;
+    const start = Math.floor(g / STAGES_PER_REGION) * STAGES_PER_REGION - POOLS.length;
+    const others = new Set(commanders.slice(Math.max(0, start), start + STAGES_PER_REGION).filter((_, k) => Math.max(0, start) + k !== i));
+    if (!others.has(commanders[i])) continue;
+    const alt = pools[i].find((id) => clean.includes(id) && !others.has(id));
+    if (!alt) continue;
+    const pool = [...pools[i]];
+    const at = pool.indexOf(alt);
+    [pool[0], pool[at]] = [pool[at], pool[0]];
+    pools[i] = pool;
+    commanders[i] = alt;
   }
   plan = { pools, spells, commanders };
   return plan;

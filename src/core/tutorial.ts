@@ -39,7 +39,8 @@ const enemy = (charId: string, copies = 3): CardInstance => ({ charId, stars: 1,
 export const TUTORIAL_BATTLES: Stage[] = [
   // v0.33.0: guiado e sem espera na mão — o inimigo invoca tudo o que tem, então tem menos cartas
   // v0.36.0: arena de 10 colunas (o inimigo chega mais rápido): 1 Tobi a menos na Batalha 2
-  { id: 0, name: 'Tutorial · Batalha 1', enemyHeroHp: 6, enemyDeck: [enemy('kuro', 1)], rewards: { essencias: 0, orbs: {} }, pack: [] },
+  // v0.62.0 (balanceamento v2.0): o Kuro (3 de ataque) derrubava o Riku (3 de vida) num golpe — a Batalha 1 agora é contra o Ossian
+  { id: 0, name: 'Tutorial · Batalha 1', enemyHeroHp: 6, enemyDeck: [enemy('ossian', 1)], rewards: { essencias: 0, orbs: {} }, pack: [] },
   { id: 0, name: 'Tutorial · Batalha 2', enemyHeroHp: 10, enemyDeck: [enemy('daichi', 2), enemy('hana', 1), enemy('tobi', 1)], rewards: { essencias: 0, orbs: {} }, pack: [] },
 ];
 

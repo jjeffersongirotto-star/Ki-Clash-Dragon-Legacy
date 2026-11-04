@@ -12,10 +12,12 @@ describe('progressão por XP (v0.23.0: barra por degrau, sem nível)', () => {
     expect(card.xp).toBe(cardBarXp(card));
     expect(r.wasted).toBe(1e7);
   });
-  it('status crescem com o degrau e a raridade', () => {
-    const def = getChar('kenji');
-    expect(statsFor(def, 4, 1).hp).toBeGreaterThan(statsFor(def, 4, 0).hp);
-    expect(statsFor(def, 6, 0).atk).toBeGreaterThan(statsFor(def, 4, 0).atk);
+  it('status crescem com o degrau e a raridade (v0.62.0: tabela do balanceamento v2.0)', () => {
+    const def = getChar('riku');
+    expect(statsFor(def, 1, 1).hp).toBe(statsFor(def, 1, 0).hp + 1); // "+" = +1 de vida
+    expect(statsFor(def, 1, 2)).toEqual(statsFor(def, 1, 1)); // "++" fora da raridade máxima: só a habilidade melhora
+    expect(statsFor(def, 4, 2).atk).toBe(statsFor(def, 4, 0).atk + 1); // "++" na raridade máxima: +1 de ataque
+    expect(statsFor(def, 4, 0).atk + statsFor(def, 4, 0).hp).toBeGreaterThan(statsFor(def, 1, 0).atk + statsFor(def, 1, 0).hp);
   });
   it('despertar exige a barra cheia e respeita o topo (raridade máxima "++")', () => {
     const card = newOwned('riku');
@@ -31,8 +33,10 @@ describe('progressão por XP (v0.23.0: barra por degrau, sem nível)', () => {
     expect(ascend(card, 999).ok).toBe(false);
   });
   it('faixa de cores: Comum/Incomum→Épico, Raro→Lendário, Épico/Lendário→Mítico; únicos começam em Lendário', () => {
+    // v0.62.0 (balanceamento v2.0): 7 cartas que nascem Comuns vão só até Raro
+    const capped = ['taro', 'hana', 'nara', 'pip', 'suri', 'daichi', 'sora'];
     for (const d of PLAYABLE) {
-      expect(d.maxStars).toBe(expectedMaxStars(d.minStars));
+      expect(d.maxStars, d.id).toBe(capped.includes(d.id) ? 3 : expectedMaxStars(d.minStars));
       if (UNIQUE_5STAR.includes(d.id)) expect(d.minStars).toBe(5);
     }
     expect(expectedMaxStars(1)).toBe(4);

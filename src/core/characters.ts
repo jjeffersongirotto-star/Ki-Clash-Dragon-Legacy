@@ -1,5 +1,6 @@
 import type { Category, CharacterDef, Race, Rarity } from './types';
 import { NEW_CHARACTERS } from './charactersNew';
+import { BALANCE_V2 } from './balanceV2';
 
 export const RARITY_INFO: Record<Rarity, { label: string; color: string; glow: string; order: number }> = {
   comum: { label: 'Comum', color: '#9aa3ad', glow: '#c9d1d9', order: 0 },
@@ -531,6 +532,17 @@ const BASE_CHARACTERS: CharacterDef[] = [
 
 /** v0.30.0: + as 99 cartas novas (charactersNew.ts). */
 export const CHARACTERS: CharacterDef[] = [...BASE_CHARACTERS, ...NEW_CHARACTERS];
+// v0.62.0: balanceamento v2.0 — raridade mínima/máxima e Espera de cada personagem vêm da tabela (balanceV2.ts)
+for (const c of CHARACTERS) {
+  const b = BALANCE_V2[c.id];
+  if (!b) continue;
+  c.minStars = b.min;
+  c.maxStars = b.max;
+  c.wait = b.wait;
+  const [atk, hp] = b.stats[b.min];
+  c.atk = atk;
+  c.hp = hp;
+}
 /** v0.30.0: ids das cartas novas (só saem no banner). */
 export const NEW_IDS = new Set(NEW_CHARACTERS.map((c) => c.id));
 

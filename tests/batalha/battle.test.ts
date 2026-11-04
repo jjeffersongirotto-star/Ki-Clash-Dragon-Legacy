@@ -217,16 +217,16 @@ describe('habilidades únicas', () => {
 });
 
 describe('fúria de batalha (anti-empate)', () => {
-  it('sem bônus antes do turno 8; depois +1 a cada 3 turnos', () => {
+  it('sem bônus antes do turno 8; depois +1 a cada 5 turnos (v0.62.0; antes 3)', () => {
     expect(furyBonus(7)).toBe(0);
     expect(furyBonus(8)).toBe(1);
-    expect(furyBonus(10)).toBe(1);
-    expect(furyBonus(11)).toBe(2);
+    expect(furyBonus(12)).toBe(1);
+    expect(furyBonus(13)).toBe(2);
   });
   it('soma ao ataque efetivo', () => {
     const s = emptyBattle();
     const a = placeUnit(s, c('riku'), 'player', 0, 0, { atk: 3 });
-    s.turn = 11;
+    s.turn = 13;
     expect(effectiveAtk(s, a)).toBe(5);
   });
 });

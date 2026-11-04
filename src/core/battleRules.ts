@@ -26,7 +26,8 @@ export function auraPenalty(state: BattleState, u: Unit): number {
 
 /** Fúria de batalha: a partir do turno FURY_START, todos ganham +1 de ataque a cada FURY_EVERY turnos (evita empates travados). */
 export const FURY_START = 8;
-export const FURY_EVERY = 3;
+/** v0.62.0: a cada 5 turnos (antes 3) — na escala enxuta +1 de ataque pesa muito mais. */
+export const FURY_EVERY = 5;
 export function furyBonus(turn: number): number {
   return turn < FURY_START ? 0 : 1 + Math.floor((turn - FURY_START) / FURY_EVERY);
 }

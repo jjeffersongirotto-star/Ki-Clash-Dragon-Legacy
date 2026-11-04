@@ -66,7 +66,7 @@ export function train() {
     : '';
   const ascendBtn = nt
     ? `${needHTML}<button class="btn primary" id="ascend" ${canAscend(card) && gearOk && save.essencias >= ascendCost(card) ? '' : 'disabled'}>✨ Subir para ${ntLabel} (${essIcon()} ${ascendCost(card)})</button>
-       <p class="hint">${full ? '' : 'Encha a barra de XP para subir o degrau. '}${gearOk ? '' : `<span class="warn">Faltam itens de ascensão (as fases dão itens; veja quais em ${ico('inventario', '🎒')} Itens).</span> `}${nt.stars === card.stars ? `${ntLabel} dá +17% de ataque e de vida (habilidades e visual iguais).` : `${ntLabel} é uma <b>nova raridade</b>: evolui roupa, armadura, aura, habilidades e status.`}${save.essencias < ascendCost(card) ? ` <span class="warn">Você tem ${essIcon()} ${save.essencias}.</span>` : ''}</p>`
+       <p class="hint">${full ? '' : 'Encha a barra de XP para subir o degrau. '}${gearOk ? '' : `<span class="warn">Faltam itens de ascensão (as fases dão itens; veja quais em ${ico('inventario', '🎒')} Itens).</span> `}${nt.stars === card.stars ? `${ntLabel} ${nt.plus === 1 ? 'dá +1 de vida' : card.stars >= getChar(card.charId).maxStars ? 'dá +1 de ataque' : 'prepara a próxima raridade'} (visual igual).` : `${ntLabel} é uma <b>nova raridade</b>: evolui roupa, armadura, aura, habilidades e status.`}${save.essencias < ascendCost(card) ? ` <span class="warn">Você tem ${essIcon()} ${save.essencias}.</span>` : ''}</p>`
     : '<p class="hint">Raridade máxima com "++": este personagem chegou ao topo!</p>';
   app.innerHTML = `<div class="screen">${topbar('Treinar')}
     <div class="row"><button class="btn small" id="gearBag">🎒 Itens de ascensão</button></div>

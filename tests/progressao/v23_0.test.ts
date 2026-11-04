@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { BALANCE_V2 } from '../../src/core/balanceV2';
 import { abilityPower } from '../../src/core/abilities';
 import { placeUnit, createBattle } from '../../src/core/battle';
 import { PLAYABLE, getChar } from '../../src/core/characters';
@@ -6,7 +7,6 @@ import { DIFFICULTIES, stageFor } from '../../src/core/adventure';
 import { ENEMY_STEPS, STAGES } from '../../src/core/campaign';
 import {
   MAX_STEP,
-  STEP_GROWTH,
   ascend,
   ascendCost,
   barFull,
@@ -54,17 +54,15 @@ describe('v0.23.0 — carta sem nível: raridade + degrau ("+" / "++")', () => {
     expect(stepOf({ plus: 7 })).toBe(MAX_STEP);
   });
 
-  it('status = base × 1,17^(degrau na escada), arredondado (mínimo 1); a barra de XP não muda os status', () => {
-    expect(STEP_GROWTH).toBe(1.17);
-    for (const d of PLAYABLE)
+  it('status: tabela do balanceamento v2.0 (v0.62.0; até a v0.61.0: base × 1,17^degrau); a barra de XP não muda os status', () => {
+    for (const d of PLAYABLE) {
+      const b = BALANCE_V2[d.id];
       for (let s = d.minStars; s <= d.maxStars; s++)
         for (let p = 0; p <= MAX_STEP; p++) {
-          const m = STEP_GROWTH ** stepIndex(s, p);
-          expect(statsFor(d, s, p)).toEqual({ atk: Math.max(1, Math.round(d.atk * m)), hp: Math.max(1, Math.round(d.hp * m)) });
+          const [atk, hp] = b.stats[s];
+          expect(statsFor(d, s, p), `${d.id} ${s}/${p}`).toEqual({ atk: atk + (p === MAX_STEP && s === d.maxStars ? 1 : 0), hp: hp + (p >= 1 ? 1 : 0) });
         }
-    // o Mítico fica ~10× o Comum (como antes)
-    expect(STEP_GROWTH ** stepIndex(6, 0)).toBeGreaterThan(9.5);
-    expect(STEP_GROWTH ** stepIndex(6, 0)).toBeLessThan(11);
+    }
     const c = newOwned('riku');
     const before = cardPower(c);
     feedXp(c, cardBarXp(c) - 1);

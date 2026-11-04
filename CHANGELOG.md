@@ -2,6 +2,16 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.62.0] — 04/11/2026 · Balanceamento v2.0 — etapa 1: escala enxuta
+- **Atributos novos** das 120 cartas, conforme o *Documento Oficial de Balanceamento (v2.0)* (`docs/balanceamento-v2.md`): **ATQ de 1 a 9** e **vida de 1 a 16**, com valores próprios em cada raridade (tabela em `src/core/balanceV2.ts`). Acaba o "+17% por degrau".
+- **Degraus:** o **"+"** dá **+1 de vida**; na **raridade máxima** da carta o **"++"** dá **+1 de ataque**. (A melhora da habilidade no "++" vem na etapa 2.)
+- **Raridade máxima:** Taro, Hana, Nara, Pip, Suri, Daichi e Sora agora vão **só até Raro**. Quem tinha alguma delas acima disso volta para **Raro++** e **recebe de volta as Essências e os itens de ascensão** gastos acima do topo; cópias repetidas acima do topo viram cópias Raras.
+- **Espera:** Kaito 8 → 4, Taro 4 → 3, Grendar, Vharga e Vorax 9 → 8 (as outras já batiam com o documento).
+- **Comandantes na escala nova:** o seu vai de **20 a 64** de vida (antes 20 a 110); o inimigo da região 1 vai de 14 a 30 e das regiões 2–10 de 32 a 56 (antes até 160). Os requisitos de Poder para evoluir o Comandante foram recalibrados no simulador (120 → 215).
+- **Fúria de batalha:** +1 de ataque a cada **5** turnos (antes 3), a partir do turno 8.
+- **Tutorial:** a Batalha 1 agora é contra o **Ossian** (o Kuro, com 3 de ataque, derrubava o Riku de 3 de vida num golpe). As duas batalhas continuam impossíveis de perder.
+- **Fases:** baralhos, raridades e IA das fases **não mudaram** (serão revistos depois). Os custos de evolução também continuam os mesmos.
+
 ## [0.61.0] — 04/11/2026 · Jogo para computador (Windows)
 - **Instalador para Windows:** além do APK do celular, cada versão agora tem o arquivo **Ki-Clash-Setup.exe** na página de Releases. Ele instala o jogo no computador com atalho na área de trabalho e no menu Iniciar, abre numa janela própria (sem barra de navegador, já maximizada; **F11** = tela cheia) e funciona sem internet.
 - **Botão Baixar do site:** no computador baixa o instalador do Windows; no celular continua baixando o APK.
