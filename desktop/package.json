@@ -1,0 +1,46 @@
+{
+  "name": "ki-clash-dragon-legacy",
+  "productName": "Ki-Clash Dragon Legacy",
+  "version": "0.0.0",
+  "description": "Ki-Clash: Dragon Legacy para computador (Windows)",
+  "author": "Ki-Clash",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win nsis --publish never"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "com.kiclash.dragonlegacy",
+    "productName": "Ki-Clash Dragon Legacy",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.cjs",
+      "app/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Ki-Clash Dragon Legacy",
+      "artifactName": "Ki-Clash-Setup.${ext}"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jjeffersongirotto-star/Ki-Clash-Dragon-Legacy.git"
+  }
+}

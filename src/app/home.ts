@@ -9,7 +9,7 @@ import { energyMax } from '../core/profile';
 import { gameAlert, gameConfirm, showDialog } from '../ui/dialog';
 import { leaveBattleMode } from '../ui/orientation';
 import { tutorialDone } from '../ui/save';
-import { APK_DOWNLOAD_URL, APP_VERSION, checkForUpdate, isNativeApp } from '../ui/update';
+import { APP_VERSION, checkForUpdate, downloadLink, isDesktopApp, isInstalledApp } from '../ui/update';
 import { createAccount, login, NAME_MAX, PASS_MIN } from '../ui/accounts';
 import { app, accounts, openAccountSave, save, setSave, firstChar, setTrainSel, persist, energyNow, prof, fmt } from './state';
 import { bindNav, go } from './ui';
@@ -52,7 +52,7 @@ export function home(): void {
     <div class="account-box hub-top">${profileCardHTML()}
       <div class="res hub-res"><span>${goldHTML(fmt(prof().gold))}</span><span class="res-energy">${energyHTML(energyNow(), energyMax(prof()))}</span></div>
       <span class="hub-spacer"></span>
-      ${isNativeApp() ? '' : `<a class="btn small hub-dl" href="${APK_DOWNLOAD_URL}" rel="noopener" title="Baixar o app Android (APK)">${ico('baixar', '⬇')} Baixar</a>`}
+      ${isInstalledApp() ? '' : `<a class="btn small hub-dl" href="${downloadLink().url}" rel="noopener" title="${downloadLink().label}">${ico('baixar', '⬇')} Baixar</a>`}
       <button class="btn small upd-btn" id="updBtn" title="Procurar atualização" aria-label="Procurar atualização">${ico('atualizar', '<svg class="upd-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M20.5 3.5v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'upd-ico')}</button></div>
   </div>`;
   app.querySelectorAll<HTMLButtonElement>('.hub-spot').forEach((el) => el.addEventListener('click', () => tapSpot(HUB_SPOTS[Number(el.dataset.spot)])));
@@ -90,7 +90,9 @@ export async function searchUpdate(btn: HTMLButtonElement) {
   const ok = await gameConfirm(
     `Versão ${r.version} disponível`,
     r.native
-      ? `Você está na versão ${APP_VERSION}. Toque em Baixar: o APK novo abre no navegador. Depois de baixar, abra o arquivo e instale por cima; seu progresso continua.`
+      ? isDesktopApp()
+        ? `Você está na versão ${APP_VERSION}. Clique em Baixar: o instalador novo abre no navegador. Depois de baixar, abra o arquivo e instale por cima; seu progresso continua.`
+        : `Você está na versão ${APP_VERSION}. Toque em Baixar: o APK novo abre no navegador. Depois de baixar, abra o arquivo e instale por cima; seu progresso continua.`
       : `Você está na versão ${APP_VERSION}. Toque em Atualizar para carregar a versão nova; seu progresso continua.`,
     r.native ? 'Baixar' : 'Atualizar',
   );

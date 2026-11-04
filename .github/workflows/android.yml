@@ -68,6 +68,8 @@ jobs:
           if gh release view "v$v" >/dev/null 2>&1; then
             gh release upload "v$v" "Ki-Clash-$v.apk" Ki-Clash.apk --clobber
           else
+            # a CI do instalador Windows pode criar a versão ao mesmo tempo: se a criação falhar, só envia o APK
             gh release create "v$v" "Ki-Clash-$v.apk" Ki-Clash.apk --target "$GITHUB_SHA" --title "Ki-Clash $v" \
-              --notes "APK Android da versão $v. Novidades no CHANGELOG.md. Para instalar: baixe o arquivo .apk no celular e permita instalar apps desta fonte."
+              --notes "Versão $v. Celular: baixe o arquivo .apk e permita instalar apps desta fonte. Computador (Windows): baixe Ki-Clash-Setup.exe. Novidades no CHANGELOG.md." \
+              || gh release upload "v$v" "Ki-Clash-$v.apk" Ki-Clash.apk --clobber
           fi
