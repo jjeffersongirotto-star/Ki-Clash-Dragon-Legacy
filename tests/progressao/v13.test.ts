@@ -30,8 +30,8 @@ describe('v0.13 — Poder das cartas', () => {
     const def = getChar('riku');
     const st = statsFor(def, 1, 0);
     expect(cardPower({ charId: 'riku', stars: 1 })).toBe(Math.round(POWER_SCALE * ABILITY_WEIGHT.riku * Math.sqrt(st.atk * st.hp)));
-    expect(cardPower({ charId: 'riku', stars: 1 })).toBe(29); // v0.57.0: ATQ/vida cortados
-    expect(cardPower({ charId: 'toru', stars: 1 })).toBe(26);
+    expect(cardPower({ charId: 'riku', stars: 1 })).toBe(25); // v0.62.0: tabela do balanceamento v2.0 (v0.57.0: 29)
+    expect(cardPower({ charId: 'toru', stars: 1 })).toBe(24); // v0.62.0 (v0.57.0: 26)
   });
   it('todo personagem jogável tem peso de habilidade, com média ~1', () => {
     // v0.30.0: as cartas novas ainda não foram medidas no simulador e usam o peso neutro 1
@@ -46,7 +46,9 @@ describe('v0.13 — Poder das cartas', () => {
       for (let st = d.minStars; st <= d.maxStars; st++)
         for (let p = 0; p <= 2; p++) {
           const pw = cardPower({ charId: d.id, stars: st, plus: p });
-          expect(pw, `${d.id} ${st}/${p}`).toBeGreaterThanOrEqual(prev); // arredondamento de status pequenos
+          // v0.62.0: dentro da raridade o Poder nunca cai; ao trocar de raridade compara com a base anterior
+          // (a tabela v2.0 às vezes troca vida por ataque, ex.: Yume Raro 3|2 → Épico 4|2)
+          expect(pw, `${d.id} ${st}/${p}`).toBeGreaterThanOrEqual(p === 0 ? cardPower({ charId: d.id, stars: Math.max(d.minStars, st - 1) }) : prev);
           prev = pw;
         }
       expect(cardPower({ charId: d.id, stars: d.minStars, plus: 2 })).toBeGreaterThan(cardPower({ charId: d.id, stars: d.minStars }));
@@ -61,7 +63,7 @@ describe('v0.13 — Poder das cartas', () => {
   it('Poder do baralho = soma das 10 cartas', () => {
     const team = STARTER_IDS.slice(0, 10).map((id) => ({ charId: id, stars: 1 }));
     expect(deckPower(team)).toBe(team.reduce((s, c) => s + cardPower(c), 0));
-    expect(deckPower(team)).toBe(246); // v0.57.0
+    expect(deckPower(team)).toBe(198); // v0.62.0 (v0.57.0: 246)
     // v0.25.0: o save novo começa só com o Riku (os 10 de Comum vinham no save novo até a v0.24)
     expect(defaultSave().deck).toEqual(['riku']);
   });
@@ -79,35 +81,35 @@ describe('v0.13 — Líder', () => {
     }
     expect(getLeader('nao-existe').id).toBe('barbaro');
   });
-  it('vida +10 por nível (20 → 110); nível 1 = vida antiga', () => {
-    expect(LEADER_HP).toEqual([20, 30, 40, 50, 60, 70, 80, 90, 100, 110]);
+  it('vida por nível (v0.62.0, escala enxuta: 20 → 64); nível 1 = vida antiga', () => {
+    expect(LEADER_HP).toEqual([20, 26, 32, 38, 44, 48, 52, 56, 60, 64]);
     expect(leaderHp(bar, 1)).toBe(PLAYER_HERO_HP);
     expect(PLAYER_HERO_HP).toBe(20);
-    expect(leaderHp(bar, 99)).toBe(110);
+    expect(leaderHp(bar, 99)).toBe(64);
     expect(leaderHp(bar, 0)).toBe(20);
   });
   it('requisitos crescentes de Poder', () => {
     expect(LEADER_THRESHOLDS[0]).toBe(0);
     for (let i = 1; i < LEADER_THRESHOLDS.length; i++) expect(LEADER_THRESHOLDS[i]).toBeGreaterThan(LEADER_THRESHOLDS[i - 1]);
-    expect(nextRequirement(bar, 1)).toBe(420); // v0.23.0 (até a v0.22.0: 480);
+    expect(nextRequirement(bar, 1)).toBe(120); // v0.62.0 (v0.23.0: 420; até a v0.22.0: 480)
     expect(nextRequirement(bar, 10)).toBeNull();
   });
   it('trava pelo Poder: só evolui com Poder ≥ requisito, 1 nível por vez', () => {
-    expect(canEvolve(bar, 1, 419)).toBe(false);
-    expect(evolveLeader(bar, 1, 419)).toEqual({ ok: false, level: 1 });
-    expect(canEvolve(bar, 1, 420)).toBe(true);
+    expect(canEvolve(bar, 1, 119)).toBe(false);
+    expect(evolveLeader(bar, 1, 119)).toEqual({ ok: false, level: 1 });
+    expect(canEvolve(bar, 1, 120)).toBe(true);
     expect(evolveLeader(bar, 1, 5000)).toEqual({ ok: true, level: 2 });
     expect(evolveLeader(bar, 10, 1e9)).toEqual({ ok: false, level: 10 });
   });
   it('nunca perde nível quando o Poder cai depois', () => {
     let lv = 1;
-    for (const p of [420, 440, 470]) lv = evolveLeader(bar, lv, p).level;
+    for (const p of [120, 125, 145]) lv = evolveLeader(bar, lv, p).level;
     expect(lv).toBe(4);
     // trocou cartas: Poder bem abaixo do requisito do nível atual
-    const r = evolveLeader(bar, lv, 100);
+    const r = evolveLeader(bar, lv, 50);
     expect(r.ok).toBe(false);
     expect(r.level).toBe(4);
-    expect(leaderHp(bar, r.level)).toBe(50);
+    expect(leaderHp(bar, r.level)).toBe(38);
     // o save guarda o nível e a vida da batalha vem dele, não do Poder
     const s = defaultSave();
     s.leaders = { barbaro: { level: 4 } };
@@ -153,7 +155,7 @@ describe('v0.13 — migração do save', () => {
 describe('v0.13 — campanha e batalha', () => {
   // v0.28.0: tabela reequilibrada no simulador (até a v0.27.0: 12 + 7·i)
   it('Líder inimigo: vida por fase da tabela da v0.33.0', () => {
-    expect(STAGES.map((s) => s.enemyHeroHp)).toEqual([14, 14, 18, 34, 36, 40, 36, 41, 39, 56]); // v0.37.0
+    expect(STAGES.map((s) => s.enemyHeroHp)).toEqual([14, 14, 16, 18, 20, 22, 24, 26, 28, 30]); // v0.62.0 (v0.37.0: 14, 14, 18, 34, 36, 40, 36, 41, 39, 56)
     for (let i = 0; i < 10; i++) expect(enemyLeaderHp(i)).toBe(STAGES[i].enemyHeroHp);
   });
   it('a batalha usa a vida do nível do Líder', () => {

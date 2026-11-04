@@ -27,7 +27,8 @@ describe('progressão v0.8', () => {
   it('novos personagens: 1★ → 4★, únicos, com cena e habilidade própria', () => {
     for (const id of NEW) {
       const d = getChar(id);
-      expect([d.minStars, d.maxStars]).toEqual([1, 4]);
+      expect(d.minStars).toBe(1);
+      expect(d.maxStars).toBe(['taro', 'hana', 'nara', 'pip', 'suri', 'daichi', 'sora'].includes(id) ? 3 : 4); // v0.62.0
       expect(d.abilities.length).toBeGreaterThan(0);
     }
     const sigs = new Set(NEW.map((id) => getChar(id).abilities.join('+')));

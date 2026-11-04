@@ -15,7 +15,7 @@ import heart from '../../src/assets/card/heart.svg?raw';
 const ICONS: Record<string, string> = { dps, mago, arqueiro, assassino, tanque, suporte };
 
 describe('v0.14 — padrão de carta', () => {
-  it('Toru: espera 3 rodadas (v0.57.0) na gota (v0.16.0), ⚡47, sem estrela no degrau base (v0.23.0), nome, "Comum", raça + categoria, ATQ 1, VIDA 7', () => {
+  it('Toru: espera 3 rodadas (v0.57.0) na gota (v0.16.0), ⚡47, sem estrela no degrau base (v0.23.0), nome, "Comum", raça + categoria, ATQ 1, VIDA 6 (v0.62.0)', () => {
     const h = cardHTML({ charId: 'toru', stars: 1 });
     expect(h).toContain('<div class="ck-cost" title="Espera 3 rodada(s) na mão"><span>3</span></div>');
     expect(h).not.toContain('ck-pow'); // v0.42.2: o Poder saiu do topo da carta (fica ao lado do nome no detalhe)
@@ -26,7 +26,7 @@ describe('v0.14 — padrão de carta', () => {
     expect(h).toContain('<span title="Androide"><img class="ico" src="/src/assets/icons/raca-androide.webp"');
     expect(h).toContain('<span title="Tanque"><img class="ico" src="/src/assets/icons/cat-tanque.webp"');
     expect(h).toMatch(/class="ck-atk fisico"[^>]*><span>1<\/span>/);
-    expect(h).toMatch(/class="ck-hp"[^>]*><span>7<\/span>/);
+    expect(h).toMatch(/class="ck-hp"[^>]*><span>6<\/span>/);
     expect(h).toContain('cat-tanque');
   });
   it('sem os elementos antigos: medalhão de categoria, linha de status, linha de raça/cor, selo de tier no topo', () => {

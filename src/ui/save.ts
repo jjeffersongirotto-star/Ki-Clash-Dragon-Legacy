@@ -4,8 +4,8 @@ import { deckMaxFor, profileLevelFor } from '../core/deckbuild';
 import { SPELLS, isSpell } from '../core/spells';
 import type { CardInstance } from '../core/types';
 import { DEFAULT_LEADER, LEADERS } from '../core/leaders';
-import { LEGACY_ITEM_TO_ORB, XP_ITEMS, migrateBarV24, migrateOldCard, newOwned, stepOf, type OwnedCard, type XpItemId } from '../core/progression';
-import { normalizeGear, type GearBag } from '../core/gear';
+import { LEGACY_ITEM_TO_ORB, MAX_STEP, XP_ITEMS, ascendCostFor, migrateBarV24, migrateOldCard, newOwned, stepOf, type OwnedCard, type XpItemId } from '../core/progression';
+import { addGear, charGear, normalizeGear, reqRarity, type GearBag } from '../core/gear';
 import { DIFFICULTIES, clearedIn, regionUnlocked, type DailyUse, type Difficulty } from '../core/adventure';
 import { REGION_COUNT, WORLD_STAGE_COUNT } from '../core/world';
 import { TUTORIAL_STARTER, TUT_BATTLE1, TUT_DONE } from '../core/tutorial';
@@ -82,6 +82,8 @@ export interface SaveData {
   spells?: SpellBag;
   /** migração v0.41.0: os feitiços que já estavam no baralho viram cópias suas */
   v41?: boolean;
+  /** v0.62.0: balanceamento v2.0 — cartas acima da nova raridade máxima já voltaram para o topo (com reembolso) */
+  v62?: boolean;
   /** v0.59.0: Heróis — raridades já obtidas de cada personagem (ver core/heroes.ts) */
   heroSeen?: Record<string, number[]>;
   /** v0.59.0: prêmios dos Heróis já resgatados */
@@ -162,6 +164,7 @@ export function defaultSave(): SaveData {
     v26: true,
     v32: true,
     v41: true,
+    v62: true,
     spells: {},
     gems: 0,
     dupes: {},
@@ -318,6 +321,7 @@ export function loadSave(): SaveData {
     for (const id of Object.keys(merged.cards)) if (!CHAR_BY_ID[id]) delete merged.cards[id];
     if (!d.v8) migrateV8(merged);
     if (!d.v10) migrateV10(merged);
+    if (!d.v62) migrateV62(merged, d); // antes da conversão das cartas, que corta a raridade sem devolver nada
     merged.v23 = !!d.v23; // o padrão (defaultSave) já vem convertido; vale o que estava salvo
     merged.v24 = !!d.v24;
     migrateV23(merged);
@@ -344,6 +348,53 @@ export function loadSave(): SaveData {
  * com a barra de XP do degrau cheia na mesma proporção do progresso que ela tinha. Nenhum personagem se perde.
  * Saves já convertidos só são conferidos (degrau 0–2, XP dentro da barra).
  */
+/**
+ * v0.62.0 — balanceamento v2.0: 7 cartas que nascem Comuns passaram a ir só até Raro (Taro, Hana, Nara, Pip, Suri,
+ * Daichi, Sora). Quem tinha alguma acima disso volta para o topo novo (Raro++) e recebe de volta as Essências e os
+ * itens de ascensão de cada Despertar feito acima do topo. Cópias repetidas acima do topo viram cópias do topo.
+ */
+export function migrateV62(merged: SaveData, raw: Partial<SaveData>): SaveData {
+  const gear: GearBag = normalizeGear(raw.gear);
+  let essencias = 0;
+  for (const [id, c] of Object.entries(merged.cards)) {
+    const def = CHAR_BY_ID[id];
+    if (!def || !Number.isFinite(c.stars) || c.stars <= def.maxStars) continue;
+    // cada Despertar feito a partir do topo novo (máx.++) até onde a carta estava
+    let st = def.maxStars;
+    let step = MAX_STEP;
+    const target = Math.min(6, Math.floor(c.stars)) * 10 + stepOf(c);
+    while (st * 10 + step < target) {
+      essencias += ascendCostFor(st, step);
+      const g = charGear(id);
+      const reqs = step === 0 ? g.plus : step === 1 ? g.plus2 : g.awaken;
+      for (const r of reqs) addGear(gear, r.id, reqRarity(r, st));
+      if (step < MAX_STEP) step++;
+      else {
+        st++;
+        step = 0;
+      }
+    }
+    merged.cards[id] = { ...c, stars: def.maxStars, plus: MAX_STEP, xp: 0 };
+  }
+  for (const [id, row] of Object.entries(merged.dupes ?? {})) {
+    const def = CHAR_BY_ID[id];
+    if (!def) continue;
+    for (const k of Object.keys(row)) {
+      const r = Number(k);
+      if (r > def.maxStars && row[r] > 0) {
+        addDupe(merged.dupes!, id, def.maxStars, row[r]);
+        delete row[r];
+      }
+    }
+  }
+  if (essencias > 0) {
+    merged.essencias = (merged.essencias ?? 0) + essencias;
+    raw.gear = gear;
+  }
+  merged.v62 = true;
+  return merged;
+}
+
 export function migrateV23(d: SaveData): SaveData {
   for (const [id, c] of Object.entries(d.cards)) {
     const old = c as unknown as LegacyCard;

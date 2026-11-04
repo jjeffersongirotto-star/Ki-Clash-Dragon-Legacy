@@ -114,14 +114,14 @@ describe('v0.28.0 — Comandante inimigo de cada fase', () => {
     expect(stageCommander(STAGES[9])).toBeNull();
     expect(stageCommander(STAGES[0])?.charId).toBe(STAGE_COMMANDERS[0]);
     // tutorial: o mais forte da batalha
-    expect(stageCommander(TUTORIAL_BATTLES[0])?.charId).toBe('kuro');
+    expect(stageCommander(TUTORIAL_BATTLES[0])?.charId).toBe('ossian'); // v0.62.0
   });
 });
 
 describe('v0.28.0 — reequilíbrio do Fácil', () => {
   it('degraus, vida do Comandante e feitiços da tabela nova (v0.33.0: reequilibrada de novo)', () => {
     expect(ENEMY_STEPS).toEqual([2.8, 1, 0.5, 1.5, 2.5, 0.5, 0, 0, 0, 0]); // v0.37.0: IA esperta
-    expect(ENEMY_HERO_HP).toEqual([14, 14, 18, 34, 36, 40, 36, 41, 39, 56]);
+    expect(ENEMY_HERO_HP).toEqual([14, 14, 16, 18, 20, 22, 24, 26, 28, 30]); // v0.62.0 (escala enxuta; antes 14, 14, 18, 34, 36, 40, 36, 41, 39, 56)
     expect(STAGES.map((s) => s.enemyHeroHp)).toEqual(ENEMY_HERO_HP);
   });
 });

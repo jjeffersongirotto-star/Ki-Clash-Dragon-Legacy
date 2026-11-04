@@ -1,5 +1,6 @@
 import { TEMP_STATS } from './tempOverrides'; // TEMP card balance editor
 import { getChar } from './characters';
+import { BALANCE_V2 } from './balanceV2';
 import type { CharacterDef } from './types';
 
 /*
@@ -48,6 +49,17 @@ export function statMultiplier(stars: number, step = 0): number {
 }
 
 export function statsFor(def: CharacterDef, stars: number, step = 0): { atk: number; hp: number } {
+  // v0.62.0: balanceamento v2.0 — ATQ/vida da tabela por raridade; "+" dá +1 de vida (o "++" mantém esse +1) e o "++"
+  // dá +1 de ataque só na raridade máxima da carta (nas outras, o "++" melhora a habilidade). Fora da faixa, a raridade mais perto.
+  const b = BALANCE_V2[def.id];
+  if (b) {
+    const r = Math.max(b.min, Math.min(b.max, stars));
+    const [atk, hp] = b.stats[r];
+    const g = Math.max(0, Math.min(MAX_STEP, step));
+    const t2 = TEMP_STATS[def.id]?.[r]; // TEMP card balance editor
+    const base = t2 ? { atk: t2.atk, hp: t2.hp } : { atk, hp };
+    return { atk: Math.max(1, base.atk + (g === MAX_STEP && r === b.max ? 1 : 0)), hp: Math.max(1, base.hp + (g >= 1 ? 1 : 0)) };
+  }
   const m = statMultiplier(stars, step);
   const t = TEMP_STATS[def.id]?.[stars]; // TEMP card balance editor
   if (t) return { atk: Math.max(1, Math.round(t.atk * m / statMultiplier(stars))), hp: Math.max(1, Math.round(t.hp * m / statMultiplier(stars))) }; // TEMP card balance editor
