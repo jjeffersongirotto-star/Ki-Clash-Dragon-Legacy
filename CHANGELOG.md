@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.61.0] — 04/11/2026 · Jogo para computador (Windows)
+- **Instalador para Windows:** além do APK do celular, cada versão agora tem o arquivo **Ki-Clash-Setup.exe** na página de Releases. Ele instala o jogo no computador com atalho na área de trabalho e no menu Iniciar, abre numa janela própria (sem barra de navegador, já maximizada; **F11** = tela cheia) e funciona sem internet.
+- **Botão Baixar do site:** no computador baixa o instalador do Windows; no celular continua baixando o APK.
+- **Procurar atualização** no app do computador: se houver versão nova, baixa o instalador novo; é só instalar por cima, o progresso continua.
+- O progresso do app do computador fica salvo no próprio computador (separado do site e do celular).
+- O Windows pode mostrar o aviso "O Windows protegeu o computador" na primeira vez (o instalador não tem assinatura paga): clique em **Mais informações → Executar assim mesmo**.
+
 ## [0.60.0] — 03/11/2026 · Comandantes combinando com as arenas
 - **36 fases trocaram de Comandante inimigo** para combinar com o cenário (só onde o personagem destoava muito). Exemplos: na **Ponte de Arco-Íris** a abominação costurada saiu e entrou o **anjo Aurel**; a abominação foi para o **Mangue dos Ossos**. Também: sapo **Bufo** na Lagoa dos Sapos Gigantes, **Lethe** (barqueira) na Baía das Sereias, **Ivra** (rainha no trono) no Trono do Faraó, **Bram** (anão da bigorna) na Forja do Gigante, **Kael** (fogo) na Caldeira Adormecida, **Sentinel-0** na Fábrica de Sentinelas, **Tiberius** na Biblioteca Suspensa, **Vesna** (inverno) no Planeta de Gelo Negro, **Phase-3** (salto quântico) no Portal Quântico, **Aegis** na Vigília do Último Guardião e o homem-dragão **Brakk** no Despertar do Dragão Eterno.
 - Só o Comandante muda: o resto do baralho de cada fase continua igual (o Comandante sorteado antes fica como carta comum), então a dificuldade praticamente não muda. Nenhum Comandante se repete dentro da mesma região.

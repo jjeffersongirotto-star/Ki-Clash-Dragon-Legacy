@@ -4,7 +4,7 @@ import tseslint from 'typescript-eslint';
 import globals from 'globals';
 
 export default tseslint.config(
-  { ignores: ['dist/**', 'android/**', 'node_modules/**', 'public/**', 'scripts/android/**'] },
+  { ignores: ['dist/**', 'android/**', 'node_modules/**', 'public/**', 'scripts/android/**', 'desktop/node_modules/**', 'desktop/app/**', 'desktop/release/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -21,4 +21,6 @@ export default tseslint.config(
       'no-var': 'error',
     },
   },
+  // v0.61.0: app de computador (Electron, CommonJS do Node)
+  { files: ['desktop/**/*.cjs'], languageOptions: { sourceType: 'commonjs', globals: { ...globals.node } }, rules: { '@typescript-eslint/no-require-imports': 'off' } },
 );

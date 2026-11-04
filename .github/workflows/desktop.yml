@@ -1,0 +1,71 @@
+name: Instalador Windows (computador)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Copiar o jogo para o app de computador
+        run: |
+          rm -rf desktop/app
+          cp -r dist desktop/app
+          cp public/icon-512.png desktop/build/icon.png
+      - name: Versão do app = versão do jogo
+        id: ver
+        run: |
+          v=$(node -p "require('./package.json').version")
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          cd desktop && npm pkg set version="$v"
+      - name: Gerar o instalador (.exe)
+        working-directory: desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          npm install --no-audit --no-fund
+          npx electron-builder --win nsis --publish never
+      - name: Nome do instalador com a versão
+        run: |
+          v=${{ steps.ver.outputs.version }}
+          cp desktop/release/Ki-Clash-Setup.exe "Ki-Clash-Setup-$v.exe"
+          # nome fixo: o botão Baixar do site (no computador) aponta para releases/latest/download/Ki-Clash-Setup.exe
+          cp desktop/release/Ki-Clash-Setup.exe Ki-Clash-Setup.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ki-Clash-${{ steps.ver.outputs.version }}-windows
+          path: Ki-Clash-Setup-${{ steps.ver.outputs.version }}.exe
+      - name: Publicar na página de Releases
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v=${{ steps.ver.outputs.version }}
+          # a versão pode ter sido criada pela CI do APK (ou ser criada ao mesmo tempo): tenta enviar, senão cria
+          for i in 1 2 3 4 5 6; do
+            if gh release upload "v$v" "Ki-Clash-Setup-$v.exe" Ki-Clash-Setup.exe --clobber; then exit 0; fi
+            gh release create "v$v" "Ki-Clash-Setup-$v.exe" Ki-Clash-Setup.exe --target "$GITHUB_SHA" --title "Ki-Clash $v" \
+              --notes "Versão $v. Celular: baixe o arquivo .apk. Computador (Windows): baixe Ki-Clash-Setup.exe. Novidades no CHANGELOG.md." && exit 0
+            sleep 20
+          done
+          exit 1

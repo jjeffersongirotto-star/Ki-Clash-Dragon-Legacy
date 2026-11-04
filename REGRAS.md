@@ -1340,3 +1340,8 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 ## Comandantes e arenas (v0.60.0)
 - Em 36 fases o Comandante inimigo foi escolhido à mão para combinar com a arena (`COMMANDER_OVERRIDE` em `src/core/campaign.ts`); nas outras, segue o sorteio de sempre. Só o Comandante muda: o baralho da fase continua o mesmo e o Comandante sorteado fica como carta comum. O escolhido precisa chegar a até 1 raridade da fase e não se repete na região.
+
+## App para computador (v0.61.0)
+- Cada versão publica, junto do APK, o instalador do Windows **Ki-Clash-Setup.exe** (Electron, pasta `desktop/`, gerado pela CI `.github/workflows/desktop.yml`). Ele roda o mesmo jogo do site numa janela própria, sem internet; F11 alterna a tela cheia.
+- Botão **Baixar** do site: APK no celular, instalador no computador. **Procurar atualização** no app do computador oferece o instalador novo (instala por cima, mantendo o progresso).
+- O save do app do computador fica no computador (não é o mesmo do site nem do celular).
