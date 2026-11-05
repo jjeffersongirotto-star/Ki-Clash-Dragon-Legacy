@@ -54,9 +54,9 @@ describe('v0.25.0 — tutorial', () => {
     expect(getChar('nara').abilities).toContain('diagFrente');
   });
 
-  it('batalhas do tutorial: 1 contra 1 e contra Daichi, Hana e Tobi — o jogador vence sempre (no Auto)', () => {
+  it('batalhas do tutorial: 1 contra 1 e contra Daichi, Hana e Pip — o jogador vence sempre (no Auto)', () => {
     expect(TUTORIAL_BATTLES[0].enemyDeck.map((c) => c.charId)).toHaveLength(1);
-    expect(TUTORIAL_BATTLES[1].enemyDeck.map((c) => c.charId)).toEqual(['daichi', 'hana', 'tobi']);
+    expect(TUTORIAL_BATTLES[1].enemyDeck.map((c) => c.charId)).toEqual(['daichi', 'hana', 'pip']);
     for (let seed = 1; seed <= 30; seed++) {
       expect(autoWin(0, [TUTORIAL_STARTER], seed)).toBe(true);
       expect(autoWin(1, TUTORIAL_CHARS, seed)).toBe(true);

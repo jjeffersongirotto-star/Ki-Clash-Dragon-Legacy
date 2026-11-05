@@ -37,14 +37,14 @@ export interface Banner {
 }
 
 /** Personagens que só saem em banner (não vêm em pacote de fase nem no começo). */
-export const BANNER_EXCLUSIVE = ['kenji', 'vorax'];
+export const BANNER_EXCLUSIVE = ['kenji', 'pira'];
 
 export const BANNERS: Banner[] = [
   {
     id: 'despertar-dragao',
     name: 'Despertar do Dragão',
-    subtitle: 'Kenji e Vorax em destaque',
-    featured: ['kenji', 'vorax'],
+    subtitle: 'Kenji e Pira em destaque',
+    featured: ['kenji', 'pira'],
     featuredShare: 0.5,
     featuredRarity: 5,
     price1: 300,

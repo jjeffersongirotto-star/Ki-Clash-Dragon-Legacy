@@ -77,7 +77,11 @@ export type AbilityId =
   | 'vinganca'
   | 'sedeEterna'
   | 'marcaSede'
-  | 'ressurreicao';
+  | 'ressurreicao'
+  // v0.63.0: habilidades novas
+  | 'contraCrescente'
+  | 'pulsoVital'
+  | 'cascaReativa';
 
 /** v0.17.0: efeitos com duração (contador de rodadas) */
 export type EffectKind = 'veneno' | 'queimadura' | 'atordoado' | 'escudo' | 'anjo'
@@ -121,6 +125,8 @@ export interface CharacterDef {
   move: number;
   range: number;
   abilities: AbilityId[];
+  /** v0.63.0: habilidade → raridade em que é desbloqueada (as outras valem desde a origem) */
+  unlock?: Partial<Record<AbilityId, number>>;
   palette: Palette;
   /** variação visual do cabelo (0..7) */
   hairStyle: number;

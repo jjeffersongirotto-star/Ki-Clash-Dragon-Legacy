@@ -1,6 +1,6 @@
 import { ABILITIES } from '../core/abilities';
 import { CATEGORY_INFO, RACE_INFO, STAR_COLORS, getChar } from '../core/characters';
-import { XP_ITEMS, statsFor, stepIndex, stepOf, tierLabel, type OrbBag, type XpItemId } from '../core/progression';
+import { TIER_NAMES, XP_ITEMS, statsFor, stepIndex, stepOf, tierLabel, type OrbBag, type XpItemId } from '../core/progression';
 import type { AbilityId, CardInstance, CharacterDef } from '../core/types';
 import { GEAR_BY_ID, GEAR_RARITY_NAMES } from '../core/gear';
 import { cardArtImg } from './art';
@@ -106,7 +106,7 @@ export function cardHTML(
   const ga = opts.grid ? gridArtHTML(def, t, !!opts.locked) : null;
   // v0.14.1: fileira de habilidades (bolinhas separadas por pontos) DENTRO da moldura, no centro de baixo
   // v0.14.3: as cartas pequenas (compactas, mão) também mostram a fileira, entre o ataque e a vida
-  const abil = `${opts.compact ? '' : '<div class="ck-sep"><i></i><i></i><i></i></div>'}<div class="ck-abil n${def.abilities.length}">${def.abilities.map((a) => `<span class="ck-ab" title="${esc(ABILITIES[a].name)}">${abilityIconHTML(a)}</span>`).join('<i class="ck-dot"></i>')}</div>`;
+  const abil = `${opts.compact ? '' : '<div class="ck-sep"><i></i><i></i><i></i></div>'}<div class="ck-abil n${def.abilities.length}">${def.abilities.map((a) => { const lk = (def.unlock?.[a] ?? 0) > t; return `<span class="ck-ab${lk ? ' lk' : ''}" title="${esc(ABILITIES[a].name)}${lk ? ` (desbloqueia no ${TIER_NAMES[def.unlock![a]!]})` : ''}">${abilityIconHTML(a)}</span>`; }).join('<i class="ck-dot"></i>')}</div>`;
   // v0.14.2: nomes com uma palavra muito comprida (ex.: "Tambor-de-Guerra") encolhem um pouco para caber inteiros
   const longest = Math.max(...def.name.split(' ').map((w) => w.length));
   const nfit = longest > 14 ? ` style="--nfit:${(13.6 / longest).toFixed(3)}"` : '';
@@ -139,6 +139,8 @@ export function abilityListHTML(def: CharacterDef, stars?: number, step = 0): st
     const ab = ABILITIES[a];
     const p = ab.power?.(s, stepIndex(s, step));
     const now = ab.powerLabel && p != null ? ` <span class="ab-now">agora: ${esc(ab.powerLabel(p))}</span>` : '';
+    const at = def.unlock?.[a];
+    if (at && at > s) return `<li class="ab-locked"><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> 🔒 <span class="ab-now">desbloqueia no ${TIER_NAMES[at]}</span> — ${esc(ab.description)}</li>`;
     return `<li><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> — ${esc(ab.description)}${now}</li>`;
   });
   if (def.physRes) rows.push(`<li><b>${abilityIconHTML('guarda')} Resistência física ${def.physRes}</b> — reduz cada golpe físico em ${def.physRes}.</li>`);

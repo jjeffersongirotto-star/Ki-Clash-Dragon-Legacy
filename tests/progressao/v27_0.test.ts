@@ -45,8 +45,8 @@ describe('v0.27.0 — Banner de cartas', () => {
       }
   });
 
-  it('Kenji e Vorax: só no Lendário do banner, metade das cartas Lendárias', () => {
-    expect(poolFor(5)).toEqual(expect.arrayContaining(['kenji', 'vorax']));
+  it('Kenji e Pira: só no Lendário do banner, metade das cartas Lendárias', () => {
+    expect(poolFor(5)).toEqual(expect.arrayContaining(['kenji', 'pira']));
     for (let r = 1; r <= 4; r++) for (const id of BANNER_EXCLUSIVE) expect(poolFor(r)).not.toContain(id);
     const rng = lcg(11);
     let feat = 0;

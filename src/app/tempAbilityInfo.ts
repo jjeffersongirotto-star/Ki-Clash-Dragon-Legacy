@@ -75,6 +75,9 @@ export const ABILITY_INFO: Record<AbilityId, { g: AbilityGroup; b: string }> = {
   sedeEterna: { g: H, b: 'Rouba vida a cada ataque e espalha a marca ao abater' },
   marcaSede: { g: H, b: 'Rouba um pouco de vida a cada ataque' },
   contraGolpe: { g: P, b: 'Contra-ataca forte e empurra quem o golpeia de perto' },
+  contraCrescente: { g: P, b: 'Golpeia antes de apanhar de perto, fica mais forte e empurra o agressor' },
+  pulsoVital: { g: H, b: 'Ao levar dano, fortalece a vida dos aliados ao redor' },
+  cascaReativa: { g: H, b: 'Fica mais resistente a cada golpe que leva' },
   sifao: { g: H, b: 'Enquanto vivo, todos os inimigos perdem ataque' },
   ressurreicao: { g: H, b: 'Traz de volta ao campo o último aliado derrotado' },
 } as Record<AbilityId, { g: AbilityGroup; b: string }>;

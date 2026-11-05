@@ -84,6 +84,8 @@ export interface SaveData {
   v41?: boolean;
   /** v0.62.0: balanceamento v2.0 — cartas acima da nova raridade máxima já voltaram para o topo (com reembolso) */
   v62?: boolean;
+  /** v0.63.0: trocas de raridade — cartas fora da nova faixa (mín.–máx.) já foram ajustadas */
+  v63?: boolean;
   /** v0.59.0: Heróis — raridades já obtidas de cada personagem (ver core/heroes.ts) */
   heroSeen?: Record<string, number[]>;
   /** v0.59.0: prêmios dos Heróis já resgatados */
@@ -165,6 +167,7 @@ export function defaultSave(): SaveData {
     v32: true,
     v41: true,
     v62: true,
+    v63: true,
     spells: {},
     gems: 0,
     dupes: {},
@@ -322,6 +325,7 @@ export function loadSave(): SaveData {
     if (!d.v8) migrateV8(merged);
     if (!d.v10) migrateV10(merged);
     if (!d.v62) migrateV62(merged, d); // antes da conversão das cartas, que corta a raridade sem devolver nada
+    if (!d.v63) migrateV63(merged, d);
     merged.v23 = !!d.v23; // o padrão (defaultSave) já vem convertido; vale o que estava salvo
     merged.v24 = !!d.v24;
     migrateV23(merged);
@@ -354,6 +358,39 @@ export function loadSave(): SaveData {
  * itens de ascensão de cada Despertar feito acima do topo. Cópias repetidas acima do topo viram cópias do topo.
  */
 export function migrateV62(merged: SaveData, raw: Partial<SaveData>): SaveData {
+  capAboveMax(merged, raw);
+  merged.v62 = true;
+  return merged;
+}
+
+/**
+ * v0.63.0 — trocas de raridade: quem passou a nascer numa raridade acima sobe de graça para a nova raridade mínima
+ * (degrau base); quem passou a ir só até uma raridade abaixo volta para o topo novo com reembolso (igual à v0.62.0).
+ * Cópias repetidas fora da faixa viram cópias da raridade mais próxima dentro dela.
+ */
+export function migrateV63(merged: SaveData, raw: Partial<SaveData>): SaveData {
+  capAboveMax(merged, raw);
+  for (const [id, c] of Object.entries(merged.cards)) {
+    const def = CHAR_BY_ID[id];
+    if (def && Number.isFinite(c.stars) && c.stars < def.minStars) merged.cards[id] = { ...c, stars: def.minStars, plus: 0, xp: 0 };
+  }
+  for (const [id, row] of Object.entries(merged.dupes ?? {})) {
+    const def = CHAR_BY_ID[id];
+    if (!def) continue;
+    for (const k of Object.keys(row)) {
+      const r = Number(k);
+      if (r < def.minStars && row[r] > 0) {
+        addDupe(merged.dupes!, id, def.minStars, row[r]);
+        delete row[r];
+      }
+    }
+  }
+  merged.v63 = true;
+  return merged;
+}
+
+/** Volta para o topo (máx.++) quem está acima da raridade máxima, devolvendo Essências e itens de cada Despertar. */
+function capAboveMax(merged: SaveData, raw: Partial<SaveData>): void {
   const gear: GearBag = normalizeGear(raw.gear);
   let essencias = 0;
   for (const [id, c] of Object.entries(merged.cards)) {
@@ -391,8 +428,6 @@ export function migrateV62(merged: SaveData, raw: Partial<SaveData>): SaveData {
     merged.essencias = (merged.essencias ?? 0) + essencias;
     raw.gear = gear;
   }
-  merged.v62 = true;
-  return merged;
 }
 
 export function migrateV23(d: SaveData): SaveData {

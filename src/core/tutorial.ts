@@ -41,7 +41,7 @@ export const TUTORIAL_BATTLES: Stage[] = [
   // v0.36.0: arena de 10 colunas (o inimigo chega mais rápido): 1 Tobi a menos na Batalha 2
   // v0.62.0 (balanceamento v2.0): o Kuro (3 de ataque) derrubava o Riku (3 de vida) num golpe — a Batalha 1 agora é contra o Ossian
   { id: 0, name: 'Tutorial · Batalha 1', enemyHeroHp: 6, enemyDeck: [enemy('ossian', 1)], rewards: { essencias: 0, orbs: {} }, pack: [] },
-  { id: 0, name: 'Tutorial · Batalha 2', enemyHeroHp: 10, enemyDeck: [enemy('daichi', 2), enemy('hana', 1), enemy('tobi', 1)], rewards: { essencias: 0, orbs: {} }, pack: [] },
+  { id: 0, name: 'Tutorial · Batalha 2', enemyHeroHp: 10, enemyDeck: [enemy('daichi', 2), enemy('hana', 1), enemy('pip', 1)], rewards: { essencias: 0, orbs: {} }, pack: [] },
 ];
 
 /**

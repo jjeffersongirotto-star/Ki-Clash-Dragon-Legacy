@@ -1,4 +1,4 @@
-import type { Category, CharacterDef, Race, Rarity } from './types';
+import type { AbilityId, Category, CharacterDef, Race, Rarity } from './types';
 import { NEW_CHARACTERS } from './charactersNew';
 import { BALANCE_V2 } from './balanceV2';
 
@@ -542,6 +542,20 @@ for (const c of CHARACTERS) {
   const [atk, hp] = b.stats[b.min];
   c.atk = atk;
   c.hp = hp;
+  // v0.63.0: função, habilidades e habilidades desbloqueadas por raridade também vêm da tabela
+  if (b.cat && b.cat !== c.category) {
+    c.category = b.cat;
+    // DPS e arqueiros causam dano físico (Kael vira lutador; Vesna, arqueira)
+    if (b.cat === 'dps' || b.cat === 'arqueiro') c.damageType = 'fisico';
+  }
+  c.abilities = b.ab.slice();
+  if (b.up) c.unlock = { ...b.up };
+}
+
+/** v0.63.0: habilidades que a carta tem NESSA raridade (Épicos/Lendários ganham uma ao subir). */
+export function abilitiesAt(def: CharacterDef, stars: number): AbilityId[] {
+  const u = def.unlock;
+  return u ? def.abilities.filter((a) => (u[a] ?? 0) <= stars) : def.abilities;
 }
 /** v0.30.0: ids das cartas novas (só saem no banner). */
 export const NEW_IDS = new Set(NEW_CHARACTERS.map((c) => c.id));
@@ -560,7 +574,7 @@ export const PLAYABLE = CHARACTERS.filter((c) => !c.summonOnly);
  * Faixas de cor (antigas faixas de estrelas): começa em Comum/Incomum → máx. Épico; Raro → máx. Lendário; Épico/Lendário → máx. Mítico.
  * "Únicos" (habilidade muito forte) começam em Lendário.
  */
-export const UNIQUE_5STAR = ['kenji', 'vorax'];
+export const UNIQUE_5STAR = ['kenji', 'pira'];
 
 /** Personagens iniciais (v0.8): todo jogador novo começa com todos os de Comum, e só com eles. */
 export const STARTER_IDS = BASE_CHARACTERS.filter((c) => !c.summonOnly && c.minStars === 1).map((c) => c.id);
