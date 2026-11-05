@@ -2,6 +2,10 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.62.1] — 05/11/2026 · Heróis: sem barra de rolagem e melhor no computador
+- **Heróis:** saíram as barras de rolagem embaixo das cartas de cada personagem — as cartas cabem na linha (no celular quebram para a linha de baixo).
+- **No computador** a tela de Heróis usa a largura inteira (sem as faixas vazias nas laterais), as cartas ficam **maiores** e os personagens aparecem **lado a lado** (2 por linha em telas largas).
+
 ## [0.62.0] — 04/11/2026 · Balanceamento v2.0 — etapa 1: escala enxuta
 - **Atributos novos** das 120 cartas, conforme o *Documento Oficial de Balanceamento (v2.0)* (`docs/balanceamento-v2.md`): **ATQ de 1 a 9** e **vida de 1 a 16**, com valores próprios em cada raridade (tabela em `src/core/balanceV2.ts`). Acaba o "+17% por degrau".
 - **Degraus:** o **"+"** dá **+1 de vida**; na **raridade máxima** da carta o **"++"** dá **+1 de ataque**. (A melhora da habilidade no "++" vem na etapa 2.)

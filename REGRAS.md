@@ -1353,3 +1353,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Vida do Comandante inimigo:** região 1 = 14, 14, 16, 18, 20, 22, 24, 26, 28, 30; regiões 2–10 = de 32–40 (região 2) a 48–56 (região 10), subindo dentro de cada região.
 - **Fúria de batalha:** a partir do turno 8, +1 de ataque a cada 5 turnos.
 - Tutorial, Batalha 1: Riku contra **Ossian**.
+- **Heróis (v0.62.1):** sem rolagem lateral nas cartas de cada personagem; no computador a tela ocupa a largura toda, com cartas maiores e personagens lado a lado.

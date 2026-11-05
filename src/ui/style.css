@@ -1827,7 +1827,7 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .hr-type h4 { margin: 6px 0; color: #ffd76a; }
 .hr-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.06); content-visibility: auto; contain-intrinsic-size: auto 200px; }
 .hr-name { flex: 0 0 90px; font-weight: 800; font-size: 13px; }
-.hr-cards { display: flex; gap: 8px; overflow-x: auto; }
+.hr-cards { display: flex; flex-wrap: wrap; gap: 8px; } /* v0.62.1: sem barra de rolagem — as cartas cabem (ou quebram linha) */
 .hr-cell { flex: 0 0 auto; width: 96px; display: grid; gap: 4px; justify-items: center; }
 .hr-cell .card { width: 100%; }
 .hr-claim { font-size: 11px; padding: 2px 6px; }
@@ -1851,3 +1851,12 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .heroes .hr-chip { border: 1px solid rgba(245,179,1,.35); background: rgba(20,24,56,.85); color: #e8e6f5; border-radius: 999px; padding: 4px 12px; font: inherit; font-size: .9em; cursor: pointer; }
 .heroes .hr-chip.on { background: linear-gradient(#ffb43a, #e8791a); color: #1a1006; border-color: #ffd76a; font-weight: 700; }
 .heroes .hr-chip:active { transform: scale(.96); }
+
+/* v0.62.1: Heróis no computador — tela inteira (sem faixas vazias nas laterais), cartas maiores e personagens lado a lado */
+@media (min-width: 900px) {
+  .screen.heroes { max-width: none; padding-left: 24px; padding-right: 24px; }
+  .heroes .hr-rows { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 760px), 1fr)); column-gap: 28px; }
+  .heroes .hr-cell { width: clamp(118px, 9vw, 158px); }
+  .heroes .hr-name { flex-basis: 120px; font-size: 15px; }
+  .heroes .hr-cards { gap: 12px; }
+}

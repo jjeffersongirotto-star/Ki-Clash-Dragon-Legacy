@@ -64,7 +64,7 @@ export function heroes() {
     <p class="hint">Cada raridade acende sozinha: ter a Comum não acende a Incomum. Toda raridade nova dá um prêmio para resgatar.</p>
     ${(() => { const fg = filterHeroGroups(heroGroups(), fRace, fCat); return fg.length ? '' : '<p class="hint">Nenhum personagem com esse filtro.</p>'; })()}
     ${filterHeroGroups(heroGroups(), fRace, fCat).map((g) => `<section class="hr-group"><h3 class="sec-title">${raceIcon(g.race)} ${RACE_INFO[g.race as keyof typeof RACE_INFO].label}${goalHTML(goals[`g:${g.race}`])}</h3>
-      ${g.types.map((t) => `<div class="hr-type"><h4>${catIcon(t.cat)} ${CATEGORY_INFO[t.cat as keyof typeof CATEGORY_INFO].label}${goalHTML(goals[`t:${g.race}:${t.cat}`])}</h4>${t.chars.map((c) => row(c.id)).join('')}</div>`).join('')}
+      ${g.types.map((t) => `<div class="hr-type"><h4>${catIcon(t.cat)} ${CATEGORY_INFO[t.cat as keyof typeof CATEGORY_INFO].label}${goalHTML(goals[`t:${g.race}:${t.cat}`])}</h4><div class="hr-rows">${t.chars.map((c) => row(c.id)).join('')}</div></div>`).join('')}
     </section>`).join('')}
     ${showSpellsWith(fRace, fCat) ? `<section class="hr-group"><h3 class="sec-title">✦ Feitiços${goalHTML(sp)}</h3>
       <div class="card-grid spell-grid">${[...SPELLS].sort((a, b) => a.rarity - b.rarity).map((s) => spellCardHTML(s.id, { locked: false, extraClass: `grid-card${spellOwned(save, s.id) ? '' : ' hr-dark'}` })).join('')}</div>
