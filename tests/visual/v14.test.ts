@@ -39,7 +39,7 @@ describe('v0.14 — padrão de carta', () => {
     for (const d of PLAYABLE) {
       const h = cardHTML({ charId: d.id, stars: d.minStars });
       const row = h.slice(h.indexOf('class="ck-abil'));
-      expect((row.match(/class="ck-ab"/g) ?? []).length, d.id).toBe(d.abilities.length);
+      expect((row.match(/class="ck-ab(?: lk)?"/g) ?? []).length, d.id).toBe(d.abilities.length);
       expect((row.match(/class="ck-dot"/g) ?? []).length, d.id).toBe(Math.max(0, d.abilities.length - 1));
       for (const a of d.abilities) expect(row).toContain(`/src/assets/icons/ab-${a}.webp`); // v0.42.0: ícone desenhado de cada habilidade
     }

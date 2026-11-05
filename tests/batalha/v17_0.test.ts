@@ -163,7 +163,7 @@ describe('v0.17.0 — Vigia, empurrão, reflexo, resistência por habilidade', (
   it('Reflexo de Magia (Nyx Épico 30%): reduz o dano mágico e devolve a parte refletida', () => {
     const s = empty();
     const n = placeUnit(s, c('nyx', 1, 4), 'enemy', 0, 8, { hp: 50 });
-    const k = placeUnit(s, c('kael'), 'player', 0, 5, { atk: 10, hp: 30 });
+    const k = placeUnit(s, c('fen'), 'player', 0, 5, { atk: 10, hp: 30 });
     const atk = effectiveAtk(s, k); // o Sifão da Nyx drena o ataque do Kael
     attack(s, new Ctx(), k, n);
     const refl = Math.floor((atk * 30) / 100);

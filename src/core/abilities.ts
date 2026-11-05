@@ -654,6 +654,26 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     icon: '✨',
     power: () => 50,
   },
+  // v0.63.0: habilidades novas (ideias do jogador)
+  contraCrescente: {
+    id: 'contraCrescente',
+    name: 'Contra-ataque Crescente',
+    description:
+      'Ao sofrer ataque físico corpo a corpo de frente, golpeia PRIMEIRO (antes de receber o dano) e ganha +1 de ataque a cada contra-ataque, sem limite. Depois do golpe, empurra o agressor 2 casas para trás.',
+    icon: '🔄',
+  },
+  pulsoVital: {
+    id: 'pulsoVital',
+    name: 'Pulso Vital',
+    description: 'Sempre que sofre dano e continua de pé, os aliados nas casas ao redor ganham +1 de vida (também na vida máxima).',
+    icon: '💗',
+  },
+  cascaReativa: {
+    id: 'cascaReativa',
+    name: 'Casca Reativa',
+    description: 'Sempre que sofre dano e continua de pé, ganha +1 de resistência física, sem limite.',
+    icon: '🪨',
+  },
 };
 
 export function has(abilities: AbilityId[], pred: (a: AbilityDef) => unknown): AbilityDef | undefined {

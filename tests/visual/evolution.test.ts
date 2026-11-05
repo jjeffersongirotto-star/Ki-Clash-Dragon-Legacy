@@ -61,7 +61,7 @@ describe('fundos temáticos dos retratos', () => {
       for (let s = d.minStars; s <= d.maxStars; s++) {
         const svg = sceneSVG(d.id, s, 'x', '#000');
         const n = (svg.match(/<(circle|ellipse|rect|path|polyline)/g) ?? []).length;
-        expect(n).toBeGreaterThan(prev);
+        expect(n, `${d.id} ${s}`).toBeGreaterThan(prev);
         expect(svg.length).toBeLessThan(9000);
         prev = n;
       }

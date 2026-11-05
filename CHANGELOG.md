@@ -2,6 +2,17 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.63.0] — 05/11/2026 · Balanceamento v2.1: trocas de raridade, Regra de Origem, Espera e habilidades novas
+- **Trocas de raridade** pedidas: Hayato, Zarek, Titan-X, Kael, Tiberius, Vesna, Ghor e Vorax viram **Míticos**; Daisuke, Aurel, Trokk, Aya, Aegis-Ω, Brunna e Pira viram **Lendário → Mítico**; Ilun, Nhyra, Skarr, Odo, Sentinel-0, Thane e Nocturna nascem **Épicos**; e quem estava nessas vagas foi para a vaga de quem subiu (lista completa no REGRAS.md).
+- **Novas funções:** Ysmera e Odo viram **suporte**, Kael vira **lutador** corpo a corpo e Vesna vira **arqueira**.
+- **Regra de Origem visível:** na mesma raça e função, quem nasce numa raridade acima é sempre **pelo menos 1 ponto mais forte** (ATQ + vida). Ex.: no Raro, Akemi 3|5 × Riku 3|4; no Épico, Masao 4|6 × Akemi 3|6. Todas crescem +1 por raridade.
+- **Espera pela força da carta:** de 1 a 6; **7 e 8 só para Míticos** muito fortes (ex.: assassinos Extraterrestres: Velka 3, Zynna 6, Nhyra 6, Zarek 8).
+- **Habilidades:** Épicos e Lendários **ganham uma habilidade ao subir** de raridade (aparece apagada na carta até lá); Míticos têm 3.
+- **3 habilidades novas:** **Contra-ataque Crescente** (golpeia antes de apanhar, +1 de ataque a cada contra-ataque sem limite e empurra 2 casas), **Pulso Vital** (ao levar dano, aliados ao redor ganham +1 de vida) e **Casca Reativa** (+1 de resistência física a cada golpe, sem limite).
+- **IA foca na carta mais forte** do jogador em campo.
+- **Seu save:** cartas que subiram de raridade sobem de graça; as que desceram voltam ao topo novo com reembolso.
+- Banner Lendário: **Kenji e Pira** em destaque. Fases 38, 40, 49, 55 e 56 voltaram ao Comandante padrão (os escolhidos mudaram de raridade).
+
 ## [0.62.1] — 05/11/2026 · Heróis: sem barra de rolagem e melhor no computador
 - **Heróis:** saíram as barras de rolagem embaixo das cartas de cada personagem — as cartas cabem na linha (no celular quebram para a linha de baixo).
 - **No computador** a tela de Heróis usa a largura inteira (sem as faixas vazias nas laterais), as cartas ficam **maiores** e os personagens aparecem **lado a lado** (2 por linha em telas largas).

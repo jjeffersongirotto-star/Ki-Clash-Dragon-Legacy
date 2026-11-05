@@ -1860,3 +1860,7 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
   .heroes .hr-name { flex-basis: 120px; font-size: 15px; }
   .heroes .hr-cards { gap: 12px; }
 }
+
+/* v0.63.0: habilidade ainda não desbloqueada nessa raridade */
+.ck-ab.lk { opacity: 0.35; filter: grayscale(1); }
+.abilities li.ab-locked { opacity: 0.6; }

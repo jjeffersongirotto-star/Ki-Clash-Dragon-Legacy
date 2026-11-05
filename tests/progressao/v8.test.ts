@@ -9,7 +9,7 @@ import type { BattleState, CardInstance, Category } from '../../src/core/types';
 
 const c = (charId: string, _level = 1, stars = 1, plus = 0): CardInstance => ({ charId, stars, plus });
 const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1, cols: 7 });
-const NEW = ['daichi', 'sora', 'tobi', 'kael', 'suri', 'hana', 'jin', 'ren', 'kuro'];
+const NEW = ['daichi', 'sora', 'ysmera', 'wex', 'suri', 'hana', 'jin', 'ren', 'kuro']; // v0.63.0: Tobi e Kael subiram de raridade
 
 describe('progressão v0.8', () => {
   it('os personagens de Comum (que todo jogador recebia até a v0.24) cobrem as 6 categorias por igual; v0.25.0: o save novo começa só com o Riku', () => {
@@ -18,7 +18,7 @@ describe('progressão v0.8', () => {
     const per: Record<string, number> = {};
     for (const id of STARTER_IDS) per[getChar(id).category] = (per[getChar(id).category] ?? 0) + 1;
     const cats: Category[] = ['tanque', 'suporte', 'dps', 'mago', 'arqueiro', 'assassino'];
-    for (const k of cats) expect(per[k]).toBe(2);
+    for (const k of cats) expect(per[k]).toBeGreaterThanOrEqual(1); // v0.63.0: trocas de raridade (antes: 2 de cada)
     const s = defaultSave();
     expect(Object.keys(s.cards)).toEqual(['riku']);
     expect(s.deck).toEqual(['riku']);
@@ -39,7 +39,7 @@ describe('progressão v0.8', () => {
     const unlockables = PLAYABLE.filter((d) => d.minStars >= 2 && d.minStars <= 4 && !NEW_IDS.has(d.id)).map((d) => d.id).sort();
     expect(Object.values(UNLOCKS).sort()).toEqual(unlockables);
     expect(Object.values(UNLOCKS)).toContain('nyx');
-    expect(PLAYABLE.filter((d) => isComingSoon(d) && !NEW_IDS.has(d.id)).map((d) => d.id).sort()).toEqual(['kenji', 'vorax']);
+    expect(PLAYABLE.filter((d) => isComingSoon(d) && !NEW_IDS.has(d.id)).map((d) => d.id).sort()).toEqual(['kael', 'kenji', 'vorax', 'zarek']); // v0.63.0: Kael e Zarek viraram Míticos
     for (const st of STAGES) if (st.unlock) expect(isComingSoon(getChar(st.unlock))).toBe(false);
     // ordem: quem começa com menos estrelas sai antes
     const order = Object.entries(UNLOCKS).sort((a, b) => +a[0] - +b[0]).map(([, id]) => getChar(id).minStars);
@@ -119,13 +119,13 @@ describe('habilidades dos novos personagens', () => {
   });
   it('Explosão de Brasas (Kael): atinge também o inimigo da mesma coluna na outra fileira', () => {
     const s = empty();
-    const k = placeUnit(s, c('kael'), 'player', 0, 1, { atk: 3 });
+    const k = placeUnit(s, c('pira', 1, 5), 'player', 0, 1, { atk: 3 }); // v0.63.0: Kael virou lutador; Pira tem as Brasas
     const t = placeUnit(s, c('toru'), 'enemy', 0, 3, { hp: 30 });
     const o = placeUnit(s, c('toru'), 'enemy', 1, 3, { hp: 30 });
     const n = placeUnit(s, c('toru'), 'enemy', 1, 4, { hp: 30 });
     act(s, new Ctx(), k);
     expect(t.hp).toBe(27);
-    expect(o.hp).toBe(29);
+    expect(o.hp).toBe(28); // Brasas 2 no Lendário
     expect(n.hp).toBe(30);
   });
   it('Maré Implacável (Suri): dano extra no herói', () => {
@@ -157,7 +157,7 @@ describe('habilidades dos novos personagens', () => {
     const s = empty();
     const r = placeUnit(s, c('ren'), 'player', 0, 2);
     placeUnit(s, c('toru'), 'enemy', 0, 3);
-    const mage = placeUnit(s, c('kael'), 'enemy', 0, 4);
+    const mage = placeUnit(s, c('wex'), 'enemy', 0, 4);
     expect(findTarget(s, r)).toBe(mage);
   });
   it('Ataque Surpresa (Kuro): mira o maior ataque até 2 casas e bate mais em vida cheia', () => {

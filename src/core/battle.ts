@@ -1,6 +1,6 @@
 import { TEMP_WAIT } from './tempOverrides'; // TEMP card balance editor
 import { ABILITIES, MINION_CAP, RES_CAP, has } from './abilities';
-import { getChar } from './characters';
+import { abilitiesAt, getChar } from './characters';
 import { statsFor, tierLabel, stepOf } from './progression';
 import { DECK_ABS_MAX, createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, returnFromNecropolis, HAND_SIZE } from './deck';
 import { getSpell, isSpell } from './spells';
@@ -191,7 +191,8 @@ export function makeUnit(
   // v0.17.0 (decisão 14): resistência só vem de habilidade
   let physRes = 0;
   let magRes = 0;
-  for (const id of def.abilities) {
+  const abilities = abilitiesAt(def, card.stars);
+  for (const id of abilities) {
     const rb = ABILITIES[id].resBonus?.(card.stars);
     if (rb) {
       physRes += rb.phys;
@@ -212,7 +213,7 @@ export function makeUnit(
     magRes: Math.min(RES_CAP, magRes),
     move: def.move,
     range: def.range,
-    abilities: def.abilities.slice(),
+    abilities: abilities.slice(),
     stars: card.stars,
     plus: step,
     isMinion: !!opts.minion,
@@ -419,6 +420,21 @@ export function applyDamage(state: BattleState, ctx: Ctx, target: Unit, dmg: num
     if (target.hp < target.maxHp) target.hp += 1;
     ctx.emit(state, { type: 'effect', uid: target.uid, kind: 'habilidade', text: `  🛡️ ${nameOf(target)} se adapta: resistência física ${target.physRes}.` });
   }
+  // v0.63.0: Casca Reativa (+1 de resistência física, sem limite) e Pulso Vital (+1 de vida nos aliados ao redor)
+  if (!dead && amount > 0 && !src.dot && target.hp > 0) {
+    if (target.abilities.includes('cascaReativa')) {
+      target.physRes += 1;
+      ctx.emit(state, { type: 'effect', uid: target.uid, kind: 'habilidade', text: `  🪨 ${nameOf(target)} endurece: resistência física ${target.physRes}.` });
+    }
+    if (target.abilities.includes('pulsoVital')) {
+      const near = state.units.filter((a) => a !== target && a.side === target.side && a.hp > 0 && Math.abs(a.row - target.row) <= 1 && Math.abs(a.col - target.col) <= 1);
+      for (const a of near) {
+        a.maxHp += 1;
+        a.hp += 1;
+        ctx.emit(state, { type: 'heal', uid: a.uid, amount: 1, text: `  💗 Pulso Vital de ${nameOf(target)}: ${nameOf(a)} +1 de vida.` });
+      }
+    }
+  }
   // v0.20.1: só reflete quem continua de pé (derrotada, a Nyx não devolve dano; salva pelo Anjo/Renascer, devolve)
   if (reflected > 0 && !dead) {
     ctx.emit(state, { type: 'effect', uid: target.uid, kind: 'reflexo', text: `  🪞 ${nameOf(target)} reflete ${reflected} de dano mágico!` });
@@ -541,6 +557,14 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   }
   const resisted = atk - dmg;
   const front = isMeleeFrontAttack(u, target);
+  // v0.63.0: Contra-ataque Crescente — golpeia ANTES de receber o ataque e ganha +1 de ataque (sem limite)
+  const crescent = !opts.counter && !opts.secondary && front && target.abilities.includes('contraCrescente') && target.hp > 0 && !isHindered(target);
+  if (crescent) {
+    ctx.emit(state, { type: 'counter', uid: target.uid, target: u.uid, text: `🔄 ${nameOf(target)} ativa ${ABILITIES.contraCrescente.name}!` });
+    attack(state, ctx, target, u, { counter: true });
+    target.atkMod = (target.atkMod ?? 0) + 1;
+    if (state.winner || u.hp <= 0 || !state.units.includes(u)) return;
+  }
   const hpBefore = target.hp;
   const died = applyDamage(state, ctx, target, dmg, u.damageType, { side: u.side, unit: u, ignoreShield: piercing }, resisted > 0 ? ` (${resisted} resistido)` : '');
   // v0.30.0: Vampirismo — cura parte do dano causado
@@ -556,6 +580,11 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   if (died) return;
   if (state.winner || u.hp <= 0 || !state.units.includes(u)) return;
   if (!opts.counter && target.hp > 0 && state.units.includes(target)) onHit(state, ctx, u, target, !!opts.secondary);
+  if (crescent) {
+    // depois de receber o golpe, empurra o agressor 2 casas para trás
+    if (u.hp > 0 && state.units.includes(u) && pushBack(state, ctx, u)) pushBack(state, ctx, u);
+    return;
+  }
   if (state.winner || u.hp <= 0 || !state.units.includes(u) || target.hp <= 0 || !state.units.includes(target)) return;
   // gancho: Couraça de Espinhos (só golpe principal, físico corpo a corpo de frente)
   if (!opts.counter && !opts.secondary && has(target.abilities, (a) => a.thorns) && front) {

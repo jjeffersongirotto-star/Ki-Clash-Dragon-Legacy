@@ -153,8 +153,9 @@ const SCENES: Record<string, Scene> = {
     o += `<path d="${grid}" stroke="#00f5d4" stroke-width=".25" opacity="${f(0.15 + t * 0.04)}"/>`;
     o += `<path d="M0 20 H18 L24 26 H40 M100 30 H82 L76 36 H62 M0 70 H12 L18 64 H30 M100 76 H86 L80 70 H70" fill="none" stroke="#00f5d4" stroke-width=".8" opacity=".6"/>`;
     if (t >= 3) o += `<rect x="4" y="34" width="20" height="14" rx="1.5" fill="#00f5d4" opacity=".18" stroke="#00f5d4" stroke-width=".6"/><rect x="76" y="44" width="20" height="14" rx="1.5" fill="#ff006e" opacity=".18" stroke="#ff006e" stroke-width=".6"/>`;
-    if (t >= 5) o += `<ellipse cx="50" cy="94" rx="40" ry="7" fill="none" stroke="#00f5d4" stroke-width="1" opacity=".8"/><ellipse cx="50" cy="94" rx="30" ry="5" fill="url(#${g}-holo)"/>`;
-    if (t >= 6) for (let i = 0; i < 8; i++) o += `<rect x="${f(r(i, 91) * 100)}" y="${f(r(i, 92) * 60)}" width=".8" height="${f(6 + r(i, 93) * 12)}" fill="#00f5d4" opacity=".7"/>`;
+    // v0.63.0: a Nyx nasce Rara (3–5): cada raridade soma um detalhe
+    if (t >= 4) o += `<ellipse cx="50" cy="94" rx="40" ry="7" fill="none" stroke="#00f5d4" stroke-width="1" opacity=".8"/><ellipse cx="50" cy="94" rx="30" ry="5" fill="url(#${g}-holo)"/>`;
+    if (t >= 5) for (let i = 0; i < 8; i++) o += `<rect x="${f(r(i, 91) * 100)}" y="${f(r(i, 92) * 60)}" width=".8" height="${f(6 + r(i, 93) * 12)}" fill="#00f5d4" opacity=".7"/>`;
     return o;
   },
   // Vorax (e a Cria) — abismo sombrio

@@ -47,10 +47,15 @@ export function cloneForSim(state: BattleState): BattleState {
 const frac = (hp: number, max: number) => Math.max(0, hp) / Math.max(1, max);
 const isKey = (u: Unit) => !!has(u.abilities, (a) => !!(a.healRow || a.allyAtkAura || a.guardian || a.necro || a.enemyAtkAura));
 
+/** v0.63.0: peso extra da unidade adversária mais valiosa (foco em eliminar a carta mais forte). */
+export const FOCUS_TOP = 0.5;
+
 /** Valor de uma unidade no tabuleiro. */
 function unitValue(state: BattleState, u: Unit, w: AiWeights): number {
   if (u.hp <= 0) return 0;
   let v = w.hp * u.hp + w.atk * effectiveAtk(state, u) + w.abil * u.abilities.length;
+  // v0.63.0: raridade alta = ameaça maior (Mítico vale 50% a mais que Comum)
+  v *= 1 + 0.1 * (Math.max(1, Math.min(6, u.stars)) - 1);
   if (isKey(u)) v += w.key * (1 + u.hp / Math.max(1, u.maxHp));
   if (u.isMinion) v *= 0.6;
   const bad = u.effects?.filter((e) => e.turns > 0 && BAD_EFFECTS.includes(e.kind)).length ?? 0;
@@ -68,6 +73,10 @@ export function evaluate(state: BattleState, side: Side, w: AiWeights = AI_WEIGH
   // perigo: abaixo de 40% de vida cada ponto perdido pesa muito mais (a IA passa a defender)
   let score = w.hero * 100 * (me - them) - w.danger * 100 * Math.max(0, 0.4 - me) + w.danger * 50 * Math.max(0, 0.4 - them);
   const cols = state.cols;
+  // v0.63.0: a carta mais "apelona" do adversário em campo vale mais — a IA foca em derrubá-la
+  let topFoe = 0;
+  for (const u of state.units) if (u.hp > 0 && u.side === foe && !u.isMinion) topFoe = Math.max(topFoe, unitValue(state, u, w));
+  score -= FOCUS_TOP * topFoe;
   for (const u of state.units) {
     if (u.hp <= 0) continue;
     const val = unitValue(state, u, w);

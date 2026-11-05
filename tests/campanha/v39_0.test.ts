@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { COMMANDER_OVERRIDE, STAGES, WORLD_COMMANDERS, WORLD_STAGES, getStage, stageCommander } from '../../src/core/campaign';
+import { COMMANDER_OVERRIDE, OVERRIDE_APPLIED, STAGES, WORLD_COMMANDERS, WORLD_STAGES, getStage, stageCommander } from '../../src/core/campaign';
 import { REGIONS, REGION_COUNT, WORLD_NAMES, localOf, regionOf, regionStageIds, stageLabel } from '../../src/core/world';
 import { DIFFICULTIES, gemsFor, markCleared, regionUnlocked, rewardsFor, stageFor, stageUnlocked, starGoals, starsForWin, type AdventureProgress } from '../../src/core/adventure';
 import { isCleanCommander } from '../../src/core/commanders';
@@ -85,7 +85,9 @@ describe('v0.39.0 — Mapa do mundo: 100 fases', () => {
   });
 
   it('v0.60.0: os Comandantes escolhidos para combinar com a arena valem em todas as fases da lista', () => {
-    for (const [k, v] of Object.entries(COMMANDER_OVERRIDE)) expect(WORLD_COMMANDERS[Number(k) - 1], `fase ${k}`).toBe(v);
+    // v0.63.0: quem mudou de raridade e não cabe mais na fase deixa o Comandante padrão (a maioria continua valendo)
+    for (const [k, v] of Object.entries(COMMANDER_OVERRIDE)) if (OVERRIDE_APPLIED.has(Number(k))) expect(WORLD_COMMANDERS[Number(k) - 1], `fase ${k}`).toBe(v);
+    expect(OVERRIDE_APPLIED.size).toBeGreaterThanOrEqual(Object.keys(COMMANDER_OVERRIDE).length - 10);
     expect(WORLD_COMMANDERS[75]).toBe('aurel'); // Ponte de Arco-Íris: anjo de luz no lugar da abominação
   });
 

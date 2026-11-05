@@ -40,15 +40,15 @@ const NAMES = [
 
 /** Baralho da IA em cada fase: até a v0.32.0, sempre 10 personagens DIFERENTES (v0.8). */
 const POOLS_V8: string[][] = [
-  ['riku', 'nara', 'sora', 'tobi', 'kael', 'suri', 'hana', 'jin', 'ren', 'kuro'],
-  ['riku', 'nara', 'toru', 'daichi', 'tobi', 'kael', 'suri', 'hana', 'jin', 'ren'],
-  ['riku', 'nara', 'toru', 'daichi', 'sora', 'kael', 'jin', 'hana', 'kuro', 'aiko'],
-  ['riku', 'toru', 'daichi', 'tobi', 'kael', 'jin', 'ren', 'aiko', 'lyra', 'mei'],
-  ['nara', 'daichi', 'sora', 'kael', 'jin', 'kuro', 'aiko', 'lyra', 'gorath', 'mei'],
-  ['riku', 'toru', 'tobi', 'suri', 'jin', 'aiko', 'lyra', 'gorath', 'mei', 'yume'],
-  ['nara', 'daichi', 'kael', 'hana', 'kuro', 'aiko', 'gorath', 'mei', 'yume', 'zarek'],
-  ['riku', 'toru', 'tobi', 'jin', 'lyra', 'gorath', 'yume', 'zarek', 'nyx', 'kenji'],
-  ['nara', 'daichi', 'kael', 'aiko', 'lyra', 'mei', 'yume', 'zarek', 'nyx', 'kenji'],
+  ['riku', 'nara', 'sora', 'ysmera', 'wex', 'suri', 'hana', 'jin', 'ren', 'kuro'],
+  ['riku', 'nara', 'toru', 'daichi', 'ysmera', 'wex', 'suri', 'hana', 'jin', 'ren'],
+  ['riku', 'nara', 'toru', 'daichi', 'sora', 'wex', 'jin', 'hana', 'kuro', 'aiko'],
+  ['riku', 'toru', 'daichi', 'ysmera', 'wex', 'jin', 'ren', 'aiko', 'lyra', 'mei'],
+  ['nara', 'daichi', 'sora', 'wex', 'jin', 'kuro', 'aiko', 'lyra', 'gorath', 'mei'],
+  ['riku', 'toru', 'ysmera', 'suri', 'jin', 'aiko', 'lyra', 'gorath', 'mei', 'yume'],
+  ['nara', 'daichi', 'wex', 'hana', 'kuro', 'aiko', 'gorath', 'mei', 'yume', 'zarek'],
+  ['riku', 'toru', 'ysmera', 'jin', 'lyra', 'gorath', 'yume', 'zarek', 'nyx', 'kenji'],
+  ['nara', 'daichi', 'wex', 'aiko', 'lyra', 'mei', 'yume', 'zarek', 'nyx', 'kenji'],
   ['riku', 'toru', 'jin', 'aiko', 'gorath', 'mei', 'yume', 'zarek', 'nyx', 'vorax'],
 ];
 
@@ -60,8 +60,8 @@ const POOLS_V8: string[][] = [
 export const ENEMY_DISTINCT = [3, 4, 5, 6, 7, 8, 9, 10, 10, 10];
 const EARLY_POOLS: string[][] = [
   ['hana', 'daichi', 'kuro'],
-  ['kuro', 'ren', 'hana', 'tobi'],
-  ['daichi', 'tobi', 'ren', 'suri', 'jin'],
+  ['kuro', 'ren', 'hana', 'ysmera'],
+  ['daichi', 'ysmera', 'ren', 'suri', 'jin'],
 ];
 export const POOLS: string[][] = POOLS_V8.map((pool, i) => EARLY_POOLS[i] ?? pool.slice(pool.length - ENEMY_DISTINCT[i]));
 
@@ -69,14 +69,14 @@ export const POOLS: string[][] = POOLS_V8.map((pool, i) => EARLY_POOLS[i] ?? poo
  * Desbloqueio pela progressão normal (primeira vitória na fase): Incomum, Raro e Épico.
  * Quem começa em Lendário/Mítico (Kenji, Vorax) fica bloqueado — "em breve".
  */
-export const UNLOCKS: Record<number, string> = { 1: 'aiko', 2: 'mei', 3: 'lyra', 4: 'gorath', 5: 'yume', 6: 'zarek', 8: 'nyx' };
+export const UNLOCKS: Record<number, string> = { 1: 'aiko', 2: 'mei', 3: 'lyra', 4: 'gorath', 5: 'tobi', 6: 'yume', 8: 'nyx' }; // v0.63.0: Tobi no lugar do Zarek (Mítico)
 
 /**
  * v0.25.0 — o jogador novo sai do tutorial só com Riku, Sora e Nara. Os outros personagens de Comum chegam no
  * pacote da primeira vitória de cada fase, junto com o desbloqueio de sempre (UNLOCKS). A fase 10 não tem pacote
  * (só faltariam Kenji e Vorax, que ainda estão "em breve").
  */
-export const PACK_COMMONS: Record<number, string> = { 1: 'daichi', 2: 'hana', 3: 'tobi', 4: 'kael', 5: 'toru', 6: 'jin', 7: 'suri', 8: 'ren', 9: 'kuro' };
+export const PACK_COMMONS: Record<number, string> = { 1: 'daichi', 2: 'hana', 3: 'ysmera', 4: 'wex', 5: 'toru', 6: 'jin', 7: 'suri', 8: 'ren', 9: 'kuro' };
 export const stagePack = (stageId: number): string[] => [UNLOCKS[stageId], PACK_COMMONS[stageId]].filter((id): id is string => !!id);
 /** v0.33.0: as fases não dão mais personagens garantidos (o pacote acabou); no lugar, 💠 Gemas de Invocação. */
 export const STAGE_PACKS = false;
@@ -264,6 +264,11 @@ const fits = (id: string, r: number) => getChar(id).minStars <= r && getChar(id)
  * Só troca o Comandante (o resto do baralho fica igual). Vale se o personagem chega a 1 raridade da fase (a carta fica
  * no degrau mais perto); senão, fica o sorteado.
  */
+/**
+ * v0.63.0: fases em que o Comandante escolhido à mão entrou de fato. Quando a raridade da carta não combina mais com a
+ * fase (trocas de raridade da v0.63.0), a fase fica com o Comandante padrão do sorteio, sem repetir na região.
+ */
+export const OVERRIDE_APPLIED = new Set<number>();
 export const COMMANDER_OVERRIDE: Record<number, string> = {
   14: 'cryo6', // Gruta da Maré Baixa (cristais gelados)
   16: 'lethe', // Baía das Sereias de Pedra (barqueira no barco)
@@ -375,12 +380,13 @@ export function worldPlan(): WorldPlan {
     if (!pool) continue;
     pools[i] = pool;
     commanders[i] = want;
+    OVERRIDE_APPLIED.add(Number(k));
   }
   // um escolhido à mão pode ter sido sorteado em outra fase da mesma região: essa outra fase troca de Comandante
   // por outro personagem do próprio baralho (recorte limpo, ainda não usado na região)
   for (let i = 0; i < commanders.length; i++) {
     const g = i + POOLS.length;
-    if (COMMANDER_OVERRIDE[g + 1]) continue;
+    if (OVERRIDE_APPLIED.has(g + 1)) continue;
     const start = Math.floor(g / STAGES_PER_REGION) * STAGES_PER_REGION - POOLS.length;
     const others = new Set(commanders.slice(Math.max(0, start), start + STAGES_PER_REGION).filter((_, k) => Math.max(0, start) + k !== i));
     if (!others.has(commanders[i])) continue;

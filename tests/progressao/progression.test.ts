@@ -44,6 +44,6 @@ describe('progressão por XP (v0.23.0: barra por degrau, sem nível)', () => {
     expect(expectedMaxStars(3)).toBe(5);
     expect(expectedMaxStars(4)).toBe(6);
     expect(expectedMaxStars(5)).toBe(6);
-    expect(UNIQUE_5STAR.sort()).toEqual(['kenji', 'vorax']);
+    expect(UNIQUE_5STAR.sort()).toEqual(['kenji', 'pira']);
   });
 });
