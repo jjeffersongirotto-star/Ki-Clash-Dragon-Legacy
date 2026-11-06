@@ -1,6 +1,7 @@
 import { TEMP_WAIT } from './tempOverrides'; // TEMP card balance editor
 import { ABILITIES, COURACA_CAP, MINION_CAP, RES_CAP, has } from './abilities';
 import { abilitiesAt, getChar } from './characters';
+import { hasTweak } from './balanceV2';
 import { statsFor, tierLabel, stepOf } from './progression';
 import { DECK_ABS_MAX, createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, returnFromNecropolis, HAND_SIZE } from './deck';
 import { getSpell, isSpell } from './spells';
@@ -19,7 +20,6 @@ import type {
 
 import { rangeOf, hasRangeBonus, pw, furyBonus, effectiveAtk, computeDamage, findTarget } from './battleRules';
 import { leapLanding, moveUnit } from './battleMove';
-import { CHARACTERS } from './characters';
 
 export { rangeOf, hasRangeBonus, auraPenalty, FURY_START, FURY_EVERY, furyBonus, allyBuff, effectiveAtk, computeDamage, distanceToEnemyHero, findTarget } from './battleRules';
 export { SALTO_MOVE, moveRange, leapLanding, moveUnit } from './battleMove';
@@ -196,7 +196,8 @@ export function makeUnit(
     const rb = ABILITIES[id].resBonus?.(card.stars);
     if (rb) {
       physRes += rb.phys;
-      magRes += rb.mag;
+      // v0.64.5: o Inabalável do Titan-X é só físico
+      if (!(id === 'inabalavel' && hasTweak(def.id, 'inabalavelSemMagia'))) magRes += rb.mag;
     }
   }
   return {
@@ -546,7 +547,7 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
     crit = true;
   }
   const piercing = u.abilities.includes('perfurar');
-  const pierce = piercing ? 99 : pw(u, 'retaguarda') + pw(u, 'precisao');
+  const pierce = piercing ? 99 : (hasTweak(u.charId, 'retaguardaSemPerfurar') ? 0 : pw(u, 'retaguarda')) + pw(u, 'precisao');
   const ranged = !(u.damageType === 'fisico' && dist <= 1 && !hasRangeBonus(u));
   const dmg = computeDamage(atk, u.damageType, target, pierce);
   ctx.emit(state, { type: 'attack', uid: u.uid, target: target.uid, targetSide: target.side, ranged, damageType: u.damageType, text: `${nameOf(u)} ${verb} ${nameOf(target)}${crit ? ' — 🎯 CRÍTICO!' : ''}` });
@@ -568,7 +569,7 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   const hpBefore = target.hp;
   const died = applyDamage(state, ctx, target, dmg, u.damageType, { side: u.side, unit: u, ignoreShield: piercing }, resisted > 0 ? ` (${resisted} resistido)` : '');
   // v0.30.0: Vampirismo — cura parte do dano causado
-  const vamp = pw(u, 'vampirismo');
+  const vamp = hasTweak(u.charId, 'vampirismoTotal') ? 0 : pw(u, 'vampirismo'); // v0.64.5: o da Vharga cura ao derrotar
   if (vamp && u.hp > 0 && u.hp < u.maxHp && state.units.includes(u)) {
     const dealt = Math.min(dmg, Math.max(0, hpBefore));
     const h = Math.min(u.maxHp - u.hp, Math.max(dealt >= 2 ? 1 : 0, Math.round((dealt * vamp) / 100)));
@@ -602,10 +603,6 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   if (!opts.counter && !opts.secondary && front && has(u.abilities, (a) => a.pushOnHit) && target.hp > 0 && state.units.includes(target)) pushBack(state, ctx, target);
 }
 
-/** Habilidades que o Copiador não copia: as das cartas que começam no Mítico. */
-let MYTHIC_ONLY: Set<string> | null = null;
-const mythicOnly = () => (MYTHIC_ONLY ??= new Set(CHARACTERS.filter((c) => c.minStars >= 6).flatMap((c) => c.abilities)));
-
 /** v0.30.0: efeitos ao acertar uma unidade (o alvo continua de pé). Golpes secundários só aplicam os efeitos de dano contínuo. */
 function onHit(state: BattleState, ctx: Ctx, u: Unit, t: Unit, secondary: boolean) {
   if (u.abilities.includes('veneno')) addEffect(state, ctx, t, 'veneno', pw(u, 'veneno'), 3);
@@ -633,7 +630,7 @@ function onHit(state: BattleState, ctx: Ctx, u: Unit, t: Unit, secondary: boolea
   const uu = usedOf(u);
   if (u.abilities.includes('copiador') && !uu.copied) {
     uu.copied = true;
-    const copy = t.abilities.find((a) => !u.abilities.includes(a) && !mythicOnly().has(a));
+    const copy = t.abilities.find((a) => !u.abilities.includes(a)); // v0.64.5: copia também habilidades de Míticos
     if (copy) {
       u.abilities.push(copy);
       ctx.emit(state, { type: 'effect', uid: u.uid, kind: 'habilidade', text: `  🪞 ${nameOf(u)} copia ${ABILITIES[copy].name} de ${nameOf(t)}!` });
@@ -675,10 +672,16 @@ function kill(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit) {
   ctx.emit(state, { type: 'death', uid: victim.uid, text: `✖ ${nameOf(victim)} foi derrotado.` });
   // v0.30.0: Ressurreição guarda as cartas derrotadas; Fúria e Vingança somam ataque; Explosão ao morrer
   if (!victim.isMinion && victim.card) ((state.fallen ??= { player: [], enemy: [] })[victim.side] ??= []).push({ ...victim.card });
+  // v0.64.5: Vampirismo da Vharga — ao derrotar um inimigo, cura toda a vida
+  if (killer && killer.hp > 0 && killer.side !== victim.side && killer.abilities.includes('vampirismo') && hasTweak(killer.charId, 'vampirismoTotal') && killer.hp < killer.maxHp) {
+    const h = killer.maxHp - killer.hp;
+    killer.hp = killer.maxHp;
+    ctx.emit(state, { type: 'heal', uid: killer.uid, amount: h, text: `  🧛 ${nameOf(killer)} devora ${nameOf(victim)} e recupera toda a vida.` });
+  }
   for (const a of state.units) {
     if (a.hp <= 0) continue;
     const au = a.side !== victim.side && !victim.isMinion && a.abilities.includes('furia') ? usedOf(a) : null;
-    if (au && (au.furia ?? 0) < pw(a, 'furia')) {
+    if (au && (hasTweak(a.charId, 'furiaSemLimite') || (au.furia ?? 0) < pw(a, 'furia'))) {
       au.furia = (au.furia ?? 0) + 1;
       a.atkMod = (a.atkMod ?? 0) + 1;
       ctx.emit(state, { type: 'effect', uid: a.uid, kind: 'habilidade', text: `  📈 Fúria: ${nameOf(a)} ganha +1 de ataque.` });

@@ -550,6 +550,10 @@ for (const c of CHARACTERS) {
   }
   c.abilities = b.ab.slice();
   if (b.up) c.unlock = { ...b.up };
+  // v0.64.5: alcance, tipo de dano e descrições próprias ajustados pelo jogador no editor
+  if (b.range) c.range = b.range;
+  if (b.dmg) c.damageType = b.dmg;
+  if (b.desc) c.abilityDesc = { ...b.desc };
 }
 
 /** v0.63.0: habilidades que a carta tem NESSA raridade (Épicos/Lendários ganham uma ao subir). */

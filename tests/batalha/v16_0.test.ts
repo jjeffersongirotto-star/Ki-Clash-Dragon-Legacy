@@ -114,7 +114,7 @@ describe('v0.16.0 — alcance e ordem', () => {
       const u = placeUnit(s, c(d.id), 'player', 0, 0);
       const ranged = d.category === 'mago' || d.category === 'arqueiro' || d.abilities.includes('longoAlcance');
       if (d.abilities.includes('salto')) continue;
-      expect(rangeOf(u)).toBe(ranged ? 4 : 1);
+      expect(rangeOf(u)).toBe(ranged ? 4 : d.range); // v0.64.5: Hayato (2), Zarek e Kael (4) têm alcance próprio
       s.units = [];
     }
   });

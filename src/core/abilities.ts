@@ -587,7 +587,7 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   copiador: {
     id: 'copiador',
     name: 'Copiador',
-    description: 'No primeiro ataque a um personagem, copia a primeira habilidade dele e fica com ela até o fim da partida (não copia habilidades únicas de cartas Míticas).',
+    description: 'No primeiro ataque a um personagem, copia a primeira habilidade dele e fica com ela até o fim da partida.',
     icon: '🪞',
   },
   retaliacao: {

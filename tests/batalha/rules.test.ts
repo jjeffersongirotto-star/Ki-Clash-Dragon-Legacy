@@ -42,7 +42,7 @@ describe('longo alcance = 4 casas (v0.16.0), alvo mais próximo', () => {
     for (const d of PLAYABLE) {
       const u = makeUnit(s, c(d.id, 1, d.minStars), 'player', 0, 0);
       const ranged = d.category === 'mago' || d.category === 'arqueiro' || d.abilities.includes('longoAlcance');
-      expect(rangeOf(u)).toBe(ranged ? 4 : 1);
+      expect(rangeOf(u)).toBe(ranged ? 4 : d.range); // v0.64.5: Hayato (2), Zarek e Kael (4) têm alcance próprio
     }
   });
   it('atinge até 4 casas, não 5', () => {
