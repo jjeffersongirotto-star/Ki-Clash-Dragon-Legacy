@@ -2,6 +2,10 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.64.1] — 06/11/2026 · Heróis: habilidades ao tocar na carta
+- **Heróis:** tocar numa carta mostra, no espaço vazio ao lado das cartas daquele personagem, o **ataque, a vida, as rodadas e as habilidades** daquela raridade (com as bloqueadas e quando desbloqueiam). Tocar em outra carta troca; tocar na mesma fecha. No celular o quadro aparece logo abaixo das cartas.
+- Primeira versão que chega pela **atualização automática** (⟳) para quem já instalou a 0.64.0.
+
 ## [0.64.0] — 06/11/2026 · Atualização automática e filtros nos Heróis
 - **Atualização sem baixar APK/instalador:** no app do celular e do computador, o botão ⟳ agora baixa **só os arquivos do jogo que mudaram** (direto do site) e reinicia já na versão nova. Seu progresso continua. Se a versão nova precisar de um app instalado mais novo (raro: ícone, permissões, base do app), o jogo avisa e oferece o APK/instalador como antes.
 - **Importante:** esta versão (0.64.0) ainda precisa ser instalada pelo APK/instalador **uma última vez**; a partir dela, as próximas chegam pelo botão.
