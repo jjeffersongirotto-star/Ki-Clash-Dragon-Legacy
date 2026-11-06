@@ -1375,3 +1375,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Heróis — filtros:** Grupo, Tipo, Raridade, Ataque (1–2, 3–4, 5–6, 7+), Vida (1–3, 4–6, 7–10, 11+) e Rodadas (1–8), uma escolha por filtro, todos juntos (E). Raridade/Ataque/Vida filtram cada carta (raridade) do personagem; o personagem aparece se ao menos uma carta passar. Feitiços aparecem sem filtro ou só com Raridade (os daquela raridade). Valem até sair do jogo.
 - **Heróis (v0.64.1):** tocar numa carta abre ao lado (abaixo, no celular) o quadro com ATQ, vida, rodadas e habilidades daquela raridade; outra carta troca, a mesma fecha.
 - **Botão ⟳ (v0.64.2):** ícone centralizado no círculo.
+- **Editor de carta TEMP (v0.64.3):** janela larga no PC (4 campos por linha, habilidades em 2 colunas), sem rolagem interna; no celular sem rolagem lateral, a janela rola com o dedo sem barra visível; descrições crescem com o texto.

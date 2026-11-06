@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.64.3] — 06/11/2026 · Editor de carta sem barras de rolagem
+- **Editor de carta (segurar a carta nos Heróis):** no computador a janela ficou larga e mostra tudo de uma vez (campos lado a lado, habilidades em 2 colunas), sem barras de rolagem. No celular nada passa da largura (acabou a barra de baixo) e a janela rola com o dedo, sem barra lateral. As descrições das habilidades aparecem inteiras.
+
 ## [0.64.2] — 06/11/2026 · Botão ⟳ centralizado
 - O ícone do botão **⟳ (procurar atualização)** agora fica no centro do círculo (estava puxado para a esquerda).
 

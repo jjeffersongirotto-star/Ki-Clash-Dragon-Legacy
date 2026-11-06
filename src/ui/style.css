@@ -1886,3 +1886,20 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .hr-cell [data-card] { cursor: pointer; }
 /* v0.64.2: ícone ⟳ centralizado no círculo (o ".btn > .ico" punha uma margem à direita) */
 .account-box .upd-btn > .ico { margin: 0; vertical-align: middle; width: 28px; height: 28px; }
+/* v0.64.3: editor de carta sem barras de rolagem — no PC a janela fica larga (tudo cabe), no celular a própria janela
+   rola com o dedo (sem barra visível) e nada passa da largura */
+.dialog:has(.tbe) { width: min(1180px, 100%); max-height: 96dvh; scrollbar-width: none; }
+.dialog:has(.tbe)::-webkit-scrollbar { display: none; }
+.tbe { max-height: none; overflow: visible; grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr)); }
+.tbe input, .tbe select, .tbe textarea { min-width: 0; width: 100%; box-sizing: border-box; }
+.tbe label { min-width: 0; }
+.tbe-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.tbe-ab .tbe-lv { flex: 0 0 64px !important; }
+.tbe-ab .btn { flex: none; }
+#tbAbs { display: grid; gap: 4px 12px; }
+@media (min-width: 900px) {
+  .tbe { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  #tbAbs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tbe-abd textarea { min-height: 3.6em; }
+}
+.tbe-abd textarea { field-sizing: content; min-height: 2.6em; max-height: none; overflow: hidden; }

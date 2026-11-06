@@ -450,8 +450,8 @@ export async function openCardEditor(id: string, refresh: () => void, stars?: nu
         : "",
     ).join("");
   const abilRow = (a: string, i: number, r: RarEdit) =>
-    `<div class="tbe-ab" data-i="${i}"><button type="button" class="tbe-pick" data-ab="${i}">${a in ABILITIES ? `[${TIER_LABEL[tierOf(a)]}] ${esc(ABILITIES[a as AbilityId].name)}` : "✏ nova (texto)"} ▾</button>${a in ABILITIES ? "" : `<input data-abn="${i}" placeholder="nome (opcional)" value="${esc(splitCustom(a).name)}">`}<label class="tbe-lv">Nível<input type="number" step="any" data-lv="${i}" value="${r.lv[i] ?? 0}"></label><button type="button" class="btn small" data-rm="${i}">✕</button></div>` +
-    `<div class="tbe-abd">${a in ABILITIES ? `<span class="tbe-tier tbe-tier-${tierOf(a)}">${TIER_LABEL[tierOf(a)]}</span>` : ""}<textarea data-ds="${i}" rows="2" placeholder="descrição${a in ABILITIES ? "" : " (obrigatória)"}">${esc(r.ds[i] ?? "")}</textarea></div>`;
+    `<div class="tbe-abw"><div class="tbe-ab" data-i="${i}"><button type="button" class="tbe-pick" data-ab="${i}">${a in ABILITIES ? `[${TIER_LABEL[tierOf(a)]}] ${esc(ABILITIES[a as AbilityId].name)}` : "✏ nova (texto)"} ▾</button>${a in ABILITIES ? "" : `<input data-abn="${i}" placeholder="nome (opcional)" value="${esc(splitCustom(a).name)}">`}<label class="tbe-lv">Nível<input type="number" step="any" data-lv="${i}" value="${r.lv[i] ?? 0}"></label><button type="button" class="btn small" data-rm="${i}">✕</button></div>` +
+    `<div class="tbe-abd">${a in ABILITIES ? `<span class="tbe-tier tbe-tier-${tierOf(a)}">${TIER_LABEL[tierOf(a)]}</span>` : ""}<textarea data-ds="${i}" rows="2" placeholder="descrição${a in ABILITIES ? "" : " (obrigatória)"}">${esc(r.ds[i] ?? "")}</textarea></div></div>`;
   await showDialog({
     title: `Editar ${d.name}`,
     icon: "🛠",
