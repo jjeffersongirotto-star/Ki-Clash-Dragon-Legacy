@@ -7,6 +7,7 @@
  * Saves antigos (sem `heroSeen`): recebem da raridade mínima até a atual (supõe que subiu passando por elas).
  */
 import { CATEGORY_INFO, PLAYABLE, RACE_INFO } from './characters';
+import { statsFor } from './progression';
 import { SPELLS } from './spells';
 import type { CharacterDef } from './types';
 
@@ -144,3 +145,47 @@ export function filterHeroGroups(groups: HeroGroup[], race: string | null, cat: 
 }
 /** Feitiços só aparecem sem filtro (não têm grupo nem tipo). */
 export const showSpellsWith = (race: string | null, cat: string | null) => !race && !cat;
+
+/**
+ * v0.64.0 — filtros dos Heróis: Grupo, Tipo, Raridade, Ataque, Vida e Rodadas (Espera). Valem todos juntos (E).
+ * Raridade, Ataque e Vida olham cada carta (raridade) do personagem: só aparecem as cartas que passam; o personagem
+ * aparece se pelo menos uma carta passar. Rodadas é do personagem (igual em todas as raridades).
+ */
+export interface HeroFilter {
+  race?: string | null;
+  cat?: string | null;
+  rarity?: number | null;
+  atk?: string | null;
+  hp?: string | null;
+  wait?: number | null;
+}
+/** Faixas dos filtros de Ataque e Vida (rótulo = chave). */
+export const ATK_RANGES = ['1-2', '3-4', '5-6', '7+'];
+export const HP_RANGES = ['1-3', '4-6', '7-10', '11+'];
+export const WAIT_VALUES = [1, 2, 3, 4, 5, 6, 7, 8];
+export const inRange = (v: number, key: string | null | undefined) => {
+  if (!key) return true;
+  const [a, b] = key.endsWith('+') ? [+key.slice(0, -1), Infinity] : key.split('-').map(Number);
+  return v >= a && v <= b;
+};
+
+/** Raridades do personagem que passam nos filtros (vazio = o personagem some). */
+export function heroCells(d: CharacterDef, f: HeroFilter): number[] {
+  if (f.wait && (d.wait ?? 0) !== f.wait) return [];
+  const out: number[] = [];
+  for (let st = d.minStars; st <= d.maxStars; st++) {
+    if (f.rarity && st !== f.rarity) continue;
+    const s = statsFor(d, st, 0);
+    if (inRange(s.atk, f.atk) && inRange(s.hp, f.hp)) out.push(st);
+  }
+  return out;
+}
+
+export function filterHeroes(groups: HeroGroup[], f: HeroFilter): HeroGroup[] {
+  return filterHeroGroups(groups, f.race ?? null, f.cat ?? null)
+    .map((g) => ({ ...g, types: g.types.map((t) => ({ ...t, chars: t.chars.filter((d) => heroCells(d, f).length) })).filter((t) => t.chars.length) }))
+    .filter((g) => g.types.length > 0);
+}
+
+/** Feitiços: somem com filtro de grupo, tipo, ataque, vida ou rodadas; com filtro de raridade, só os daquela raridade. */
+export const showSpellsFor = (f: HeroFilter) => !f.race && !f.cat && !f.atk && !f.hp && !f.wait;

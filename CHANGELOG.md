@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.64.0] — 06/11/2026 · Atualização automática e filtros nos Heróis
+- **Atualização sem baixar APK/instalador:** no app do celular e do computador, o botão ⟳ agora baixa **só os arquivos do jogo que mudaram** (direto do site) e reinicia já na versão nova. Seu progresso continua. Se a versão nova precisar de um app instalado mais novo (raro: ícone, permissões, base do app), o jogo avisa e oferece o APK/instalador como antes.
+- **Importante:** esta versão (0.64.0) ainda precisa ser instalada pelo APK/instalador **uma última vez**; a partir dela, as próximas chegam pelo botão.
+- **Se uma versão nova não abrir direito no celular**, o app volta sozinho para a anterior.
+- **Heróis — filtros novos:** **Raridade**, **Ataque** (1–2, 3–4, 5–6, 7+), **Vida** (1–3, 4–6, 7–10, 11+) e **Rodadas** (1 a 8), junto com Grupo e Tipo — todos valem ao mesmo tempo. Raridade, Ataque e Vida mostram só as cartas que passam (ex.: Épico + Ataque 3–4 mostra só as cartas Épicas com 3 ou 4 de ataque). Botão **Limpar filtros**.
+
 ## [0.63.0] — 05/11/2026 · Balanceamento v2.1: trocas de raridade, Regra de Origem, Espera e habilidades novas
 - **Trocas de raridade** pedidas: Hayato, Zarek, Titan-X, Kael, Tiberius, Vesna, Ghor e Vorax viram **Míticos**; Daisuke, Aurel, Trokk, Aya, Aegis-Ω, Brunna e Pira viram **Lendário → Mítico**; Ilun, Nhyra, Skarr, Odo, Sentinel-0, Thane e Nocturna nascem **Épicos**; e quem estava nessas vagas foi para a vaga de quem subiu (lista completa no REGRAS.md).
 - **Novas funções:** Ysmera e Odo viram **suporte**, Kael vira **lutador** corpo a corpo e Vesna vira **arqueira**.

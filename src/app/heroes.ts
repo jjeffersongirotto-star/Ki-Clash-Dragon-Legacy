@@ -8,7 +8,7 @@ import { CATEGORY_INFO, CHAR_BY_ID, RACE_INFO } from '../core/characters';
 import { SPELLS } from '../core/spells';
 import { addProfileXp } from '../core/profile';
 import type { XpItemId } from '../core/progression';
-import { filterHeroGroups, showSpellsWith, RACE_ORDER, CAT_ORDER, claimAll, claimableCount, claimGoal, claimVariant, goalClaimed, hasRarity, heroGoals, heroGroups, spellOwned, syncSeen, variantClaimable, VARIANT_REWARD, type Goal, type Reward } from '../core/heroes';
+import { filterHeroes, showSpellsFor, heroCells, ATK_RANGES, HP_RANGES, WAIT_VALUES, type HeroFilter, RACE_ORDER, CAT_ORDER, claimAll, claimableCount, claimGoal, claimVariant, goalClaimed, hasRarity, heroGoals, heroGroups, spellOwned, syncSeen, variantClaimable, VARIANT_REWARD, type Goal, type Reward } from '../core/heroes';
 import { cardHTML, catIcon, esc, gemHTML, goldHTML, orbHTML, raceIcon, spellCardHTML } from '../ui/components';
 import { showDialog } from '../ui/dialog';
 import { rewardListHTML } from '../ui/rewardList';
@@ -35,10 +35,16 @@ const goalHTML = (g: Goal) => {
   return `<div class="hr-goal${done ? ' done' : ''}"><span class="hr-count">${g.done}/${g.total}</span><span class="hr-rw">${rewardHTML(g.reward)}</span>${claimed ? '<span class="hr-ok">✔ Resgatado</span>' : `<button class="btn small ${done ? 'primary' : ''}" data-goal="${g.key}" ${done ? '' : 'disabled'}>Resgatar</button>`}</div>`;
 };
 
-let fRace: string | null = null; // v0.59.6: filtros (sessão)
-let fCat: string | null = null;
-const chips = (kind: 'race' | 'cat', keys: string[], cur: string | null, label: (k: string) => string) =>
-  `<div class="hr-chips" role="radiogroup"><span class="hr-chips-l">${kind === 'race' ? 'Grupo' : 'Tipo'}</span><button type="button" class="hr-chip${cur ? '' : ' on'}" data-f${kind}="">Todos</button>${keys.map((k) => `<button type="button" class="hr-chip${cur === k ? ' on' : ''}" data-f${kind}="${k}">${label(k)}</button>`).join('')}</div>`;
+// v0.59.6: filtros (sessão); v0.64.0: + Raridade, Ataque, Vida e Rodadas — todos valem juntos
+const F: HeroFilter = {};
+type FKey = keyof HeroFilter;
+const FLABEL: Record<FKey, string> = { race: 'Grupo', cat: 'Tipo', rarity: 'Raridade', atk: 'Ataque', hp: 'Vida', wait: 'Rodadas' };
+const RAR_NAMES = ['', 'Comum', 'Incomum', 'Raro', 'Épico', 'Lendário', 'Mítico'];
+const chips = (kind: FKey, keys: (string | number)[], label: (k: string) => string) => {
+  const cur = F[kind];
+  return `<div class="hr-chips" role="radiogroup"><span class="hr-chips-l">${FLABEL[kind]}</span><button type="button" class="hr-chip${cur ? '' : ' on'}" data-fk="${kind}" data-fv="">Todos</button>${keys.map((k) => `<button type="button" class="hr-chip${String(cur ?? '') === String(k) ? ' on' : ''}" data-fk="${kind}" data-fv="${k}">${label(String(k))}</button>`).join('')}</div>`;
+};
+const anyFilter = () => Object.values(F).some((v) => v);
 
 export function heroes() {
   leaveBattleMode();
@@ -47,7 +53,7 @@ export function heroes() {
   const row = (id: string) => {
     const d = CHAR_BY_ID[id];
     const cells: string[] = [];
-    for (let st = d.minStars; st <= d.maxStars; st++) {
+    for (const st of heroCells(d, F)) {
       const has = hasRarity(save, id, st);
       const can = variantClaimable(save, id, st);
       cells.push(`<div class="hr-cell">${cardHTML({ charId: id, stars: st, plus: 0 }, { grid: true, locked: false, extraClass: has ? '' : 'hr-dark', attrs: `data-card="${id}" data-stars="${st}"` })}${can ? `<button class="btn small primary hr-claim" data-var="${id}:${st}">Resgatar ${rewardHTML(VARIANT_REWARD[st])}</button>` : ''}</div>`);
@@ -60,19 +66,29 @@ export function heroes() {
   app.innerHTML = `<div class="screen heroes">${topbar('Heróis')}
     ${nClaim ? `<div class="hr-claimall"><button class="btn primary" id="hrClaimAll">🎁 Resgatar todos (${nClaim})</button></div>` : ''}
     <section class="hr-head"><b>Todos os personagens</b>${goalHTML(all)}</section>
-    <div class="hr-filters">${chips('race', RACE_ORDER, fRace, (k) => `${raceIcon(k)} ${RACE_INFO[k as keyof typeof RACE_INFO].label}`)}${chips('cat', CAT_ORDER, fCat, (k) => `${catIcon(k)} ${CATEGORY_INFO[k as keyof typeof CATEGORY_INFO].label}`)}</div>
+    <div class="hr-filters">${chips('race', RACE_ORDER, (k) => `${raceIcon(k)} ${RACE_INFO[k as keyof typeof RACE_INFO].label}`)}${chips('cat', CAT_ORDER, (k) => `${catIcon(k)} ${CATEGORY_INFO[k as keyof typeof CATEGORY_INFO].label}`)}${chips('rarity', [1, 2, 3, 4, 5, 6], (k) => `<i class="hr-rdot s${k}"></i>${RAR_NAMES[+k]}`)}${chips('atk', ATK_RANGES, (k) => `⚔️ ${k}`)}${chips('hp', HP_RANGES, (k) => `❤️ ${k}`)}${chips('wait', WAIT_VALUES, (k) => `💧 ${k}`)}${anyFilter() ? '<button type="button" class="btn small" id="hrClearF">Limpar filtros</button>' : ''}</div>
     <p class="hint">Cada raridade acende sozinha: ter a Comum não acende a Incomum. Toda raridade nova dá um prêmio para resgatar.</p>
-    ${(() => { const fg = filterHeroGroups(heroGroups(), fRace, fCat); return fg.length ? '' : '<p class="hint">Nenhum personagem com esse filtro.</p>'; })()}
-    ${filterHeroGroups(heroGroups(), fRace, fCat).map((g) => `<section class="hr-group"><h3 class="sec-title">${raceIcon(g.race)} ${RACE_INFO[g.race as keyof typeof RACE_INFO].label}${goalHTML(goals[`g:${g.race}`])}</h3>
+    ${filterHeroes(heroGroups(), F).length ? '' : '<p class="hint">Nenhum personagem com esse filtro.</p>'}
+    ${filterHeroes(heroGroups(), F).map((g) => `<section class="hr-group"><h3 class="sec-title">${raceIcon(g.race)} ${RACE_INFO[g.race as keyof typeof RACE_INFO].label}${goalHTML(goals[`g:${g.race}`])}</h3>
       ${g.types.map((t) => `<div class="hr-type"><h4>${catIcon(t.cat)} ${CATEGORY_INFO[t.cat as keyof typeof CATEGORY_INFO].label}${goalHTML(goals[`t:${g.race}:${t.cat}`])}</h4><div class="hr-rows">${t.chars.map((c) => row(c.id)).join('')}</div></div>`).join('')}
     </section>`).join('')}
-    ${showSpellsWith(fRace, fCat) ? `<section class="hr-group"><h3 class="sec-title">✦ Feitiços${goalHTML(sp)}</h3>
-      <div class="card-grid spell-grid">${[...SPELLS].sort((a, b) => a.rarity - b.rarity).map((s) => spellCardHTML(s.id, { locked: false, extraClass: `grid-card${spellOwned(save, s.id) ? '' : ' hr-dark'}` })).join('')}</div>
+    ${showSpellsFor(F) ? `<section class="hr-group"><h3 class="sec-title">✦ Feitiços${goalHTML(sp)}</h3>
+      <div class="card-grid spell-grid">${[...SPELLS].filter((s) => !F.rarity || s.rarity === F.rarity).sort((a, b) => a.rarity - b.rarity).map((s) => spellCardHTML(s.id, { locked: false, extraClass: `grid-card${spellOwned(save, s.id) ? '' : ' hr-dark'}` })).join('')}</div>
     </section>` : ''}
   </div>`;
   bindNav();
-  app.querySelectorAll<HTMLButtonElement>('[data-frace]').forEach((b) => b.addEventListener('click', () => { fRace = b.dataset.frace || null; heroes(); }));
-  app.querySelectorAll<HTMLButtonElement>('[data-fcat]').forEach((b) => b.addEventListener('click', () => { fCat = b.dataset.fcat || null; heroes(); }));
+  app.querySelectorAll<HTMLButtonElement>('[data-fk]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const k = b.dataset.fk as FKey;
+      const v = b.dataset.fv || null;
+      (F as Record<string, string | number | null>)[k] = v && (k === 'rarity' || k === 'wait') ? +v : v;
+      heroes();
+    }),
+  );
+  app.querySelector('#hrClearF')?.addEventListener('click', () => {
+    for (const k of Object.keys(F)) delete F[k as FKey];
+    heroes();
+  });
   app.querySelectorAll<HTMLButtonElement>('[data-goal]').forEach((b) =>
     b.addEventListener('click', () => {
       const r = claimGoal(save, goals[b.dataset.goal!]);
