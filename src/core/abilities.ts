@@ -23,6 +23,8 @@ export interface AbilityDef {
   name: string;
   description: string;
   icon: string;
+  /** v0.64.7: descrição própria de uma raridade (undefined = a padrão) */
+  descAt?: (stars: number) => string | undefined;
   /** texto curto de evolução por estrela/nível (exibido nas telas) */
   scaling?: string;
   /** força atual da habilidade (já limitada pelo teto) */
@@ -94,11 +96,13 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   diagFrente: {
     id: 'diagFrente',
     name: 'Corte Diagonal',
-    description: 'Também ataca o inimigo na diagonal logo à frente (outra fileira, 1 coluna adiante).',
+    // v0.64.7: une o antigo Golpe Reverso — ataca quem está atrás, nas diagonais e ao lado antes de atacar à frente
+    description: 'Ataca primeiro quem está atrás, nas diagonais ou ao lado; se não houver ninguém, ataca à frente.',
+    descAt: (s) => (s <= 2 ? 'Ataca primeiro quem está atrás ou na diagonal de trás; se não houver ninguém, ataca à frente.' : undefined),
     icon: '↗',
     targeting: 'diagFrente',
-    scaling: 'Raro em diante: ao bater em frente, também corta a diagonal com 50% do dano (máx.).',
-    power: (s) => (s >= 3 ? 50 : 0),
+    scaling: 'Raro em diante: também ao lado e na diagonal da frente. Lendário em diante: corte duplo — também acerta o próximo inimigo dessa ordem com 50% do dano.',
+    power: (s) => (s >= 5 ? 50 : 0),
     powerLabel: (p) => (p ? `corte duplo ${p}%` : 'sem corte duplo'),
   },
   diagTras: {

@@ -25,10 +25,9 @@ describe('v0.15.1 — Feixe Perfurante máx. 75%', () => {
 });
 
 describe('v0.15.1 — Corte Diagonal máx. 50%', () => {
-  it('0 em Comum/Incomum, 50% de Raro em diante', () => {
-    expect(abilityPower('diagFrente', 1, 0)).toBe(0);
-    expect(abilityPower('diagFrente', 2, 0)).toBe(0);
-    for (let s = 3; s <= 6; s++) expect(abilityPower('diagFrente', s, 99)).toBe(50);
+  it('v0.64.7: corte duplo só em Lendário e Mítico (50%)', () => {
+    for (let s = 1; s <= 4; s++) expect(abilityPower('diagFrente', s, 99)).toBe(0);
+    for (let s = 5; s <= 6; s++) expect(abilityPower('diagFrente', s, 99)).toBe(50);
   });
 });
 

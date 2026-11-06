@@ -18,7 +18,7 @@ import type {
   Unit,
 } from './types';
 
-import { rangeOf, hasRangeBonus, pw, furyBonus, effectiveAtk, computeDamage, findTarget } from './battleRules';
+import { diagCells, rangeOf, hasRangeBonus, pw, furyBonus, effectiveAtk, computeDamage, findTarget } from './battleRules';
 import { leapLanding, moveUnit } from './battleMove';
 
 export { rangeOf, hasRangeBonus, auraPenalty, FURY_START, FURY_EVERY, furyBonus, allyBuff, effectiveAtk, computeDamage, distanceToEnemyHero, findTarget } from './battleRules';
@@ -777,11 +777,16 @@ function strike(state: BattleState, ctx: Ctx, u: Unit, t: Unit | 'hero', bonus =
   const tCol = t.col;
   attack(state, ctx, u, t, { bonus });
   if (state.winner || u.hp <= 0) return;
-  // Corte Diagonal: ao bater em frente, também corta a diagonal
+  // v0.64.7: Corte Diagonal Lendário+ (corte duplo) — também acerta o próximo inimigo da ordem (atrás, diagonal de
+  // trás, lado, diagonal da frente, frente) com 50% do dano
   const cleave = pw(u, 'diagFrente');
-  if (cleave && tRow === u.row) {
-    for (const e of state.units.filter((e) => e.side !== u.side && e.hp > 0 && Math.abs(e.row - u.row) === 1 && (e.col - u.col) * d === 1)) {
-      attack(state, ctx, u, e, { pct: cleave, secondary: true, label: 'corta na diagonal' });
+  if (cleave) {
+    const cells: [number, number][] = [...diagCells(u), [0, 1]];
+    const next = cells
+      .map(([dr, df]) => state.units.find((e) => e.side !== u.side && e.hp > 0 && !(e.row === tRow && e.col === tCol) && e.row - u.row === dr && (e.col - u.col) * d === df))
+      .find(Boolean);
+    if (next) {
+      attack(state, ctx, u, next, { pct: cleave, secondary: true, label: 'corta também' });
       if (state.winner || u.hp <= 0) return;
     }
   }

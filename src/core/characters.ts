@@ -561,6 +561,8 @@ for (const c of CHARACTERS) {
  * escolhido no editor). Usado ao carregar as cartas e ao aplicar o editor.
  */
 export function rangeFromLongoAlcance(c: CharacterDef): void {
+  // v0.64.7: Golpe Reverso virou o mesmo Corte Diagonal (ataca atrás, nas diagonais e ao lado)
+  if (c.abilities.includes('diagTras')) c.abilities = [...new Set(c.abilities.map((a) => (a === 'diagTras' ? 'diagFrente' : a)))];
   if (!c.abilities.includes('longoAlcance')) return;
   c.abilities = c.abilities.filter((a) => a !== 'longoAlcance');
   c.range = Math.max(c.range, 4);

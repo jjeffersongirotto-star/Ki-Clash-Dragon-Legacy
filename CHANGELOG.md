@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.64.7] — 06/11/2026 · Corte Diagonal nas costas, nos lados e nas diagonais
+- **Golpe Reverso virou Corte Diagonal** (uma habilidade só, mesmo nome para todos).
+- **Corte Diagonal** agora ataca primeiro quem está **atrás**, depois na **diagonal de trás**, depois **ao lado** e por fim na **diagonal da frente** — um inimigo por vez. Se não houver ninguém nessas casas, ataca **à frente** normalmente.
+- **Comum e Incomum:** só atrás e na diagonal de trás. **Raro em diante:** todas as direções.
+- **Lendário e Mítico (corte duplo):** além do alvo, acerta o próximo inimigo dessa ordem com 50% do dano.
+- Tutorial, Batalha 2: Comandante inimigo com 9 de vida (era 10), para continuar impossível de perder.
+
 ## [0.64.6] — 06/11/2026 · Emboscada do Zarek e fim do "Longo Alcance"
 - **Zarek — Emboscada:** se houver um **aliado à frente dele** na fileira (protegendo), ataca o inimigo **mais distante até 4 casas** (o alcance dele); se não houver, ataca o inimigo **mais próximo**.
 - **Longo Alcance deixou de existir como habilidade:** todas as cartas que tinham passaram a ter **alcance 4** (o mesmo de antes no jogo). Atacar de longe agora é só o **alcance** da carta, que você muda no editor; o Longo Alcance também saiu da lista de habilidades do editor.
