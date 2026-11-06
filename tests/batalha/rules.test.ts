@@ -92,9 +92,9 @@ describe('só a própria fileira (exceto diagonais)', () => {
       expect(findTarget(s, u)).toBeNull();
     }
   });
-  it('Emboscada (Zarek): o mais distante da fileira até 2 casas', () => {
+  it('Emboscada (Sayuri): o mais distante da fileira até 2 casas', () => {
     const s = empty();
-    const z = placeUnit(s, c('zarek', 1, 3), 'player', 0, 2);
+    const z = placeUnit(s, c('sayuri', 1, 3), 'player', 0, 2);
     placeUnit(s, c('riku'), 'enemy', 0, 3);
     const far = placeUnit(s, c('riku'), 'enemy', 0, 4);
     placeUnit(s, c('riku'), 'enemy', 0, 5);
@@ -102,7 +102,7 @@ describe('só a própria fileira (exceto diagonais)', () => {
   });
   it('Emboscada perfura resistência conforme estrelas', () => {
     const s = empty();
-    const z = placeUnit(s, c('zarek', 1, 5), 'player', 0, 2, { atk: 4 });
+    const z = placeUnit(s, c('sayuri', 1, 5), 'player', 0, 2, { atk: 4 });
     const g = placeUnit(s, c('gorath', 1, 2), 'enemy', 0, 3, { hp: 50 });
     attack(s, new Ctx(), z, g);
     expect(g.hp).toBe(50 - 4); // resist. 2 totalmente perfurada (perfura 3)
@@ -276,7 +276,7 @@ describe('categorias e cores', () => {
       expect(CATEGORY_INFO[d.category]).toBeTruthy();
       if (d.category === 'mago') expect(d.damageType).toBe('magico');
       if (d.category === 'arqueiro') expect(d.damageType).toBe('fisico');
-      if (d.category === 'mago' || d.category === 'arqueiro') expect(d.abilities).toContain('longoAlcance');
+      if (d.category === 'mago' || d.category === 'arqueiro') expect(d.range, d.id).toBeGreaterThanOrEqual(3); // v0.64.6: ataque de longe = alcance
     }
   });
   it('ranged têm menos vida; tanques mais vida e resistência e menos ataque', () => {

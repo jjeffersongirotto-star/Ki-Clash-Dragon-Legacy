@@ -2,6 +2,7 @@
  * Regras de combate (lógica pura): alcance, bônus, ataque efetivo, dano e escolha do alvo.
  * v0.28.1: separado de battle.ts, que reexporta estas funções.
  */
+import { hasTweak } from './balanceV2';
 import { ABILITIES, AURA_CAP, BUFF_CAP, abilityPower, has } from './abilities';
 import { dir } from './battle';
 import type { AbilityId, BattleState, Unit } from './types';
@@ -10,7 +11,8 @@ export function rangeOf(u: Unit): number {
 }
 
 export function hasRangeBonus(u: Unit): boolean {
-  return !!has(u.abilities, (a) => a.rangeBonus);
+  // v0.64.6: "ataca de longe" = alcance 3+ (o Longo Alcance virou alcance 4) ou habilidade que soma alcance
+  return u.range >= 3 || !!has(u.abilities, (a) => a.rangeBonus);
 }
 
 export const pw = (u: Unit, id: AbilityId) => (u.abilities.includes(id) ? abilityPower(id, u.stars, u.plus) : 0);
@@ -101,10 +103,10 @@ export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
   if (targeting === 'maiorAtaque' && rowAhead.length) {
     return rowAhead.sort((a, b) => b.atk - a.atk || fwd(a) - fwd(b))[0];
   }
-  // v0.64.5: a Emboscada só procura o mais distante até as casas dela (2), mesmo em quem tem alcance maior
-  const ambush = targeting === 'retaguarda' ? rowAhead.filter((e) => fwd(e) <= (ab?.reach ?? reach)) : [];
-  if (ambush.length) {
-    return ambush.sort((a, b) => fwd(b) - fwd(a))[0];
+  // v0.64.6: Emboscada do Zarek — só quando há um aliado à frente dele na fileira (protegendo); senão, ataca o mais próximo
+  const covered = () => state.units.some((a) => a !== u && a.hp > 0 && a.side === u.side && a.row === u.row && (a.col - u.col) * d >= 1);
+  if (targeting === 'retaguarda' && rowAhead.length && (!hasTweak(u.charId, 'emboscadaComAliado') || covered())) {
+    return rowAhead.sort((a, b) => fwd(b) - fwd(a))[0];
   }
   if (targeting === 'diagTras') {
     const back = enemies.filter((e) => fwd(e) === -1 && Math.abs(e.row - u.row) === 1);

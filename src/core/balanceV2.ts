@@ -34,7 +34,7 @@ export interface BalanceEntry {
 }
 
 /** Variações de habilidade só de uma carta. */
-export type CardTweak = 'retaguardaSemPerfurar' | 'furiaSemLimite' | 'vampirismoTotal' | 'inabalavelSemMagia';
+export type CardTweak = 'emboscadaComAliado' | 'retaguardaSemPerfurar' | 'furiaSemLimite' | 'vampirismoTotal' | 'inabalavelSemMagia';
 /** A unidade/carta tem essa variação? */
 export const hasTweak = (charId: string, t: CardTweak) => !!BALANCE_V2[charId]?.tweaks?.includes(t);
 
@@ -47,7 +47,7 @@ export const BALANCE_V2: Record<string, BalanceEntry> = {
   gorath: { min: 2, max: 4, wait: 4, stats: { 2: [2, 7], 3: [2, 8], 4: [2, 9] }, ab: ['inabalavel', 'ombrada'] },
   mei: { min: 2, max: 4, wait: 3, stats: { 2: [1, 4], 3: [1, 5], 4: [1, 6] }, ab: ['longoAlcance', 'lotus', 'anjo'] },
   yume: { min: 3, max: 5, wait: 5, stats: { 3: [5, 3], 4: [5, 4], 5: [6, 4] }, ab: ['menorVida'] },
-  zarek: { min: 6, max: 6, wait: 7, stats: { 6: [9, 5] }, ab: ['retaguarda', 'renascer'], range: 4, dmg: 'magico', tweaks: ['retaguardaSemPerfurar'], desc: { retaguarda: 'Ataca o inimigo mais distante da sua fileira até 2 casas à frente; se não houver inimigo nessas 2 casas, ataca o inimigo mais próximo no alcance.' }, manual: true },
+  zarek: { min: 6, max: 6, wait: 7, stats: { 6: [9, 5] }, ab: ['retaguarda', 'renascer'], range: 4, dmg: 'magico', tweaks: ['retaguardaSemPerfurar', 'emboscadaComAliado'], desc: { retaguarda: 'Se tiver um aliado à frente dele na fileira (protegendo), ataca o inimigo mais distante no alcance (até 4 casas); senão, ataca o inimigo mais próximo.' }, manual: true },
   kenji: { min: 5, max: 6, wait: 6, stats: { 5: [4, 9], 6: [5, 9] }, ab: ['contraGolpe', 'investida', 'critico'], up: { critico: 6 } },
   nyx: { min: 3, max: 5, wait: 4, stats: { 3: [2, 5], 4: [2, 6], 5: [3, 6] }, ab: ['longoAlcance', 'sifao', 'reflexo'] },
   vorax: { min: 6, max: 6, wait: 7, stats: { 6: [5, 8] }, ab: ['longoAlcance', 'prole', 'necromancia', 'vinganca'] },

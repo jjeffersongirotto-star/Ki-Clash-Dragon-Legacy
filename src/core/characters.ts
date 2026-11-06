@@ -556,6 +556,17 @@ for (const c of CHARACTERS) {
   if (b.desc) c.abilityDesc = { ...b.desc };
 }
 
+/**
+ * v0.64.6: "Longo Alcance" deixou de ser habilidade — quem tinha passa a ter alcance 4 (atacar de longe é o alcance,
+ * escolhido no editor). Usado ao carregar as cartas e ao aplicar o editor.
+ */
+export function rangeFromLongoAlcance(c: CharacterDef): void {
+  if (!c.abilities.includes('longoAlcance')) return;
+  c.abilities = c.abilities.filter((a) => a !== 'longoAlcance');
+  c.range = Math.max(c.range, 4);
+}
+for (const c of CHARACTERS) rangeFromLongoAlcance(c);
+
 /** v0.63.0: habilidades que a carta tem NESSA raridade (Épicos/Lendários ganham uma ao subir). */
 export function abilitiesAt(def: CharacterDef, stars: number): AbilityId[] {
   const u = def.unlock;
