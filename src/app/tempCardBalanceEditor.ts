@@ -462,7 +462,6 @@ export async function openCardEditor(id: string, refresh: () => void, stars?: nu
       <label>Alcance (casas)<input type="number" min="1" id="tbRange" value="${d.range}"></label>
       <div class="tbe-rar" id="tbRar"></div>
       <div class="tbe-pane" id="tbPane"></div>
-      <p class="acc-warn">Atacar de longe é o <b>alcance</b>, não habilidade. Mudanças: ${Object.keys(edits).length} carta(s).</p>
       <div class="dialog-btns"><button type="button" class="btn ghost" data-t="dl">Baixar alterações</button><button type="button" class="btn ghost" data-t="reset">Restaurar</button><button type="button" class="btn primary" data-t="save">Salvar</button></div>
     </form>`,
     buttons: [],
