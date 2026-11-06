@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.64.4] — 06/11/2026 · "Longo Alcance" não aparece mais como habilidade
+- **Longo Alcance** saiu da lista de habilidades (na carta, nos Heróis, no Treinar, no Baralho e na batalha): atacar de longe é o **alcance** da carta, como qualquer atacante de longe — o jeito de jogar não muda. Nos Heróis, o quadro da carta mostra o alcance ao lado de ataque, vida e rodadas.
+
 ## [0.64.3] — 06/11/2026 · Editor de carta sem barras de rolagem
 - **Editor de carta (segurar a carta nos Heróis):** no computador a janela ficou larga e mostra tudo de uma vez (campos lado a lado, habilidades em 2 colunas), sem barras de rolagem. No celular nada passa da largura (acabou a barra de baixo) e a janela rola com o dedo, sem barra lateral. As descrições das habilidades aparecem inteiras.
 - **Couraça Adaptativa** (Kolossus) agora vai até **4** de resistência física (antes 3 — e, com a Postura de Guarda, o Kolossus já começava no teto, então a Couraça não somava nada).

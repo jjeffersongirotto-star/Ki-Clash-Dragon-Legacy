@@ -106,7 +106,8 @@ export function cardHTML(
   const ga = opts.grid ? gridArtHTML(def, t, !!opts.locked) : null;
   // v0.14.1: fileira de habilidades (bolinhas separadas por pontos) DENTRO da moldura, no centro de baixo
   // v0.14.3: as cartas pequenas (compactas, mão) também mostram a fileira, entre o ataque e a vida
-  const abil = `${opts.compact ? '' : '<div class="ck-sep"><i></i><i></i><i></i></div>'}<div class="ck-abil n${def.abilities.length}">${def.abilities.map((a) => { const lk = (def.unlock?.[a] ?? 0) > t; return `<span class="ck-ab${lk ? ' lk' : ''}" title="${esc(ABILITIES[a].name)}${lk ? ` (desbloqueia no ${TIER_NAMES[def.unlock![a]!]})` : ''}">${abilityIconHTML(a)}</span>`; }).join('<i class="ck-dot"></i>')}</div>`;
+  const shown = shownAbilities(def);
+  const abil = `${opts.compact ? '' : '<div class="ck-sep"><i></i><i></i><i></i></div>'}<div class="ck-abil n${shown.length}">${shown.map((a) => { const lk = (def.unlock?.[a] ?? 0) > t; return `<span class="ck-ab${lk ? ' lk' : ''}" title="${esc(ABILITIES[a].name)}${lk ? ` (desbloqueia no ${TIER_NAMES[def.unlock![a]!]})` : ''}">${abilityIconHTML(a)}</span>`; }).join('<i class="ck-dot"></i>')}</div>`;
   // v0.14.2: nomes com uma palavra muito comprida (ex.: "Tambor-de-Guerra") encolhem um pouco para caber inteiros
   const longest = Math.max(...def.name.split(' ').map((w) => w.length));
   const nfit = longest > 14 ? ` style="--nfit:${(13.6 / longest).toFixed(3)}"` : '';
@@ -133,9 +134,15 @@ export function cardHTML(
 }
 
 /** Lista de habilidades com a força atual (raridade e degrau) e a evolução por raridade. */
+/**
+ * v0.64.4: habilidades que aparecem na carta e nas listas. "Longo Alcance" não é habilidade (é o alcance da
+ * carta, igual a qualquer atacante de longe): continua valendo no jogo, mas não aparece como habilidade.
+ */
+export const shownAbilities = (def: CharacterDef): AbilityId[] => def.abilities.filter((a) => a !== 'longoAlcance');
+
 export function abilityListHTML(def: CharacterDef, stars?: number, step = 0): string {
   const s = stars ?? def.minStars;
-  const rows = def.abilities.map((a) => {
+  const rows = shownAbilities(def).map((a) => {
     const ab = ABILITIES[a];
     const p = ab.power?.(s, stepIndex(s, step));
     const now = ab.powerLabel && p != null ? ` <span class="ab-now">agora: ${esc(ab.powerLabel(p))}</span>` : '';
