@@ -21,16 +21,15 @@ describe('v0.64.5 — ajustes do jogador no editor', () => {
     expect(abilityListHTML(getChar('vharga'), 6)).toContain('totalmente');
   });
 
-  it('Zarek: Emboscada só até 2 casas; senão, o mais próximo no alcance 4', () => {
+  it('Zarek (v0.64.6): sem aliado à frente ataca o mais próximo; com aliado à frente, o mais distante até 4 casas', () => {
     const s = empty();
     const z = placeUnit(s, c('zarek'), 'player', 0, 1);
     expect(rangeOf(z)).toBe(4);
-    const near = placeUnit(s, c('riku'), 'enemy', 0, 4);
-    placeUnit(s, c('riku'), 'enemy', 0, 5);
+    const near = placeUnit(s, c('riku'), 'enemy', 0, 3);
+    const far = placeUnit(s, c('riku'), 'enemy', 0, 5);
     expect(findTarget(s, z)).toBe(near);
-    const two = placeUnit(s, c('riku'), 'enemy', 0, 3);
-    placeUnit(s, c('riku'), 'enemy', 0, 2);
-    expect(findTarget(s, z)).toBe(two);
+    placeUnit(s, c('taro'), 'player', 0, 2);
+    expect(findTarget(s, z)).toBe(far);
   });
 
   it('Kael: Fúria sem limite', () => {

@@ -35,7 +35,7 @@
 import { ABILITIES } from "../core/abilities";
 import { GROUP_LABEL, GROUP_ORDER, groupOf, blurbOf } from "./tempAbilityInfo";
 import { TIER_LABEL, TIER_ORDER, tierOf } from "./tempAbilityTiers";
-import { CHAR_BY_ID } from "../core/characters";
+import { CHAR_BY_ID, rangeFromLongoAlcance } from "../core/characters";
 import { TEMP_WAIT, TEMP_STATS } from "../core/tempOverrides";
 import { statsFor } from "../core/progression";
 import { abilityPower } from "../core/abilities";
@@ -120,6 +120,7 @@ export function applyEdits(edits = loadEdits()) {
     Object.assign(d, rest);
     if (abilities)
       d.abilities = abilities.filter((a) => a in ABILITIES) as AbilityId[];
+    rangeFromLongoAlcance(d); // v0.64.6: Longo Alcance não é habilidade — vira alcance 4
     if (wait != null) TEMP_WAIT[id] = wait;
   }
 }
@@ -395,7 +396,7 @@ export function pickerHtml(current: string): string {
     (g) =>
       `<h4 class="tbp-h">${GROUP_LABEL[g]}</h4>${TIER_ORDER.flatMap((t) =>
         Object.values(ABILITIES)
-          .filter((x) => groupOf(x.id) === g && tierOf(x.id) === t)
+          .filter((x) => x.id !== "longoAlcance" && groupOf(x.id) === g && tierOf(x.id) === t)
           .map((x) =>
             item(x.id, `[${TIER_LABEL[t]}] ${x.name}`, blurbOf(x.id), t),
           ),

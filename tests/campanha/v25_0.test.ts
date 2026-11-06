@@ -50,7 +50,7 @@ describe('v0.25.0 — tutorial', () => {
   it('pacote grátis: Sora (suporte de longo alcance) e Nara (Corte Diagonal)', () => {
     expect(TUTORIAL_PACK).toEqual(['sora', 'nara']);
     expect(getChar('sora').category).toBe('suporte');
-    expect(getChar('sora').abilities).toContain('longoAlcance');
+    expect(getChar('sora').range).toBe(4); // v0.64.6: Longo Alcance virou alcance 4
     expect(getChar('nara').abilities).toContain('diagFrente');
   });
 

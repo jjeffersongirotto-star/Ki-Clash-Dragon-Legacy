@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.64.6] — 06/11/2026 · Emboscada do Zarek e fim do "Longo Alcance"
+- **Zarek — Emboscada:** se houver um **aliado à frente dele** na fileira (protegendo), ataca o inimigo **mais distante até 4 casas** (o alcance dele); se não houver, ataca o inimigo **mais próximo**.
+- **Longo Alcance deixou de existir como habilidade:** todas as cartas que tinham passaram a ter **alcance 4** (o mesmo de antes no jogo). Atacar de longe agora é só o **alcance** da carta, que você muda no editor; o Longo Alcance também saiu da lista de habilidades do editor.
+- Kael: Fúria continua sem limite.
+
 ## [0.64.5] — 06/11/2026 · Ajustes de cartas feitos no editor
 - **Mestre Hayato:** espera 6, alcance 2; sem Golpe Crítico.
 - **Zarek:** espera 7, dano mágico, alcance 4; sem Golpe Crítico. Emboscada (só dele): ataca o inimigo mais distante até 2 casas; se não houver, ataca o mais próximo no alcance — e não ignora mais resistência.

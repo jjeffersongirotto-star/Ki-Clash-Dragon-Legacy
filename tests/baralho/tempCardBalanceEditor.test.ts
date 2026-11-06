@@ -194,6 +194,6 @@ describe('v0.58.2 seletor de habilidades', () => {
     expect(ABILITY_INFO.vampirismo.g).toBe('hibrido');
     const h = pickerHtml('vampirismo');
     for (const t of ['Ataque de perto', 'Ataque de longe', 'Híbrido', 'Básica', 'Normal', 'Épica']) expect(h).toContain(t);
-    expect((h.match(/data-pick=/g) ?? []).length).toBe(Object.keys(ABILITIES).length + 1);
+    expect((h.match(/data-pick=/g) ?? []).length).toBe(Object.keys(ABILITIES).length); // + "nova", − Longo Alcance (v0.64.6)
   });
 });
