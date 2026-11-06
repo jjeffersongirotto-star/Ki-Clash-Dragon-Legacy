@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.64.2] — 06/11/2026 · Botão ⟳ centralizado
+- O ícone do botão **⟳ (procurar atualização)** agora fica no centro do círculo (estava puxado para a esquerda).
+
 ## [0.64.1] — 06/11/2026 · Heróis: habilidades ao tocar na carta
 - **Heróis:** tocar numa carta mostra, no espaço vazio ao lado das cartas daquele personagem, o **ataque, a vida, as rodadas e as habilidades** daquela raridade (com as bloqueadas e quando desbloqueiam). Tocar em outra carta troca; tocar na mesma fecha. No celular o quadro aparece logo abaixo das cartas.
 - Primeira versão que chega pela **atualização automática** (⟳) para quem já instalou a 0.64.0.
