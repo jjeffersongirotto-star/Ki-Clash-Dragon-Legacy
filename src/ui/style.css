@@ -1884,3 +1884,5 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .hr-info .ab-svg, .hr-info .ico { width: 1.2em; height: 1.2em; vertical-align: -3px; }
 .hr-cell .card.hr-sel { outline: 3px solid #ffd76a; outline-offset: 2px; border-radius: 8px; }
 .hr-cell [data-card] { cursor: pointer; }
+/* v0.64.2: ícone ⟳ centralizado no círculo (o ".btn > .ico" punha uma margem à direita) */
+.account-box .upd-btn > .ico { margin: 0; vertical-align: middle; width: 28px; height: 28px; }
