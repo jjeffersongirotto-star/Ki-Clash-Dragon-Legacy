@@ -9,7 +9,7 @@ import { SPELLS } from '../core/spells';
 import { addProfileXp } from '../core/profile';
 import { statsFor, type XpItemId } from '../core/progression';
 import { filterHeroes, showSpellsFor, heroCells, ATK_RANGES, HP_RANGES, WAIT_VALUES, type HeroFilter, RACE_ORDER, CAT_ORDER, claimAll, claimableCount, claimGoal, claimVariant, goalClaimed, hasRarity, heroGoals, heroGroups, spellOwned, syncSeen, variantClaimable, VARIANT_REWARD, type Goal, type Reward } from '../core/heroes';
-import { abilityListHTML, cardHTML, catIcon, esc, gemHTML, goldHTML, orbHTML, raceIcon, spellCardHTML } from '../ui/components';
+import { abilityListHTML, reachLabel, cardHTML, catIcon, esc, gemHTML, goldHTML, orbHTML, raceIcon, spellCardHTML } from '../ui/components';
 import { showDialog } from '../ui/dialog';
 import { rewardListHTML } from '../ui/rewardList';
 import { leaveBattleMode } from '../ui/orientation';
@@ -105,7 +105,7 @@ export function heroes() {
       const d = CHAR_BY_ID[el.dataset.card!];
       const st = +el.dataset.stars!;
       const s = statsFor(d, st, 0);
-      info.innerHTML = `<div class="hr-info-h"><b>${esc(d.name)}</b> · ${RAR_NAMES[st]}<span>⚔️ ${s.atk} · ❤️ ${s.hp} · 💧 ${d.wait ?? ''}</span></div>${abilityListHTML(d, st, 0)}`;
+      info.innerHTML = `<div class="hr-info-h"><b>${esc(d.name)}</b> · ${RAR_NAMES[st]}<span>⚔️ ${s.atk} · ❤️ ${s.hp} · 💧 ${d.wait ?? ''} · 🎯 alcance ${reachLabel(d)}</span></div>${abilityListHTML(d, st, 0)}`;
       info.hidden = false;
     }),
   );

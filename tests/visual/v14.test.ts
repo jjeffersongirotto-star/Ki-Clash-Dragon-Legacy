@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { describe, expect, it } from 'vitest';
-import { cardHTML } from '../../src/ui/components';
+import { shownAbilities, cardHTML } from '../../src/ui/components';
 import { CATEGORY_INFO, PLAYABLE, getChar } from '../../src/core/characters';
 import { cardPower } from '../../src/core/power';
 import dps from '../../src/assets/card/atk-dps.svg?raw';
@@ -39,9 +39,9 @@ describe('v0.14 — padrão de carta', () => {
     for (const d of PLAYABLE) {
       const h = cardHTML({ charId: d.id, stars: d.minStars });
       const row = h.slice(h.indexOf('class="ck-abil'));
-      expect((row.match(/class="ck-ab(?: lk)?"/g) ?? []).length, d.id).toBe(d.abilities.length);
-      expect((row.match(/class="ck-dot"/g) ?? []).length, d.id).toBe(Math.max(0, d.abilities.length - 1));
-      for (const a of d.abilities) expect(row).toContain(`/src/assets/icons/ab-${a}.webp`); // v0.42.0: ícone desenhado de cada habilidade
+      expect((row.match(/class="ck-ab(?: lk)?"/g) ?? []).length, d.id).toBe(shownAbilities(d).length);
+      expect((row.match(/class="ck-dot"/g) ?? []).length, d.id).toBe(Math.max(0, shownAbilities(d).length - 1));
+      for (const a of shownAbilities(d)) expect(row).toContain(`/src/assets/icons/ab-${a}.webp`); // v0.42.0: ícone desenhado de cada habilidade
     }
   });
   it('v0.42.2: o Poder não aparece mais no topo da carta (só visual; o valor continua o mesmo)', () => {

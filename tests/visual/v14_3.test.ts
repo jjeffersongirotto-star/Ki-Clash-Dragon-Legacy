@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cardHTML } from '../../src/ui/components';
+import { shownAbilities, cardHTML } from '../../src/ui/components';
 import { PLAYABLE } from '../../src/core/characters';
 
 describe('v0.14.3 — habilidades nas cartas pequenas (mão, equipe, Treinar)', () => {
@@ -9,9 +9,9 @@ describe('v0.14.3 — habilidades nas cartas pequenas (mão, equipe, Treinar)', 
       const small = cardHTML({ charId: d.id, stars: d.minStars }, { compact: true, grid: true });
       const row = (h: string) => h.slice(h.indexOf('<div class="ck-abil'), h.indexOf('</div>', h.indexOf('<div class="ck-abil')));
       expect(row(small), d.id).toBe(row(big));
-      expect(small).toContain(`class="ck-abil n${d.abilities.length}"`);
-      expect((row(small).match(/class="ck-ab(?: lk)?"/g) ?? []).length, d.id).toBe(d.abilities.length);
-      expect((row(small).match(/class="ck-dot"/g) ?? []).length, d.id).toBe(d.abilities.length - 1);
+      expect(small).toContain(`class="ck-abil n${shownAbilities(d).length}"`);
+      expect((row(small).match(/class="ck-ab(?: lk)?"/g) ?? []).length, d.id).toBe(shownAbilities(d).length);
+      expect((row(small).match(/class="ck-dot"/g) ?? []).length, d.id).toBe(Math.max(0, shownAbilities(d).length - 1));
       expect(small, d.id).not.toContain('ck-sep');
     }
   });
