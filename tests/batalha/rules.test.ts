@@ -130,20 +130,20 @@ describe('só a própria fileira (exceto diagonais)', () => {
     expect(other.hp).toBe(50);
     expect(far.hp).toBe(50); // fora do alcance 4
   });
-  it('Corte Diagonal 3★+ também corta a diagonal ao bater em frente', () => {
+  it('Corte Diagonal Lendário+: corte duplo no próximo da ordem (v0.64.7)', () => {
     const s = empty();
-    const n = placeUnit(s, c('nara', 1, 4), 'player', 0, 2, { atk: 4 });
-    const f = placeUnit(s, c('gorath'), 'enemy', 0, 3, { hp: 50 });
-    const dg = placeUnit(s, c('riku'), 'enemy', 1, 3, { hp: 50 });
+    const n = placeUnit(s, c('nara', 1, 5), 'player', 0, 2, { atk: 4 });
+    const f = placeUnit(s, c('gorath'), 'enemy', 1, 2, { hp: 50 }); // lado (alvo principal)
+    const dg = placeUnit(s, c('riku'), 'enemy', 0, 3, { hp: 50 }); // frente (corte duplo)
     act(s, new Ctx(), n);
     expect(f.hp).toBeLessThan(50);
     expect(dg.hp).toBe(48); // v0.15.1: 50% máx. (ceil(4 × 50%) = 2)
     const s2 = empty();
-    const n2 = placeUnit(s2, c('nara', 1, 1), 'player', 0, 2, { atk: 4 });
-    placeUnit(s2, c('gorath'), 'enemy', 0, 3, { hp: 50 });
-    const dg2 = placeUnit(s2, c('riku'), 'enemy', 1, 3, { hp: 50 });
+    const n2 = placeUnit(s2, c('nara', 1, 4), 'player', 0, 2, { atk: 4 });
+    placeUnit(s2, c('gorath'), 'enemy', 1, 2, { hp: 50 });
+    const dg2 = placeUnit(s2, c('riku'), 'enemy', 0, 3, { hp: 50 });
     act(s2, new Ctx(), n2);
-    expect(dg2.hp).toBe(50);
+    expect(dg2.hp).toBe(50); // Épico: sem corte duplo
   });
 });
 

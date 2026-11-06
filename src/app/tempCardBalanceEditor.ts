@@ -396,7 +396,7 @@ export function pickerHtml(current: string): string {
     (g) =>
       `<h4 class="tbp-h">${GROUP_LABEL[g]}</h4>${TIER_ORDER.flatMap((t) =>
         Object.values(ABILITIES)
-          .filter((x) => x.id !== "longoAlcance" && groupOf(x.id) === g && tierOf(x.id) === t)
+          .filter((x) => x.id !== "longoAlcance" && x.id !== "diagTras" && groupOf(x.id) === g && tierOf(x.id) === t)
           .map((x) =>
             item(x.id, `[${TIER_LABEL[t]}] ${x.name}`, blurbOf(x.id), t),
           ),

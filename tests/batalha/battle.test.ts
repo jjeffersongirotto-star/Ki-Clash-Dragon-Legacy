@@ -127,13 +127,24 @@ describe('alcance e mira', () => {
     expect(u.col).toBe(6);
     expect(s.heroes.enemy.hp).toBe(30 - u.atk);
   });
-  it('corte diagonal atinge só a diagonal adjacente à frente', () => {
+  it('v0.64.7: Corte Diagonal — Comum/Incomum só atrás e diagonal de trás; Raro+ também lado e diagonal da frente', () => {
     const s = emptyBattle();
-    const u = placeUnit(s, c('nara'), 'player', 0, 3);
+    const u = placeUnit(s, c('nara'), 'player', 0, 3); // Comum
     const e = placeUnit(s, c('riku'), 'enemy', 1, 4);
-    expect(findTarget(s, u)).toBe(e);
-    e.col = 5;
-    expect(findTarget(s, u)).toBeNull();
+    expect(findTarget(s, u)).toBeNull(); // diagonal da frente: não no Comum
+    e.col = 2;
+    expect(findTarget(s, u)).toBe(e); // diagonal de trás
+    const back = placeUnit(s, c('riku'), 'enemy', 0, 2);
+    expect(findTarget(s, u)).toBe(back); // atrás tem prioridade
+    const s2 = emptyBattle();
+    const r = placeUnit(s2, c('nara', 1, 3), 'player', 0, 3); // Raro
+    const fd = placeUnit(s2, c('riku'), 'enemy', 1, 4);
+    expect(findTarget(s2, r)).toBe(fd);
+    const side = placeUnit(s2, c('riku'), 'enemy', 1, 3);
+    expect(findTarget(s2, r)).toBe(side); // lado antes da diagonal da frente
+    const front = placeUnit(s2, c('riku'), 'enemy', 0, 4);
+    expect(findTarget(s2, r)).toBe(side); // a frente é só quando a habilidade não acha ninguém
+    void front;
   });
   it('unidade comum NÃO ataca na diagonal', () => {
     const s = emptyBattle();

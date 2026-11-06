@@ -64,6 +64,17 @@ export function distanceToEnemyHero(state: BattleState, u: Unit): number {
 }
 
 /**
+ * v0.64.7: casas do Corte Diagonal em ordem de prioridade, como [deslocamento de fileira, colunas à frente]:
+ * atrás, diagonal de trás e — do Raro em diante — ao lado e diagonal da frente. A frente é o ataque normal.
+ */
+export function diagCells(u: Unit): [number, number][] {
+  const other = u.row === 0 ? 1 : -1;
+  const cells: [number, number][] = [[0, -1], [other, -1]];
+  if (u.stars >= 3) cells.push([other, 0], [other, 1]);
+  return cells;
+}
+
+/**
  * Mira. Regras (arena 2 × 10):
  * - Ninguém ataca unidades da OUTRA fileira, exceto as habilidades diagonais (Corte Diagonal / Golpe Reverso)
  *   e o respingo lateral da Explosão de Brasas.
@@ -84,7 +95,7 @@ export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
   // v0.30.0: Provocar — quem pode atingir um provocador é obrigado a atacá-lo
   const canHit = (e: Unit) =>
     (e.row === u.row && fwd(e) >= 1 && fwd(e) <= reach) ||
-    (Math.abs(e.row - u.row) === 1 && ((fwd(e) === 1 && u.abilities.includes('diagFrente')) || (fwd(e) === -1 && u.abilities.includes('diagTras')))) ||
+    (u.abilities.includes('diagFrente') && diagCells(u).some(([dr, df]) => e.row - u.row === dr && fwd(e) === df)) ||
     (e.row === u.row && fwd(e) === -1 && u.abilities.includes('ataqueCostas'));
   const taunt = enemies.filter((e) => e.abilities.includes('provocar') && canHit(e)).sort((a, b) => Math.abs(fwd(a)) - Math.abs(fwd(b)) || a.uid - b.uid)[0];
   if (taunt) return taunt;
@@ -108,16 +119,15 @@ export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
   if (targeting === 'retaguarda' && rowAhead.length && (!hasTweak(u.charId, 'emboscadaComAliado') || covered())) {
     return rowAhead.sort((a, b) => fwd(b) - fwd(a))[0];
   }
-  if (targeting === 'diagTras') {
-    const back = enemies.filter((e) => fwd(e) === -1 && Math.abs(e.row - u.row) === 1);
-    if (back.length) return back.sort((a, b) => a.hp - b.hp)[0];
+  // v0.64.7: Corte Diagonal — antes da frente: 1 atrás, 2 diagonal de trás, (Raro+) 3 lado, 4 diagonal da frente
+  if (u.abilities.includes('diagFrente')) {
+    for (const [dr, df] of diagCells(u)) {
+      const t = enemies.find((e) => e.row - u.row === dr && fwd(e) === df);
+      if (t) return t;
+    }
   }
   const straight = enemies.filter((e) => e.row === u.row && fwd(e) >= 1 && fwd(e) <= r).sort((a, b) => fwd(a) - fwd(b));
   if (straight.length) return straight[0];
-  if (targeting === 'diagFrente') {
-    const diag = enemies.filter((e) => fwd(e) === 1 && Math.abs(e.row - u.row) === 1);
-    if (diag.length) return diag.sort((a, b) => a.hp - b.hp)[0];
-  }
   if (distanceToEnemyHero(state, u) <= reach) return 'hero';
   return null;
 }
