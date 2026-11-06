@@ -127,6 +127,8 @@ export interface CharacterDef {
   abilities: AbilityId[];
   /** v0.63.0: habilidade → raridade em que é desbloqueada (as outras valem desde a origem) */
   unlock?: Partial<Record<AbilityId, number>>;
+  /** v0.64.5: descrição de habilidade só desta carta */
+  abilityDesc?: Partial<Record<AbilityId, string>>;
   palette: Palette;
   /** variação visual do cabelo (0..7) */
   hairStyle: number;

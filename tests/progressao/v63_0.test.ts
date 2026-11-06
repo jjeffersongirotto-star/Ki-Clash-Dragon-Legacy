@@ -51,6 +51,7 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
     for (const a of PLAYABLE)
       for (const b of PLAYABLE) {
         if (a.race !== b.race || a.category !== b.category || a.minStars >= b.minStars) continue;
+        if (BALANCE_V2[a.id].manual || BALANCE_V2[b.id].manual) continue; // v0.64.5: ajustadas à mão pelo jogador
         for (let r = b.minStars; r <= Math.min(a.maxStars, b.maxStars); r++) expect(total(b.id, r), `${b.id} > ${a.id} @${r}`).toBeGreaterThan(total(a.id, r));
       }
     // todos crescem +1 por raridade
@@ -62,7 +63,7 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
       expect(d.wait!, d.id).toBeGreaterThanOrEqual(1);
       expect(d.wait!, d.id).toBeLessThanOrEqual(d.minStars >= 6 ? 8 : 6);
     }
-    expect(getChar('zarek').wait).toBe(8);
+    expect(getChar('zarek').wait).toBe(7); // v0.64.5: ajustado pelo jogador
     expect(getChar('zynna').wait).toBeLessThan(7);
     expect(getChar('velka').wait).toBeLessThanOrEqual(3);
   });
@@ -70,7 +71,7 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
   it('habilidades: Épico/Lendário ganham +1 ao subir; Mítico tem 3', () => {
     expect(abilitiesAt(getChar('ryuji'), 4)).not.toContain('contraCrescente');
     expect(abilitiesAt(getChar('ryuji'), 5)).toContain('contraCrescente');
-    for (const d of PLAYABLE.filter((x) => x.minStars >= 6)) expect(d.abilities.filter((a) => a !== 'longoAlcance').length, d.id).toBeGreaterThanOrEqual(3);
+    for (const d of PLAYABLE.filter((x) => x.minStars >= 6 && !BALANCE_V2[x.id].manual)) expect(d.abilities.filter((a) => a !== 'longoAlcance').length, d.id).toBeGreaterThanOrEqual(3);
     // a unidade em campo só tem o que já foi desbloqueado
     const s = empty();
     expect(placeUnit(s, c('ryuji', 4), 'player', 0, 0).abilities).not.toContain('contraCrescente');

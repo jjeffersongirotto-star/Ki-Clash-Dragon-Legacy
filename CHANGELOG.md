@@ -2,6 +2,15 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.64.5] — 06/11/2026 · Ajustes de cartas feitos no editor
+- **Mestre Hayato:** espera 6, alcance 2; sem Golpe Crítico.
+- **Zarek:** espera 7, dano mágico, alcance 4; sem Golpe Crítico. Emboscada (só dele): ataca o inimigo mais distante até 2 casas; se não houver, ataca o mais próximo no alcance — e não ignora mais resistência.
+- **Kael:** espera 7, dano mágico, alcance 4. Fúria (só dele) **sem limite**.
+- **Vharga:** vida 9, dano mágico. Vampirismo (só dela): **cura toda a vida ao derrotar um inimigo** (não drena mais a cada golpe).
+- **Aethra:** espera 6, vida 4. **Mímesis:** espera 6, Selo do Vazio no lugar do Contra-ataque Crescente. **Titan-X:** espera 5; Inabalável (só dele) só dá resistência física.
+- **Copiador** agora copia também habilidades de cartas Míticas.
+- Essas cartas ficam fora das regras automáticas de origem e de espera (valores escolhidos à mão).
+
 ## [0.64.4] — 06/11/2026 · "Longo Alcance" não aparece mais como habilidade
 - **Longo Alcance** saiu da lista de habilidades (na carta, nos Heróis, no Treinar, no Baralho e na batalha): atacar de longe é o **alcance** da carta, como qualquer atacante de longe — o jeito de jogar não muda. Nos Heróis, o quadro da carta mostra o alcance ao lado de ataque, vida e rodadas.
 

@@ -22,7 +22,21 @@ export interface BalanceEntry {
   ab: AbilityId[];
   /** habilidade → raridade em que passa a valer */
   up?: Partial<Record<AbilityId, number>>;
+  /** v0.64.5: alcance em casas (1 = corpo a corpo) e tipo de dano, quando o jogador mudou no editor */
+  range?: number;
+  dmg?: 'fisico' | 'magico';
+  /** v0.64.5: descrição própria de uma habilidade só nesta carta (mudança "só esta carta" do editor) */
+  desc?: Partial<Record<AbilityId, string>>;
+  /** v0.64.5: variações de habilidade só nesta carta (ver battle.ts) */
+  tweaks?: CardTweak[];
+  /** v0.64.5: valores ajustados à mão pelo jogador — ficam fora das regras automáticas (origem e espera) */
+  manual?: boolean;
 }
+
+/** Variações de habilidade só de uma carta. */
+export type CardTweak = 'retaguardaSemPerfurar' | 'furiaSemLimite' | 'vampirismoTotal' | 'inabalavelSemMagia';
+/** A unidade/carta tem essa variação? */
+export const hasTweak = (charId: string, t: CardTweak) => !!BALANCE_V2[charId]?.tweaks?.includes(t);
 
 export const BALANCE_V2: Record<string, BalanceEntry> = {
   riku: { min: 1, max: 4, wait: 2, stats: { 1: [2, 3], 2: [2, 4], 3: [3, 4], 4: [3, 5] }, ab: ['salto'] },
@@ -33,14 +47,14 @@ export const BALANCE_V2: Record<string, BalanceEntry> = {
   gorath: { min: 2, max: 4, wait: 4, stats: { 2: [2, 7], 3: [2, 8], 4: [2, 9] }, ab: ['inabalavel', 'ombrada'] },
   mei: { min: 2, max: 4, wait: 3, stats: { 2: [1, 4], 3: [1, 5], 4: [1, 6] }, ab: ['longoAlcance', 'lotus', 'anjo'] },
   yume: { min: 3, max: 5, wait: 5, stats: { 3: [5, 3], 4: [5, 4], 5: [6, 4] }, ab: ['menorVida'] },
-  zarek: { min: 6, max: 6, wait: 8, stats: { 6: [9, 5] }, ab: ['retaguarda', 'renascer', 'critico'] },
+  zarek: { min: 6, max: 6, wait: 7, stats: { 6: [9, 5] }, ab: ['retaguarda', 'renascer'], range: 4, dmg: 'magico', tweaks: ['retaguardaSemPerfurar'], desc: { retaguarda: 'Ataca o inimigo mais distante da sua fileira até 2 casas à frente; se não houver inimigo nessas 2 casas, ataca o inimigo mais próximo no alcance.' }, manual: true },
   kenji: { min: 5, max: 6, wait: 6, stats: { 5: [4, 9], 6: [5, 9] }, ab: ['contraGolpe', 'investida', 'critico'], up: { critico: 6 } },
   nyx: { min: 3, max: 5, wait: 4, stats: { 3: [2, 5], 4: [2, 6], 5: [3, 6] }, ab: ['longoAlcance', 'sifao', 'reflexo'] },
   vorax: { min: 6, max: 6, wait: 7, stats: { 6: [5, 8] }, ab: ['longoAlcance', 'prole', 'necromancia', 'vinganca'] },
   daichi: { min: 1, max: 3, wait: 2, stats: { 1: [1, 4], 2: [1, 5], 3: [1, 6] }, ab: ['espinhos'] },
   sora: { min: 1, max: 3, wait: 1, stats: { 1: [1, 2], 2: [1, 3], 3: [2, 3] }, ab: ['longoAlcance', 'sopro'] },
   tobi: { min: 2, max: 4, wait: 3, stats: { 2: [4, 3], 3: [5, 3], 4: [5, 4] }, ab: ['tambor'] },
-  kael: { min: 6, max: 6, wait: 8, stats: { 6: [8, 6] }, cat: 'dps', ab: ['brasa', 'queimadura', 'furia'] },
+  kael: { min: 6, max: 6, wait: 7, stats: { 6: [8, 6] }, cat: 'dps', ab: ['brasa', 'queimadura', 'furia'], range: 4, dmg: 'magico', tweaks: ['furiaSemLimite'], desc: { furia: 'Ganha +1 de ataque a cada inimigo derrotado (sem limite).' }, manual: true },
   suri: { min: 1, max: 3, wait: 1, stats: { 1: [1, 2], 2: [1, 3], 3: [2, 3] }, ab: ['longoAlcance', 'mare'] },
   hana: { min: 1, max: 3, wait: 2, stats: { 1: [2, 2], 2: [3, 2], 3: [3, 3] }, ab: ['longoAlcance', 'precisao'] },
   jin: { min: 1, max: 4, wait: 2, stats: { 1: [2, 2], 2: [3, 2], 3: [3, 3], 4: [4, 3] }, ab: ['longoAlcance', 'olhoAguia', 'vigia'] },
@@ -58,7 +72,7 @@ export const BALANCE_V2: Record<string, BalanceEntry> = {
   ryuji: { min: 4, max: 6, wait: 6, stats: { 4: [5, 6], 5: [5, 7], 6: [6, 7] }, ab: ['furia', 'critico', 'contraCrescente'], up: { contraCrescente: 5 } },
   kaori: { min: 4, max: 6, wait: 3, stats: { 4: [1, 6], 5: [2, 6], 6: [2, 7] }, ab: ['gritoGuerra', 'sopro', 'purificar'], up: { purificar: 5 } },
   tetsuo: { min: 4, max: 6, wait: 6, stats: { 4: [3, 11], 5: [3, 12], 6: [3, 13] }, ab: ['protetor', 'provocar', 'guarda'], up: { guarda: 5 } },
-  hayato: { min: 6, max: 6, wait: 8, stats: { 6: [8, 7] }, ab: ['atordoar', 'diagFrente', 'critico'] },
+  hayato: { min: 6, max: 6, wait: 6, stats: { 6: [8, 7] }, ab: ['atordoar', 'diagFrente'], range: 2, manual: true },
   rin: { min: 2, max: 4, wait: 3, stats: { 2: [3, 3], 3: [4, 3], 4: [4, 4] }, ab: ['longoAlcance', 'critico'] },
   kaito: { min: 6, max: 6, wait: 7, stats: { 6: [7, 8] }, ab: ['anular', 'critico', 'investida'] },
   aya: { min: 5, max: 6, wait: 6, stats: { 5: [6, 7], 6: [6, 8] }, ab: ['ultimaResistencia', 'investida', 'furia'], up: { furia: 6 } },
@@ -88,12 +102,12 @@ export const BALANCE_V2: Record<string, BalanceEntry> = {
   halo8: { min: 4, max: 6, wait: 4, stats: { 4: [3, 6], 5: [3, 7], 6: [4, 7] }, ab: ['longoAlcance', 'purificar', 'regeneracao', 'pulsoVital'], up: { pulsoVital: 5 } },
   spike11: { min: 3, max: 5, wait: 5, stats: { 3: [5, 4], 4: [5, 5], 5: [6, 5] }, ab: ['ombrada', 'critico'] },
   phase3: { min: 3, max: 5, wait: 6, stats: { 3: [5, 4], 4: [6, 4], 5: [6, 5] }, ab: ['teleporte', 'ataqueCostas'] },
-  titanx: { min: 6, max: 6, wait: 8, stats: { 6: [4, 12] }, ab: ['provocar', 'inabalavel', 'cascaReativa'] },
+  titanx: { min: 6, max: 6, wait: 5, stats: { 6: [4, 12] }, ab: ['provocar', 'inabalavel', 'cascaReativa'], tweaks: ['inabalavelSemMagia'], desc: { inabalavel: 'Não pode ser empurrado. Resistência física.' }, manual: true },
   pulse7: { min: 4, max: 6, wait: 5, stats: { 4: [4, 3], 5: [4, 4], 6: [5, 4] }, ab: ['longoAlcance', 'atordoar', 'raioCadeia'], up: { raioCadeia: 5 } },
   omega9: { min: 5, max: 6, wait: 5, stats: { 5: [4, 5], 6: [4, 6] }, ab: ['longoAlcance', 'dominio', 'barreira'], up: { barreira: 6 } },
   sentinel0: { min: 4, max: 6, wait: 6, stats: { 4: [2, 10], 5: [2, 11], 6: [3, 11] }, ab: ['protetor', 'escudoInicial', 'guarda'], up: { guarda: 5 } },
   razorv: { min: 5, max: 6, wait: 6, stats: { 5: [5, 7], 6: [6, 7] }, ab: ['diagTras', 'sangramento', 'critico'], up: { critico: 6 } },
-  mimic: { min: 6, max: 6, wait: 8, stats: { 6: [6, 8] }, ab: ['copiador', 'investida', 'contraCrescente'] },
+  mimic: { min: 6, max: 6, wait: 6, stats: { 6: [6, 8] }, ab: ['copiador', 'investida', 'anular'], manual: true },
   aegis: { min: 5, max: 6, wait: 6, stats: { 5: [3, 11], 6: [3, 12] }, ab: ['retaliacao', 'guarda', 'cascaReativa'], up: { cascaReativa: 6 } },
   fen: { min: 1, max: 4, wait: 2, stats: { 1: [2, 2], 2: [3, 2], 3: [3, 3], 4: [4, 3] }, ab: ['longoAlcance', 'queimadura'] },
   bram: { min: 1, max: 4, wait: 2, stats: { 1: [1, 5], 2: [1, 6], 3: [1, 7], 4: [2, 7] }, ab: ['barreira', 'provocar'] },
@@ -110,7 +124,7 @@ export const BALANCE_V2: Record<string, BalanceEntry> = {
   eldrin: { min: 5, max: 6, wait: 6, stats: { 5: [7, 5], 6: [7, 6] }, ab: ['longoAlcance', 'queimadura', 'critico', 'brasa'], up: { brasa: 6 } },
   vesna: { min: 6, max: 6, wait: 5, stats: { 6: [3, 6] }, cat: 'arqueiro', ab: ['longoAlcance', 'congelar', 'lentidao', 'perfurar'] },
   corvin: { min: 5, max: 6, wait: 6, stats: { 5: [6, 6], 6: [7, 6] }, ab: ['diagTras', 'furia', 'perfurar'], up: { perfurar: 6 } },
-  aethra: { min: 6, max: 6, wait: 8, stats: { 6: [8, 6] }, ab: ['longoAlcance', 'raioCadeia', 'atordoar', 'perfurante'] },
+  aethra: { min: 6, max: 6, wait: 6, stats: { 6: [8, 4] }, ab: ['longoAlcance', 'raioCadeia', 'atordoar', 'perfurante'], manual: true },
   grub: { min: 1, max: 4, wait: 2, stats: { 1: [2, 4], 2: [2, 5], 3: [3, 5], 4: [3, 6] }, ab: ['diagTras', 'sangramento'] },
   skarr: { min: 4, max: 6, wait: 5, stats: { 4: [5, 4], 5: [6, 4], 6: [6, 5] }, ab: ['retaguarda', 'veneno', 'contraCrescente'], up: { contraCrescente: 5 } },
   bufo: { min: 2, max: 4, wait: 2, stats: { 2: [2, 3], 3: [2, 4], 4: [3, 4] }, ab: ['longoAlcance', 'veneno'] },
@@ -125,8 +139,8 @@ export const BALANCE_V2: Record<string, BalanceEntry> = {
   rhazor: { min: 3, max: 5, wait: 6, stats: { 3: [4, 6], 4: [4, 7], 5: [5, 7] }, ab: ['furia', 'sangramento'] },
   oculus: { min: 5, max: 6, wait: 4, stats: { 5: [4, 5], 6: [4, 6] }, ab: ['longoAlcance', 'maldicao', 'lentidao', 'atordoar'], up: { atordoar: 6 } },
   grendar: { min: 5, max: 6, wait: 6, stats: { 5: [3, 14], 6: [3, 15] }, ab: ['protetor', 'guarda', 'pulsoVital'], up: { pulsoVital: 6 } },
-  kolossus: { min: 6, max: 6, wait: 8, stats: { 6: [4, 15] }, ab: ['couracaAdaptativa', 'provocar', 'guarda'] },
-  vharga: { min: 6, max: 6, wait: 8, stats: { 6: [9, 4] }, ab: ['execucao', 'menorVida', 'vampirismo'] },
+  kolossus: { min: 6, max: 6, wait: 8, stats: { 6: [4, 15] }, ab: ['couracaAdaptativa', 'provocar', 'guarda'], manual: true },
+  vharga: { min: 6, max: 6, wait: 8, stats: { 6: [9, 9] }, ab: ['execucao', 'menorVida', 'vampirismo'], dmg: 'magico', tweaks: ['vampirismoTotal'], desc: { vampirismo: 'Cura a si mesmo totalmente sempre que derrotar um inimigo.' }, manual: true },
   ossian: { min: 1, max: 4, wait: 2, stats: { 1: [2, 3], 2: [2, 4], 3: [3, 4], 4: [3, 5] }, ab: ['diagFrente'] },
   mira: { min: 1, max: 4, wait: 2, stats: { 1: [1, 3], 2: [1, 4], 3: [2, 4], 4: [2, 5] }, ab: ['longoAlcance', 'lentidao'] },
   grav: { min: 1, max: 4, wait: 3, stats: { 1: [1, 6], 2: [1, 7], 3: [1, 8], 4: [1, 9] }, ab: ['guarda', 'explosao'] },

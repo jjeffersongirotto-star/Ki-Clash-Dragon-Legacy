@@ -147,8 +147,8 @@ export function abilityListHTML(def: CharacterDef, stars?: number, step = 0): st
     const p = ab.power?.(s, stepIndex(s, step));
     const now = ab.powerLabel && p != null ? ` <span class="ab-now">agora: ${esc(ab.powerLabel(p))}</span>` : '';
     const at = def.unlock?.[a];
-    if (at && at > s) return `<li class="ab-locked"><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> 🔒 <span class="ab-now">desbloqueia no ${TIER_NAMES[at]}</span> — ${esc(ab.description)}</li>`;
-    return `<li><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> — ${esc(ab.description)}${now}</li>`;
+    if (at && at > s) return `<li class="ab-locked"><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> 🔒 <span class="ab-now">desbloqueia no ${TIER_NAMES[at]}</span> — ${esc(def.abilityDesc?.[a] ?? ab.description)}</li>`;
+    return `<li><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> — ${esc(def.abilityDesc?.[a] ?? ab.description)}${now}</li>`;
   });
   if (def.physRes) rows.push(`<li><b>${abilityIconHTML('guarda')} Resistência física ${def.physRes}</b> — reduz cada golpe físico em ${def.physRes}.</li>`);
   if (def.magRes) rows.push(`<li><b>${abilityIconHTML('barreira')} Resistência mágica ${def.magRes}</b> — reduz cada golpe mágico em ${def.magRes}.</li>`);

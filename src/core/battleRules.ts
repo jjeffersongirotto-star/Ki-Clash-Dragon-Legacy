@@ -101,8 +101,10 @@ export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
   if (targeting === 'maiorAtaque' && rowAhead.length) {
     return rowAhead.sort((a, b) => b.atk - a.atk || fwd(a) - fwd(b))[0];
   }
-  if (targeting === 'retaguarda' && rowAhead.length) {
-    return rowAhead.sort((a, b) => fwd(b) - fwd(a))[0];
+  // v0.64.5: a Emboscada só procura o mais distante até as casas dela (2), mesmo em quem tem alcance maior
+  const ambush = targeting === 'retaguarda' ? rowAhead.filter((e) => fwd(e) <= (ab?.reach ?? reach)) : [];
+  if (ambush.length) {
+    return ambush.sort((a, b) => fwd(b) - fwd(a))[0];
   }
   if (targeting === 'diagTras') {
     const back = enemies.filter((e) => fwd(e) === -1 && Math.abs(e.row - u.row) === 1);
