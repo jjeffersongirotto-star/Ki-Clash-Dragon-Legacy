@@ -7,9 +7,9 @@ import { bindCardEditor } from './tempCardBalanceEditor'; // TEMP card balance e
 import { CATEGORY_INFO, CHAR_BY_ID, RACE_INFO } from '../core/characters';
 import { SPELLS } from '../core/spells';
 import { addProfileXp } from '../core/profile';
-import type { XpItemId } from '../core/progression';
+import { statsFor, type XpItemId } from '../core/progression';
 import { filterHeroes, showSpellsFor, heroCells, ATK_RANGES, HP_RANGES, WAIT_VALUES, type HeroFilter, RACE_ORDER, CAT_ORDER, claimAll, claimableCount, claimGoal, claimVariant, goalClaimed, hasRarity, heroGoals, heroGroups, spellOwned, syncSeen, variantClaimable, VARIANT_REWARD, type Goal, type Reward } from '../core/heroes';
-import { cardHTML, catIcon, esc, gemHTML, goldHTML, orbHTML, raceIcon, spellCardHTML } from '../ui/components';
+import { abilityListHTML, cardHTML, catIcon, esc, gemHTML, goldHTML, orbHTML, raceIcon, spellCardHTML } from '../ui/components';
 import { showDialog } from '../ui/dialog';
 import { rewardListHTML } from '../ui/rewardList';
 import { leaveBattleMode } from '../ui/orientation';
@@ -58,7 +58,7 @@ export function heroes() {
       const can = variantClaimable(save, id, st);
       cells.push(`<div class="hr-cell">${cardHTML({ charId: id, stars: st, plus: 0 }, { grid: true, locked: false, extraClass: has ? '' : 'hr-dark', attrs: `data-card="${id}" data-stars="${st}"` })}${can ? `<button class="btn small primary hr-claim" data-var="${id}:${st}">Resgatar ${rewardHTML(VARIANT_REWARD[st])}</button>` : ''}</div>`);
     }
-    return `<div class="hr-row"><div class="hr-name">${esc(d.name)}</div><div class="hr-cards">${cells.join('')}</div></div>`;
+    return `<div class="hr-row"><div class="hr-name">${esc(d.name)}</div><div class="hr-cards">${cells.join('')}</div><div class="hr-info" hidden></div></div>`;
   };
   const all = goals['all'];
   const sp = goals['spells'];
@@ -89,6 +89,26 @@ export function heroes() {
     for (const k of Object.keys(F)) delete F[k as FKey];
     heroes();
   });
+  // v0.64.1: tocar numa carta mostra as habilidades dela no espaço ao lado (tocar em outra troca; na mesma, fecha)
+  app.querySelectorAll<HTMLElement>('.hr-row [data-card]').forEach((el) =>
+    el.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('.hr-claim')) return;
+      const row = el.closest('.hr-row')!;
+      const info = row.querySelector<HTMLElement>('.hr-info')!;
+      const was = el.classList.contains('hr-sel');
+      row.querySelectorAll('.hr-sel').forEach((x) => x.classList.remove('hr-sel'));
+      if (was) {
+        info.hidden = true;
+        return;
+      }
+      el.classList.add('hr-sel');
+      const d = CHAR_BY_ID[el.dataset.card!];
+      const st = +el.dataset.stars!;
+      const s = statsFor(d, st, 0);
+      info.innerHTML = `<div class="hr-info-h"><b>${esc(d.name)}</b> · ${RAR_NAMES[st]}<span>⚔️ ${s.atk} · ❤️ ${s.hp} · 💧 ${d.wait ?? ''}</span></div>${abilityListHTML(d, st, 0)}`;
+      info.hidden = false;
+    }),
+  );
   app.querySelectorAll<HTMLButtonElement>('[data-goal]').forEach((b) =>
     b.addEventListener('click', () => {
       const r = claimGoal(save, goals[b.dataset.goal!]);
