@@ -83,6 +83,8 @@ const clamp = (v: number, max: number) => Math.max(0, Math.min(max, v));
 
 /** Tetos globais */
 export const RES_CAP = 3;
+/** v0.64.3: a Couraça Adaptativa vai até 4 de resistência física (pedido do jogador; antes 3, o mesmo teto geral). */
+export const COURACA_CAP = 4;
 export const AURA_CAP = 2;
 export const MINION_CAP = 3;
 /** bônus de ataque máximo vindo de aliados (Tambor de Guerra) */
@@ -611,7 +613,7 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
   couracaAdaptativa: {
     id: 'couracaAdaptativa',
     name: 'Couraça Adaptativa',
-    description: 'Começa com resistência física 1. Cada golpe físico recebido cura 1 de vida e soma +1 de resistência física (até 3).',
+    description: 'Começa com resistência física 1. Cada golpe físico recebido cura 1 de vida e soma +1 de resistência física (até 4).',
     icon: '🛡️',
     resBonus: () => ({ phys: 1, mag: 0 }),
   },
