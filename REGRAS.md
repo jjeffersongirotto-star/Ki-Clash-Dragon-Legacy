@@ -1376,3 +1376,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Heróis (v0.64.1):** tocar numa carta abre ao lado (abaixo, no celular) o quadro com ATQ, vida, rodadas e habilidades daquela raridade; outra carta troca, a mesma fecha.
 - **Botão ⟳ (v0.64.2):** ícone centralizado no círculo.
 - **Editor de carta TEMP (v0.64.3):** janela larga no PC (4 campos por linha, habilidades em 2 colunas), sem rolagem interna; no celular sem rolagem lateral, a janela rola com o dedo sem barra visível; descrições crescem com o texto; sem a frase de rodapé "Atacar de longe é o alcance… Mudanças".
+- **Couraça Adaptativa (v0.64.3):** até 4 de resistência física (teto próprio, acima do teto geral 3).

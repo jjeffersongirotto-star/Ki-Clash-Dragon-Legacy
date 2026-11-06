@@ -304,12 +304,12 @@ describe('v0.30.0 — habilidades novas', () => {
     expect(n1.hp).toBe(24);
     expect(n2.hp).toBe(27);
   });
-  it('Couraça Adaptativa: cada golpe físico cura 1 e soma resistência (até 3)', () => {
+  it('Couraça Adaptativa: cada golpe físico cura 1 e soma resistência (até 4 desde a v0.64.3)', () => {
     const s = empty();
     const t = unit(s, 'enemy', 0, 4, ['couracaAdaptativa'], { hp: 30 });
     const a = unit(s, 'player', 0, 3, [], { atk: 5 });
     for (let i = 0; i < 5; i++) attack(s, new Ctx(), a, t);
-    expect(t.physRes).toBe(3);
+    expect(t.physRes).toBe(4);
   });
   it('Execução: derrota quem fica com 25% da vida ou menos', () => {
     const s = empty();

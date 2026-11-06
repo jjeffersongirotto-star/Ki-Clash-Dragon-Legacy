@@ -1,5 +1,5 @@
 import { TEMP_WAIT } from './tempOverrides'; // TEMP card balance editor
-import { ABILITIES, MINION_CAP, RES_CAP, has } from './abilities';
+import { ABILITIES, COURACA_CAP, MINION_CAP, RES_CAP, has } from './abilities';
 import { abilitiesAt, getChar } from './characters';
 import { statsFor, tierLabel, stepOf } from './progression';
 import { DECK_ABS_MAX, createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, returnFromNecropolis, HAND_SIZE } from './deck';
@@ -414,9 +414,9 @@ export function applyDamage(state: BattleState, ctx: Ctx, target: Unit, dmg: num
     });
   else ctx.emit(state, { type: 'damage', uid: target.uid, amount, damageType: type, text: `  → ${amount} de dano.` });
   const dead = target.hp <= 0 ? checkDeath(state, ctx, target, src.unit) : false;
-  // v0.30.0: Couraça Adaptativa — cada golpe físico recebido cura 1 e soma +1 de resistência física (até 3)
+  // v0.30.0: Couraça Adaptativa — cada golpe físico recebido cura 1 e soma +1 de resistência física (até 4, v0.64.3)
   if (!dead && type === 'fisico' && !src.dot && target.abilities.includes('couracaAdaptativa') && target.hp > 0) {
-    target.physRes = Math.min(RES_CAP, target.physRes + 1);
+    target.physRes = Math.min(COURACA_CAP, target.physRes + 1);
     if (target.hp < target.maxHp) target.hp += 1;
     ctx.emit(state, { type: 'effect', uid: target.uid, kind: 'habilidade', text: `  🛡️ ${nameOf(target)} se adapta: resistência física ${target.physRes}.` });
   }
