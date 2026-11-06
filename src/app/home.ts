@@ -9,7 +9,7 @@ import { energyMax } from '../core/profile';
 import { gameAlert, gameConfirm, showDialog } from '../ui/dialog';
 import { leaveBattleMode } from '../ui/orientation';
 import { tutorialDone } from '../ui/save';
-import { APP_VERSION, checkForUpdate, downloadLink, isDesktopApp, isInstalledApp } from '../ui/update';
+import { APP_VERSION, RELEASES_PAGE, applyOta, checkForUpdate, downloadLink, isDesktopApp, isInstalledApp } from '../ui/update';
 import { createAccount, login, NAME_MAX, PASS_MIN } from '../ui/accounts';
 import { app, accounts, openAccountSave, save, setSave, firstChar, setTrainSel, persist, energyNow, prof, fmt } from './state';
 import { bindNav, go } from './ui';
@@ -87,6 +87,26 @@ export async function searchUpdate(btn: HTMLButtonElement) {
   if (r.status === 'latest') return gameAlert('Tudo atualizado', `Você já está na versão mais nova (${r.version}).`, '✅');
   if (r.status === 'none') return gameAlert('Nenhuma versão publicada', 'Ainda não há versão do app publicada para baixar. Tente de novo mais tarde.', 'ℹ️');
   if (r.status === 'error') return gameAlert('Sem conexão', 'Não deu para procurar atualização agora. Confira a internet e toque em ⟳ de novo.', '📡');
+  // v0.64.0: atualização automática — baixa só os arquivos novos do jogo e reinicia, sem APK/instalador
+  if (r.ota) {
+    const go = await gameConfirm(`Versão ${r.version} disponível`, `Você está na versão ${APP_VERSION}. Toque em Atualizar: o jogo baixa só o que mudou e reinicia já na versão nova. Seu progresso continua.`, 'Atualizar');
+    if (!go) return;
+    persist();
+    const wait = document.createElement('div');
+    wait.className = 'ota-wait';
+    wait.innerHTML = '<div class="ota-box"><div class="ota-spin"></div><b>Atualizando…</b><span>Baixando a versão nova do jogo. Não feche o app.</span></div>';
+    document.body.appendChild(wait);
+    const done = await applyOta(r.ota);
+    wait.remove();
+    if (done) return;
+    const apk = await gameConfirm(
+      'Não deu para atualizar',
+      `A atualização automática não funcionou agora (confira a internet). Você pode tentar de novo pelo ⟳ ou baixar o ${isDesktopApp() ? 'instalador' : 'APK'} da versão nova.`,
+      'Baixar',
+    );
+    if (apk) window.location.href = RELEASES_PAGE;
+    return;
+  }
   const ok = await gameConfirm(
     `Versão ${r.version} disponível`,
     r.native

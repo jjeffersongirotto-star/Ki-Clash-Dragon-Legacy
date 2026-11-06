@@ -1864,3 +1864,13 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 /* v0.63.0: habilidade ainda não desbloqueada nessa raridade */
 .ck-ab.lk { opacity: 0.35; filter: grayscale(1); }
 .abilities li.ab-locked { opacity: 0.6; }
+/* v0.64.0: filtros de Raridade/Ataque/Vida/Rodadas nos Heróis */
+.heroes .hr-rdot { display: inline-block; width: .7em; height: .7em; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+.heroes .hr-rdot.s1 { background: #9aa3ad; } .heroes .hr-rdot.s2 { background: #3fbf5f; } .heroes .hr-rdot.s3 { background: #2f8fff; }
+.heroes .hr-rdot.s4 { background: #a24dff; } .heroes .hr-rdot.s5 { background: #ff9a1f; } .heroes .hr-rdot.s6 { background: #ff2d55; }
+.heroes #hrClearF { justify-self: start; }
+/* v0.64.0: atualização automática em andamento */
+.ota-wait { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; background: rgba(5,6,16,.82); }
+.ota-box { display: grid; justify-items: center; gap: 8px; padding: 22px 26px; border-radius: 14px; background: #141838; border: 1px solid rgba(245,179,1,.45); color: #e8e6f5; text-align: center; max-width: 80vw; }
+.ota-spin { width: 38px; height: 38px; border-radius: 50%; border: 4px solid rgba(255,255,255,.15); border-top-color: #ffb43a; animation: ota-spin 1s linear infinite; }
+@keyframes ota-spin { to { transform: rotate(360deg); } }
