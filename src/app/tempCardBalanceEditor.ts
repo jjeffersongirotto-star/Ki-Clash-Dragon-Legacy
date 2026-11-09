@@ -126,8 +126,14 @@ export function applyEdits(edits = loadEdits()) {
 }
 
 /** Descrição padrão de uma habilidade (registro ou texto da "nova"). */
-export const defaultDesc = (a: string) =>
-  a in ABILITIES ? ABILITIES[a as AbilityId].description : splitCustom(a).desc;
+export const defaultDesc = (a: string, stars = 6) => {
+  if (!(a in ABILITIES)) return splitCustom(a).desc;
+  // v0.65.0: descrição com o valor daquela raridade
+  const ab = ABILITIES[a as AbilityId];
+  return ab.descAt?.(stars) ?? ab.text?.(abilityPower(a as AbilityId, stars), stars) ?? ab.description;
+};
+/** v0.65.0: texto igual ao padrão da raridade ou ao antigo (sem números) = não editado */
+const sameDesc = (a: string, st: number, d: string) => d.trim() === defaultDesc(a, st).trim() || d.trim() === (ABILITIES[a as AbilityId]?.legacyDescription ?? '').trim();
 /** Nível padrão = força atual da habilidade naquela raridade (abilityPower), 0 se não escala / "nova". */
 export const defaultLevel = (a: string, stars: number) =>
   a in ABILITIES
@@ -144,7 +150,7 @@ export function defaultRar(
     atk: s.atk,
     hp: s.hp,
     lv: abil.map((a) => defaultLevel(a, stars)),
-    ds: abil.map(defaultDesc),
+    ds: abil.map((a) => defaultDesc(a, stars)),
   };
 }
 
@@ -170,9 +176,9 @@ export function exportJSON(edits = loadEdits()): string {
         hp: r.hp,
         habilidades: abil.map((a, i) => {
           const known = a in ABILITIES;
-          const desc = r.ds[i] ?? defaultDesc(a);
+          const desc = r.ds[i] ?? defaultDesc(a, st);
           const changed =
-            desc.trim() !== defaultDesc(a).trim() ||
+            !sameDesc(a, st, desc) ||
             (known && (r.lv[i] ?? 0) !== defaultLevel(a, st));
           const key = known
             ? a
@@ -186,8 +192,8 @@ export function exportJSON(edits = loadEdits()): string {
             nivelOriginal: defaultLevel(a, st),
             descricao: desc,
             ...(known && e.escopo?.[a] ? { escopo: e.escopo[a] } : {}),
-            ...(desc.trim() !== defaultDesc(a).trim()
-              ? { descricaoOriginal: defaultDesc(a), descricaoAlterada: true }
+            ...(!sameDesc(a, st, desc)
+              ? { descricaoOriginal: defaultDesc(a, st), descricaoAlterada: true }
               : {}),
           };
         }),
@@ -247,7 +253,7 @@ export function changedAbilities(e: CardEdit): string[] {
       a in ABILITIES &&
       Object.entries(e.rar ?? {}).some(
         ([k, r]) =>
-          (r.ds[i] ?? defaultDesc(a)).trim() !== defaultDesc(a).trim() ||
+          !sameDesc(a, +k, r.ds[i] ?? defaultDesc(a, +k)) ||
           (r.lv[i] ?? defaultLevel(a, +k)) !== defaultLevel(a, +k),
       ),
   );
@@ -258,7 +264,7 @@ const abilAt = (e: CardEdit, a: string, st: number) => {
   return i < 0 || !r
     ? undefined
     : {
-        ds: (r.ds[i] ?? defaultDesc(a)).trim(),
+        ds: (r.ds[i] ?? defaultDesc(a, st)).trim(),
         lv: r.lv[i] ?? defaultLevel(a, st),
       };
 };
@@ -434,7 +440,8 @@ export async function openCardEditor(id: string, refresh: () => void, stars?: nu
           atk: sv.atk,
           hp: sv.hp,
           lv: abil.map((a, i) => sv.lv[i] ?? defaultLevel(a, st)),
-          ds: abil.map((a, i) => sv.ds[i] ?? defaultDesc(a)),
+          // v0.65.0: texto antigo não editado (sem números) dá lugar à descrição nova da raridade
+          ds: abil.map((a, i) => (sv.ds[i] != null && sv.ds[i] !== ABILITIES[a as AbilityId]?.legacyDescription ? sv.ds[i] : defaultDesc(a, st))),
         }
       : defaultRar(d, st, abil);
     return rar[st];
@@ -503,7 +510,7 @@ export async function openCardEditor(id: string, refresh: () => void, stars?: nu
             abil[i] = v;
             for (const [k, x] of Object.entries(rar)) {
               x.lv[i] = defaultLevel(v, +k);
-              x.ds[i] = defaultDesc(v);
+              x.ds[i] = defaultDesc(v, +k);
             }
             draw();
           }),

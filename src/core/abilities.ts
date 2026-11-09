@@ -23,6 +23,8 @@ export interface AbilityDef {
   name: string;
   description: string;
   icon: string;
+  /** v0.65.0: descrição antiga (sem números), para reconhecer textos não editados salvos no editor */
+  legacyDescription?: string;
   /** v0.65.0: descrição com o valor da raridade (v = força nessa raridade) */
   text?: (v: number, stars: number) => string;
   /** v0.64.7: descrição própria de uma raridade (undefined = a padrão) */
@@ -100,7 +102,12 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     name: 'Corte Diagonal',
     // v0.64.7: une o antigo Golpe Reverso — ataca quem está atrás, nas diagonais e ao lado antes de atacar à frente
     description: 'Ataca primeiro quem está atrás, nas diagonais ou ao lado; se não houver ninguém, ataca à frente.',
-    descAt: (s) => (s <= 2 ? 'Ataca primeiro quem está atrás ou na diagonal de trás; se não houver ninguém, ataca à frente.' : undefined),
+    descAt: (s) =>
+      s <= 2
+        ? 'Ataca primeiro quem está atrás ou na diagonal de trás; se não houver ninguém, ataca à frente.'
+        : s <= 4
+          ? 'Ataca primeiro quem está atrás, nas diagonais ou ao lado; se não houver ninguém, ataca à frente.'
+          : 'Ataca primeiro quem está atrás, nas diagonais ou ao lado; se não houver ninguém, ataca à frente. Corte duplo: também acerta o próximo inimigo dessa ordem com 50% do dano.',
     icon: '↗',
     targeting: 'diagFrente',
     scaling: 'Raro em diante: também ao lado e na diagonal da frente. Lendário em diante: corte duplo — também acerta o próximo inimigo dessa ordem com 50% do dano.',
@@ -734,10 +741,12 @@ const V65_TABLE: Partial<Record<AbilityId, V65>> = {
   contraGolpe: { v: [2, 2, 2, 2, 2, 2.5], text: (v) => `Ao sofrer ataque físico corpo a corpo de frente, contra-ataca com ${n(v)}× o próprio ataque e empurra o agressor 1 casa para trás.` },
   retaliacao: { text: () => 'Enquanto estiver em campo, quando o seu Comandante sofrer dano, o inimigo mais próximo dele sofre o mesmo dano.' },
   explosao: { v: [2, 2, 2, 3, 3, 4], text: (v) => `Ao morrer, causa ${v} de dano em todos os inimigos vizinhos (inclusive diagonais e a outra fileira).` },
+  prole: { v: [1, 1, 1, 1, 1, 2], text: (v, s) => `Ao derrotar um inimigo, surge uma Cria Sombria (ataque ${s >= 6 ? 3 : 2}, vida ${v}, ataque mágico até 2 casas à frente). Crias que derrotam alguém também geram crias. Máximo de 3 crias por lado.` },
   purificar: { text: (_v, s) => `No início da sua ação, tira um efeito ruim (veneno, queimadura, sangramento, congelamento, atordoamento, lentidão ou maldição) ${s >= 6 ? 'de qualquer aliado afetado' : 'do aliado vizinho mais afetado'} (ou dele mesmo).` },
 };
 for (const [id, t] of Object.entries(V65_TABLE) as [AbilityId, V65][]) {
   const a = ABILITIES[id];
+  a.legacyDescription = a.description;
   a.text = t.text;
   if (t.v) {
     const vals = t.v;
@@ -749,6 +758,11 @@ for (const [id, t] of Object.entries(V65_TABLE) as [AbilityId, V65][]) {
   }
   a.description = t.text(at(t.v ?? [0, 0, 0, 0, 0, 0], 6), 6);
 }
+// Sede Eterna: o valor depende também do degrau (Mítico++ drena 3)
+ABILITIES.sedeEterna.legacyDescription = ABILITIES.sedeEterna.description;
+ABILITIES.sedeEterna.text = (v) =>
+  `Cada ataque tira ${v} de vida extra do alvo e cura ele mesmo nessa quantidade. Ao derrotar um inimigo, passa a Marca da Sede ao aliado mais próximo (1 de vida extra por ataque, e ele se cura).`;
+ABILITIES.diagFrente.legacyDescription = 'Também ataca o inimigo na diagonal logo à frente (outra fileira, 1 coluna adiante).';
 ABILITIES.guarda.resBonus = (s) => ({ phys: at([1, 1, 2, 2, 3, 4], s), mag: 0 });
 ABILITIES.barreira.resBonus = (s) => ({ phys: 0, mag: at([1, 1, 1, 2, 2, 3], s) });
 ABILITIES.inabalavel.resBonus = (s) => ({ phys: at([2, 2, 3, 3, 4, 4], s), mag: at([0, 0, 0, 1, 1, 2], s) });

@@ -11,6 +11,7 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
 - **Purificar no Mítico** tira o efeito ruim de qualquer aliado (abaixo do Mítico, só do vizinho).
 - **Sylith Mítica:** 3 | 5.
 - Tutorial, Batalha 2: o Daichi inimigo agora é Comum (continua impossível de perder).
+- **Editor de carta:** as descrições também mostram o valor de cada raridade; textos antigos sem números que estavam salvos (e não foram mudados por você) dão lugar aos novos. Prole Sombria, Sede Eterna e Corte Diagonal (Lendário+: corte duplo 50%) também ganharam números.
 
 ## [0.64.7] — 06/11/2026 · Corte Diagonal nas costas, nos lados e nas diagonais
 - **Golpe Reverso virou Corte Diagonal** (uma habilidade só, mesmo nome para todos).
