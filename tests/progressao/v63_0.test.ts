@@ -55,7 +55,7 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
         for (let r = b.minStars; r <= Math.min(a.maxStars, b.maxStars); r++) expect(total(b.id, r), `${b.id} > ${a.id} @${r}`).toBeGreaterThan(total(a.id, r));
       }
     // todos crescem +1 por raridade
-    for (const d of PLAYABLE) for (let r = d.minStars + 1; r <= d.maxStars; r++) expect(total(d.id, r) - total(d.id, r - 1), d.id).toBe(1);
+    for (const d of PLAYABLE.filter((x) => !BALANCE_V2[x.id].manual)) for (let r = d.minStars + 1; r <= d.maxStars; r++) expect(total(d.id, r) - total(d.id, r - 1), d.id).toBe(1);
   });
 
   it('Espera pela força: até 6, e 7–8 só para quem nasce Mítico', () => {

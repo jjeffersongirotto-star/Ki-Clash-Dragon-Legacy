@@ -23,6 +23,8 @@ export interface AbilityDef {
   name: string;
   description: string;
   icon: string;
+  /** v0.65.0: descrição com o valor da raridade (v = força nessa raridade) */
+  text?: (v: number, stars: number) => string;
   /** v0.64.7: descrição própria de uma raridade (undefined = a padrão) */
   descAt?: (stars: number) => string | undefined;
   /** texto curto de evolução por estrela/nível (exibido nas telas) */
@@ -681,6 +683,75 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     icon: '🪨',
   },
 };
+
+// ---------- v0.65.0: valores claros por raridade (Comum · Incomum · Raro · Épico · Lendário · Mítico), sem tetos padrão ----------
+const RAR = ['Comum', 'Incomum', 'Raro', 'Épico', 'Lendário', 'Mítico'];
+const at = (vals: number[], s: number) => vals[Math.max(1, Math.min(6, s)) - 1];
+const n = (v: number) => String(v).replace('.', ',');
+type V65 = { v?: number[]; text: (v: number, s: number) => string; unit?: string };
+const V65_TABLE: Partial<Record<AbilityId, V65>> = {
+  guarda: { v: [1, 1, 2, 2, 3, 4], text: (v) => `Reduz em ${v} o dano de cada golpe físico recebido.` },
+  barreira: { v: [1, 1, 1, 2, 2, 3], text: (v) => `Reduz em ${v} o dano de cada golpe mágico recebido.` },
+  inabalavel: { v: [2, 2, 3, 3, 4, 4], text: (v, s) => { const m = at([0, 0, 0, 1, 1, 2], s); return `Não pode ser empurrado. Reduz em ${v} o dano físico${m ? ` e em ${m} o dano mágico` : ''} de cada golpe recebido.`; } },
+  espinhos: { v: [1, 1, 2, 3, 3, 4], text: (v) => `Reduz em 1 o dano físico recebido. Quem o ataca corpo a corpo de frente sofre ${v} de dano de volta.` },
+  escudoInicial: { v: [2, 3, 3, 4, 5, 6], text: (v) => `Entra em campo com um escudo que absorve ${v} de dano. O escudo não some com o tempo: só acaba quando absorver esse dano.` },
+  sopro: { v: [1, 1, 2, 3, 3, 4], text: (v) => `No início da sua ação, cura ${v} de vida do aliado mais ferido da própria fileira (qualquer distância).` },
+  lotus: { v: [1, 2, 2, 3, 3, 4], text: (v) => `No início da sua ação, cura ${v} de vida dos 2 aliados vizinhos mais feridos (inclusive diagonais e a outra fileira).` },
+  regeneracao: { v: [1, 1, 1, 2, 2, 3], text: (v) => `No fim de cada turno dele, recupera ${v} de vida.` },
+  tambor: { v: [1, 1, 1, 2, 2, 3], text: (v) => `Os aliados vizinhos (inclusive diagonais e a outra fileira) ganham +${v} de ataque. Dois tambores não se somam.` },
+  gritoGuerra: { v: [1, 1, 1, 1, 2, 2], text: (v) => `Enquanto estiver vivo, os aliados da mesma fileira ganham +${v} de ataque (soma com o Tambor de Guerra).` },
+  sifao: { v: [1, 1, 1, 1, 1, 2], text: (v) => `Enquanto estiver em campo, todos os inimigos perdem ${v} de ataque.` },
+  dominio: { v: [1, 1, 1, 1, 1, 1], text: () => 'Enquanto estiver em campo, todos os inimigos perdem 1 de ataque, e cada golpe dele tira mais 1 de ataque do alvo (sem limite).' },
+  protetor: { v: [30, 30, 30, 40, 40, 50], text: (v) => `Recebe ${v}% do dano que os aliados vizinhos sofreriam.` },
+  salto: { v: [1, 1, 2, 2, 3, 4], text: (v) => `Move-se saltando até a 3ª casa à frente, por cima de aliados ou inimigos (também por cima do inimigo da frente). Ao cair, o golpe causa +${v} de dano.` },
+  investida: { v: [1, 1, 2, 2, 3, 3], text: (v) => `Na primeira ação depois de entrar em campo, anda 2 casas a mais e o golpe causa +${v} de dano.` },
+  ataqueCostas: { v: [1, 1, 2, 2, 3, 3], text: (v) => `Ataca primeiro o inimigo logo atrás dele na mesma fileira, com +${v} de dano; se não houver, ataca à frente.` },
+  teleporte: { v: [1, 1, 2, 2, 3, 3], text: (v) => `Uma vez por partida, pula para a casa livre atrás do inimigo mais avançado da fileira e o ataca pelas costas com +${v} de dano.` },
+  retaguarda: { v: [1, 1, 2, 2, 3, 4], text: (v) => `Ataca o inimigo mais distante da sua fileira até 2 casas à frente, ignorando ${v} de resistência.` },
+  menorVida: { v: [1, 1, 2, 2, 3, 4], text: (v) => `Ataca o inimigo com menos vida da sua fileira até 2 casas à frente; se ele estiver com metade da vida ou menos, causa +${v} de dano.` },
+  cacaMagos: { v: [1, 1, 2, 2, 3, 3], text: (v) => `Prioriza inimigos que atacam de longe, até 2 casas à frente na sua fileira, causando +${v} de dano neles.` },
+  surpresa: { v: [1, 1, 2, 2, 3, 3], text: (v) => `Mira o inimigo de maior ataque da sua fileira até 2 casas à frente; se ele estiver com a vida cheia, causa +${v} de dano.` },
+  olhoAguia: { v: [1, 1, 2, 2, 3, 3], text: (v) => `Causa +${v} de dano em alvos a 2 casas ou mais de distância.` },
+  precisao: { v: [1, 1, 2, 2, 3, 3], text: (v) => `Ignora ${v} de resistência física do alvo.` },
+  mare: { v: [1, 1, 2, 3, 3, 4], text: (v) => `Causa +${v} de dano ao atacar o Comandante inimigo.` },
+  flechaDupla: { v: [1, 1, 2, 2, 3, 4], text: (v) => `Dispara uma 2ª flecha de ${v} de dano no mesmo alvo.` },
+  perfurante: { v: [50, 50, 75, 75, 100, 100], text: (v) => `O feixe atravessa a fileira: acerta o inimigo mais próximo e causa ${v}% do dano nos que estão atrás dele, no alcance.` },
+  brasa: { v: [1, 1, 2, 2, 3, 3], text: (v) => `Ao acertar, a explosão causa ${v} de dano mágico no inimigo da mesma coluna na outra fileira.` },
+  raioCadeia: { v: [60, 60, 60, 60, 60, 75], text: (_v, s) => `O ataque salta para até mais 2 inimigos vizinhos do alvo, com ${s >= 6 ? 75 : 60}% e ${s >= 6 ? 50 : 30}% do dano.` },
+  critico: { v: [20, 20, 25, 25, 30, 35], text: (v) => `Cada golpe principal tem ${v}% de chance de causar o dobro de dano.` },
+  atordoar: { v: [50, 50, 50, 50, 55, 60], text: (v) => `Ao acertar, ${v}% de chance de atordoar: no próximo turno o alvo não age (não anda, não ataca, não usa habilidade). Não atordoa o mesmo alvo duas vezes seguidas.` },
+  congelar: { v: [40, 40, 50, 50, 55, 60], text: (v) => `Ao acertar, ${v}% de chance de congelar: no próximo turno o alvo não ataca (ainda anda). Não congela o mesmo alvo duas vezes seguidas.` },
+  veneno: { v: [1, 1, 1, 2, 2, 3], text: (v) => `O alvo perde ${v} de vida no começo de cada turno dele, por 3 turnos (ignora resistência; um novo golpe renova).` },
+  queimadura: { v: [2, 2, 2, 3, 3, 4], text: (v) => `O alvo pega fogo: cada queimadura causa 1 de dano mágico no começo de cada turno dele, por ${v} turnos. Cada golpe soma mais uma queimadura (sem limite).` },
+  sangramento: { v: [1, 1, 1, 2, 2, 2], text: (v) => `Golpes físicos abrem feridas: o alvo perde ${v} de vida por turno, por 3 turnos, e mais 1 em cada turno em que andar.` },
+  maldicao: { v: [25, 25, 25, 35, 35, 50], text: (v) => `O alvo recebe +${v}% de dano de todas as fontes por 2 turnos.` },
+  vampirismo: { v: [25, 25, 30, 30, 35, 40], text: (v) => `Cura a si mesmo ${v}% do dano que causa.` },
+  furia: { text: () => 'Ganha +1 de ataque a cada inimigo derrotado (por qualquer aliado), sem limite.' },
+  vinganca: { text: () => 'Ganha +1 de ataque a cada aliado derrotado, sem limite.' },
+  execucao: { v: [25, 25, 25, 25, 25, 30], text: (v) => `Derrota na hora o inimigo atingido (não o Comandante) se ele ficar com ${v}% da vida ou menos.` },
+  renascer: { v: [30, 30, 30, 40, 50, 60], text: (v) => `Na primeira vez que cai, renasce na mesma casa com ${v}% da vida (uma vez por partida). Não vai para a Necropolis.` },
+  reflexo: { v: [30, 30, 30, 30, 40, 50], text: (v) => `Reduz em ${v}% o dano mágico recebido (ataques e feitiços) e devolve essa parte a quem atacou (feitiço: ao Comandante de quem lançou).` },
+  contraGolpe: { v: [2, 2, 2, 2, 2, 2.5], text: (v) => `Ao sofrer ataque físico corpo a corpo de frente, contra-ataca com ${n(v)}× o próprio ataque e empurra o agressor 1 casa para trás.` },
+  retaliacao: { text: () => 'Enquanto estiver em campo, quando o seu Comandante sofrer dano, o inimigo mais próximo dele sofre o mesmo dano.' },
+  explosao: { v: [2, 2, 2, 3, 3, 4], text: (v) => `Ao morrer, causa ${v} de dano em todos os inimigos vizinhos (inclusive diagonais e a outra fileira).` },
+  purificar: { text: (_v, s) => `No início da sua ação, tira um efeito ruim (veneno, queimadura, sangramento, congelamento, atordoamento, lentidão ou maldição) ${s >= 6 ? 'de qualquer aliado afetado' : 'do aliado vizinho mais afetado'} (ou dele mesmo).` },
+};
+for (const [id, t] of Object.entries(V65_TABLE) as [AbilityId, V65][]) {
+  const a = ABILITIES[id];
+  a.text = t.text;
+  if (t.v) {
+    const vals = t.v;
+    a.power = (s) => at(vals, s);
+    a.scaling = vals.map((v, i) => `${RAR[i]} ${n(v)}`).join(' · ');
+  } else {
+    a.power = undefined;
+    a.scaling = undefined;
+  }
+  a.description = t.text(at(t.v ?? [0, 0, 0, 0, 0, 0], 6), 6);
+}
+ABILITIES.guarda.resBonus = (s) => ({ phys: at([1, 1, 2, 2, 3, 4], s), mag: 0 });
+ABILITIES.barreira.resBonus = (s) => ({ phys: 0, mag: at([1, 1, 1, 2, 2, 3], s) });
+ABILITIES.inabalavel.resBonus = (s) => ({ phys: at([2, 2, 3, 3, 4, 4], s), mag: at([0, 0, 0, 1, 1, 2], s) });
 
 export function has(abilities: AbilityId[], pred: (a: AbilityDef) => unknown): AbilityDef | undefined {
   for (const id of abilities) {

@@ -105,15 +105,14 @@ describe('v0.23.0 — carta sem nível: raridade + degrau ("+" / "++")', () => {
   });
 
   it('habilidades que melhoravam por nível melhoram no degrau equivalente', () => {
-    // Bênção do Lótus (antes +1 no nível 20): a partir de Incomum+
+    // v0.65.0: valores só pela raridade (o degrau não muda habilidade)
     expect(abilityPower('lotus', 2, 0)).toBe(2);
-    expect(abilityPower('lotus', 2, 1)).toBe(3);
-    // Salto Vendaval (antes +1 no nível 30): a partir de Raro+
-    expect(abilityPower('salto', 3, 0)).toBe(1);
+    expect(abilityPower('lotus', 2, 1)).toBe(2);
+    expect(abilityPower('salto', 3, 0)).toBe(2);
     expect(abilityPower('salto', 3, 1)).toBe(2);
     // Flecha Dupla (antes +1 no nível 25): junto com o Raro
     expect(abilityPower('flechaDupla', 2, 2)).toBe(1);
-    expect(abilityPower('flechaDupla', 3, 0)).toBe(3);
+    expect(abilityPower('flechaDupla', 3, 0)).toBe(2);
     // a unidade em campo usa o degrau da carta
     const s = createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
     const u = placeUnit(s, { charId: 'mei', stars: 2, plus: 1 }, 'player', 0, 0);

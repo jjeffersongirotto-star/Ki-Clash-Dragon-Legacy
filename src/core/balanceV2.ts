@@ -90,7 +90,7 @@ export const BALANCE_V2: Record<string, BalanceEntry> = {
   vexar: { min: 5, max: 6, wait: 6, stats: { 5: [5, 7], 6: [5, 8] }, ab: ['furia', 'diagFrente', 'sangramento'], up: { sangramento: 6 } },
   lunaris: { min: 5, max: 6, wait: 3, stats: { 5: [4, 2], 6: [5, 2] }, ab: ['longoAlcance', 'olhoAguia', 'lentidao', 'critico'], up: { critico: 6 } },
   gorm: { min: 5, max: 6, wait: 6, stats: { 5: [3, 14], 6: [3, 15] }, ab: ['protetor', 'inabalavel', 'regeneracao'], up: { regeneracao: 6 } },
-  sylith: { min: 4, max: 6, wait: 2, stats: { 4: [1, 3], 5: [1, 4], 6: [2, 4] }, ab: ['gritoGuerra', 'purificar', 'escudoInicial'], up: { escudoInicial: 5 } },
+  sylith: { min: 4, max: 6, wait: 2, stats: { 4: [1, 3], 5: [1, 4], 6: [3, 5] }, ab: ['gritoGuerra', 'purificar', 'escudoInicial'], up: { escudoInicial: 5 }, manual: true },
   nhyra: { min: 4, max: 6, wait: 6, stats: { 4: [7, 4], 5: [7, 5], 6: [8, 5] }, ab: ['evasao', 'ataqueCostas', 'contraCrescente'], up: { contraCrescente: 5 } },
   bolt: { min: 1, max: 4, wait: 2, stats: { 1: [2, 3], 2: [2, 4], 3: [3, 4], 4: [3, 5] }, ab: ['critico'] },
   medi3: { min: 1, max: 4, wait: 2, stats: { 1: [1, 3], 2: [1, 4], 3: [2, 4], 4: [2, 5] }, ab: ['longoAlcance', 'sopro'] },

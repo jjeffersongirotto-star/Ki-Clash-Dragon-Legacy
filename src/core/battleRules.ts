@@ -3,7 +3,7 @@
  * v0.28.1: separado de battle.ts, que reexporta estas funções.
  */
 import { hasTweak } from './balanceV2';
-import { ABILITIES, AURA_CAP, BUFF_CAP, abilityPower, has } from './abilities';
+import { ABILITIES, abilityPower, has } from './abilities';
 import { dir } from './battle';
 import type { AbilityId, BattleState, Unit } from './types';
 export function rangeOf(u: Unit): number {
@@ -23,7 +23,7 @@ export function auraPenalty(state: BattleState, u: Unit): number {
     if (e.hp <= 0 || e.side === u.side) continue;
     if (has(e.abilities, (x) => x.enemyAtkAura)) p += pw(e, 'sifao') + pw(e, 'dominio');
   }
-  return Math.min(AURA_CAP, p);
+  return p; // v0.65.0: sem teto (o ataque pode chegar a 0)
 }
 
 /** Fúria de batalha: a partir do turno FURY_START, todos ganham +1 de ataque a cada FURY_EVERY turnos (evita empates travados). */
@@ -34,7 +34,7 @@ export function furyBonus(turn: number): number {
   return turn < FURY_START ? 0 : 1 + Math.floor((turn - FURY_START) / FURY_EVERY);
 }
 
-/** Tambor de Guerra: o maior bônus entre os aliados vizinhos (não acumula), com teto. */
+/** Tambor de Guerra: o maior bônus entre os aliados vizinhos (tambores não se somam) + Grito de Guerra (v0.65.0: soma, sem teto). */
 export function allyBuff(state: BattleState, u: Unit): number {
   if (u.isMinion && u.charId === 'cria') return 0;
   let b = 0;
@@ -43,20 +43,22 @@ export function allyBuff(state: BattleState, u: Unit): number {
     if (Math.abs(a.row - u.row) > 1 || Math.abs(a.col - u.col) > 1) continue;
     if (has(a.abilities, (x) => x.allyAtkAura)) b = Math.max(b, pw(a, 'tambor'));
   }
-  // v0.30.0: Grito de Guerra — aliados da mesma fileira (qualquer distância); não soma com o Tambor
+  // Grito de Guerra — aliados da mesma fileira (qualquer distância); v0.65.0: soma com o Tambor, sem teto
+  let g = 0;
   for (const a of state.units)
-    if (a !== u && a.hp > 0 && a.side === u.side && a.row === u.row && a.abilities.includes('gritoGuerra')) b = Math.max(b, pw(a, 'gritoGuerra'));
-  return Math.min(BUFF_CAP, b);
+    if (a !== u && a.hp > 0 && a.side === u.side && a.row === u.row && a.abilities.includes('gritoGuerra')) g = Math.max(g, pw(a, 'gritoGuerra'));
+  return b + g;
 }
 
 export function effectiveAtk(state: BattleState, u: Unit): number {
-  return Math.max(1, u.atk + (u.atkMod ?? 0) - auraPenalty(state, u)) + allyBuff(state, u) + (state.fury ? furyBonus(state.turn) : 0);
+  // v0.65.0: com redução, o ataque pode chegar a 0
+  return Math.max(0, u.atk + (u.atkMod ?? 0) - auraPenalty(state, u)) + allyBuff(state, u) + (state.fury ? furyBonus(state.turn) : 0);
 }
 
-/** Dano após resistência. Resistência física 1 contra 3 de dano físico = 2. Mínimo 1. `pierce` ignora parte da resistência. */
+/** Dano após resistência. Resistência física 1 contra 3 de dano físico = 2. v0.65.0: pode ser 0 (resistência ≥ ataque). `pierce` ignora parte da resistência. */
 export function computeDamage(atk: number, type: 'fisico' | 'magico', target: { physRes: number; magRes: number }, pierce = 0): number {
   const res = Math.max(0, (type === 'fisico' ? target.physRes : target.magRes) - pierce);
-  return Math.max(1, atk - res);
+  return Math.max(0, atk - res);
 }
 
 export function distanceToEnemyHero(state: BattleState, u: Unit): number {

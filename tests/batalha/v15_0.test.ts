@@ -100,6 +100,6 @@ describe('v0.15.0 — Salto Vendaval (Riku): 3 casas fixas', () => {
         s.units = [];
       }
     expect(SALTO_MOVE).toBe(3);
-    expect(ABILITIES.salto.scaling).toContain('sempre até a 3ª casa');
+    expect(ABILITIES.salto.description).toContain('3ª casa');
   });
 });

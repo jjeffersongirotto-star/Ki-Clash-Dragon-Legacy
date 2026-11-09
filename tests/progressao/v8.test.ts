@@ -125,7 +125,7 @@ describe('habilidades dos novos personagens', () => {
     const n = placeUnit(s, c('toru'), 'enemy', 1, 4, { hp: 30 });
     act(s, new Ctx(), k);
     expect(t.hp).toBe(27);
-    expect(o.hp).toBe(28); // Brasas 2 no Lendário
+    expect(o.hp).toBe(27); // v0.65.0: Brasas 3 no Lendário
     expect(n.hp).toBe(30);
   });
   it('Maré Implacável (Suri): dano extra no herói', () => {

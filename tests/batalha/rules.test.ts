@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { act, attack, createBattle, Ctx, effectiveAtk, findTarget, makeUnit, placeUnit, rangeOf } from '../../src/core/battle';
-import { ABILITIES, abilityPower, AURA_CAP, MINION_CAP, RES_CAP } from '../../src/core/abilities';
+import { ABILITIES, abilityPower, MINION_CAP } from '../../src/core/abilities';
 import { CATEGORY_INFO, PLAYABLE, STAR_COLORS, getChar } from '../../src/core/characters';
 import { statsFor } from '../../src/core/progression';
 import type { BattleState, CardInstance } from '../../src/core/types';
@@ -148,14 +148,14 @@ describe('só a própria fileira (exceto diagonais)', () => {
 });
 
 describe('habilidades por estrela/nível (com teto)', () => {
-  it('toda habilidade com power respeita teto ao máximo', () => {
-    expect(abilityPower('salto', 6, 99)).toBeLessThanOrEqual(3);
-    expect(abilityPower('flechaDupla', 6, 99)).toBeLessThanOrEqual(3);
-    expect(abilityPower('retaguarda', 6, 99)).toBeLessThanOrEqual(3);
-    expect(abilityPower('menorVida', 6, 99)).toBeLessThanOrEqual(3);
-    expect(abilityPower('lotus', 6, 99)).toBeLessThanOrEqual(4);
-    expect(abilityPower('contraGolpe', 6, 99)).toBeLessThanOrEqual(2.5);
-    expect(abilityPower('sifao', 6, 99)).toBeLessThanOrEqual(AURA_CAP);
+  it('v0.65.0: valores do Mítico (crescem até o fim, sem teto padrão)', () => {
+    expect(abilityPower('salto', 6, 99)).toBe(4);
+    expect(abilityPower('flechaDupla', 6, 99)).toBe(4);
+    expect(abilityPower('retaguarda', 6, 99)).toBe(4);
+    expect(abilityPower('menorVida', 6, 99)).toBe(4);
+    expect(abilityPower('lotus', 6, 99)).toBe(4);
+    expect(abilityPower('contraGolpe', 6, 99)).toBe(2.5);
+    expect(abilityPower('sifao', 6, 99)).toBe(2);
   });
   it('habilidades crescem com estrelas', () => {
     expect(abilityPower('flechaDupla', 3, 0)).toBeGreaterThan(abilityPower('flechaDupla', 2, 0));
@@ -163,21 +163,21 @@ describe('habilidades por estrela/nível (com teto)', () => {
     expect(abilityPower('perfurante', 5, 0)).toBeGreaterThan(abilityPower('perfurante', 2, 0));
     expect(abilityPower('lotus', 4, 0)).toBeGreaterThan(abilityPower('lotus', 2, 0));
   });
-  it('resistência nunca passa de 3 (dano mínimo 1 sempre)', () => {
+  it('v0.65.0: resistência sem teto (Inabalável 4 no Lendário)', () => {
     const s = empty();
     const g = makeUnit(s, c('gorath', 50, 5), 'player', 0, 0);
-    expect(g.physRes).toBeLessThanOrEqual(RES_CAP);
+    expect(g.physRes).toBe(4);
     const t = makeUnit(s, c('toru', 50, 5), 'player', 0, 0);
     expect(t.physRes).toBe(3);
   });
-  it('Sifão: −1 (4★), −2 (5★), total limitado a 2 mesmo com vários Nyx', () => {
+  it('Sifão: −1 por Nyx (Épico/Lendário); v0.65.0: vários Nyx somam, sem teto', () => {
     const s = empty();
     const a = placeUnit(s, c('riku'), 'player', 0, 0, { atk: 6 });
     placeUnit(s, c('nyx', 1, 4), 'enemy', 1, 6);
     expect(effectiveAtk(s, a)).toBe(5);
     placeUnit(s, c('nyx', 1, 5), 'enemy', 0, 6);
     placeUnit(s, c('nyx', 1, 5), 'enemy', 1, 5);
-    expect(effectiveAtk(s, a)).toBe(4);
+    expect(effectiveAtk(s, a)).toBe(3);
   });
   it('Flecha Dupla: 2ª flecha a partir de 3★ (escala com estrelas)', () => {
     const s = empty();
@@ -186,11 +186,11 @@ describe('habilidades por estrela/nível (com teto)', () => {
     e.physRes = 0;
     act(s, new Ctx(), a);
     expect(e.hp).toBe(50 - 3 - abilityPower('flechaDupla', 4, 0));
+    // v0.65.0: 1 · 1 · 2 · 2 · 3 · 4
     expect(abilityPower('flechaDupla', 2, 0)).toBe(1);
     expect(abilityPower('flechaDupla', 2, 2)).toBe(1);
-    // v0.23.0: o +1 do antigo nível 25 vem junto com o Raro (todo Raro já passava do nível 25)
-    expect(abilityPower('flechaDupla', 3, 0)).toBe(3);
-    expect(abilityPower('flechaDupla', 4, 0)).toBe(3);
+    expect(abilityPower('flechaDupla', 3, 0)).toBe(2);
+    expect(abilityPower('flechaDupla', 4, 0)).toBe(2);
   });
   it('Bênção do Lótus cura aliados vizinhos (inclusive outra fileira)', () => {
     const s = empty();

@@ -35,7 +35,7 @@ describe('v0.17.0 — efeitos com duração (decisão 16)', () => {
   it('veneno: dano no início do lado do dono, ignora resistência, acaba depois das rodadas', () => {
     const s = empty();
     const t = placeUnit(s, c('toru', 1, 4), 'enemy', 0, 9, { hp: 30 });
-    expect(t.physRes).toBe(3);
+    expect(t.physRes).toBe(2); // v0.65.0: Postura de Guarda 2 no Épico
     addEffect(s, new Ctx(), t, 'veneno', 4, 2);
     resolveSide(s, new Ctx(), 'enemy');
     expect(t.hp).toBe(26);

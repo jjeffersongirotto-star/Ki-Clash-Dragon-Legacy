@@ -49,8 +49,8 @@ describe('dano e resistência', () => {
   it('dano mágico ignora resistência física', () => {
     expect(computeDamage(3, 'magico', { physRes: 5, magRes: 0 })).toBe(3);
   });
-  it('dano mínimo é 1', () => {
-    expect(computeDamage(1, 'fisico', { physRes: 4, magRes: 0 })).toBe(1);
+  it('v0.65.0: resistência maior ou igual ao ataque = dano 0', () => {
+    expect(computeDamage(1, 'fisico', { physRes: 4, magRes: 0 })).toBe(0);
   });
   it('Gorath (resist. física 2) recebe menos dano físico em combate', () => {
     const s = emptyBattle();
@@ -80,7 +80,7 @@ describe('movimento', () => {
   it('anda até ficar de frente para o inimigo e ataca', () => {
     const s = emptyBattle();
     const u = placeUnit(s, c('nara'), 'player', 0, 1);
-    const e = placeUnit(s, c('gorath'), 'enemy', 0, 4, { hp: 99 });
+    const e = placeUnit(s, c('riku'), 'enemy', 0, 4, { hp: 99 }); // v0.65.0: sem resistência (o golpe pode tirar 0)
     act(s, new Ctx(), u);
     expect(u.col).toBe(3);
     expect(e.hp).toBeLessThan(99);
@@ -125,7 +125,7 @@ describe('alcance e mira', () => {
     const u = placeUnit(s, c('riku'), 'player', 0, 5);
     act(s, new Ctx(), u);
     expect(u.col).toBe(6);
-    expect(s.heroes.enemy.hp).toBe(30 - u.atk);
+    expect(s.heroes.enemy.hp).toBe(30 - u.atk - 1); // v0.65.0: Salto Vendaval +1 no Comum
   });
   it('v0.64.7: Corte Diagonal — Comum/Incomum só atrás e diagonal de trás; Raro+ também lado e diagonal da frente', () => {
     const s = emptyBattle();
@@ -200,7 +200,7 @@ describe('herói como alvo (coluna virtual após a arena)', () => {
     placeUnit(s2, c('gorath'), 'player', 0, 5);
     act(s2, new Ctx(), r);
     expect(r.col).toBe(6);
-    expect(s2.heroes.enemy.hp).toBe(30 - r.atk);
+    expect(s2.heroes.enemy.hp).toBe(30 - r.atk - 1); // v0.65.0: Salto Vendaval +1 no Comum
   });
   it('fúria pode ser desligada (para simulações)', () => {
     const s = createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1, fury: false, cols: 7 });
