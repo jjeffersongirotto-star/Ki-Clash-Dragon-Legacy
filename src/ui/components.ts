@@ -145,10 +145,11 @@ export function abilityListHTML(def: CharacterDef, stars?: number, step = 0): st
   const rows = shownAbilities(def).map((a) => {
     const ab = ABILITIES[a];
     const p = ab.power?.(s, stepIndex(s, step));
-    const now = ab.powerLabel && p != null ? ` <span class="ab-now">agora: ${esc(ab.powerLabel(p))}</span>` : '';
+    // v0.65.0: o valor da raridade já vem escrito na descrição
+    const now = !ab.text && ab.powerLabel && p != null ? ` <span class="ab-now">agora: ${esc(ab.powerLabel(p))}</span>` : '';
     const at = def.unlock?.[a];
-    if (at && at > s) return `<li class="ab-locked"><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> 🔒 <span class="ab-now">desbloqueia no ${TIER_NAMES[at]}</span> — ${esc(def.abilityDesc?.[a] ?? ab.description)}</li>`;
-    return `<li><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> — ${esc(def.abilityDesc?.[a] ?? ab.descAt?.(s) ?? ab.description)}${now}</li>`;
+    if (at && at > s) return `<li class="ab-locked"><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> 🔒 <span class="ab-now">desbloqueia no ${TIER_NAMES[at]}</span> — ${esc(def.abilityDesc?.[a] ?? ab.text?.(ab.power?.(at, (at - 1) * 3) ?? 0, at) ?? ab.description)}</li>`;
+    return `<li><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> — ${esc(def.abilityDesc?.[a] ?? ab.descAt?.(s) ?? ab.text?.(p ?? 0, s) ?? ab.description)}${now}</li>`;
   });
   if (def.physRes) rows.push(`<li><b>${abilityIconHTML('guarda')} Resistência física ${def.physRes}</b> — reduz cada golpe físico em ${def.physRes}.</li>`);
   if (def.magRes) rows.push(`<li><b>${abilityIconHTML('barreira')} Resistência mágica ${def.magRes}</b> — reduz cada golpe mágico em ${def.magRes}.</li>`);

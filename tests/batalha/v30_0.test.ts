@@ -1,3 +1,4 @@
+import { abilityPower } from '../../src/core/abilities';
 import { describe, expect, it } from 'vitest';
 import { ABILITIES } from '../../src/core/abilities';
 import { Ctx, act, addEffect, applyDamage, attack, createBattle, effectiveAtk, effectOf, findTarget, onEnter, placeUnit, resolveSide } from '../../src/core/battle';
@@ -212,7 +213,7 @@ describe('v0.30.0 — habilidades novas', () => {
     const s = empty();
     const a = unit(s, 'player', 0, 1, ['escudoInicial', 'clone'], { atk: 6, hp: 10 });
     onEnter(s, new Ctx(), a);
-    expect(effectOf(a, 'escudo')?.amount).toBe(3);
+    expect(effectOf(a, 'escudo')?.amount).toBe(abilityPower('escudoInicial', a.stars)); // v0.65.0: 2 · 3 · 3 · 4 · 5 · 6
     const c = s.units.find((u) => u !== a)!;
     expect(c.isMinion).toBe(true);
     expect(c.abilities).toEqual([]);

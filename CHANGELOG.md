@@ -2,6 +2,17 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.65.0] — 09/11/2026 · Habilidades com valores claros e sem limites padrão
+- **Toda habilidade mostra o número da raridade da carta** na descrição (ex.: Escudo de Entrada Mítico: "absorve 6 de dano; não some com o tempo, só quando absorver esse dano").
+- **Valores crescem de Comum a Mítico** (antes muitas paravam no Épico). Tabela completa no REGRAS.md.
+- **Saem os tetos gerais:** bônus de ataque dos aliados, redução de ataque dos inimigos e resistência. Fúria, Vingança, Domínio, Queimadura (acumula) e Retaliação ficam **sem limite**. Grito de Guerra agora **soma** com o Tambor de Guerra.
+- **Ataque pode chegar a 0** com redução, e **um golpe pode tirar 0** se a resistência for maior ou igual ao ataque.
+- Limites que ficam (casos específicos): máx. 3 Crias Sombrias por lado; "uma vez por partida"; não congela/atordoa o mesmo alvo duas vezes seguidas; Couraça Adaptativa até 4.
+- **Purificar no Mítico** tira o efeito ruim de qualquer aliado (abaixo do Mítico, só do vizinho).
+- **Sylith Mítica:** 3 | 5.
+- Tutorial, Batalha 2: o Daichi inimigo agora é Comum (continua impossível de perder).
+- **Editor de carta:** as descrições também mostram o valor de cada raridade; textos antigos sem números que estavam salvos (e não foram mudados por você) dão lugar aos novos. Prole Sombria, Sede Eterna e Corte Diagonal (Lendário+: corte duplo 50%) também ganharam números.
+
 ## [0.64.7] — 06/11/2026 · Corte Diagonal nas costas, nos lados e nas diagonais
 - **Golpe Reverso virou Corte Diagonal** (uma habilidade só, mesmo nome para todos).
 - **Corte Diagonal** agora ataca primeiro quem está **atrás**, depois na **diagonal de trás**, depois **ao lado** e por fim na **diagonal da frente** — um inimigo por vez. Se não houver ninguém nessas casas, ataca **à frente** normalmente.

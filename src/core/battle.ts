@@ -1,5 +1,5 @@
 import { TEMP_WAIT } from './tempOverrides'; // TEMP card balance editor
-import { ABILITIES, COURACA_CAP, MINION_CAP, RES_CAP, has } from './abilities';
+import { ABILITIES, COURACA_CAP, MINION_CAP, has } from './abilities';
 import { abilitiesAt, getChar } from './characters';
 import { hasTweak } from './balanceV2';
 import { statsFor, tierLabel, stepOf } from './progression';
@@ -210,8 +210,8 @@ export function makeUnit(
     maxHp: hp,
     hp,
     damageType: def.damageType,
-    physRes: Math.min(RES_CAP, physRes),
-    magRes: Math.min(RES_CAP, magRes),
+    physRes, // v0.65.0: resistência sem teto (o golpe pode tirar 0)
+    magRes,
     move: def.move,
     range: def.range,
     abilities: abilities.slice(),
@@ -377,7 +377,8 @@ export function applyDamage(state: BattleState, ctx: Ctx, target: Unit, dmg: num
     return false;
   }
   // v0.30.0: Maldição — +25% de dano de todas as fontes
-  if (amount > 0 && effectOf(target, 'maldicao')) amount = Math.round(amount * 1.25);
+  const curse = effectOf(target, 'maldicao');
+  if (amount > 0 && curse) amount = Math.round(amount * (1 + curse.amount / 100));
   // v0.30.0: Protetor — um aliado vizinho com Protetor recebe parte do dano (não em dano contínuo)
   if (amount > 0 && !src.dot && !src.noProtect) {
     const guard = state.units
@@ -463,7 +464,7 @@ function retaliate(state: BattleState, ctx: Ctx, side: Side, amount: number) {
   // o Comandante fica atrás da coluna 0 (jogador) ou da última coluna (inimigo)
   const near = foes.sort((a, b) => (side === 'player' ? a.col - b.col : b.col - a.col) || a.row - b.row)[0];
   ctx.emit(state, { type: 'effect', uid: guard.uid, kind: 'habilidade', text: `⚖️ ${nameOf(guard)} ativa o Protocolo de Retaliação contra ${nameOf(near)}!` });
-  applyDamage(state, ctx, near, Math.min(pw(guard, 'retaliacao'), amount), 'fisico', { side, unit: guard }, ' ⚖️');
+  applyDamage(state, ctx, near, amount, 'fisico', { side, unit: guard }, ' ⚖️'); // v0.65.0: sem limite
 }
 
 /** A unidade chegou a 0: Anjo da Guarda (efeito do feitiço, depois a habilidade de um vizinho) e Renascer salvam. */
@@ -517,7 +518,7 @@ export function pushBack(state: BattleState, ctx: Ctx, u: Unit): boolean {
 
 export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'hero', opts: AttackOpts = {}) {
   let atk = opts.fixed ?? Math.round(effectiveAtk(state, u) * (opts.mult ?? 1)) + (opts.bonus ?? 0);
-  if (opts.pct != null && opts.fixed == null) atk = Math.max(1, Math.ceil((atk * opts.pct) / 100));
+  if (opts.pct != null && opts.fixed == null) atk = Math.ceil((atk * opts.pct) / 100);
   const verb = opts.label ?? (opts.counter ? 'contra-ataca' : 'ataca');
   if (target === 'hero') {
     if (!opts.counter && !opts.secondary) atk += pw(u, 'mare');
@@ -606,22 +607,22 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
 /** v0.30.0: efeitos ao acertar uma unidade (o alvo continua de pé). Golpes secundários só aplicam os efeitos de dano contínuo. */
 function onHit(state: BattleState, ctx: Ctx, u: Unit, t: Unit, secondary: boolean) {
   if (u.abilities.includes('veneno')) addEffect(state, ctx, t, 'veneno', pw(u, 'veneno'), 3);
-  if (u.abilities.includes('sangramento') && u.damageType === 'fisico') addEffect(state, ctx, t, 'sangramento', 1, 3);
-  if (u.abilities.includes('queimadura')) addEffect(state, ctx, t, 'queimadura', 1, pw(u, 'queimadura'), 2);
+  if (u.abilities.includes('sangramento') && u.damageType === 'fisico') addEffect(state, ctx, t, 'sangramento', pw(u, 'sangramento'), 3);
+  if (u.abilities.includes('queimadura')) addEffect(state, ctx, t, 'queimadura', 1, pw(u, 'queimadura'), 99); // v0.65.0: acumula sem limite
   if (secondary) return;
-  if (u.abilities.includes('maldicao')) addEffect(state, ctx, t, 'maldicao', 25, 2);
+  if (u.abilities.includes('maldicao')) addEffect(state, ctx, t, 'maldicao', pw(u, 'maldicao'), 2);
   if (u.abilities.includes('lentidao')) addEffect(state, ctx, t, 'lento', 1, 2);
   const tu = usedOf(t);
-  if (u.abilities.includes('congelar') && (tu.frozenTurn == null || tu.frozenTurn < state.turn - 1) && roll(state, 50)) {
+  if (u.abilities.includes('congelar') && (tu.frozenTurn == null || tu.frozenTurn < state.turn - 1) && roll(state, pw(u, 'congelar'))) {
     tu.frozenTurn = state.turn;
     addEffect(state, ctx, t, 'congelado', 1, 1);
   }
-  if (u.abilities.includes('atordoar') && (tu.stunTurn == null || tu.stunTurn < state.turn - 1) && roll(state, 50)) {
+  if (u.abilities.includes('atordoar') && (tu.stunTurn == null || tu.stunTurn < state.turn - 1) && roll(state, pw(u, 'atordoar'))) {
     tu.stunTurn = state.turn;
     addEffect(state, ctx, t, 'atordoado', 1, 1);
   }
   // Domínio Enfraquecedor: cada golpe tira 1 de ataque do alvo (até −3 por alvo)
-  if (u.abilities.includes('dominio') && (tu.drained ?? 0) < 3) {
+  if (u.abilities.includes('dominio')) { // v0.65.0: sem limite por alvo
     tu.drained = (tu.drained ?? 0) + 1;
     t.atkMod = (t.atkMod ?? 0) - 1;
     ctx.emit(state, { type: 'effect', uid: t.uid, kind: 'habilidade', text: `  🌀 ${nameOf(t)} perde 1 de ataque.` });
@@ -655,7 +656,7 @@ function onHit(state: BattleState, ctx: Ctx, u: Unit, t: Unit, secondary: boolea
     }
   }
   // Execução: derrota na hora quem ficar com 25% da vida ou menos
-  if (u.abilities.includes('execucao') && t.hp > 0 && state.units.includes(t) && t.hp * 4 <= t.maxHp) {
+  if (u.abilities.includes('execucao') && t.hp > 0 && state.units.includes(t) && t.hp * 100 <= t.maxHp * pw(u, 'execucao')) {
     ctx.emit(state, { type: 'effect', uid: t.uid, kind: 'habilidade', text: `  ☠️ ${nameOf(u)} executa ${nameOf(t)}!` });
     t.hp = 0;
     checkDeath(state, ctx, t, u);
@@ -681,13 +682,13 @@ function kill(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit) {
   for (const a of state.units) {
     if (a.hp <= 0) continue;
     const au = a.side !== victim.side && !victim.isMinion && a.abilities.includes('furia') ? usedOf(a) : null;
-    if (au && (hasTweak(a.charId, 'furiaSemLimite') || (au.furia ?? 0) < pw(a, 'furia'))) {
+    if (au) { // v0.65.0: Fúria sem limite para todos
       au.furia = (au.furia ?? 0) + 1;
       a.atkMod = (a.atkMod ?? 0) + 1;
       ctx.emit(state, { type: 'effect', uid: a.uid, kind: 'habilidade', text: `  📈 Fúria: ${nameOf(a)} ganha +1 de ataque.` });
     }
     const av = a.side === victim.side && !victim.isMinion && a.abilities.includes('vinganca') ? usedOf(a) : null;
-    if (av && (av.vinganca ?? 0) < pw(a, 'vinganca')) {
+    if (av) { // v0.65.0: Vingança sem limite
       av.vinganca = (av.vinganca ?? 0) + 1;
       a.atkMod = (a.atkMod ?? 0) + 1;
       ctx.emit(state, { type: 'effect', uid: a.uid, kind: 'habilidade', text: `  🕯️ Vingança: ${nameOf(a)} ganha +1 de ataque.` });
@@ -816,7 +817,7 @@ function strike(state: BattleState, ctx: Ctx, u: Unit, t: Unit | 'hero', bonus =
   if (u.abilities.includes('raioCadeia')) {
     const hit = new Set<number>([t.uid]);
     let at: [number, number] = [tRow, tCol];
-    for (const pct of [60, 30]) {
+    for (const pct of u.stars >= 6 ? [75, 50] : [60, 30]) {
       const next = state.units
         .filter((e) => e.side !== u.side && e.hp > 0 && !hit.has(e.uid) && Math.abs(e.row - at[0]) <= 1 && Math.abs(e.col - at[1]) <= 1)
         .sort((a, b) => Math.abs(a.col - at[1]) - Math.abs(b.col - at[1]) || a.uid - b.uid)[0];
@@ -842,7 +843,8 @@ function nearestFree(state: BattleState, row: number, col: number, maxDist = sta
 function purify(state: BattleState, ctx: Ctx, u: Unit) {
   const bad = (a: Unit) => (a.effects ?? []).filter((e) => e.turns > 0 && BAD_EFFECTS.includes(e.kind)).length;
   const who = state.units
-    .filter((a) => a.side === u.side && a.hp > 0 && Math.abs(a.row - u.row) <= 1 && Math.abs(a.col - u.col) <= 1 && bad(a))
+    // v0.65.0: no Mítico purifica qualquer aliado (antes, só os vizinhos)
+    .filter((a) => a.side === u.side && a.hp > 0 && (u.stars >= 6 || (Math.abs(a.row - u.row) <= 1 && Math.abs(a.col - u.col) <= 1)) && bad(a))
     .sort((a, b) => bad(b) - bad(a) || a.uid - b.uid)[0];
   if (!who) return;
   const e = BAD_EFFECTS.map((k) => effectOf(who, k)).find(Boolean)!;

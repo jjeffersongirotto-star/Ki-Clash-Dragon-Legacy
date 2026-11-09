@@ -7,11 +7,11 @@ const c = (charId: string, _level = 1, stars = 1, plus = 0): CardInstance => ({ 
 const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], playerHeroHp: 30, enemyHeroHp: 30, seed: 1 });
 
 describe('v0.15.1 — Feixe Perfurante máx. 75%', () => {
-  it('50% Incomum, 75% de Raro em diante (nunca 100%)', () => {
+  it('v0.65.0: 50% (Comum/Incomum) · 75% (Raro/Épico) · 100% (Lendário/Mítico)', () => {
     expect(abilityPower('perfurante', 2, 0)).toBe(50);
-    for (let s = 3; s <= 6; s++) for (const l of [0, 1, 2]) expect(abilityPower('perfurante', s, l)).toBe(75);
-    expect(ABILITIES.perfurante.scaling).toContain('75%');
-    expect(ABILITIES.perfurante.scaling).not.toContain('100%');
+    for (const s of [3, 4]) expect(abilityPower('perfurante', s, 0)).toBe(75);
+    for (const s of [5, 6]) expect(abilityPower('perfurante', s, 0)).toBe(100);
+    expect(ABILITIES.perfurante.text!(100, 6)).toContain('100%');
   });
   it('quem está atrás leva 75% com Lyra Épica', () => {
     const s = empty();
