@@ -1388,3 +1388,4 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - Sem limite: Fúria, Vingança, Domínio (por alvo), Retaliação. Limites que ficam: 3 Crias Sombrias por lado, "uma vez por partida", não repetir congelar/atordoar no mesmo alvo em seguida, Couraça Adaptativa até 4.
 - Purificar: abaixo do Mítico, o vizinho mais afetado; no Mítico, qualquer aliado. Sylith Mítica 3 | 5. Tutorial Batalha 2: Daichi Comum.
 - **Editor (v0.65.1):** níveis e descrições salvos são ligados pela habilidade (id), não pela posição na lista (Golpe Reverso conta como Corte Diagonal).
+- **v0.65.2:** Provocar redireciona para si todo o dano (não contínuo) de aliados vizinhos; Atordoamento 60% sem regra de repetição; tweaks `couracaMagica` (Kolossus), `execucao13` e `predadorVidaCheia` (Vharga); botão "Limpar balanceamento" no editor.

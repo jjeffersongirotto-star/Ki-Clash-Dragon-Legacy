@@ -42,7 +42,7 @@ import { abilityPower } from "../core/abilities";
 import type { AbilityId, CharacterDef } from "../core/types";
 import { waitFor } from "../core/battle";
 import { esc } from "../ui/components";
-import { showDialog, gameAlert } from "../ui/dialog";
+import { showDialog, gameAlert, gameConfirm } from "../ui/dialog";
 import { onLongPress } from "../ui/battleModals";
 
 export const TEMP_CARD_BALANCE_EDITOR = true; // v0.56.0: LIGADO para o balanceamento (pôr false para desligar)
@@ -693,5 +693,26 @@ export function bindCardEditor(root: HTMLElement, refresh: () => void) {
     b.textContent = "⬇ Balanceamento";
     b.addEventListener("click", download);
     bar.appendChild(b);
+    // v0.65.2: limpar TODAS as alterações do editor (depois que já foram mandadas e entraram no jogo)
+    const c = document.createElement("button");
+    c.id = "tbClear";
+    c.className = "btn small tbe-clear";
+    c.textContent = "🗑 Limpar balanceamento";
+    c.addEventListener("click", async () => {
+      const n = Object.keys(loadEdits()).length;
+      if (!n) return void gameAlert("Nada para limpar", "O editor não tem alterações salvas.", "ℹ️");
+      const ok = await gameConfirm(
+        "Limpar balanceamento",
+        `Apaga as alterações do editor em ${n} carta(s) e as cartas voltam aos valores do jogo. Se ainda não mandou o arquivo, toque em "⬇ Balanceamento" antes.`,
+        "Limpar",
+        true,
+      );
+      if (!ok) return;
+      localStorage.removeItem(BALANCE_KEY);
+      applyEdits({});
+      refresh();
+      void gameAlert("Balanceamento limpo", "As alterações do editor foram apagadas.", "✅");
+    });
+    bar.appendChild(c);
   }
 }

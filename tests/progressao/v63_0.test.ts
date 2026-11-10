@@ -63,7 +63,7 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
       expect(d.wait!, d.id).toBeGreaterThanOrEqual(1);
       expect(d.wait!, d.id).toBeLessThanOrEqual(d.minStars >= 6 ? 8 : 6);
     }
-    expect(getChar('zarek').wait).toBe(7); // v0.64.5: ajustado pelo jogador
+    expect(getChar('zarek').wait).toBe(5); // v0.65.2: ajustado pelo jogador
     expect(getChar('zynna').wait).toBeLessThan(7);
     expect(getChar('velka').wait).toBeLessThanOrEqual(3);
   });

@@ -1903,3 +1903,4 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
   .tbe-abd textarea { min-height: 3.6em; }
 }
 .tbe-abd textarea { field-sizing: content; min-height: 2.6em; max-height: none; overflow: hidden; }
+.tbe-clear { position: fixed; right: 10px; bottom: 52px; z-index: 40; }
