@@ -433,15 +433,22 @@ export async function openCardEditor(id: string, refresh: () => void, stars?: nu
   const abil = [...d.abilities] as string[];
   // estado por raridade (guarda também abas que saírem do intervalo, para não perder ao voltar)
   const rar: Record<number, RarEdit> = {};
+  // v0.65.1: o que foi salvo é lido pela HABILIDADE, não pela posição — a lista pode ter mudado desde então
+  // (Longo Alcance saiu, Golpe Reverso virou Corte Diagonal), e a posição desalinhava nível e descrição
+  const savedAb = (saved?.abilities ?? abil).map((a) => (a === "diagTras" ? "diagFrente" : a));
+  const pos = (a: string) => savedAb.indexOf(a);
   const ensure = (st: number) => {
     const sv = saved?.rar?.[st];
     rar[st] ??= sv
       ? {
           atk: sv.atk,
           hp: sv.hp,
-          lv: abil.map((a, i) => sv.lv[i] ?? defaultLevel(a, st)),
+          lv: abil.map((a) => (pos(a) >= 0 ? sv.lv[pos(a)] : undefined) ?? defaultLevel(a, st)),
           // v0.65.0: texto antigo não editado (sem números) dá lugar à descrição nova da raridade
-          ds: abil.map((a, i) => (sv.ds[i] != null && sv.ds[i] !== ABILITIES[a as AbilityId]?.legacyDescription ? sv.ds[i] : defaultDesc(a, st))),
+          ds: abil.map((a) => {
+            const t = pos(a) >= 0 ? sv.ds[pos(a)] : undefined;
+            return t != null && t !== ABILITIES[a as AbilityId]?.legacyDescription ? t : defaultDesc(a, st);
+          }),
         }
       : defaultRar(d, st, abil);
     return rar[st];

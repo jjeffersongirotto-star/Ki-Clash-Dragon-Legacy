@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.65.1] — 10/11/2026 · Editor de carta: descrições no lugar certo
+- **Editor de carta:** em cartas que você já tinha editado antes (ex.: Tiberius), as descrições e os níveis apareciam embaixo da habilidade errada (deslocados uma posição), porque o Longo Alcance saiu da lista. Agora o que foi salvo é ligado à habilidade certa pelo nome, não pela posição.
+
 ## [0.65.0] — 09/11/2026 · Habilidades com valores claros e sem limites padrão
 - **Toda habilidade mostra o número da raridade da carta** na descrição (ex.: Escudo de Entrada Mítico: "absorve 6 de dano; não some com o tempo, só quando absorver esse dano").
 - **Valores crescem de Comum a Mítico** (antes muitas paravam no Épico). Tabela completa no REGRAS.md.
