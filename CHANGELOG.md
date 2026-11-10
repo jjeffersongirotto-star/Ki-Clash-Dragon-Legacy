@@ -2,6 +2,18 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.65.2] — 10/11/2026 · Ajustes do editor (parte 3) e botão Limpar balanceamento
+- **Botão "🗑 Limpar balanceamento"** (nos Heróis, acima de "⬇ Balanceamento"): apaga todas as alterações salvas no editor, com confirmação. Use depois de mandar o arquivo e ele entrar no jogo.
+- **Provocar** (todos): além de obrigar os inimigos a atacá-lo, **recebe no lugar o dano dos aliados ao redor**.
+- **Atordoamento** (todos): **60%** de chance em todas as raridades e pode atordoar o mesmo alvo em seguida.
+- **Kolossus:** espera 7; Couraça Adaptativa dá **resistência mágica** (começa com 1, +1 a cada golpe físico, até 4).
+- **Vharga:** espera 6, alcance 2; **Execução** derrota quem ficar com **13 de vida ou menos**; **Instinto Predador** dá **+4** em alvo com a **vida cheia**.
+- **Espera:** Zarek 5, Kaito 5, Ghor 7, Sanguis 7, Hana 1. **Sanguis** Mítico 7 | 9. **Daisuke** Mítico 7 | 3. **Vexar** ganha **Evasão**.
+- Os níveis que apareceram diferentes no arquivo eram os valores antigos (antes da 0.65.0) e foram ignorados.
+
+## [0.65.1] — 10/11/2026 · Editor de carta: descrições no lugar certo
+- **Editor de carta:** em cartas que você já tinha editado antes (ex.: Tiberius), as descrições e os níveis apareciam embaixo da habilidade errada (deslocados uma posição), porque o Longo Alcance saiu da lista. Agora o que foi salvo é ligado à habilidade certa pelo nome, não pela posição.
+
 ## [0.65.0] — 09/11/2026 · Habilidades com valores claros e sem limites padrão
 - **Toda habilidade mostra o número da raridade da carta** na descrição (ex.: Escudo de Entrada Mítico: "absorve 6 de dano; não some com o tempo, só quando absorver esse dano").
 - **Valores crescem de Comum a Mítico** (antes muitas paravam no Épico). Tabela completa no REGRAS.md.

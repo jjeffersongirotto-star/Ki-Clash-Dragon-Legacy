@@ -42,7 +42,7 @@ import { abilityPower } from "../core/abilities";
 import type { AbilityId, CharacterDef } from "../core/types";
 import { waitFor } from "../core/battle";
 import { esc } from "../ui/components";
-import { showDialog, gameAlert } from "../ui/dialog";
+import { showDialog, gameAlert, gameConfirm } from "../ui/dialog";
 import { onLongPress } from "../ui/battleModals";
 
 export const TEMP_CARD_BALANCE_EDITOR = true; // v0.56.0: LIGADO para o balanceamento (pôr false para desligar)
@@ -433,15 +433,22 @@ export async function openCardEditor(id: string, refresh: () => void, stars?: nu
   const abil = [...d.abilities] as string[];
   // estado por raridade (guarda também abas que saírem do intervalo, para não perder ao voltar)
   const rar: Record<number, RarEdit> = {};
+  // v0.65.1: o que foi salvo é lido pela HABILIDADE, não pela posição — a lista pode ter mudado desde então
+  // (Longo Alcance saiu, Golpe Reverso virou Corte Diagonal), e a posição desalinhava nível e descrição
+  const savedAb = (saved?.abilities ?? abil).map((a) => (a === "diagTras" ? "diagFrente" : a));
+  const pos = (a: string) => savedAb.indexOf(a);
   const ensure = (st: number) => {
     const sv = saved?.rar?.[st];
     rar[st] ??= sv
       ? {
           atk: sv.atk,
           hp: sv.hp,
-          lv: abil.map((a, i) => sv.lv[i] ?? defaultLevel(a, st)),
+          lv: abil.map((a) => (pos(a) >= 0 ? sv.lv[pos(a)] : undefined) ?? defaultLevel(a, st)),
           // v0.65.0: texto antigo não editado (sem números) dá lugar à descrição nova da raridade
-          ds: abil.map((a, i) => (sv.ds[i] != null && sv.ds[i] !== ABILITIES[a as AbilityId]?.legacyDescription ? sv.ds[i] : defaultDesc(a, st))),
+          ds: abil.map((a) => {
+            const t = pos(a) >= 0 ? sv.ds[pos(a)] : undefined;
+            return t != null && t !== ABILITIES[a as AbilityId]?.legacyDescription ? t : defaultDesc(a, st);
+          }),
         }
       : defaultRar(d, st, abil);
     return rar[st];
@@ -686,5 +693,26 @@ export function bindCardEditor(root: HTMLElement, refresh: () => void) {
     b.textContent = "⬇ Balanceamento";
     b.addEventListener("click", download);
     bar.appendChild(b);
+    // v0.65.2: limpar TODAS as alterações do editor (depois que já foram mandadas e entraram no jogo)
+    const c = document.createElement("button");
+    c.id = "tbClear";
+    c.className = "btn small tbe-clear";
+    c.textContent = "🗑 Limpar balanceamento";
+    c.addEventListener("click", async () => {
+      const n = Object.keys(loadEdits()).length;
+      if (!n) return void gameAlert("Nada para limpar", "O editor não tem alterações salvas.", "ℹ️");
+      const ok = await gameConfirm(
+        "Limpar balanceamento",
+        `Apaga as alterações do editor em ${n} carta(s) e as cartas voltam aos valores do jogo. Se ainda não mandou o arquivo, toque em "⬇ Balanceamento" antes.`,
+        "Limpar",
+        true,
+      );
+      if (!ok) return;
+      localStorage.removeItem(BALANCE_KEY);
+      applyEdits({});
+      refresh();
+      void gameAlert("Balanceamento limpo", "As alterações do editor foram apagadas.", "✅");
+    });
+    bar.appendChild(c);
   }
 }
