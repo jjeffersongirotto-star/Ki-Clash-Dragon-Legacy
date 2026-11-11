@@ -22,9 +22,13 @@ const FACE_FILES = import.meta.glob('../assets/faces/*.webp', { eager: true, que
 const FACES = new Map(Object.entries(FACE_FILES).map(([k, v]) => [k.slice(k.lastIndexOf('/') + 1, -'.webp'.length), v]));
 export const faceUrl = (id: string): string | undefined => FACES.get(id);
 export const hasCharArt = (id: string): boolean => CHAR_ART.has(id);
+/** v0.65.1: listas de URLs locais para o pré-carregamento ao abrir o jogo. */
+export const CHAR_ART_URLS: readonly string[] = [...CHAR_ART.values()];
+export const CHAR_THUMB_URLS: readonly string[] = [...CHAR_THUMB.values()];
+export const FACE_URLS: readonly string[] = [...FACES.values()];
 /** Arte ilustrada como <img> (carta, retratos). */
 export const charArtImg = (id: string, cls = 'portrait char-art') =>
-  `<img class="${cls}" src="${CHAR_ART.get(id)}" alt="" draggable="false" decoding="async">`;
+  `<img class="${cls}" src="${CHAR_ART.get(id)}" alt="" draggable="false">`;
 
 /** v0.12.0: arte do Comandante do jogador (bárbaro, animação de respiração, WebP animado com fundo transparente). */
 export const LEADER_PLAYER_URL: string = leaderPlayerUrl;
@@ -33,12 +37,12 @@ export const LEADER_ENEMY_URL: string = leaderEnemyUrl;
 
 /** Comandante do jogador em batalha: imagem animada própria (sem filtro por quadro; o brilho fica no piso da coluna). */
 export function playerLeaderImg(): string {
-  return `<img class="hero-svg hero-leader-player hero-img" src="${LEADER_PLAYER_URL}" width="271" height="512" alt="Comandante Aliado" decoding="async" draggable="false">`;
+  return `<img class="hero-svg hero-leader-player hero-img" src="${LEADER_PLAYER_URL}" width="271" height="512" alt="Comandante Aliado" draggable="false">`;
 }
 
 /** Comandante adversário: minotauro (sem espelhar: o machado fica no ombro do lado de fora, rosto voltado para a arena). */
 export function enemyLeaderImg(): string {
-  return `<img class="hero-svg hero-leader-enemy hero-img" src="${LEADER_ENEMY_URL}" width="286" height="512" alt="Comandante Adversário" decoding="async" draggable="false">`;
+  return `<img class="hero-svg hero-leader-enemy hero-img" src="${LEADER_ENEMY_URL}" width="286" height="512" alt="Comandante Adversário" draggable="false">`;
 }
 
 /**
@@ -67,7 +71,7 @@ export function enemyCommanderBattle(card: { charId: string; stars: number } | n
   const url = CUTOUTS.get(card.charId);
   if (!url) return enemyCommanderArt(card, 'hero-svg hero-leader-enemy hero-cmd');
   const look = COMMANDER_LOOK[card.charId] ?? { h: 0.85 };
-  return `<span class="hero-cut${look.flip ? ' flip' : ''}" style="--hs:${look.h}"><img src="${url}" alt="Comandante Adversário" decoding="async" draggable="false"></span>`;
+  return `<span class="hero-cut${look.flip ? ' flip' : ''}" style="--hs:${look.h}"><img src="${url}" alt="Comandante Adversário" draggable="false"></span>`;
 }
 
 let leaderWarm: HTMLImageElement[] | null = null;
@@ -622,6 +626,7 @@ export function heroSVG(side: 'player' | 'enemy'): string {
 
 // ---------------- v0.10.1: cache de retratos como imagem ----------------
 const PORTRAIT_IMG_CACHE = new Map<string, string>();
+const WARM_IMGS: HTMLImageElement[] = [];
 
 /**
  * Mesmo desenho de `portraitSVG`, mas entregue como `<img>` com o SVG em data-URL,
@@ -674,6 +679,7 @@ export function warmPortraits(list: { def: CharacterDef; stars: number; layers?:
         if (!html) return;
         const src = html.slice(html.indexOf('src="') + 5, html.indexOf('" alt'));
         const img = new Image();
+        WARM_IMGS.push(img);
         img.src = src;
         img.decode?.().catch(() => {});
       });

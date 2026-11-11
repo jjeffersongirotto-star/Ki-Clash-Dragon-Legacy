@@ -10,6 +10,9 @@ const SPELL_ART = new Map(Object.entries(SPELL_FILES).map(([k, v]) => [k.slice(k
 
 export const iconURL = (name: string) => ICONS.get(name);
 export const spellArtURL = (id: string) => SPELL_ART.get(id);
+/** v0.65.1: URLs locais para o pré-carregamento ao abrir o jogo. */
+export const ICON_URLS: readonly string[] = [...ICONS.values()];
+export const SPELL_ART_URLS: readonly string[] = [...SPELL_ART.values()];
 
 /** <img> do ícone `name` (classe `ico` + extra); sem o arquivo, devolve `fallback`. */
 export function ico(name: string, fallback = '', cls = ''): string {
