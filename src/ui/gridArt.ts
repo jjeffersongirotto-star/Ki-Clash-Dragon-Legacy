@@ -28,10 +28,11 @@ export function gridArtHTML(def: CharacterDef, t: number, locked: boolean): { bg
   const key = gridKey(def, t, locked);
   const art = charThumbUrl(def.id);
   // v0.29.0: arte ilustrada já é um bitmap pronto (WebP): não precisa assar
-  // v0.42.2: miniatura (leve) e sem loading="lazy": ao rolar rápido a carta já está pronta, sem piscar preto
-  if (art) return { bg: `<img class="portrait char-art" data-gk="${key}|bg" src="${art}" alt="" draggable="false" decoding="async">`, fg: '', baked: true };
+  // v0.42.2: miniatura (leve) e sem loading="lazy"
+  // v0.65.1: sem decoding="async" — a arte já foi decodificada ao abrir o jogo
+  if (art) return { bg: `<img class="portrait char-art" data-gk="${key}|bg" src="${art}" alt="" draggable="false">`, fg: '', baked: true };
   const b = BAKED.get(key);
-  const img = (src: string, layer: string) => `<img class="portrait" data-gk="${key}|${layer}" src="${src}" alt="" draggable="false" decoding="async">`;
+  const img = (src: string, layer: string) => `<img class="portrait" data-gk="${key}|${layer}" src="${src}" alt="" draggable="false">`;
   if (b) return { bg: img(b.bg, 'bg'), fg: img(b.fg, 'fg'), baked: true };
   const src = (h: string) => h.slice(h.indexOf('src="') + 5, h.indexOf('" alt'));
   return { bg: img(src(portraitImg(def, { stars: t, layer: 'bg' })), 'bg'), fg: img(src(portraitImg(def, { stars: t, layer: 'fg' })), 'fg'), baked: false };

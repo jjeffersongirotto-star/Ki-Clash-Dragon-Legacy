@@ -42,16 +42,20 @@ describe('v0.10.1 — retratos em cache (desempenho)', () => {
 });
 
 describe('v0.10.2 — cartas de grade congeladas (rolagem fluida)', () => {
-  it('carta de grade: marcada como grid-card, sem reflexo animado e com imagens assíncronas/preguiçosas', () => {
+  it('carta de grade: marcada como grid-card, sem reflexo animado e sem carregamento preguiçoso', () => {
     const html = cardHTML({ charId: 'nyx', stars: 6, plus: true }, { grid: true });
     expect(html).toContain('grid-card');
     expect(html).not.toContain('card-shine');
     expect(html).not.toContain('<svg');
     // v0.29.0: com a arte ilustrada (WebP pronto) a carta de grade tem 1 imagem (v0.30.2: a Cria Sombria também)
-    expect((html.match(/decoding="async"/g) ?? []).length).toBe(1);
+    // v0.65.1: sem decoding="async" nem loading="lazy" — a arte já foi decodificada ao abrir o jogo
+    expect(html).not.toContain('decoding="async"');
+    expect(html).not.toContain('loading="lazy"');
+    expect((html.match(/<img /g) ?? []).length).toBeGreaterThanOrEqual(1);
     expect(html).toContain('data-gk="nyx|6||bg"');
     const criaCard = cardHTML({ charId: 'cria', stars: 1 }, { grid: true });
-    expect((criaCard.match(/decoding="async"/g) ?? []).length).toBe(1);
+    expect(criaCard).not.toContain('decoding="async"');
+    expect(criaCard).not.toContain('loading="lazy"');
     expect(criaCard).not.toContain('data-gk="cria|1||fg"');
   });
 

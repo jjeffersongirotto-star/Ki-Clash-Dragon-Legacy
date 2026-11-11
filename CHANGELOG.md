@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.65.1] — 11/11/2026 · Artes das cartas prontas ao abrir o jogo
+- **Listas (Heróis, Baralho, Coleção, Treinar, Inventário):** ao abrir o jogo, todas as artes de carta (miniaturas, artes inteiras, feitiços, ícones e rostos) já são baixadas e decodificadas e ficam guardadas na memória. Rolando rápido, as cartas aparecem na hora, sem esperar carregar.
+- As imagens já vinham no app (não são buscadas na internet); o que faltava era decodificar antes e não soltar a imagem da memória. Também saiu o `decoding="async"` das cartas, que atrasava a aparição.
+- Arenas da batalha e o mapa da Base não entram nesse pré-carregamento (são muito grandes e só aparecem nessas telas). O jogo não espera o término para liberar o login nem a jogatina; o trabalho roda em segundo plano, em lotes, para manter ~60 FPS.
+
 ## [0.65.0] — 09/11/2026 · Habilidades com valores claros e sem limites padrão
 - **Toda habilidade mostra o número da raridade da carta** na descrição (ex.: Escudo de Entrada Mítico: "absorve 6 de dano; não some com o tempo, só quando absorver esse dano").
 - **Valores crescem de Comum a Mítico** (antes muitas paravam no Épico). Tabela completa no REGRAS.md.

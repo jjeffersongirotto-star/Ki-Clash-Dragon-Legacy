@@ -3,6 +3,7 @@ import { getChar, PLAYABLE } from './core/characters';
 import { STAGES } from './core/campaign';
 import { isSpell } from './core/spells';
 import { warmLeader, warmPortraits } from './ui/art';
+import { preloadCardImages } from './ui/preload';
 import { installPerfGuards } from './ui/perf';
 import { installLandscape } from './ui/orientation';
 import { migrateV17 } from './ui/save';
@@ -19,6 +20,7 @@ migrateV17(save);
 installPerfGuards(app);
 installLandscape();
 loginScreen(); // v0.56.0: o jogo abre na tela de login
+void preloadCardImages(); // v0.65.1: artes das cartas já decodificadas para rolar as listas sem espera
 void bakeAllGrid();
 warmLeader();
 warmPortraits([
