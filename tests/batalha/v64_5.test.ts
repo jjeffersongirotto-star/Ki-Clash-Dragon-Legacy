@@ -12,7 +12,7 @@ describe('v0.64.5 — ajustes do jogador no editor', () => {
   it('valores das cartas', () => {
     const v = (id: string) => [getChar(id).wait, getChar(id).range, getChar(id).damageType];
     expect(v('hayato')).toEqual([6, 2, 'fisico']);
-    expect(v('zarek')).toEqual([7, 4, 'magico']);
+    expect(v('zarek')).toEqual([5, 4, 'magico']); // v0.65.2: espera 5
     expect(v('kael')).toEqual([7, 4, 'magico']);
     expect(getChar('hayato').abilities).not.toContain('critico');
     expect(getChar('zarek').abilities).not.toContain('critico');
