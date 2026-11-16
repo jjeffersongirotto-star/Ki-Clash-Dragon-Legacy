@@ -195,6 +195,11 @@ export function makeUnit(
   for (const id of abilities) {
     const rb = ABILITIES[id].resBonus?.(card.stars);
     if (rb) {
+      // v0.65.2: Couraça Adaptativa do Kolossus começa com resistência mágica 1 (não física)
+      if (id === 'couracaAdaptativa' && hasTweak(def.id, 'couracaMagica')) {
+        magRes += rb.phys;
+        continue;
+      }
       physRes += rb.phys;
       // v0.64.5: o Inabalável do Titan-X é só físico
       if (!(id === 'inabalavel' && hasTweak(def.id, 'inabalavelSemMagia'))) magRes += rb.mag;
@@ -379,6 +384,16 @@ export function applyDamage(state: BattleState, ctx: Ctx, target: Unit, dmg: num
   // v0.30.0: Maldição — +25% de dano de todas as fontes
   const curse = effectOf(target, 'maldicao');
   if (amount > 0 && curse) amount = Math.round(amount * (1 + curse.amount / 100));
+  // v0.65.2: Provocar — um aliado vizinho com Provocar recebe TODO o dano no lugar (não em dano contínuo)
+  if (amount > 0 && !src.dot && !src.noProtect) {
+    const taunter = state.units
+      .filter((a) => a !== target && a.side === target.side && a.hp > 0 && a.abilities.includes('provocar') && Math.abs(a.row - target.row) <= 1 && Math.abs(a.col - target.col) <= 1)
+      .sort((a, b) => a.uid - b.uid)[0];
+    if (taunter) {
+      applyDamage(state, ctx, taunter, amount, type, { ...src, noProtect: true }, ` 🗯️ (${nameOf(taunter)} recebe no lugar de ${nameOf(target)})`);
+      return false;
+    }
+  }
   // v0.30.0: Protetor — um aliado vizinho com Protetor recebe parte do dano (não em dano contínuo)
   if (amount > 0 && !src.dot && !src.noProtect) {
     const guard = state.units
@@ -418,9 +433,12 @@ export function applyDamage(state: BattleState, ctx: Ctx, target: Unit, dmg: num
   const dead = target.hp <= 0 ? checkDeath(state, ctx, target, src.unit) : false;
   // v0.30.0: Couraça Adaptativa — cada golpe físico recebido cura 1 e soma +1 de resistência física (até 4, v0.64.3)
   if (!dead && type === 'fisico' && !src.dot && target.abilities.includes('couracaAdaptativa') && target.hp > 0) {
-    target.physRes = Math.min(COURACA_CAP, target.physRes + 1);
+    // v0.65.2: a Couraça do Kolossus soma resistência MÁGICA
+    const mag = hasTweak(target.charId, 'couracaMagica');
+    if (mag) target.magRes = Math.min(COURACA_CAP, target.magRes + 1);
+    else target.physRes = Math.min(COURACA_CAP, target.physRes + 1);
     if (target.hp < target.maxHp) target.hp += 1;
-    ctx.emit(state, { type: 'effect', uid: target.uid, kind: 'habilidade', text: `  🛡️ ${nameOf(target)} se adapta: resistência física ${target.physRes}.` });
+    ctx.emit(state, { type: 'effect', uid: target.uid, kind: 'habilidade', text: `  🛡️ ${nameOf(target)} se adapta: resistência ${mag ? `mágica ${target.magRes}` : `física ${target.physRes}`}.` });
   }
   // v0.63.0: Casca Reativa (+1 de resistência física, sem limite) e Pulso Vital (+1 de vida nos aliados ao redor)
   if (!dead && amount > 0 && !src.dot && target.hp > 0) {
@@ -531,7 +549,8 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
     return;
   }
   // execução (Instinto Predador)
-  if (!opts.counter && u.abilities.includes('menorVida') && target.hp * 2 <= target.maxHp) atk += pw(u, 'menorVida');
+  // v0.65.2: o Instinto Predador da Vharga dá o bônus em alvo com a vida CHEIA
+  if (!opts.counter && u.abilities.includes('menorVida') && (hasTweak(u.charId, 'predadorVidaCheia') ? target.hp >= target.maxHp : target.hp * 2 <= target.maxHp)) atk += pw(u, 'menorVida');
   const dist = Math.max(Math.abs(target.col - u.col), Math.abs(target.row - u.row));
   if (!opts.counter && !opts.secondary && opts.fixed == null) {
     // Olho de Águia (2+ casas), Caça-Conjuradores (alvo de longo alcance), Ataque Surpresa (vida cheia)
@@ -617,7 +636,8 @@ function onHit(state: BattleState, ctx: Ctx, u: Unit, t: Unit, secondary: boolea
     tu.frozenTurn = state.turn;
     addEffect(state, ctx, t, 'congelado', 1, 1);
   }
-  if (u.abilities.includes('atordoar') && (tu.stunTurn == null || tu.stunTurn < state.turn - 1) && roll(state, pw(u, 'atordoar'))) {
+  // v0.65.2: Atordoamento pode atordoar o mesmo alvo em seguida
+  if (u.abilities.includes('atordoar') && roll(state, pw(u, 'atordoar'))) {
     tu.stunTurn = state.turn;
     addEffect(state, ctx, t, 'atordoado', 1, 1);
   }
@@ -656,7 +676,9 @@ function onHit(state: BattleState, ctx: Ctx, u: Unit, t: Unit, secondary: boolea
     }
   }
   // Execução: derrota na hora quem ficar com 25% da vida ou menos
-  if (u.abilities.includes('execucao') && t.hp > 0 && state.units.includes(t) && t.hp * 100 <= t.maxHp * pw(u, 'execucao')) {
+  // v0.65.2: Execução da Vharga — derrota quem ficar com 13 de vida ou menos
+  const exec = hasTweak(u.charId, 'execucao13') ? t.hp <= 13 : t.hp * 100 <= t.maxHp * pw(u, 'execucao');
+  if (u.abilities.includes('execucao') && t.hp > 0 && state.units.includes(t) && exec) {
     ctx.emit(state, { type: 'effect', uid: t.uid, kind: 'habilidade', text: `  ☠️ ${nameOf(u)} executa ${nameOf(t)}!` });
     t.hp = 0;
     checkDeath(state, ctx, t, u);
