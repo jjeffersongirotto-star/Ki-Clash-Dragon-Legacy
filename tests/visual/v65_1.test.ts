@@ -16,7 +16,7 @@ describe('v0.65.1 — artes das cartas pré-carregadas ao abrir o jogo', () => {
     expect(CHAR_ART_URLS.length).toBe(121);
     expect(FACE_URLS.length).toBe(121);
     expect(SPELL_ART_URLS.length).toBe(13);
-    expect(ICON_URLS.length).toBe(200);
+    expect(ICON_URLS.length).toBe(201); // v0.66.0: + Aura de Ataque
     expect(urls.slice(0, CHAR_THUMB_URLS.length)).toEqual([...CHAR_THUMB_URLS]);
     for (const u of [...CHAR_THUMB_URLS, ...CHAR_ART_URLS, ...FACE_URLS, ...SPELL_ART_URLS, ...ICON_URLS, LEADER_PLAYER_URL, LEADER_ENEMY_URL]) {
       expect(urls).toContain(u);

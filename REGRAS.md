@@ -1394,3 +1394,34 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - O login e o jogo não esperam o término; o trabalho roda em segundo plano, em lotes, para manter ~60 FPS. Arenas (`src/assets/arenas`) e o mapa da Base ficam de fora (arquivos grandes, usados só na batalha / na Base).
 - **Editor (v0.65.2):** níveis e descrições salvos são ligados pela habilidade (id), não pela posição na lista (Golpe Reverso conta como Corte Diagonal).
 - **v0.65.3:** Provocar redireciona para si todo o dano (não contínuo) de aliados vizinhos; Atordoamento 60% sem regra de repetição; tweaks `couracaMagica` (Kolossus), `execucao13` e `predadorVidaCheia` (Vharga); botão "Limpar balanceamento" no editor.
+
+## Revisão por raça (v0.66.0) e Aura de raça
+Revisão carta a carta, uma raça por vez (Humanos → próximas 5 raças). O **ataque fica quase igual**; a **vida segue a função**: tanques e lutadores com vida alta, assassinos e arqueiros frágeis. Subir de raridade dá +2 a +4 de vida e, às vezes, +1 de ataque. Espera mantida. Regra de origem: na mesma raça e função, quem nasce numa raridade acima tem soma (ataque + vida) maior na mesma raridade. As cartas revisadas ficam como `manual` (fora da fórmula antiga de +1 por raridade).
+
+**Aura de raça** (habilidade "Aura de Ataque"/"Aura de Vida"): só em poucas cartas-chave. Enquanto a carta estiver em campo, os **outros aliados daquela raça, em qualquer casa**, ganham o bônus. Cópias da mesma carta não somam; auras de cartas diferentes somam. Poucas auras beneficiam outra raça (sinergia), sem virar regra. A raça e o valor ficam na carta (`aura` em `balanceV2.ts`).
+
+### Humanos (ataque | vida)
+| Função | Carta | Espera | C | I | R | É | L | M |
+|---|---|---|---|---|---|---|---|---|
+| Lutador | Riku | 2 | 2\|6 | 2\|9 | 3\|10 | 3\|13 | | |
+| Lutador | Akemi | 3 | | 3\|9 | 3\|11 | 4\|13 | | |
+| Lutador | Masao | 4 | | | 3\|12 | 4\|14 | 4\|17 | |
+| Lutador | Ryuji | 6 | | | | 5\|14 | 5\|18 | 6\|20 |
+| Lutador | Kenji | 6 | | | | | 4\|20 | 5\|22 |
+| Lutador | Aya | 6 | | | | | 6\|18 | 7\|20 |
+| Lutador | Mestre Hayato ★ | 6 | | | | | | 8\|20 |
+| Lutador | Kaito | 5 | | | | | | 7\|21 |
+| Assassino | Ren | 2 | 3\|4 | 3\|6 | 4\|7 | 4\|9 | | |
+| Assassino | Shin | 3 | | 4\|6 | 5\|7 | 5\|9 | | |
+| Assassino | Sayuri | 5 | | | 6\|7 | 6\|9 | 7\|10 | |
+| Arqueiro | Hana | 1 | 2\|3 | 2\|5 | 3\|6 | | | |
+| Arqueiro | Rin | 3 | | 3\|5 | 3\|7 | 4\|8 | | |
+| Arqueiro | Daisuke | 5 | | | | | 6\|7 | 7\|8 |
+| Mago | Emi | 3 | | | 3\|5 | 3\|7 | 4\|8 | |
+| Suporte | Yuna | 2 | | 1\|6 | 1\|8 | 2\|9 | | |
+| Suporte | Kaori | 3 | | | | 1\|11 | 2\|13 | 2\|15 |
+| Tanque | Taro | 3 | 1\|10 | 1\|13 | 1\|15 | | | |
+| Tanque | Goro | 4 | | | 2\|15 | 2\|18 | 3\|20 | |
+| Tanque | Tetsuo | 6 | | | | 3\|20 | 3\|23 | 4\|26 |
+
+★ **Mestre Hayato — Aura de Ataque (Humanos):** os outros aliados Humanos em campo ganham **+2 de ataque**.

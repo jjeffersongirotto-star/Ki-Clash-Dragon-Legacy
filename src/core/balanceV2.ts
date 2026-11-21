@@ -1,4 +1,4 @@
-import type { AbilityId, Category } from './types';
+import type { AbilityId, Category, Race } from './types';
 
 /**
  * v0.63.0 — Balanceamento v2.1. Gerado a partir do "Documento Oficial de Balanceamento (v2.0)" com as mudanças pedidas:
@@ -31,6 +31,8 @@ export interface BalanceEntry {
   tweaks?: CardTweak[];
   /** v0.64.5: valores ajustados à mão pelo jogador — ficam fora das regras automáticas (origem e espera) */
   manual?: boolean;
+  /** v0.66.0: Aura de raça — aliados (não ele mesmo) daquela raça em campo ganham ataque/vida. Poucas cartas-chave. */
+  aura?: { race: Race; atk?: number; hp?: number };
 }
 
 /** Variações de habilidade só de uma carta. */
@@ -39,7 +41,7 @@ export type CardTweak = 'couracaMagica' | 'execucao13' | 'predadorVidaCheia' | '
 export const hasTweak = (charId: string, t: CardTweak) => !!BALANCE_V2[charId]?.tweaks?.includes(t);
 
 export const BALANCE_V2: Record<string, BalanceEntry> = {
-  riku: { min: 1, max: 4, wait: 2, stats: { 1: [2, 3], 2: [2, 4], 3: [3, 4], 4: [3, 5] }, ab: ['salto'] },
+  riku: { min: 1, max: 4, wait: 2, stats: { 1: [2, 6], 2: [2, 9], 3: [3, 10], 4: [3, 13] }, ab: ['salto'], manual: true },
   nara: { min: 1, max: 3, wait: 2, stats: { 1: [2, 2], 2: [3, 2], 3: [3, 3] }, ab: ['diagFrente'] },
   toru: { min: 1, max: 4, wait: 3, stats: { 1: [1, 6], 2: [1, 7], 3: [1, 8], 4: [1, 9] }, ab: ['diagTras', 'guarda'] },
   aiko: { min: 2, max: 4, wait: 2, stats: { 2: [1, 2], 3: [1, 3], 4: [2, 3] }, ab: ['longoAlcance', 'flechaDupla'] },
@@ -48,7 +50,7 @@ export const BALANCE_V2: Record<string, BalanceEntry> = {
   mei: { min: 2, max: 4, wait: 3, stats: { 2: [1, 4], 3: [1, 5], 4: [1, 6] }, ab: ['longoAlcance', 'lotus', 'anjo'] },
   yume: { min: 3, max: 5, wait: 5, stats: { 3: [5, 3], 4: [5, 4], 5: [6, 4] }, ab: ['menorVida'] },
   zarek: { min: 6, max: 6, wait: 5, stats: { 6: [9, 5] }, ab: ['retaguarda', 'renascer'], range: 4, dmg: 'magico', tweaks: ['retaguardaSemPerfurar', 'emboscadaComAliado'], desc: { retaguarda: 'Se tiver um aliado à frente dele na fileira (protegendo), ataca o inimigo mais distante no alcance (até 4 casas); senão, ataca o inimigo mais próximo.' }, manual: true },
-  kenji: { min: 5, max: 6, wait: 6, stats: { 5: [4, 9], 6: [5, 9] }, ab: ['contraGolpe', 'investida', 'critico'], up: { critico: 6 } },
+  kenji: { min: 5, max: 6, wait: 6, stats: { 5: [4, 20], 6: [5, 22] }, ab: ['contraGolpe', 'investida', 'critico'], up: { critico: 6 }, manual: true },
   nyx: { min: 3, max: 5, wait: 4, stats: { 3: [2, 5], 4: [2, 6], 5: [3, 6] }, ab: ['longoAlcance', 'sifao', 'reflexo'] },
   vorax: { min: 6, max: 6, wait: 7, stats: { 6: [5, 8] }, ab: ['longoAlcance', 'prole', 'necromancia', 'vinganca'] },
   daichi: { min: 1, max: 3, wait: 2, stats: { 1: [1, 4], 2: [1, 5], 3: [1, 6] }, ab: ['espinhos'] },
@@ -56,26 +58,26 @@ export const BALANCE_V2: Record<string, BalanceEntry> = {
   tobi: { min: 2, max: 4, wait: 3, stats: { 2: [4, 3], 3: [5, 3], 4: [5, 4] }, ab: ['tambor'] },
   kael: { min: 6, max: 6, wait: 7, stats: { 6: [8, 6] }, cat: 'dps', ab: ['brasa', 'queimadura', 'furia'], range: 4, dmg: 'magico', tweaks: ['furiaSemLimite'], desc: { furia: 'Ganha +1 de ataque a cada inimigo derrotado (sem limite).' }, manual: true },
   suri: { min: 1, max: 3, wait: 1, stats: { 1: [1, 2], 2: [1, 3], 3: [2, 3] }, ab: ['longoAlcance', 'mare'] },
-  hana: { min: 1, max: 3, wait: 1, stats: { 1: [2, 2], 2: [3, 2], 3: [3, 3] }, ab: ['longoAlcance', 'precisao'], manual: true },
+  hana: { min: 1, max: 3, wait: 1, stats: { 1: [2, 3], 2: [2, 5], 3: [3, 6] }, ab: ['longoAlcance', 'precisao'], manual: true },
   jin: { min: 1, max: 4, wait: 2, stats: { 1: [2, 2], 2: [3, 2], 3: [3, 3], 4: [4, 3] }, ab: ['longoAlcance', 'olhoAguia', 'vigia'] },
-  ren: { min: 1, max: 4, wait: 2, stats: { 1: [3, 2], 2: [4, 2], 3: [4, 3], 4: [5, 3] }, ab: ['cacaMagos'] },
+  ren: { min: 1, max: 4, wait: 2, stats: { 1: [3, 4], 2: [3, 6], 3: [4, 7], 4: [4, 9] }, ab: ['cacaMagos'], manual: true },
   kuro: { min: 1, max: 4, wait: 2, stats: { 1: [3, 2], 2: [4, 2], 3: [4, 3], 4: [5, 3] }, ab: ['surpresa'] },
-  taro: { min: 1, max: 3, wait: 3, stats: { 1: [1, 6], 2: [1, 7], 3: [1, 8] }, ab: ['guarda', 'provocar'] },
-  akemi: { min: 2, max: 4, wait: 3, stats: { 2: [2, 5], 3: [3, 5], 4: [3, 6] }, ab: ['diagFrente', 'sangramento'] },
-  shin: { min: 2, max: 4, wait: 3, stats: { 2: [4, 3], 3: [5, 3], 4: [5, 4] }, ab: ['ataqueCostas', 'critico'] },
-  yuna: { min: 2, max: 4, wait: 2, stats: { 2: [1, 3], 3: [1, 4], 4: [2, 4] }, ab: ['longoAlcance', 'sopro', 'purificar'] },
-  daisuke: { min: 5, max: 6, wait: 5, stats: { 5: [5, 3], 6: [7, 3] }, ab: ['longoAlcance', 'lentidao', 'perfurar', 'critico'], up: { critico: 6 }, manual: true },
-  masao: { min: 3, max: 5, wait: 4, stats: { 3: [3, 6], 4: [4, 6], 5: [4, 7] }, ab: ['diagTras', 'critico'] },
-  sayuri: { min: 3, max: 5, wait: 5, stats: { 3: [6, 3], 4: [6, 4], 5: [7, 4] }, ab: ['retaguarda', 'veneno'] },
-  goro: { min: 3, max: 5, wait: 4, stats: { 3: [2, 8], 4: [2, 9], 5: [2, 10] }, ab: ['ombrada', 'guarda'] },
-  emi: { min: 3, max: 5, wait: 3, stats: { 3: [3, 2], 4: [4, 2], 5: [4, 3] }, ab: ['longoAlcance', 'maldicao'] },
-  ryuji: { min: 4, max: 6, wait: 6, stats: { 4: [5, 6], 5: [5, 7], 6: [6, 7] }, ab: ['furia', 'critico', 'contraCrescente'], up: { contraCrescente: 5 } },
-  kaori: { min: 4, max: 6, wait: 3, stats: { 4: [1, 6], 5: [2, 6], 6: [2, 7] }, ab: ['gritoGuerra', 'sopro', 'purificar'], up: { purificar: 5 } },
-  tetsuo: { min: 4, max: 6, wait: 6, stats: { 4: [3, 11], 5: [3, 12], 6: [3, 13] }, ab: ['protetor', 'provocar', 'guarda'], up: { guarda: 5 } },
-  hayato: { min: 6, max: 6, wait: 6, stats: { 6: [8, 7] }, ab: ['atordoar', 'diagFrente'], range: 2, manual: true },
-  rin: { min: 2, max: 4, wait: 3, stats: { 2: [3, 3], 3: [4, 3], 4: [4, 4] }, ab: ['longoAlcance', 'critico'] },
-  kaito: { min: 6, max: 6, wait: 5, stats: { 6: [7, 8] }, ab: ['anular', 'critico', 'investida'], manual: true },
-  aya: { min: 5, max: 6, wait: 6, stats: { 5: [6, 7], 6: [6, 8] }, ab: ['ultimaResistencia', 'investida', 'furia'], up: { furia: 6 } },
+  taro: { min: 1, max: 3, wait: 3, stats: { 1: [1, 10], 2: [1, 13], 3: [1, 15] }, ab: ['guarda', 'provocar'], manual: true },
+  akemi: { min: 2, max: 4, wait: 3, stats: { 2: [3, 9], 3: [3, 11], 4: [4, 13] }, ab: ['diagFrente', 'sangramento'], manual: true },
+  shin: { min: 2, max: 4, wait: 3, stats: { 2: [4, 6], 3: [5, 7], 4: [5, 9] }, ab: ['ataqueCostas', 'critico'], manual: true },
+  yuna: { min: 2, max: 4, wait: 2, stats: { 2: [1, 6], 3: [1, 8], 4: [2, 9] }, ab: ['longoAlcance', 'sopro', 'purificar'], manual: true },
+  daisuke: { min: 5, max: 6, wait: 5, stats: { 5: [6, 7], 6: [7, 8] }, ab: ['longoAlcance', 'lentidao', 'perfurar', 'critico'], up: { critico: 6 }, manual: true },
+  masao: { min: 3, max: 5, wait: 4, stats: { 3: [3, 12], 4: [4, 14], 5: [4, 17] }, ab: ['diagTras', 'critico'], manual: true },
+  sayuri: { min: 3, max: 5, wait: 5, stats: { 3: [6, 7], 4: [6, 9], 5: [7, 10] }, ab: ['retaguarda', 'veneno'], manual: true },
+  goro: { min: 3, max: 5, wait: 4, stats: { 3: [2, 15], 4: [2, 18], 5: [3, 20] }, ab: ['ombrada', 'guarda'], manual: true },
+  emi: { min: 3, max: 5, wait: 3, stats: { 3: [3, 5], 4: [3, 7], 5: [4, 8] }, ab: ['longoAlcance', 'maldicao'], manual: true },
+  ryuji: { min: 4, max: 6, wait: 6, stats: { 4: [5, 14], 5: [5, 18], 6: [6, 20] }, ab: ['furia', 'critico', 'contraCrescente'], up: { contraCrescente: 5 }, manual: true },
+  kaori: { min: 4, max: 6, wait: 3, stats: { 4: [1, 11], 5: [2, 13], 6: [2, 15] }, ab: ['gritoGuerra', 'sopro', 'purificar'], up: { purificar: 5 }, manual: true },
+  tetsuo: { min: 4, max: 6, wait: 6, stats: { 4: [3, 20], 5: [3, 23], 6: [4, 26] }, ab: ['protetor', 'provocar', 'guarda'], up: { guarda: 5 }, manual: true },
+  hayato: { min: 6, max: 6, wait: 6, stats: { 6: [8, 20] }, ab: ['atordoar', 'diagFrente', 'auraAtaque'], range: 2, manual: true, aura: { race: 'humano', atk: 2 }, desc: { auraAtaque: 'Enquanto estiver em campo, todos os outros aliados Humanos ganham +2 de ataque. Duas cópias dele não somam.' } },
+  rin: { min: 2, max: 4, wait: 3, stats: { 2: [3, 5], 3: [3, 7], 4: [4, 8] }, ab: ['longoAlcance', 'critico'], manual: true },
+  kaito: { min: 6, max: 6, wait: 5, stats: { 6: [7, 21] }, ab: ['anular', 'critico', 'investida'], manual: true },
+  aya: { min: 5, max: 6, wait: 6, stats: { 5: [6, 18], 6: [7, 20] }, ab: ['ultimaResistencia', 'investida', 'furia'], up: { furia: 6 }, manual: true },
   quorr: { min: 1, max: 4, wait: 2, stats: { 1: [1, 5], 2: [1, 6], 3: [1, 7], 4: [2, 7] }, ab: ['guarda', 'regeneracao'] },
   pip: { min: 1, max: 3, wait: 2, stats: { 1: [1, 3], 2: [1, 4], 3: [2, 4] }, ab: ['longoAlcance', 'purificar'] },
   velka: { min: 2, max: 4, wait: 3, stats: { 2: [4, 3], 3: [5, 3], 4: [5, 4] }, ab: ['ataqueCostas', 'sangramento'] },

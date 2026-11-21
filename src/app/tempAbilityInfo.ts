@@ -80,6 +80,7 @@ export const ABILITY_INFO: Record<AbilityId, { g: AbilityGroup; b: string }> = {
   cascaReativa: { g: H, b: 'Fica mais resistente a cada golpe que leva' },
   sifao: { g: H, b: 'Enquanto vivo, todos os inimigos perdem ataque' },
   ressurreicao: { g: H, b: 'Traz de volta ao campo o último aliado derrotado' },
+  auraAtaque: { g: H, b: 'Os outros aliados de uma raça ganham ataque' },
 } as Record<AbilityId, { g: AbilityGroup; b: string }>;
 export const groupOf = (id: string): AbilityGroup => ABILITY_INFO[id as AbilityId]?.g ?? 'hibrido';
 export const blurbOf = (id: string): string => ABILITY_INFO[id as AbilityId]?.b ?? '';

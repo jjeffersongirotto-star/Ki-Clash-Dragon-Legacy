@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.66.0] — 21/11/2026 · Revisão dos Humanos e Aura de raça
+- **Humanos revisados carta a carta** (20 cartas): o ataque fica quase igual e a **vida passa a seguir a função** — tanques e lutadores aguentam bem mais (Tetsuo Mítico 4 | 26, Kenji Mítico 5 | 22), assassinos e arqueiros continuam frágeis. Subir de raridade dá +2 a +4 de vida e às vezes +1 de ataque. Esperas iguais. Tabela completa no REGRAS.md.
+- **Habilidade nova — Aura de Ataque:** o **Mestre Hayato** dá **+2 de ataque a todos os outros aliados Humanos** em campo, em qualquer casa (duas cópias dele não somam). É a primeira "aura de raça"; poucas cartas-chave das outras raças vão ganhar a sua.
+- Akemi Incomum ficou 3 | 9 (e não 3 | 8, como na proposta) para continuar mais forte que o Riku Incomum.
+- As outras raças ainda não mudaram: a revisão segue raça por raça.
+
 ## [0.65.3] — 16/11/2026 · Ajustes do editor (parte 3) e botão Limpar balanceamento
 - **Botão "🗑 Limpar balanceamento"** (nos Heróis, acima de "⬇ Balanceamento"): apaga todas as alterações salvas no editor, com confirmação. Use depois de mandar o arquivo e ele entrar no jogo.
 - **Provocar** (todos): além de obrigar os inimigos a atacá-lo, **recebe no lugar o dano dos aliados ao redor**.

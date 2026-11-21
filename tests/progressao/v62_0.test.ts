@@ -22,7 +22,7 @@ describe('v0.62.0 — balanceamento v2.0 (escala enxuta)', () => {
       length: 0,
     } as Storage;
   });
-  it('toda carta jogável está na tabela, com ATQ 1–9, vida 1–16 e Espera 1–8', () => {
+  it('toda carta jogável está na tabela, com ATQ 1–9, vida 1–30 e Espera 1–8', () => {
     for (const d of PLAYABLE) {
       const b = BALANCE_V2[d.id];
       expect(b, d.id).toBeTruthy();
@@ -31,7 +31,7 @@ describe('v0.62.0 — balanceamento v2.0 (escala enxuta)', () => {
         expect(atk).toBeGreaterThanOrEqual(1);
         expect(atk).toBeLessThanOrEqual(9);
         expect(hp).toBeGreaterThanOrEqual(1);
-        expect(hp).toBeLessThanOrEqual(16);
+        expect(hp).toBeLessThanOrEqual(30); // v0.66.0: revisão por raça (Humanos: tanques até 26)
       }
     }
   });
