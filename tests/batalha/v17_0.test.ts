@@ -102,6 +102,7 @@ describe('v0.17.0 — salvamentos (decisões 18 e 21)', () => {
   it('Renascer (Zarek Raro): volta uma vez com 30% da vida e não vai para a Necropolis', () => {
     const s = empty();
     const z = placeUnit(s, c('zarek', 1, 3), 'enemy', 0, 9, { hp: 20 });
+    z.abilities = ['renascer']; // v0.67.0: o Renascer do Zarek abre no Mítico
     applyDamage(s, new Ctx(), z, 50, 'fisico', { side: 'player' });
     expect(z.hp).toBe(Math.ceil(z.maxHp * 0.3));
     expect(z.revived).toBe(true);

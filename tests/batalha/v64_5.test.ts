@@ -16,7 +16,7 @@ describe('v0.64.5 — ajustes do jogador no editor', () => {
     expect(v('kael')).toEqual([7, 4, 'magico']);
     expect(getChar('hayato').abilities).not.toContain('critico');
     expect(getChar('zarek').abilities).not.toContain('critico');
-    expect(getChar('mimic').abilities).toEqual(['copiador', 'investida', 'anular']);
+    expect(getChar('mimic').abilities).toEqual(['copiador', 'anular', 'investida']); // v0.67.0: Investida abre no Mítico
     expect([getChar('titanx').wait, getChar('aethra').wait, getChar('mimic').wait]).toEqual([5, 6, 6]);
     expect(abilityListHTML(getChar('vharga'), 6)).toContain('totalmente');
   });
@@ -41,7 +41,7 @@ describe('v0.64.5 — ajustes do jogador no editor', () => {
 
   it('Vharga: cura toda a vida ao derrotar; Titan-X sem resistência mágica', () => {
     const s = empty();
-    const v = placeUnit(s, c('vharga'), 'player', 0, 1, { atk: 50 });
+    const v = placeUnit(s, c('vharga', 6), 'player', 0, 1, { atk: 50 }); // v0.67.0: nasce Lendária; o Vampirismo abre no Mítico
     v.hp = 2;
     attack(s, new Ctx(), v, placeUnit(s, c('riku'), 'enemy', 0, 2, { hp: 5 }));
     expect(v.hp).toBe(v.maxHp);

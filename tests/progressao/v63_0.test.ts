@@ -26,17 +26,17 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
 
   it('trocas de vaga pedidas pelo jogador', () => {
     const range = (id: string) => [getChar(id).minStars, getChar(id).maxStars];
-    expect(range('hayato')).toEqual([6, 6]);
+    expect(range('hayato')).toEqual([5, 6]); // v0.67.0: ninguém nasce Mítico
     expect(range('aya')).toEqual([5, 6]);
     expect(range('daisuke')).toEqual([5, 6]);
     expect(range('rin')).toEqual([2, 4]);
-    expect(range('zarek')).toEqual([6, 6]);
+    expect(range('zarek')).toEqual([5, 6]); // v0.67.0: ninguém nasce Mítico
     expect(range('nhyra')).toEqual([4, 6]);
     expect(range('zynna')).toEqual([2, 4]); // v0.67.0: vaga I→É (era da Velka)
     expect(range('trokk')).toEqual([5, 6]);
-    expect(range('ghor')).toEqual([6, 6]);
+    expect(range('ghor')).toEqual([5, 6]); // v0.67.0: ninguém nasce Mítico
     expect(range('thane')).toEqual([4, 6]);
-    expect([range('wex'), range('lamenta'), range('nocturna'), range('pira'), range('vorax')]).toEqual([[1, 4], [2, 4], [4, 6], [5, 6], [6, 6]]);
+    expect([range('wex'), range('lamenta'), range('nocturna'), range('pira'), range('vorax')]).toEqual([[1, 4], [2, 4], [4, 6], [5, 6], [5, 6]]);
     expect(getChar('ysmera').category).toBe('suporte');
     expect(getChar('odo').category).toBe('suporte');
     expect(getChar('kael').category).toBe('dps');
@@ -53,7 +53,7 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
   it('Espera pela força: até 6, e 7–8 só para quem nasce Mítico', () => {
     for (const d of PLAYABLE) {
       expect(d.wait!, d.id).toBeGreaterThanOrEqual(1);
-      expect(d.wait!, d.id).toBeLessThanOrEqual(d.minStars >= 6 ? 8 : 6);
+      expect(d.wait!, d.id).toBeLessThanOrEqual(8); // v0.67.0: a espera é da carta (1 a 8)
     }
     expect(getChar('zarek').wait).toBe(5); // v0.65.2: ajustado pelo jogador
     expect(getChar('zynna').wait).toBeLessThan(7);
@@ -100,7 +100,7 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
 
   it('Casca Reativa (sem limite) e Pulso Vital', () => {
     const s = empty();
-    const t = placeUnit(s, c('titanx'), 'player', 0, 3, { hp: 60 });
+    const t = placeUnit(s, c('titanx', 6), 'player', 0, 3, { hp: 60 });
     const src = { side: 'enemy' as const, unit: placeUnit(s, c('riku'), 'enemy', 0, 9) };
     const r0 = t.physRes;
     for (let i = 0; i < 5; i++) applyDamage(s, new Ctx(), t, 10, 'fisico', src);
@@ -120,9 +120,9 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
     delete (s as { v63?: boolean }).v63;
     localStorage.setItem(KEY, JSON.stringify(s));
     const l = loadSave();
-    expect(l.cards.kael.stars).toBe(6);
+    expect(l.cards.kael.stars).toBe(5); // v0.67.0: Kael nasce Lendário
     expect(l.cards.aya.stars).toBe(6); // Aya vai até Mítico (Lendário → Mítico)
-    expect(l.dupes!.kael[6]).toBe(2);
+    expect(l.dupes!.kael[5]).toBe(2);
     expect(l.v63).toBe(true);
   });
 });

@@ -34,10 +34,10 @@ describe('v0.30.0 — as 120 cartas', () => {
   it('banner: Mítico 1% (v0.31.0; antes 0,5%) e as cartas que começam no Mítico saem nessa raridade', () => {
     const b = BANNERS[0];
     expect(b.odds[6]).toBe(0.01);
-    const mythic = PLAYABLE.filter((d) => d.minStars === 6).map((d) => d.id);
-    expect(mythic.length).toBeGreaterThan(5);
-    for (const id of mythic) expect(poolFor(6)).toContain(id);
-    expect(poolFor(5).some((id) => mythic.includes(id))).toBe(false);
+    // v0.67.0: ninguém nasce Mítico (o máximo de nascimento é Lendário); o Mítico do banner sai entre as cartas que chegam lá
+    expect(PLAYABLE.some((d) => d.minStars === 6)).toBe(false);
+    expect(poolFor(6).length).toBeGreaterThan(5);
+    for (const id of poolFor(6)) expect(getChar(id).maxStars).toBe(6);
   });
   it('partida com cartas novas continua refazível e verificável (verifyMatch)', () => {
     const deck = (ids: string[]): CardInstance[] => ids.map((id) => ({ charId: id, stars: getChar(id).minStars }));

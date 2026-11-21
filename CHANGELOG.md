@@ -16,6 +16,7 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
   - Ren, Velka, Zarek e Vharga viram **DPS**, alguns atacando de longe (Ren e Vharga com alcance 2, Zarek com 4);
   - Lethe vira **Arqueira** e Kenji vira **Tanque**;
   - os Assassinos passam de 16 para 11. Shin, Sayuri, Zynna e Yume mudam de raridade; no seu save, a carta é ajustada para a faixa nova, com reembolso de quem passou do topo.
+- **Ninguém nasce Mítico:** a raridade máxima de nascimento é Lendário. As 15 cartas que nasciam Míticas agora vão de Lendário a Mítico (2 habilidades no Lendário; a 3ª abre no Mítico). Quem já tinha a carta Mítica continua com ela.
 - **Auras de raça:**
   - Hayato: +2 de ataque aos Humanos;
   - Halo-8: +3 de vida aos Androides;

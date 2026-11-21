@@ -1427,7 +1427,7 @@ Revisão carta a carta, uma raça por vez (Humanos → próximas 5 raças). O **
 ★ **Mestre Hayato — Aura de Ataque (Humanos):** os outros aliados Humanos em campo ganham **+2 de ataque**.
 
 ## Revisão completa das 6 raças (v0.67.0)
-### Como os números foram feitos 
+### Como os números foram feitos
 - **Regra de troca:** 1 de ataque vale 2 de vida. A força da carta é **2 × ataque + vida**.
 - **A força vem da raridade e da espera**, como no original. Fórmula: força = base da raridade + valor da rodada × espera.
 
@@ -1521,6 +1521,7 @@ Para manter cerca de 1/3 de cartas sem habilidade, estas ficaram sem habilidade:
 A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atual e máxima) enquanto a carta está em campo.
 
 ### Outras mudanças
+- **Ninguém nasce Mítico.** A raridade máxima de nascimento é Lendário. As 15 cartas que nasciam Míticas agora vão de Lendário a Mítico: no Lendário têm 2 habilidades, e a 3ª abre no Mítico. As esperas são as mesmas.
 - **Vorax como o "Cell":** qualquer inimigo derrotado, por qualquer aliado, vira Cria Sombria na mesma casa, **sem limite**.
 - **Anel no chão** embaixo de quem tem aura ou efeito contínuo, com uma cor por tipo:
   - verde: ajuda aliados (auras de raça, Tambor, Grito de Guerra);
@@ -1543,9 +1544,9 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 | DPS | Akemi Lança-Dupla | I→É | 2 | 1 |  | 2\|5 | 3\|6 | 4\|6 |  |  | Corte Diagonal, Sangramento |  |
 | DPS | Masao Leque-Cortante | R→L | 2 | 1 |  |  | 4\|6 | 4\|9 | 5\|10 |  | — |  |
 | DPS | Ryuji Punho-de-Tempestade | É→M | 4 | 1 |  |  |  | 4\|7 | 5\|7 | 6\|8 | Fúria, Golpe Crítico, Contra-ataque Crescente (revista) (a partir do Lendário) |  |
+| DPS | Mestre Hayato Céu-Partido | L→M | 6 | 2 |  |  |  |  | 5\|9 | 6\|11 | Atordoamento, Aura de Ataque, Corte Diagonal (a partir do Mítico) | aura: humano +2 ataque |
+| DPS | Kaito Selo-do-Vazio | L→M | 5 | 1 |  |  |  |  | 6\|10 | 7\|12 | Selo do Vazio, Golpe Crítico, Investida (a partir do Mítico) |  |
 | DPS | Aya Vontade-Inquebrável | L→M | 4 | 1 |  |  |  |  | 5\|9 | 6\|10 | Vontade Inquebrável, Ombrada, Vingança (a partir do Mítico) |  |
-| DPS | Mestre Hayato Céu-Partido | M→M | 6 | 2 |  |  |  |  |  | 6\|11 | Atordoamento, Corte Diagonal, Aura de Ataque | aura: humano +2 ataque |
-| DPS | Kaito Selo-do-Vazio | M→M | 5 | 1 |  |  |  |  |  | 7\|12 | Selo do Vazio, Golpe Crítico, Investida |  |
 | Assassino | Shin Passo-Fantasma | C→É | 2 | 1 | 3\|2 | 3\|4 | 4\|5 | 5\|6 |  |  | Corte Diagonal | vaga C→É (era do Ren) |
 | Assassino | Sayuri Agulha-Venenosa | É→M | 3 | 1 |  |  |  | 6\|4 | 7\|5 | 8\|6 | Corte Diagonal, Emboscada, Ki Oculto (nova) (a partir do Lendário) | vaga É→M |
 | Arqueiro | Hana Pena-Veloz | C→R | 1 | 4 | 2\|3 | 3\|3 | 4\|3 |  |  |  | — | entra na hora, frágil |
@@ -1561,13 +1562,13 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 | Tanque | Toru Sombra-Reversa | C→É | 2 | 1 | 2\|6 | 2\|8 | 3\|9 | 3\|12 |  |  | — | tanque que também bate |
 | Tanque | Bastion-2 Placa-Pesada | I→É | 4 | 1 |  | 1\|9 | 1\|12 | 2\|13 |  |  | Reconstrução (nova) |  |
 | Tanque | Sentinel-0 Guardião-Prime | É→M | 3 | 1 |  |  |  | 2\|14 | 2\|17 | 2\|20 | Escudo de Entrada, Postura de Guarda (a partir do Lendário) |  |
+| Tanque | Titan-X Núcleo-de-Aço | L→M | 5 | 1 |  |  |  |  | 2\|17 | 3\|19 | Provocar, Inabalável, Casca Reativa (a partir do Mítico) |  |
 | Tanque | Aegis-Ω Protocolo-Final | L→M | 4 | 1 |  |  |  |  | 2\|16 | 2\|19 | Protocolo de Retaliação, Postura de Guarda, Couraça de Espinhos (a partir do Mítico) |  |
-| Tanque | Titan-X Núcleo-de-Aço | M→M | 5 | 1 |  |  |  |  |  | 3\|19 | Provocar, Inabalável, Casca Reativa |  |
 | DPS | Bolt-12 Rebite-Veloz | C→É | 1 | 1 | 2\|4 | 3\|4 | 4\|4 | 4\|6 |  |  | — | rápido e frágil |
 | DPS | Kraz-9 Serra-Dupla | I→É | 2 | 1 |  | 2\|5 | 3\|6 | 4\|6 |  |  | Corte Diagonal |  |
 | DPS | Spike-11 Punho-Pistão | R→L | 2 | 2 |  |  | 3\|4 | 4\|5 | 4\|7 |  | Disparo Instável (nova) |  |
 | DPS | Razor-V Lâmina-Fantasma | L→M | 4 | 1 |  |  |  |  | 5\|9 | 6\|10 | Corte Diagonal, Golpe Duplo (nova), Vampirismo (a partir do Mítico) |  |
-| DPS | Mímesis Copiadora | M→M | 6 | 1 |  |  |  |  |  | 7\|13 | Copiador, Investida, Selo do Vazio |  |
+| DPS | Mímesis Copiadora | L→M | 6 | 1 |  |  |  |  | 6\|11 | 7\|13 | Copiador, Selo do Vazio, Investida (a partir do Mítico) |  |
 | Assassino | Vex-4 Caçador-Furtivo | I→É | 2 | 1 |  | 4\|2 | 5\|3 | 6\|4 |  |  | Corte Diagonal |  |
 | Assassino | Phase-3 Salto-Quântico | R→L | 3 | 1 |  |  | 4\|2 | 5\|3 | 6\|3 |  | Corte Diagonal, Teleporte |  |
 | Arqueiro | Jin Arco-Trovão | C→É | 2 | 4 | 2\|4 | 3\|4 | 4\|5 | 5\|6 |  |  | — |  |
@@ -1589,8 +1590,8 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 | DPS | Velka Garra-de-Cometa | I→É | 2 | 1 |  | 3\|3 | 4\|4 | 4\|6 |  |  | Golpe Final (nova) | Assassino → DPS |
 | DPS | Thessa Espiral-Prateada | I→É | 2 | 1 |  | 3\|5 | 3\|8 | 4\|9 |  |  | — |  |
 | DPS | Kryx Lâmina-Nebulosa | R→L | 2 | 1 |  |  | 4\|6 | 5\|7 | 6\|8 |  | — |  |
+| DPS | Zarek do Eclipse | L→M | 5 | 4 |  |  |  |  | 5\|8 | 6\|10 | Emboscada, Renascer (a partir do Mítico) | Assassino → DPS de longe (mágico); mantém as 2 habilidades que você definiu |
 | DPS | Vexar Rei-das-Marés | L→M | 6 | 1 |  |  |  |  | 7\|11 | 8\|13 | Fúria, Corte Diagonal, Evasão, Sangramento (a partir do Mítico) |  |
-| DPS | Zarek do Eclipse | M→M | 5 | 4 |  |  |  |  |  | 6\|10 | Emboscada, Renascer | Assassino → DPS de longe (mágico); mantém as 2 habilidades que você definiu |
 | Assassino | Zynna Portal-Errante | I→É | 1 | 1 |  | 2\|3 | 3\|3 | 4\|3 |  |  | Corte Diagonal, Bate e Recua (nova) | vaga I→É (era da Velka) |
 | Assassino | Nhyra Fantasma-Estelar | É→M | 4 | 1 |  |  |  | 5\|4 | 6\|4 | 7\|5 | Corte Diagonal, Golpe pelas Costas, Contra-ataque Crescente (revista) (a partir do Lendário) |  |
 | Arqueiro | Aiko Flecha-Celeste | I→É | 2 | 4 |  | 3\|2 | 4\|3 | 5\|3 |  |  | Flecha Dupla |  |
@@ -1609,23 +1610,23 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 | Tanque | Bram Guardião-do-Tomo | C→É | 1 | 1 | 1\|7 | 1\|9 | 1\|11 | 1\|13 |  |  | — | barato e leve |
 | Tanque | Varo Golem-de-Cristal | R→L | 2 | 1 |  |  | 2\|11 | 2\|14 | 2\|17 |  | — |  |
 | DPS | Isel Bruma-Cortante | I→É | 2 | 1 |  | 2\|5 | 3\|6 | 4\|6 |  |  | Corte Diagonal |  |
+| DPS | Kael Chama-Rubra | L→M | 7 | 4 |  |  |  |  | 8\|12 | 9\|15 | Explosão de Brasas, Fúria, Queimadura (a partir do Mítico) |  |
 | DPS | Corvin Lâmina-das-Runas | L→M | 4 | 1 |  |  |  |  | 5\|9 | 6\|10 | Fúria, Perfurar (a partir do Mítico) |  |
-| DPS | Kael Chama-Rubra | M→M | 7 | 4 |  |  |  |  |  | 9\|15 | Explosão de Brasas, Queimadura, Fúria |  |
 | Assassino | Kaela Lâmina-Espectral | É→M | 3 | 1 |  |  |  | 6\|4 | 7\|5 | 8\|6 | Corte Diagonal, Maldição, Ataque Surpresa (a partir do Lendário) |  |
 | Arqueiro | Nalia Arco-Rúnico | R→L | 2 | 4 |  |  | 4\|5 | 5\|6 | 6\|7 |  | — |  |
-| Arqueiro | Vesna Senhora-do-Inverno | M→M | 4 | 4 |  |  |  |  |  | 9\|7 | Congelamento, Lentidão, Flecha Dupla |  |
+| Arqueiro | Vesna Senhora-do-Inverno | L→M | 4 | 4 |  |  |  |  | 8\|6 | 9\|7 | Congelamento, Lentidão, Flecha Dupla (a partir do Mítico) |  |
 | Mago | Fen Aprendiz-das-Brasas | C→É | 1 | 4 | 2\|3 | 3\|3 | 4\|3 | 4\|5 |  |  | — |  |
 | Mago | Lyra Olho-de-Falcão | I→É | 1 | 4 |  | 3\|3 | 4\|3 | 5\|3 |  |  | — | dano alto, muito frágil |
 | Mago | Celina Geada-Eterna | R→L | 2 | 4 |  |  | 4\|5 | 5\|6 | 6\|7 |  | — |  |
 | Mago | Selene Lua-Arcana | É→M | 3 | 4 |  |  |  | 6\|4 | 7\|5 | 8\|6 | Queimadura, Congelamento (a partir do Lendário), Maldição (a partir do Mítico) |  |
 | Mago | Morgause Espelho-Duplo | L→M | 4 | 4 |  |  |  |  | 6\|4 | 7\|5 | Clone, Reflexo de Magia, Barreira Arcana (a partir do Mítico) |  |
 | Mago | Eldrin Arquimago-Solar | L→M | 3 | 4 |  |  |  |  | 7\|5 | 8\|6 | Explosão de Brasas, Olho de Águia, Feixe Perfurante (a partir do Mítico) |  |
-| Mago | Aethra Tecelã-do-Trovão | M→M | 6 | 4 |  |  |  |  |  | 9\|8 | Raio em Cadeia, Atordoamento, Feixe Perfurante |  |
+| Mago | Aethra Tecelã-do-Trovão | L→M | 6 | 4 |  |  |  |  | 8\|6 | 9\|8 | Raio em Cadeia, Atordoamento, Feixe Perfurante (a partir do Mítico) |  |
 | Suporte | Sora Brisa-Serena | C→R | 1 | 4 | 1\|4 | 1\|6 | 1\|8 |  |  |  | — |  |
 | Suporte | Mei Lótus-Celeste | I→É | 2 | 4 |  | 1\|5 | 1\|8 | 1\|10 |  |  | Bênção do Lótus |  |
 | Suporte | Dorian Pena-Encantada | I→É | 3 | 4 |  | 2\|2 | 2\|3 | 3\|4 |  |  | Aura de Ataque | aura: humano +1 ataque (outra raça) |
 | Suporte | Odo Sombra-de-Papel | É→M | 3 | 4 |  |  |  | 1\|13 | 1\|16 | 2\|17 | Escudo de Entrada, Purificar (a partir do Lendário), Lentidão (a partir do Mítico) |  |
-| Suporte | Tiberius Runa-Viva | M→M | 5 | 4 |  |  |  |  |  | 2\|18 | Aura de Vida, Purificar, Bênção do Lótus | aura: mago +3 vida |
+| Suporte | Tiberius Runa-Viva | L→M | 5 | 4 |  |  |  |  | 1\|16 | 2\|18 | Aura de Vida, Purificar, Bênção do Lótus (a partir do Mítico) | aura: mago +3 vida |
 
 ### Monstro
 | Tipo | Carta | Raridade | Espera | Alcance | C | I | R | É | L | M | Habilidades | Observação |
@@ -1635,13 +1636,13 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 | Tanque | Mag'ra Colosso-de-Lava | R→L | 2 | 1 |  |  | 1\|11 | 2\|11 | 2\|14 |  | Explosão |  |
 | Tanque | Borgo Tronco-Antigo | É→M | 3 | 1 |  |  |  | 2\|14 | 2\|17 | 2\|20 | Regeneração, Provocar, Couraça de Espinhos (a partir do Lendário) |  |
 | Tanque | Grendar Pai-da-Ninhada | L→M | 4 | 1 |  |  |  |  | 2\|14 | 2\|17 | Protetor, Pulso Vital (a partir do Mítico) |  |
-| Tanque | Kolossus Couraça-Viva | M→M | 7 | 1 |  |  |  |  |  | 3\|28 | Couraça Adaptativa, Provocar, Postura de Guarda |  |
+| Tanque | Kolossus Couraça-Viva | L→M | 7 | 1 |  |  |  |  | 3\|23 | 3\|28 | Couraça Adaptativa, Provocar, Postura de Guarda (a partir do Mítico) |  |
 | DPS | Grub Presa-Lamacenta | C→É | 3 | 1 | 2\|6 | 3\|7 | 3\|10 | 4\|11 |  |  | — | aguenta mais |
 | DPS | Ghul Devora-Ossos | I→É | 2 | 1 |  | 3\|5 | 4\|6 | 5\|7 |  |  | — |  |
 | DPS | Rhazor Rei-das-Feras | R→L | 3 | 1 |  |  | 4\|8 | 5\|9 | 6\|11 |  | — |  |
 | DPS | Krag Javali-de-Guerra | É→M | 3 | 1 |  |  |  | 5\|7 | 6\|8 | 6\|11 | Investida, Ombrada (a partir do Lendário) |  |
 | DPS | Trokk Chifre-Partido | L→M | 4 | 1 |  |  |  |  | 5\|7 | 6\|8 | Corte Diagonal, Aura de Ataque, Fúria (a partir do Mítico) | aura: monstro +1 ataque |
-| DPS | Vharga Ceifadora-Voraz | M→M | 6 | 2 |  |  |  |  |  | 7\|13 | Execução, Instinto Predador, Vampirismo | Assassino → DPS de longe (mágico) |
+| DPS | Vharga Ceifadora-Voraz | L→M | 6 | 2 |  |  |  |  | 6\|11 | 7\|13 | Execução, Instinto Predador, Vampirismo (a partir do Mítico) | Assassino → DPS de longe (mágico) |
 | Assassino | Kuro Garra-Noturna | C→É | 1 | 1 | 2\|1 | 3\|1 | 3\|3 | 4\|3 |  |  | Corte Diagonal, Ataque Surpresa | espera 1: pressão rápida |
 | Assassino | Skarr Escorpião-de-Areia | É→M | 3 | 1 |  |  |  | 6\|4 | 7\|5 | 8\|6 | Corte Diagonal, Emboscada, Veneno (a partir do Lendário) |  |
 | Arqueiro | Spindra Aranha-Tecelã | R→L | 2 | 4 |  |  | 5\|3 | 6\|4 | 7\|5 |  | — |  |
@@ -1656,12 +1657,12 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Tanque | Grav Coveiro-Robusto | C→É | 3 | 1 | 1\|9 | 1\|12 | 2\|13 | 2\|16 |  |  | — | mais vida |
 | Tanque | Thane Cavaleiro-Caído | É→M | 4 | 1 |  |  |  | 2\|13 | 2\|16 | 2\|19 | Provocar, Couraça de Espinhos, Casca Reativa (a partir do Lendário) |  |
-| Tanque | Ghor Abominação-Costurada | M→M | 7 | 1 |  |  |  |  |  | 4\|30 | Provocar, Postura de Guarda, Regeneração |  |
+| Tanque | Ghor Abominação-Costurada | L→M | 7 | 1 |  |  |  |  | 3\|27 | 4\|30 | Provocar, Postura de Guarda, Regeneração (a partir do Mítico) |  |
 | DPS | Ossian Esqueleto-Lanceiro | C→É | 1 | 1 | 2\|4 | 3\|4 | 3\|6 | 4\|6 |  |  | — | esqueleto frágil |
 | DPS | Drakon Lorde-dos-Ossos | I→É | 3 | 1 |  | 3\|7 | 4\|8 | 4\|11 |  |  | — | mais vida |
 | DPS | Morrigan Lâmina-Cinzenta | R→L | 2 | 1 |  |  | 3\|6 | 4\|6 | 5\|7 |  | Corte Diagonal |  |
 | DPS | Brunna Carniçal-Faminta | L→M | 4 | 1 |  |  |  |  | 5\|9 | 6\|10 | Ímpeto (nova), Vingança, Corte Diagonal (a partir do Mítico) |  |
-| DPS | Sanguis Sede-Eterna | M→M | 7 | 1 |  |  |  |  |  | 9\|15 | Sede Eterna, Golpe Crítico, Investida |  |
+| DPS | Sanguis Sede-Eterna | L→M | 7 | 1 |  |  |  |  | 8\|12 | 9\|15 | Sede Eterna, Golpe Crítico, Investida (a partir do Mítico) |  |
 | Assassino | Yume Caçadora | I→É | 2 | 1 |  | 3\|2 | 4\|3 | 5\|3 |  |  | Corte Diagonal, Instinto Predador | vaga I→É (era da Lethe) |
 | Assassino | Sabbath Ceifador-Pálido | É→M | 3 | 1 |  |  |  | 6\|4 | 7\|5 | 8\|6 | Corte Diagonal, Sangramento, Golpe pelas Costas (a partir do Lendário) |  |
 | Arqueiro | Lethe Sombra-Rastejante | I→É | 1 | 4 |  | 3\|3 | 4\|3 | 4\|5 |  |  | — | Assassino → Arqueira |
@@ -1669,8 +1670,8 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 | Mago | Wex Bruxo-do-Pântano | C→É | 2 | 4 | 2\|4 | 3\|4 | 4\|5 | 5\|6 |  |  | — |  |
 | Mago | Lamenta Viúva-Vingativa | I→É | 2 | 4 |  | 2\|4 | 3\|5 | 4\|5 |  |  | Pressão no Comandante (nova) |  |
 | Mago | Nocturna Bruxa-Pestilenta | É→M | 3 | 4 |  |  |  | 6\|4 | 7\|5 | 8\|6 | Maldição, Veneno (a partir do Lendário), Queimadura (a partir do Mítico) |  |
+| Mago | Vorax | L→M | 6 | 4 |  |  |  |  | 7\|6 | 8\|8 | Prole Sombria, Chamado da Necropolis, Vingança (a partir do Mítico) | Prole "Cell": qualquer inimigo derrotado vira cria, sem limite |
 | Mago | Pira Vela-Fúnebre | L→M | 3 | 4 |  |  |  |  | 7\|5 | 8\|6 | Queimadura, Explosão de Brasas |  |
-| Mago | Vorax | M→M | 6 | 4 |  |  |  |  |  | 8\|8 | Prole Sombria, Chamado da Necropolis, Vingança | Prole "Cell": qualquer inimigo derrotado vira cria, sem limite |
 | Suporte | Mira Sussurro-Frio | C→É | 3 | 4 | 1\|6 | 1\|9 | 1\|12 | 2\|13 |  |  | — |  |
 | Suporte | Elegia Arauta-do-Retorno | R→L | 3 | 4 |  |  | 1\|7 | 1\|10 | 1\|12 |  | Ressurreição |  |
-| Suporte | Ivra Fiandeira-de-Almas | M→M | 5 | 4 |  |  |  |  |  | 2\|18 | Aura de Vida, Purificar, Sopro Restaurador | aura: necromante +2 vida |
+| Suporte | Ivra Fiandeira-de-Almas | L→M | 5 | 4 |  |  |  |  | 1\|16 | 2\|18 | Aura de Vida, Purificar, Sopro Restaurador (a partir do Mítico) | aura: necromante +2 vida |

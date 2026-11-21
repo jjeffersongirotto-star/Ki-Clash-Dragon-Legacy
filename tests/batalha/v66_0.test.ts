@@ -21,7 +21,7 @@ describe('v0.66.0 — revisão dos Humanos e Aura de raça', () => {
     expect(effectiveAtk(s, riku)).toBe(base[0] + 2);
     expect(effectiveAtk(s, alien)).toBe(base[1]);
     expect(effectiveAtk(s, inimigo)).toBe(base[2]);
-    expect(effectiveAtk(s, h)).toBe(BALANCE_V2.hayato.stats[6][0]); // ele mesmo não ganha a aura
+    expect(effectiveAtk(s, h)).toBe(BALANCE_V2.hayato.stats[5][0]); // ele mesmo não ganha a aura
     // duas cópias do Hayato não somam
     placeUnit(s, c('hayato'), 'player', 0, 5);
     expect(effectiveAtk(s, riku)).toBe(base[0] + 2);
