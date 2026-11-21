@@ -2,7 +2,8 @@
  * Regras de combate (lógica pura): alcance, bônus, ataque efetivo, dano e escolha do alvo.
  * v0.28.1: separado de battle.ts, que reexporta estas funções.
  */
-import { hasTweak } from './balanceV2';
+import { BALANCE_V2, hasTweak } from './balanceV2';
+import { CHAR_BY_ID } from './characters';
 import { ABILITIES, abilityPower, has } from './abilities';
 import { dir } from './battle';
 import type { AbilityId, BattleState, Unit } from './types';
@@ -47,7 +48,22 @@ export function allyBuff(state: BattleState, u: Unit): number {
   let g = 0;
   for (const a of state.units)
     if (a !== u && a.hp > 0 && a.side === u.side && a.row === u.row && a.abilities.includes('gritoGuerra')) g = Math.max(g, pw(a, 'gritoGuerra'));
-  return b + g;
+  return b + g + raceAuraAtk(state, u);
+}
+
+/** v0.66.0: Aura de raça — soma o bônus de cada carta-chave diferente em campo (cópias da mesma carta não somam). */
+export function raceAuraAtk(state: BattleState, u: Unit): number {
+  const race = CHAR_BY_ID[u.charId]?.race;
+  if (!race || u.isMinion) return 0;
+  const best = new Map<string, number>();
+  for (const a of state.units) {
+    if (a === u || a.hp <= 0 || a.side !== u.side || !a.abilities.includes('auraAtaque')) continue;
+    const au = BALANCE_V2[a.charId]?.aura;
+    if (au?.race === race && au.atk) best.set(a.charId, Math.max(best.get(a.charId) ?? 0, au.atk));
+  }
+  let t = 0;
+  for (const v of best.values()) t += v;
+  return t;
 }
 
 export function effectiveAtk(state: BattleState, u: Unit): number {

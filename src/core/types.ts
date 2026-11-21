@@ -78,6 +78,8 @@ export type AbilityId =
   | 'sedeEterna'
   | 'marcaSede'
   | 'ressurreicao'
+  // v0.66.0: Aura de raça (cartas-chave)
+  | 'auraAtaque'
   // v0.63.0: habilidades novas
   | 'contraCrescente'
   | 'pulsoVital'

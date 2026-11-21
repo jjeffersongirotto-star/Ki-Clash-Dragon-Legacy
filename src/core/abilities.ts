@@ -669,6 +669,13 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     icon: '✨',
     power: () => 50,
   },
+  // v0.66.0: Aura de raça — a raça e o valor ficam na carta (balanceV2 `aura`)
+  auraAtaque: {
+    id: 'auraAtaque',
+    name: 'Aura de Ataque',
+    description: 'Enquanto estiver em campo, os outros aliados de uma raça ganham ataque. Cópias da mesma carta não somam.',
+    icon: '🌟',
+  },
   // v0.63.0: habilidades novas (ideias do jogador)
   contraCrescente: {
     id: 'contraCrescente',
