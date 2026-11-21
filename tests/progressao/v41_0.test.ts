@@ -29,12 +29,12 @@ describe('v0.41.0 — feitiços colecionáveis', () => {
     setSaveKey('kicdl-save-v1');
   });
 
-  it('cada feitiço tem uma raridade de Comum a Épico (3 Comuns, 3 Incomuns, 4 Raros, 3 Épicos)', () => {
+  it('cada feitiço tem uma raridade de Comum a Épico (3 Comuns, 3 Incomuns, 4 Raros, 4 Épicos)', () => {
     for (const s of SPELLS) expect([1, 2, 3, 4]).toContain(s.rarity);
     expect(spellsAt(1)).toEqual(['f-muralha', 'f-flecha-veneno', 'f-cura']);
     expect(spellsAt(2).sort()).toEqual(['f-chuva', 'f-investida', 'f-veneno']);
     expect(spellsAt(3).sort()).toEqual(['f-bola-fogo', 'f-giratoria', 'f-raio', 'f-tremor']);
-    expect(spellsAt(4).sort()).toEqual(['f-anjo', 'f-necropolis', 'f-sombras']);
+    expect(spellsAt(4).sort()).toEqual(['f-anjo', 'f-explosao-ki', 'f-necropolis', 'f-sombras']); // v0.67.0: + Explosão de Ki
     expect(spellsAt(5)).toEqual([]);
   });
 

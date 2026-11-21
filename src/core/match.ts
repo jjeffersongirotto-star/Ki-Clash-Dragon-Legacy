@@ -10,7 +10,7 @@
  * deve conferir se os baralhos da gravação batem com as cartas da conta e com a fase.
  */
 import { aiDeploy } from './ai';
-import { Ctx, castSpell, createBattle, deploy, endPlayerTurn } from './battle';
+import { Ctx, castSpell, createBattle, deploy, endPlayerTurn, mulligan } from './battle';
 import { isSpell } from './spells';
 import type { BattleState, MatchRecord, PlayerAction, RecordedEvent, Side } from './types';
 
@@ -22,6 +22,13 @@ export function playerUse(state: BattleState, hand: number, row: number, col: nu
   const res = card && isSpell(card.charId) ? castSpell(state, 'player', hand, row, col, ctx) : deploy(state, 'player', hand, row, col, ctx);
   if (res.ok) rec(state, { t: 'use', hand, row, col });
   return res;
+}
+
+/** v0.67.0: troca grátis da mão inicial (uma vez, no 1º turno) — grava a jogada. */
+export function playerMulligan(state: BattleState): boolean {
+  const ok = mulligan(state, 'player');
+  if (ok) rec(state, { t: 'mull' });
+  return ok;
 }
 
 /** Modo Auto: a IA invoca/lança pelo jogador. Grava só "auto" (refazer chama a mesma IA, com o mesmo sorteio). */
@@ -59,6 +66,9 @@ export function replayMatch(record: MatchRecord): { state: BattleState; error?: 
       if (!res.ok) return { state, error: `jogada ${i + 1} inválida: ${res.reason}` };
     } else if (a.t === 'auto') playerAuto(state);
     else if (a.t === 'end') playerEndTurn(state);
+    else if (a.t === 'mull') {
+      if (!playerMulligan(state)) return { state, error: `jogada ${i + 1} inválida: troca de mão` };
+    }
     else return { state, error: `jogada ${i + 1} desconhecida` };
   }
   return { state };

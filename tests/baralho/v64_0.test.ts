@@ -17,7 +17,7 @@ describe('v0.64.0 — filtros dos Heróis', () => {
   it('raridade, ataque, vida e rodadas valem juntos com grupo e tipo', () => {
     const all = heroGroups();
     expect(ids(filterHeroes(all, {}))).toEqual(ids(all));
-    const f = { race: 'humano', cat: 'dps', rarity: 4, atk: '3-4', hp: '11+', wait: 2 }; // v0.66.0: Riku Épico 3|13
+    const f = { race: 'humano', cat: 'dps', rarity: 4, atk: '3-4', hp: '4-6', wait: 2 }; // v0.67.0: Riku Épico 4|6
     const got = ids(filterHeroes(all, f));
     expect(got.length).toBeGreaterThan(0);
     for (const id of got) {
@@ -26,7 +26,7 @@ describe('v0.64.0 — filtros dos Heróis', () => {
       const cells = heroCells(d, f);
       expect(cells).toEqual([4]);
       const s = statsFor(d, 4, 0);
-      expect(inRange(s.atk, '3-4') && inRange(s.hp, '11+')).toBe(true);
+      expect(inRange(s.atk, '3-4') && inRange(s.hp, '4-6')).toBe(true);
     }
     // quem não tem nenhuma carta no filtro some
     for (const d of PLAYABLE) if (!got.includes(d.id) && d.race === 'humano' && d.category === 'dps') expect(heroCells(d, f)).toEqual([]);

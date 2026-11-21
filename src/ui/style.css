@@ -192,6 +192,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* Lutador de corpo inteiro na Arena */
 .unit { position: absolute; width: var(--cell); height: var(--cell); left: 0; top: 0; transform: translate(calc(var(--c) * var(--cell)), calc(var(--r) * var(--cell))); transition: transform .38s cubic-bezier(.3,.7,.3,1), opacity .5s; pointer-events: auto; cursor: pointer; z-index: 4; }
+/* v0.67.0: anel no chão de quem tem aura (verde ajuda aliados, roxo enfraquece inimigos) */
+.u-ring { display: none; position: absolute; left: 6%; right: 6%; bottom: 2%; height: 26%; border-radius: 50%; pointer-events: none; z-index: 0; }
+.unit.ring-ally .u-ring, .unit.ring-enemy .u-ring { display: block; animation: uring 2.4s ease-in-out infinite; }
+.unit.ring-ally .u-ring { border: 3px solid rgba(74, 222, 128, .9); background: radial-gradient(ellipse at center, rgba(74, 222, 128, .35), rgba(74, 222, 128, 0) 70%); box-shadow: 0 0 10px rgba(74, 222, 128, .8); }
+.unit.ring-enemy .u-ring { border: 3px solid rgba(192, 132, 252, .9); background: radial-gradient(ellipse at center, rgba(192, 132, 252, .35), rgba(192, 132, 252, 0) 70%); box-shadow: 0 0 10px rgba(192, 132, 252, .8); }
+@keyframes uring { 0%, 100% { opacity: .75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+@media (prefers-reduced-motion: reduce) { .unit .u-ring { animation: none !important; } }
 .u-portrait { position: absolute; left: -8%; right: -8%; top: -24%; bottom: 12%; overflow: visible; background: transparent !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; filter: drop-shadow(0 3px 4px rgba(0,0,0,.75)); }
 .unit-sprite { width: 100%; height: 100%; display: block; overflow: visible; }
 .unit-sprite .spr-figure { animation: fighterIdle 1.8s ease-in-out infinite; transform-origin: 50% 95%; }
@@ -277,6 +284,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .info-inspect { padding: 3px 8px !important; font-size: 12px !important; border-color: #5fd8ff !important; color: #8fe3ff !important; }
 .tactical-right { display: flex; flex-direction: column; gap: 4px; justify-content: center; }
 .tab-btn { background: linear-gradient(180deg, #2b6cb0, #1a365d); border: 1px solid #63b3ed; border-radius: 8px; padding: 4px 10px; font-size: 12px; font-weight: 800; color: #fff; white-space: nowrap; }
+.mull-btn[hidden] { display: none !important; }
 .tab-btn.active { background: linear-gradient(180deg, #38b000, #1b4332); border-color: #7dff9a; box-shadow: 0 0 10px rgba(125,255,154,.5); }
 .deployed-pill { background: linear-gradient(180deg, #3b1d2e, #1f0d18); border: 1px solid #ff4d6d; border-radius: 8px; padding: 3px 10px; font-size: 11.5px; font-weight: 800; color: #ffb3c1; text-align: center; white-space: nowrap; }
 .info .abilities { font-size: 12px; margin: 3px 0 0; }

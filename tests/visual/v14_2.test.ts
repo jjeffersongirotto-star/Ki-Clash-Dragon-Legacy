@@ -58,9 +58,9 @@ describe('v0.14.2 — acabamento da carta (prévia v14.2f)', () => {
   });
   it('Resistência Física (Postura de Guarda) usa o ícone desenhado (v0.42.0) na carta e na lista de habilidades', () => {
     expect(abilityIconHTML('guarda')).toContain('class="ico ab-svg" src="/src/assets/icons/ab-guarda.webp"');
-    const toru = getChar('toru');
-    expect(cardHTML({ charId: 'toru', stars: 1 })).toContain('<span class="ck-ab" title="Postura de Guarda"><img class="ico ab-svg"');
-    const list = abilityListHTML(toru, 1, 1);
+    const aegis = getChar('aegis'); // v0.67.0: o Toru ficou sem habilidade
+    expect(cardHTML({ charId: 'aegis', stars: 5 })).toContain('<span class="ck-ab" title="Postura de Guarda"><img class="ico ab-svg"');
+    const list = abilityListHTML(aegis, 5, 1);
     expect(list).toContain('<img class="ico ab-svg"');
     expect(list).not.toContain('🛡 Postura');
     // v0.17: ninguém tem mais resistência de atributo (só por habilidade); a lista não mostra linha extra

@@ -29,7 +29,7 @@ describe('v0.62.0 — balanceamento v2.0 (escala enxuta)', () => {
       expect([d.minStars, d.maxStars, d.wait]).toEqual([b.min, b.max, b.wait]);
       for (const [atk, hp] of Object.values(b.stats)) {
         expect(atk).toBeGreaterThanOrEqual(1);
-        expect(atk).toBeLessThanOrEqual(9);
+        expect(atk).toBeLessThanOrEqual(12); // v0.67.0: Míticos de espera alta (Kael 10)
         expect(hp).toBeGreaterThanOrEqual(1);
         expect(hp).toBeLessThanOrEqual(30); // v0.66.0: revisão por raça (Humanos: tanques até 26)
       }

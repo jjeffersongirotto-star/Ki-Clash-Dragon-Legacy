@@ -16,7 +16,7 @@ describe('v0.14.3 — habilidades nas cartas pequenas (mão, equipe, Treinar)', 
     }
   });
   it('a fileira fica no painel de baixo, entre o ataque e a vida', () => {
-    const h = cardHTML({ charId: 'toru', stars: 1 }, { compact: true });
+    const h = cardHTML({ charId: 'riku', stars: 1 }, { compact: true }); // v0.67.0: o Toru ficou sem habilidade
     const atk = h.indexOf('class="ck-atk'), ab = h.indexOf('class="ck-abil'), hp = h.indexOf('class="ck-hp"');
     expect(atk).toBeGreaterThan(h.indexOf('class="ck-panel"'));
     expect(ab).toBeGreaterThan(atk);

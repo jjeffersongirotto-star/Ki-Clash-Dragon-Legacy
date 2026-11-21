@@ -53,6 +53,8 @@ export const SPELLS: SpellDef[] = [
   // ---- Suporte ----
   { id: 'f-cura', name: 'Cura em Massa', icon: '💖', categories: ['suporte'], cost: 2, target: 'row', description: 'Cura os aliados da fileira escolhida em 50% da vida máxima de cada um.', rarity: 1 },
   { id: 'f-anjo', name: 'Anjo da Guarda', icon: '👼', categories: ['suporte'], cost: 3, target: 'ally', description: 'Protege um aliado: na próxima vez que ele cairia, fica com 1 de vida (uma vez; dura até ser usado).', rarity: 4 },
+  // ---- v0.67.0 ----
+  { id: 'f-explosao-ki', name: 'Explosão de Ki', icon: '🔥', categories: ['dps', 'assassino'], cost: 4, target: 'none', description: 'Todos os aliados em campo ganham +5 de ataque até o fim da batalha, mas queimam: 2 de dano por rodada, por 3 rodadas.', rarity: 4 },
   { id: 'f-necropolis', name: 'Chamado da Necropolis', icon: '⚰️', categories: ['suporte', 'mago'], cost: 3, target: 'none', description: 'Traz de volta da Necropolis a última carta aliada derrotada: volta para a mão já pronta (ou para o baralho, com a mão cheia).', rarity: 4 },
 ];
 
@@ -70,5 +72,5 @@ export const getSpell = (id: string) => {
 export const SPELL_NUM = {
   investida: 250, giratoria: 120, muralhaHp: 80, muralhaTurns: 2, tremor: 100, chuva: 100,
   flechaHit: 80, flechaDot: 60, flechaTurns: 3, bolaHit: 200, bolaDot: 50, bolaTurns: 2,
-  raio: 130, veneno: 100, venenoTurns: 3, sombras: 250, cura: 50,
+  raio: 130, veneno: 100, venenoTurns: 3, sombras: 250, cura: 50, kiAtk: 5, kiBurn: 2, kiTurns: 3,
 } as const;

@@ -47,11 +47,11 @@ describe('v0.25.0 — tutorial', () => {
     expect(deckIssue(d)).toBeNull();
   });
 
-  it('pacote grátis: Sora (suporte de longo alcance) e Nara (Corte Diagonal)', () => {
+  it('pacote grátis: Sora (ataca de longe) e Nara (v0.67.0: Arrancada)', () => {
     expect(TUTORIAL_PACK).toEqual(['sora', 'nara']);
     expect(getChar('sora').category).toBe('suporte');
     expect(getChar('sora').range).toBe(4); // v0.64.6: Longo Alcance virou alcance 4
-    expect(getChar('nara').abilities).toContain('diagFrente');
+    expect(getChar('nara').abilities).toContain('arrancada');
   });
 
   it('batalhas do tutorial: 1 contra 1 e contra Daichi, Hana e Pip — o jogador vence sempre (no Auto)', () => {

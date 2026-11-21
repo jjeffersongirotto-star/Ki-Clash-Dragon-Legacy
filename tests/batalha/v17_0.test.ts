@@ -35,7 +35,7 @@ describe('v0.17.0 — efeitos com duração (decisão 16)', () => {
   it('veneno: dano no início do lado do dono, ignora resistência, acaba depois das rodadas', () => {
     const s = empty();
     const t = placeUnit(s, c('toru', 1, 4), 'enemy', 0, 9, { hp: 30 });
-    expect(t.physRes).toBe(2); // v0.65.0: Postura de Guarda 2 no Épico
+    t.physRes = 2; // v0.67.0: o Toru ficou sem habilidade; resistência física 2 para mostrar que o veneno a ignora
     addEffect(s, new Ctx(), t, 'veneno', 4, 2);
     resolveSide(s, new Ctx(), 'enemy');
     expect(t.hp).toBe(26);
@@ -55,7 +55,7 @@ describe('v0.17.0 — efeitos com duração (decisão 16)', () => {
   it('queimadura é reduzida pela resistência mágica', () => {
     const s = empty();
     const t = placeUnit(s, c('lyra', 1, 4), 'enemy', 0, 11, { hp: 30 });
-    expect(t.magRes).toBe(2);
+    t.magRes = 2; // v0.67.0: a Lyra ficou sem habilidade
     addEffect(s, new Ctx(), t, 'queimadura', 5, 1);
     resolveSide(s, new Ctx(), 'enemy');
     expect(t.hp).toBe(27);
@@ -84,7 +84,7 @@ describe('v0.17.0 — efeitos com duração (decisão 16)', () => {
 describe('v0.17.0 — salvamentos (decisões 18 e 21)', () => {
   it('Anjo da Guarda (Mei): salva um aliado vizinho com 1 de vida, uma vez por batalha', () => {
     const s = empty();
-    placeUnit(s, c('mei'), 'player', 1, 1);
+    placeUnit(s, c('mei'), 'player', 1, 1).abilities = ['anjo']; // v0.67.0: o Anjo da Guarda está no Aurel
     const ally = placeUnit(s, c('riku'), 'player', 0, 2, { hp: 3 });
     applyDamage(s, new Ctx(), ally, 9, 'fisico', { side: 'enemy' });
     expect(ally.hp).toBe(1);
@@ -146,23 +146,28 @@ describe('v0.17.0 — Vigia, empurrão, reflexo, resistência por habilidade', (
     const s = empty();
     const a = placeUnit(s, c('riku'), 'player', 0, 5);
     const j = placeUnit(s, c('jin'), 'player', 1, 0);
+    j.abilities = ['vigia']; // v0.67.0: o Vigia está no Spike-11 e na Lunaris
     const b = placeUnit(s, c('nara'), 'player', 1, 3);
     expect(actionOrder(s, 'player').map((u) => u.uid)).toEqual([j.uid, a.uid, b.uid]);
   });
   it('Ombrada (Gorath) empurra o alvo 1 casa ao acertar de frente; Inabalável não é empurrado', () => {
     const s = empty();
     const g = placeUnit(s, c('gorath'), 'player', 0, 4, { atk: 2 });
+    g.abilities = ['ombrada']; // v0.67.0: o Gorath ficou sem habilidade
     const e = placeUnit(s, c('riku'), 'enemy', 0, 5, { hp: 20 });
     attack(s, new Ctx(), g, e);
     expect(e.col).toBe(6);
     const g2 = placeUnit(s, c('gorath'), 'enemy', 1, 5, { hp: 50 });
+    g2.abilities = ['inabalavel'];
     const g1 = placeUnit(s, c('gorath'), 'player', 1, 4, { atk: 2 });
+    g1.abilities = ['ombrada'];
     attack(s, new Ctx(), g1, g2);
     expect(g2.col).toBe(5);
   });
   it('Reflexo de Magia (Nyx Épico 30%): reduz o dano mágico e devolve a parte refletida', () => {
     const s = empty();
     const n = placeUnit(s, c('nyx', 1, 4), 'enemy', 0, 8, { hp: 50 });
+    n.abilities = ['sifao', 'reflexo']; // v0.67.0: o Reflexo de Magia ficou só na Morgause
     const k = placeUnit(s, c('fen'), 'player', 0, 5, { atk: 10, hp: 30 });
     const atk = effectiveAtk(s, k); // o Sifão da Nyx drena o ataque do Kael
     attack(s, new Ctx(), k, n);
@@ -177,9 +182,9 @@ describe('v0.17.0 — Vigia, empurrão, reflexo, resistência por habilidade', (
   it('resistência só vem de habilidade (decisão 14)', () => {
     expect(PLAYABLE.every((d) => d.physRes === 0 && d.magRes === 0)).toBe(true);
     const s = empty();
-    expect(placeUnit(s, c('kenji'), 'player', 0, 0).physRes).toBe(0);
-    expect(placeUnit(s, c('toru', 1, 1), 'player', 0, 1).physRes).toBe(1);
-    expect(placeUnit(s, c('lyra', 1, 2), 'player', 1, 0).magRes).toBe(1);
+    expect(placeUnit(s, c('riku'), 'player', 0, 0).physRes).toBe(0);
+    expect(placeUnit(s, c('aegis', 1, 5), 'player', 0, 1).physRes).toBe(3); // v0.67.0: Guarda do Aegis
+    expect(placeUnit(s, c('morgause', 1, 6), 'player', 1, 0).magRes).toBe(3); // Barreira da Morgause (Mítico)
     expect(placeUnit(s, c('kael'), 'player', 1, 1).magRes).toBe(0);
     for (const id of ['vigia', 'renascer', 'anjo', 'reflexo', 'ombrada', 'necromancia', 'barreira'] as const) expect(ABILITIES[id]).toBeTruthy();
   });
@@ -220,14 +225,15 @@ describe('v0.17.0 — feitiços (decisões 4, 20 e 22)', () => {
     const s = empty();
     placeUnit(s, c('kael'), 'player', 0, 0, { atk: 10 });
     const n = placeUnit(s, c('nyx', 1, 4), 'enemy', 0, 10, { hp: 99 });
+    n.abilities = ['sifao', 'reflexo'];
     s.decks.player = createDeck([sp('f-sombras', 1), ...deck10.slice(0, 7)], { seed: 1 });
     expect(spellTargets(s, 'player', 'f-sombras')).toEqual([]); // Kael é Mago, Golpe nas Sombras é de Assassino
-    placeUnit(s, c('ren'), 'player', 1, 0, { atk: 10 });
+    placeUnit(s, c('shin'), 'player', 1, 0, { atk: 10 }); // v0.67.0: o Ren virou DPS; o Shin é assassino
     const d = s.decks.player;
     d.slots[0].inHand++;
     d.hand.push({ ...d.slots[0].card, slot: 0, wait: 0 });
     const hp0 = s.heroes.player.hp;
-    const atk = effectiveAtk(s, s.units.find((u) => u.charId === 'ren')!);
+    const atk = effectiveAtk(s, s.units.find((u) => u.charId === 'shin')!);
     expect(castSpell(s, 'player', 0, 0, 10).ok).toBe(true);
     const dmg = Math.ceil((atk * SPELL_NUM.sombras) / 100);
     const refl = Math.floor((dmg * 30) / 100);

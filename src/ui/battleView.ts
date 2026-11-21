@@ -1,4 +1,5 @@
-import { playerAuto, playerEndTurn, playerUse } from '../core/match';
+import { playerAuto, playerEndTurn, playerMulligan, playerUse } from '../core/match';
+import { canMulligan } from '../core/battle';
 import { ico } from './icons';
 import { createBattle, deployCells, spellTargets, unitAt, waitOf, DEPLOY_DEPTH, Ctx } from '../core/battle';
 import { isSpell } from '../core/spells';
@@ -128,6 +129,7 @@ export class BattleView {
         <div class="info-wrap"><div class="info" id="info">${INFO_DEFAULT}</div><button class="info-close" data-act="info-close" aria-label="Fechar informações">✕</button></div>
         <div class="tactical-right">
           <button class="tab-btn" id="autoBtn" data-act="auto" title="Invocar e lutar automaticamente">${ico('auto')}<span>Auto: OFF</span></button>
+          <button class="tab-btn mull-btn" id="mullBtn" data-act="mull" title="Troca grátis da mão inicial (uma vez, antes de jogar)">🔄<span>Trocar mão</span></button>
           <div class="deployed-pill" title="Unidades aliadas em campo">Em campo (<b id="deployedCount">0</b>)</div>
         </div>
       </div>
@@ -172,6 +174,14 @@ export class BattleView {
       if (this.autoMode && !this.busy && !this.state.winner) void this.runAutoTurn();
     });
     this.root.querySelector('[data-act=fight]')!.addEventListener('click', () => this.fight());
+    // v0.67.0: troca grátis da mão inicial
+    this.root.querySelector('[data-act=mull]')!.addEventListener('click', () => {
+      if (this.busy || !playerMulligan(this.state)) return;
+      this.clearSelection();
+      this.log('🔄 Você trocou a mão inicial.', 'sys');
+      this.renderHand();
+      this.updateMulligan();
+    });
     this.root.querySelectorAll<HTMLElement>('.cell').forEach((el) =>
       el.addEventListener('click', () => this.onCell(+el.dataset.r!, +el.dataset.c!)),
     );
@@ -210,7 +220,14 @@ export class BattleView {
   }
 
   renderHand() {
+    this.updateMulligan();
     return battleHand.renderHand(this);
+  }
+
+  /** v0.67.0: o botão "Trocar mão" só aparece enquanto a troca é possível. */
+  updateMulligan() {
+    const b = this.root.querySelector('#mullBtn') as HTMLElement | null;
+    if (b) b.hidden = !canMulligan(this.state, 'player') || !!this.state.noWait;
   }
 
   setPile(sel: string, n: number) {

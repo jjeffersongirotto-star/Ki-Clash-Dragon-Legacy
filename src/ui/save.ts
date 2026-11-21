@@ -86,6 +86,8 @@ export interface SaveData {
   v62?: boolean;
   /** v0.63.0: trocas de raridade — cartas fora da nova faixa (mín.–máx.) já foram ajustadas */
   v63?: boolean;
+  /** v0.67.0: revisão das 6 raças — cartas que trocaram de raridade (Shin, Sayuri, Zynna, Yume) já ajustadas */
+  v67?: boolean;
   /** v0.59.0: Heróis — raridades já obtidas de cada personagem (ver core/heroes.ts) */
   heroSeen?: Record<string, number[]>;
   /** v0.59.0: prêmios dos Heróis já resgatados */
@@ -168,6 +170,7 @@ export function defaultSave(): SaveData {
     v41: true,
     v62: true,
     v63: true,
+    v67: true,
     spells: {},
     gems: 0,
     dupes: {},
@@ -326,6 +329,10 @@ export function loadSave(): SaveData {
     if (!d.v10) migrateV10(merged);
     if (!d.v62) migrateV62(merged, d); // antes da conversão das cartas, que corta a raridade sem devolver nada
     if (!d.v63) migrateV63(merged, d);
+    if (!d.v67) {
+      migrateV63(merged, d); // mesma regra: quem ficou abaixo da nova mínima sobe; quem passou do novo topo volta com reembolso
+      merged.v67 = true;
+    }
     merged.v23 = !!d.v23; // o padrão (defaultSave) já vem convertido; vale o que estava salvo
     merged.v24 = !!d.v24;
     migrateV23(merged);

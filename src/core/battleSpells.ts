@@ -20,11 +20,16 @@ export function spellTargets(state: BattleState, side: Side, spellId: string): [
   const sp = getSpell(spellId);
   if (!spellCasters(state, side, spellId).length) return [];
   const foe = enemyOf(side);
-  if (sp.target === 'enemy') return state.units.filter((u) => u.side === foe && u.hp > 0).map((u) => [u.row, u.col]);
+  // v0.67.0: Ki Oculto — não pode ser alvo de feitiço de alvo único do inimigo
+  if (sp.target === 'enemy') return state.units.filter((u) => u.side === foe && u.hp > 0 && !u.abilities.includes('kiOculto')).map((u) => [u.row, u.col]);
   if (sp.target === 'ally') return state.units.filter((u) => u.side === side && u.hp > 0).map((u) => [u.row, u.col]);
   const out: [number, number][] = [];
   if (sp.target === 'row') {
     for (let r = 0; r < state.rows; r++) for (let c = 0; c < state.cols; c++) out.push([r, c]);
+    return out;
+  }
+  if (sp.id === 'f-explosao-ki') {
+    for (let r = 0; r < state.rows; r++) for (let c = 0; c < state.cols; c++) if (isDeployCell(state, side, r, c)) out.push([r, c]);
     return out;
   }
   if (!state.decks[side].defeated.length) return [];
@@ -111,6 +116,13 @@ export function castSpell(state: BattleState, side: Side, handIndex: number, row
       break;
     case 'f-anjo':
       if (target) addEffect(state, ctx, target, 'anjo', 1, 99);
+      break;
+    case 'f-explosao-ki':
+      for (const u of state.units.filter((x) => x.side === side && x.hp > 0)) {
+        u.atkMod = (u.atkMod ?? 0) + N.kiAtk;
+        addEffect(state, ctx, u, 'queimadura', N.kiBurn, N.kiTurns);
+      }
+      ctx.emit(state, { type: 'aura', uid: caster.uid, text: `🔥 Explosão de Ki: todos os aliados ganham +${N.kiAtk} de ataque e começam a queimar!` });
       break;
     case 'f-necropolis':
       bringBack(state, ctx, side, caster.uid, nameOf(caster));

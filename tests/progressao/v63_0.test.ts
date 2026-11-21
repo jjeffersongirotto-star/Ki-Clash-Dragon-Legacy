@@ -32,7 +32,7 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
     expect(range('rin')).toEqual([2, 4]);
     expect(range('zarek')).toEqual([6, 6]);
     expect(range('nhyra')).toEqual([4, 6]);
-    expect(range('zynna')).toEqual([3, 5]);
+    expect(range('zynna')).toEqual([2, 4]); // v0.67.0: vaga I→É (era da Velka)
     expect(range('trokk')).toEqual([5, 6]);
     expect(range('ghor')).toEqual([6, 6]);
     expect(range('thane')).toEqual([4, 6]);
@@ -44,18 +44,10 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
     expect(getChar('vesna').category).toBe('arqueiro');
   });
 
-  it('Regra de Origem: na mesma raça e função, quem nasce acima tem +1 ou mais em cada raridade', () => {
-    // os exemplos do jogador
-    expect(total('akemi', 3)).toBeGreaterThan(total('riku', 3));
-    expect(total('masao', 4)).toBeGreaterThan(total('akemi', 4));
-    for (const a of PLAYABLE)
-      for (const b of PLAYABLE) {
-        if (a.race !== b.race || a.category !== b.category || a.minStars >= b.minStars) continue;
-        if (BALANCE_V2[a.id].manual || BALANCE_V2[b.id].manual) continue; // v0.64.5: ajustadas à mão pelo jogador
-        for (let r = b.minStars; r <= Math.min(a.maxStars, b.maxStars); r++) expect(total(b.id, r), `${b.id} > ${a.id} @${r}`).toBeGreaterThan(total(a.id, r));
-      }
-    // todos crescem +1 por raridade
-    for (const d of PLAYABLE.filter((x) => !BALANCE_V2[x.id].manual)) for (let r = d.minStars + 1; r <= d.maxStars; r++) expect(total(d.id, r) - total(d.id, r - 1), d.id).toBe(1);
+  it('v0.67.0: a força (2 × ataque + vida) sempre cresce ao subir de raridade', () => {
+    const force = (id: string, r: number) => 2 * BALANCE_V2[id].stats[r][0] + BALANCE_V2[id].stats[r][1];
+    for (const d of PLAYABLE) for (let r = d.minStars + 1; r <= d.maxStars; r++) expect(force(d.id, r), `${d.id} @${r}`).toBeGreaterThan(force(d.id, r - 1));
+    void total;
   });
 
   it('Espera pela força: até 6, e 7–8 só para quem nasce Mítico', () => {
@@ -81,7 +73,7 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
     expect(cardHTML(c('ryuji', 5))).not.toContain('ck-ab lk');
   });
 
-  it('Contra-ataque Crescente: golpeia antes, ganha +1 de ataque por contra-ataque e empurra 2 casas', () => {
+  it('v0.67.0: Contra-ataque Crescente (estilo Goten): golpeia antes, ganha ataque e empurra; o agressor só bate se ainda alcançar', () => {
     const s = empty();
     const d = placeUnit(s, c('ryuji', 5), 'enemy', 0, 6, { atk: 3, hp: 50 });
     const a = placeUnit(s, c('riku'), 'player', 0, 5, { atk: 2, hp: 3 });
@@ -89,12 +81,21 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
     // golpe antes: Riku (3 de vida) cai e não chega a bater
     expect(a.hp).toBeLessThanOrEqual(0);
     expect(d.hp).toBe(50);
-    expect(d.atkMod).toBe(2); // +1 do contra-ataque e +1 da Fúria (derrubou o Riku)
+    expect(d.atkMod).toBe(2 + 1); // +2 do contra-ataque (Lendário) e +1 da Fúria (derrubou o Riku)
+    // empurrado 2 casas e fora do alcance: não bate
     const b = placeUnit(s, c('toru'), 'player', 0, 5, { atk: 2, hp: 40 });
     attack(s, new Ctx(), b, d);
-    expect(d.atkMod).toBe(3); // sem limite: soma a cada contra-ataque
-    expect(d.hp).toBeLessThan(50); // o agressor bate depois
-    expect(b.col).toBe(3); // empurrado 2 casas
+    expect(d.atkMod).toBe(5);
+    expect(b.col).toBe(3);
+    expect(d.hp).toBe(50);
+    // preso por quem está atrás: não é empurrado e completa o ataque
+    const s2 = empty();
+    const d2 = placeUnit(s2, c('ryuji', 5), 'enemy', 0, 6, { atk: 3, hp: 50 });
+    const e = placeUnit(s2, c('toru'), 'player', 0, 5, { atk: 2, hp: 40 });
+    placeUnit(s2, c('toru'), 'player', 0, 4, { hp: 40 });
+    attack(s2, new Ctx(), e, d2);
+    expect(e.col).toBe(5);
+    expect(d2.hp).toBeLessThan(50);
   });
 
   it('Casca Reativa (sem limite) e Pulso Vital', () => {

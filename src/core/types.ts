@@ -83,7 +83,20 @@ export type AbilityId =
   // v0.63.0: habilidades novas
   | 'contraCrescente'
   | 'pulsoVital'
-  | 'cascaReativa';
+  | 'cascaReativa'
+  // v0.67.0: revisão completa (ideias do jogo de referência)
+  | 'auraVida'
+  | 'pressao'
+  | 'bateRecua'
+  | 'preparacao'
+  | 'reconstrucao'
+  | 'disparoInstavel'
+  | 'arrancada'
+  | 'ondaCurativa'
+  | 'golpeFinal'
+  | 'golpeDuplo'
+  | 'kiOculto'
+  | 'impeto';
 
 /** v0.17.0: efeitos com duração (contador de rodadas) */
 export type EffectKind = 'veneno' | 'queimadura' | 'atordoado' | 'escudo' | 'anjo'
@@ -183,7 +196,9 @@ export interface Unit {
   /** v0.30.0: ataque somado/tirado por habilidades (Fúria, Vingança, Domínio Enfraquecedor) */
   atkMod?: number;
   /** v0.30.0: usos únicos e contadores (Teleporte, Copiador, Vontade Inquebrável, Investida, Ressurreição, Congelar/Atordoar) */
-  used?: { teleport?: boolean; copied?: boolean; lastStand?: boolean; charged?: boolean; resTurn?: number; frozenTurn?: number; stunTurn?: number; furia?: number; vinganca?: number; drained?: number };
+  /** v0.67.0: vida extra vinda de Aura de Vida (para tirar quando a aura sai de campo) */
+  auraHp?: number;
+  used?: { rebuilt?: boolean; dashed?: boolean; teleport?: boolean; copied?: boolean; lastStand?: boolean; charged?: boolean; resTurn?: number; frozenTurn?: number; stunTurn?: number; furia?: number; vinganca?: number; drained?: number };
 }
 
 export interface Hero {
@@ -214,6 +229,8 @@ export interface BattleState {
   stats?: Record<Side, BattleStats>;
   /** v0.30.0: cartas de personagem derrotadas por lado, na ordem (Ressurreição) */
   fallen?: Record<Side, CardInstance[]>;
+  /** v0.67.0: troca grátis da mão inicial já usada (por lado) */
+  mulliganUsed?: Partial<Record<Side, boolean>>;
   /** v0.33.0: tutorial — as cartas não esperam na mão (ninguém fica travado pela espera) */
   noWait?: boolean;
   /** v0.37.0: nível da IA inimiga (0 = simples; 1–3 = esperta, ver aiSmart.ts) */
@@ -230,7 +247,8 @@ export interface BattleStats {
 export type PlayerAction =
   | { t: 'use'; hand: number; row: number; col: number }
   | { t: 'auto' }
-  | { t: 'end' };
+  | { t: 'end' }
+  | { t: 'mull' };
 
 /** v0.18.0: tudo o que é preciso para refazer a partida: baralhos, vidas, semente inicial e jogadas. */
 export interface MatchRecord {

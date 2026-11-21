@@ -676,6 +676,19 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     description: 'Enquanto estiver em campo, os outros aliados de uma raça ganham ataque. Cópias da mesma carta não somam.',
     icon: '🌟',
   },
+  // v0.67.0: habilidades novas (ideias do jogo de referência)
+  auraVida: { id: 'auraVida', name: 'Aura de Vida', description: 'Enquanto estiver em campo, os outros aliados de uma raça ganham vida (atual e máxima). Cópias da mesma carta não somam.', icon: '💚' },
+  pressao: { id: 'pressao', name: 'Pressão no Comandante', description: 'No início do turno dele, causa dano direto no Comandante inimigo (ignora resistência).', icon: '🎯' },
+  bateRecua: { id: 'bateRecua', name: 'Bate e Recua', description: 'Depois de atacar, recua para trás, saindo do alcance de quem está na frente.', icon: '↩️' },
+  preparacao: { id: 'preparacao', name: 'Preparação', description: 'Ao entrar em campo, a carta da mão com mais espera perde rodadas de espera.', icon: '⏩' },
+  reconstrucao: { id: 'reconstrucao', name: 'Reconstrução', description: 'Uma vez por partida, ao ser derrotado, tem chance de voltar com a vida cheia.', icon: '🔧' },
+  disparoInstavel: { id: 'disparoInstavel', name: 'Disparo Instável', description: 'Cada golpe causa, ao acaso, 50%, 100%, 150% ou 200% do dano.', icon: '🎲' },
+  arrancada: { id: 'arrancada', name: 'Arrancada', description: 'Na rodada em que entra em campo, anda casas a mais.', icon: '💨' },
+  ondaCurativa: { id: 'ondaCurativa', name: 'Onda Curativa', description: 'No início da ação, cura o aliado mais ferido do campo inteiro.', icon: '🌊' },
+  golpeFinal: { id: 'golpeFinal', name: 'Golpe Final', description: 'O inimigo que ele derrotar não pode renascer, se reconstruir nem ser trazido de volta por Ressurreição.', icon: '⚔️' },
+  golpeDuplo: { id: 'golpeDuplo', name: 'Golpe Duplo', description: 'Ataca duas vezes por turno.', icon: '✌️' },
+  kiOculto: { id: 'kiOculto', name: 'Ki Oculto', description: 'Não pode ser alvo de feitiços de alvo único do inimigo.', icon: '🫥' },
+  impeto: { id: 'impeto', name: 'Ímpeto', description: 'Depois de cada golpe que causa dano, ganha ataque (sem limite).', icon: '📈' },
   // v0.63.0: habilidades novas (ideias do jogador)
   contraCrescente: {
     id: 'contraCrescente',
@@ -749,7 +762,21 @@ const V65_TABLE: Partial<Record<AbilityId, V65>> = {
   contraGolpe: { v: [2, 2, 2, 2, 2, 2.5], text: (v) => `Ao sofrer ataque físico corpo a corpo de frente, contra-ataca com ${n(v)}× o próprio ataque e empurra o agressor 1 casa para trás.` },
   retaliacao: { text: () => 'Enquanto estiver em campo, quando o seu Comandante sofrer dano, o inimigo mais próximo dele sofre o mesmo dano.' },
   explosao: { v: [2, 2, 2, 3, 3, 4], text: (v) => `Ao morrer, causa ${v} de dano em todos os inimigos vizinhos (inclusive diagonais e a outra fileira).` },
-  prole: { v: [1, 1, 1, 1, 1, 2], text: (v, s) => `Ao derrotar um inimigo, surge uma Cria Sombria (ataque ${s >= 6 ? 3 : 2}, vida ${v}, ataque mágico até 2 casas à frente). Crias que derrotam alguém também geram crias. Máximo de 3 crias por lado.` },
+  prole: { v: [1, 1, 1, 1, 1, 2], text: (v, s) => `Enquanto estiver em campo, todo inimigo derrotado (por qualquer aliado) vira uma Cria Sombria na casa dele (ataque ${s >= 6 ? 3 : 2}, vida ${v}, ataque mágico até 2 casas à frente). Sem limite de crias.` },
+  // v0.67.0
+  auraVida: { text: () => 'Enquanto estiver em campo, os outros aliados da raça indicada ganham vida (atual e máxima). Cópias da mesma carta não somam.' },
+  pressao: { v: [1, 1, 1, 2, 2, 3], text: (v) => `No início do turno dele, causa ${v} de dano direto no Comandante inimigo (ignora resistência).` },
+  bateRecua: { v: [1, 1, 1, 1, 2, 2], text: (v) => `Depois de atacar, recua ${v} casa${v > 1 ? 's' : ''} para trás (se a casa estiver livre).` },
+  preparacao: { v: [1, 1, 1, 2, 2, 2], text: (v) => `Ao entrar em campo, a carta da mão com mais espera perde ${v} rodada${v > 1 ? 's' : ''} de espera.` },
+  reconstrucao: { v: [25, 25, 30, 33, 40, 50], text: (v) => `Uma vez por partida, ao ser derrotado, tem ${v}% de chance de voltar com a vida cheia.` },
+  disparoInstavel: { text: () => 'Cada golpe causa, ao acaso, 50%, 100%, 150% ou 200% do dano.' },
+  arrancada: { v: [3, 3, 4, 4, 5, 5], text: (v) => `Na rodada em que entra em campo, anda ${v} casas a mais.` },
+  ondaCurativa: { v: [1, 1, 2, 2, 3, 3], text: (v) => `No início da sua ação, cura ${v} de vida do aliado mais ferido do campo inteiro.` },
+  golpeFinal: { text: () => 'O inimigo que ele derrotar não pode renascer, se reconstruir nem ser trazido de volta por Ressurreição.' },
+  golpeDuplo: { text: () => 'Ataca duas vezes por turno (o segundo golpe só acontece se ainda houver alvo).' },
+  kiOculto: { text: () => 'Não pode ser alvo de feitiços de alvo único do inimigo.' },
+  impeto: { v: [1, 1, 1, 2, 2, 2], text: (v) => `Depois de cada golpe que causa dano, ganha +${v} de ataque (sem limite).` },
+  contraCrescente: { v: [1, 1, 2, 2, 2, 3], text: (v) => `Quando um inimigo o ataca de perto, golpeia ANTES e o empurra 2 casas para trás; se o agressor ainda o alcançar (preso por quem está atrás ou atacando de 2+ casas), o ataque acontece. Ganha +${v} de ataque a cada contra-ataque e a cada ataque no próprio turno (sem limite).` },
   purificar: { text: (_v, s) => `No início da sua ação, tira um efeito ruim (veneno, queimadura, sangramento, congelamento, atordoamento, lentidão ou maldição) ${s >= 6 ? 'de qualquer aliado afetado' : 'do aliado vizinho mais afetado'} (ou dele mesmo).` },
 };
 for (const [id, t] of Object.entries(V65_TABLE) as [AbilityId, V65][]) {

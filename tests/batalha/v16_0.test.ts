@@ -58,12 +58,12 @@ describe('v0.16.0 — contagem de rodadas no lugar da energia', () => {
       expect(waitFor(d.id)).toBeGreaterThanOrEqual(1);
       expect(waitFor(d.id)).toBeLessThanOrEqual(9);
     }
-    expect(OPENING_HEADSTART).toBe(2);
+    expect(OPENING_HEADSTART).toBe(0); // v0.67.0: sem adiantamento
   });
-  it('mão inicial começa 2 rodadas adiantada e anda 1 por turno: custo 2 pronta no turno 1', () => {
+  it('mão inicial (v0.67.0: sem adiantamento) anda 1 por turno: espera 1 pronta no turno 1', () => {
     const s = createBattle({ playerDeck: deck10, enemyDeck: deck10, playerHeroHp: 99, enemyHeroHp: 99, seed: 4 });
     for (const h of s.decks.player.hand) expect(waitOf(h)).toBe(Math.max(0, waitFor(h.charId) - OPENING_HEADSTART - 1));
-    expect(s.decks.player.hand.some((h) => getChar(h.charId).cost === 2 && waitOf(h) === 0) || !s.decks.player.hand.some((h) => getChar(h.charId).cost === 2)).toBe(true);
+    for (const h of s.decks.player.hand) if (waitFor(h.charId) === 1) expect(waitOf(h)).toBe(0);
     const before = s.decks.player.hand.map(waitOf);
     endPlayerTurn(s, () => {});
     expect(s.decks.player.hand.map(waitOf)).toEqual(before.map((w) => Math.max(0, w - 1)));
@@ -98,8 +98,8 @@ describe('v0.16.0 — contagem de rodadas no lugar da energia', () => {
     expect(s.decks.enemy.hand.every((h) => waitOf(h) === 3)).toBe(true);
   });
   it('a gota da carta mostra as rodadas: na mão, as que faltam; fora da batalha, a espera cheia', () => {
-    expect(cardHTML(c('toru'))).toContain('<span>3</span>');
-    expect(cardHTML(c('toru'), { wait: 2 })).toContain('<span>2</span>');
+    expect(cardHTML(c('toru'))).toContain('<span>2</span>'); // v0.67.0: Toru espera 2
+    expect(cardHTML(c('toru'), { wait: 1 })).toContain('<span>1</span>');
     expect(cardHTML(c('toru'), { wait: 0 })).toContain('ck-cost ready');
   });
   it('o estado da batalha não tem mais energia', () => {

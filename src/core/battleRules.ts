@@ -149,3 +149,10 @@ export function findTarget(state: BattleState, u: Unit): Unit | 'hero' | null {
   if (distanceToEnemyHero(state, u) <= reach) return 'hero';
   return null;
 }
+
+/** v0.67.0: anel no chão embaixo de quem tem aura / efeito contínuo — "ally" (ajuda aliados) ou "enemy" (enfraquece inimigos). */
+export function auraRing(abilities: AbilityId[]): 'ally' | 'enemy' | null {
+  if (abilities.some((a) => a === 'sifao' || a === 'dominio')) return 'enemy';
+  if (abilities.some((a) => a === 'auraAtaque' || a === 'auraVida' || a === 'tambor' || a === 'gritoGuerra')) return 'ally';
+  return null;
+}

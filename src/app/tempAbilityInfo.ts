@@ -81,6 +81,18 @@ export const ABILITY_INFO: Record<AbilityId, { g: AbilityGroup; b: string }> = {
   sifao: { g: H, b: 'Enquanto vivo, todos os inimigos perdem ataque' },
   ressurreicao: { g: H, b: 'Traz de volta ao campo o último aliado derrotado' },
   auraAtaque: { g: H, b: 'Os outros aliados de uma raça ganham ataque' },
+  auraVida: { g: H, b: 'Os outros aliados de uma raça ganham vida' },
+  pressao: { g: L, b: 'Causa dano direto no Comandante inimigo todo turno' },
+  bateRecua: { g: P, b: 'Recua depois de atacar' },
+  preparacao: { g: H, b: 'Ao entrar, adianta a carta mais demorada da mão' },
+  reconstrucao: { g: H, b: 'Pode voltar com a vida cheia uma vez' },
+  disparoInstavel: { g: H, b: 'O dano varia ao acaso' },
+  arrancada: { g: P, b: 'Anda mais casas na rodada em que entra' },
+  ondaCurativa: { g: L, b: 'Cura o aliado mais ferido do campo' },
+  golpeFinal: { g: P, b: 'Quem ele derrota não volta' },
+  golpeDuplo: { g: P, b: 'Ataca duas vezes por turno' },
+  kiOculto: { g: H, b: 'Não pode ser alvo de feitiço de alvo único' },
+  impeto: { g: H, b: 'Ganha ataque a cada golpe que acerta' },
 } as Record<AbilityId, { g: AbilityGroup; b: string }>;
 export const groupOf = (id: string): AbilityGroup => ABILITY_INFO[id as AbilityId]?.g ?? 'hibrido';
 export const blurbOf = (id: string): string => ABILITY_INFO[id as AbilityId]?.b ?? '';
