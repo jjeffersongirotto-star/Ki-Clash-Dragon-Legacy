@@ -100,6 +100,10 @@ export function stageFor(stageId: number, diff: Difficulty): Stage {
   const deck: CardInstance[] = ids.map((id, k) => ({ ...enemyCard(id, Math.floor(s) + (Math.floor((k + 1) * frac) > Math.floor(k * frac) ? 1 : 0)), copies: 3 }));
   const casts = (sid: string) => getSpell(sid).categories.some((c) => ids.some((id) => getChar(id).category === c));
   for (const sid of WORLD_SPELLS[i].filter(casts)) deck.push({ charId: sid, stars: 1, copies: ENEMY_SPELL_COPIES });
+  for (const [out, inn] of DIFFICULTY_RULES[diff].swaps[i] ?? []) {
+    const j = deck.findIndex((c) => c.charId === out);
+    if (j >= 0 && !deck.some((c) => c.charId === inn)) deck[j] = { ...deck[j], charId: inn };
+  }
   return { ...base, enemyDeck: deck, aiLevel: Math.min(3, (base.aiLevel ?? 0) + (diff === 'normal' ? 1 : 2)) };
 }
 

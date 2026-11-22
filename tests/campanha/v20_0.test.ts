@@ -38,8 +38,8 @@ describe('v0.20.0 — dificuldades da Aventura', () => {
   });
   it('trocas de carta configuradas por fase são aplicadas', () => {
     const before = DIFFICULTY_RULES.dificil.swaps;
-    const out = STAGES[0].enemyDeck.find((c) => !isSpell(c.charId))!.charId;
-    const inn = 'gorath';
+    const out = stageFor(1, 'dificil').enemyDeck.find((c) => !isSpell(c.charId))!.charId; // v0.67.2: o Difícil tem baralho próprio
+    const inn = stageFor(1, 'dificil').enemyDeck.some((c) => c.charId === 'gorath') ? 'daichi' : 'gorath';
     DIFFICULTY_RULES.dificil.swaps = { 0: [[out, inn]] };
     try {
       const d = stageFor(1, 'dificil').enemyDeck.map((c) => c.charId);
