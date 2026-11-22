@@ -54,6 +54,7 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
   - a mão inicial **não começa mais adiantada**: cartas de espera 1 (pelo menos uma por raça, fracas, para pressão rápida) entram na 1ª rodada;
   - a espera média caiu de 4,1 para 3,0;
   - botão **🔄 Trocar mão**: uma troca grátis da mão inicial antes de jogar a primeira carta.
+- **Aventura, região 1:** os inimigos usam só cartas de raridade baixa (antes vinham Zarek, Kenji e Vorax Lendários, fortes demais na escala nova). A Sora voltou a curar (carta inicial) e a Ysmera envenena. As regiões 2 a 10 serão recalibradas depois que você jogar.
 - **Tutorial:** os textos da Sora e da Nara foram atualizados para as habilidades novas, e o tutorial continua impossível de perder.
 
 ## [0.66.0] — 21/11/2026 · Revisão dos Humanos e Aura de raça
