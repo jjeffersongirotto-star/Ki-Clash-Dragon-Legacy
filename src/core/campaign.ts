@@ -225,15 +225,16 @@ export function stageCommander(stage: Pick<Stage, 'id' | 'enemyDeck'>): CardInst
  * mais alto porque o jogador chega com muitas cartas Lendárias e Míticas do Banner.
  */
 export const WORLD_STEP_RANGE: [number, number][] = [
-  [2.35, 3.35],
-  [4.5, 5.5],
-  [4.65, 5.65],
-  [6.65, 7.65],
-  [7.35, 8.35],
-  [8.5, 9.5],
-  [12.7, 13.7],
-  [13.15, 14.15],
-  [15.5, 16.5],
+  // v0.67.0: escala nova (raridades bem mais distantes) — recalibrado em scripts/balance/world.ts (STEPS)
+  [0.5, 1.5],
+  [1.5, 3],
+  [2.3, 3.3],
+  [2.8, 4.2],
+  [4, 5.5],
+  [5.5, 7],
+  [6.5, 8],
+  [8, 9.5],
+  [9.5, 11],
 ];
 /** Vida do Comandante inimigo na fase 1 e na fase 10 de cada região (índice 0 = região 2). */
 // v0.62.0 (balanceamento v2.0): escala enxuta — antes 50–70 (região 2) … 130–160 (região 10)

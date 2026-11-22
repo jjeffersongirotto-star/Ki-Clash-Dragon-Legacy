@@ -1682,3 +1682,13 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 - **Baralhos inimigos só com cartas de raridade baixa:** fases 1 a 7 só com cartas que nascem Comuns, e fases 8 a 10 com algumas Incomuns. Antes vinham Zarek, Kenji e Vorax Lendários, que ficaram fortes demais na escala nova.
 - **Degraus das cartas inimigas:** 2,8 · 1 · 0,5 · 0 · 1 · 0,5 · 0 · 0 · 0 · 0.
 - **Cartas iniciais:** a Sora voltou a curar (Sopro Restaurador, espera 2) e a Ysmera passou a envenenar, para não repetir a habilidade da Sora.
+
+### Aventura, regiões 2–10 (v0.67.1)
+Raridade das cartas inimigas por região, da fase 1 à fase 10 de cada uma (escada de raridade: 0 = Comum … 17 = Mítico++). As fases do meio ficam na reta entre os dois valores:
+
+| Região | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|
+| Fase 1 | 0,5 | 1,5 | 2,3 | 2,8 | 4 | 5,5 | 6,5 | 8 | 9,5 |
+| Fase 10 | 1,5 | 3 | 3,3 | 4,2 | 5,5 | 7 | 8 | 9,5 | 11 |
+
+Medido em `scripts/balance/world.ts` (4 jogadores). Vitória ao chegar, média por região (1 a 10): 24 · 31 · 39 · 24 · 17 · 29 · 32 · 32 · 27 · 38%. O mundo vai até Épico; quem nasce Lendário não entra nos baralhos inimigos.
