@@ -49,7 +49,7 @@ const POOLS_V8: string[][] = [
   ['riku', 'daichi', 'sora', 'wex', 'jin', 'kuro', 'quorr', 'ossian', 'nara', 'mira'],
   ['riku', 'toru', 'ysmera', 'suri', 'jin', 'grub', 'shin', 'taro', 'medi3', 'wex'],
   ['nara', 'daichi', 'wex', 'hana', 'kuro', 'grav', 'bram', 'pip', 'sora', 'fen'],
-  ['riku', 'toru', 'ysmera', 'jin', 'quorr', 'ossian', 'lyra', 'gorath', 'yume', 'akemi'],
+  ['riku', 'toru', 'ysmera', 'jin', 'quorr', 'ossian', 'lyra', 'gorath', 'yume', 'hana'],
   ['nara', 'daichi', 'wex', 'bolt', 'taro', 'mira', 'aiko', 'mei', 'isel', 'cador'],
   ['riku', 'toru', 'jin', 'grub', 'shin', 'medi3', 'gorath', 'yume', 'tobi', 'bufo'],
 ];
@@ -136,7 +136,7 @@ export const ENEMY_SPELL_COPIES = 2;
  * Até a v0.22.0: NÍVEL por fase (1, 4, 4, 5, 6, 6, 11, 14, 17, 12). v0.23.0–v0.27.0: 0, 0,5, 0, 1, 0,5, 0, 3, 0, 0,5, 0,5.
  * v0.28.0: reequilíbrio (scripts/balance/v28.ts).
  */
-export const ENEMY_STEPS = [2.8, 1, 0.5, 0, 1, 0.5, 0, 0, 0, 0];
+export const ENEMY_STEPS = [2.8, 1, 0, 0, 0.5, 0.5, 0, 0, 0, 0];
 /* v0.66.0: 2,8, 1, 0,5, 1,5, 2,5, 0,5, 0, 0, 0, 0 (v0.67.0: cartas de raridade alta ficaram bem mais fortes). */
 /* v0.37.0 (IA esperta). v0.36.0: 2,8, 1, 0,5, 1,5, 1,5, 0, 1,5, 0, 0, 0. */
 /* v0.36.0 (arena de 10 colunas). v0.33.0–v0.35.0: 3,34, 3,25, 0,5, 1,5, 0, 0, 1,5, 0, 0, 0. */
