@@ -16,6 +16,7 @@ describe('v0.15.1 — Feixe Perfurante máx. 75%', () => {
   it('quem está atrás leva 75% com Lyra Épica', () => {
     const s = empty();
     const l = placeUnit(s, c('lyra', 1, 4), 'player', 0, 1, { atk: 8 });
+    l.abilities = ['perfurante']; // v0.67.0: a Lyra ficou sem habilidade
     placeUnit(s, c('gorath'), 'enemy', 0, 3, { hp: 99 });
     const back = placeUnit(s, c('riku'), 'enemy', 0, 4, { hp: 99 });
     back.magRes = 0;

@@ -40,16 +40,18 @@ const NAMES = [
 
 /** Baralho da IA em cada fase: até a v0.32.0, sempre 10 personagens DIFERENTES (v0.8). */
 const POOLS_V8: string[][] = [
+  // v0.67.0: a diferença de força entre raridades ficou grande (como no jogo de referência); a região 1 usa só cartas que
+  // nascem Comuns (fases 1–7) e, no fim, Incomuns — nada que nasce Raro ou acima (antes: Zarek, Kenji e Vorax Lendários)
   ['riku', 'nara', 'sora', 'ysmera', 'wex', 'suri', 'hana', 'jin', 'ren', 'kuro'],
   ['riku', 'nara', 'toru', 'daichi', 'ysmera', 'wex', 'suri', 'hana', 'jin', 'ren'],
   ['riku', 'nara', 'toru', 'daichi', 'sora', 'wex', 'jin', 'hana', 'kuro', 'aiko'],
-  ['riku', 'toru', 'daichi', 'ysmera', 'wex', 'jin', 'ren', 'aiko', 'lyra', 'mei'],
-  ['nara', 'daichi', 'sora', 'wex', 'jin', 'kuro', 'aiko', 'lyra', 'gorath', 'mei'],
-  ['riku', 'toru', 'ysmera', 'suri', 'jin', 'aiko', 'lyra', 'gorath', 'mei', 'yume'],
-  ['nara', 'daichi', 'wex', 'hana', 'kuro', 'aiko', 'gorath', 'mei', 'yume', 'zarek'],
-  ['riku', 'toru', 'ysmera', 'jin', 'lyra', 'gorath', 'yume', 'zarek', 'nyx', 'kenji'],
-  ['nara', 'daichi', 'wex', 'aiko', 'lyra', 'mei', 'yume', 'zarek', 'nyx', 'kenji'],
-  ['riku', 'toru', 'jin', 'aiko', 'gorath', 'mei', 'yume', 'zarek', 'nyx', 'vorax'],
+  ['riku', 'nara', 'daichi', 'ysmera', 'wex', 'jin', 'ren', 'bolt', 'toru', 'fen'],
+  ['riku', 'daichi', 'sora', 'wex', 'jin', 'kuro', 'quorr', 'ossian', 'nara', 'mira'],
+  ['riku', 'toru', 'ysmera', 'suri', 'jin', 'grub', 'shin', 'taro', 'medi3', 'wex'],
+  ['nara', 'daichi', 'wex', 'hana', 'kuro', 'grav', 'bram', 'pip', 'sora', 'fen'],
+  ['riku', 'toru', 'ysmera', 'jin', 'quorr', 'ossian', 'lyra', 'gorath', 'yume', 'akemi'],
+  ['nara', 'daichi', 'wex', 'bolt', 'taro', 'mira', 'aiko', 'mei', 'isel', 'cador'],
+  ['riku', 'toru', 'jin', 'grub', 'shin', 'medi3', 'gorath', 'yume', 'tobi', 'bufo'],
 ];
 
 /**
@@ -134,7 +136,8 @@ export const ENEMY_SPELL_COPIES = 2;
  * Até a v0.22.0: NÍVEL por fase (1, 4, 4, 5, 6, 6, 11, 14, 17, 12). v0.23.0–v0.27.0: 0, 0,5, 0, 1, 0,5, 0, 3, 0, 0,5, 0,5.
  * v0.28.0: reequilíbrio (scripts/balance/v28.ts).
  */
-export const ENEMY_STEPS = [2.8, 1, 0.5, 1.5, 2.5, 0.5, 0, 0, 0, 0];
+export const ENEMY_STEPS = [2.8, 1, 0.5, 0, 1, 0.5, 0, 0, 0, 0];
+/* v0.66.0: 2,8, 1, 0,5, 1,5, 2,5, 0,5, 0, 0, 0, 0 (v0.67.0: cartas de raridade alta ficaram bem mais fortes). */
 /* v0.37.0 (IA esperta). v0.36.0: 2,8, 1, 0,5, 1,5, 1,5, 0, 1,5, 0, 0, 0. */
 /* v0.36.0 (arena de 10 colunas). v0.33.0–v0.35.0: 3,34, 3,25, 0,5, 1,5, 0, 0, 1,5, 0, 0, 0. */
 /* v0.33.0: fases 1–2 com só 3–4 personagens de Comum ficam em Incomum (1 deles Incomum+); v0.28.0: 0, 0,5, 0,5, 0,5, 0, 0, 1,5, 0, 0, 0. */

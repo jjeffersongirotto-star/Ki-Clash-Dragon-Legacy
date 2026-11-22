@@ -1,7 +1,7 @@
 import { TEMP_WAIT } from './tempOverrides'; // TEMP card balance editor
-import { ABILITIES, COURACA_CAP, MINION_CAP, has } from './abilities';
+import { ABILITIES, COURACA_CAP, has } from './abilities';
 import { abilitiesAt, getChar } from './characters';
-import { hasTweak } from './balanceV2';
+import { BALANCE_V2, hasTweak } from './balanceV2';
 import { statsFor, tierLabel, stepOf } from './progression';
 import { DECK_ABS_MAX, createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, returnFromNecropolis, HAND_SIZE } from './deck';
 import { getSpell, isSpell } from './spells';
@@ -37,8 +37,8 @@ export const HAND_MAX = HAND_SIZE;
 export const waitFor = (charId: string) => (TEMP_WAIT[charId] != null ? TEMP_WAIT[charId] : isSpell(charId) ? Math.max(1, getSpell(charId).cost - 1) : charWait(getChar(charId)));
 /** v0.57.0: espera da carta de personagem — `wait` próprio (1–9) ou min(9, 2×custo−1). */
 export const charWait = (def: { wait?: number; cost: number }) => Math.min(9, Math.max(1, def.wait ?? 2 * def.cost - 1));
-/** A mão inicial começa 2 rodadas adiantada: cartas de custo 2 ficam prontas já no turno 1. */
-export const OPENING_HEADSTART = 2;
+/** v0.67.0: a mão inicial NÃO começa adiantada (antes: 2 rodadas). */
+export const OPENING_HEADSTART = 0; // v0.67.0: sem adiantamento (espera 1 entra na 1ª rodada)
 
 export interface BattleSetup {
   playerDeck: CardInstance[];
@@ -118,6 +118,23 @@ export function createBattle(setup: BattleSetup): BattleState {
     for (const h of drawOpening(state.decks[side], state)) h.wait = state.noWait ? 0 : Math.max(0, waitFor(h.charId) - OPENING_HEADSTART);
   startTurn(state, new Ctx(), 'player');
   return state;
+}
+
+/** v0.67.0: pode trocar a mão inicial? Só no 1º turno, uma vez, antes de jogar qualquer carta. */
+export function canMulligan(state: BattleState, side: Side): boolean {
+  return !state.winner && state.turn === 1 && state.active === side && !state.mulliganUsed?.[side] && !(state.stats?.[side].cards ?? 0) && !state.units.some((u) => u.side === side);
+}
+
+/** v0.67.0: troca grátis da mão inicial — as 6 cartas voltam ao baralho e outras 6 são sorteadas (com a espera de início). */
+export function mulligan(state: BattleState, side: Side): boolean {
+  if (!canMulligan(state, side)) return false;
+  const d = state.decks[side];
+  for (const h of d.hand) if (d.slots[h.slot]) d.slots[h.slot].inHand = Math.max(0, d.slots[h.slot].inHand - 1);
+  d.hand = [];
+  // o turno 1 já começou: a espera já andou 1 rodada
+  for (const h of drawOpening(d, state)) h.wait = state.noWait ? 0 : Math.max(0, waitFor(h.charId) - OPENING_HEADSTART - 1);
+  (state.mulliganUsed ??= {})[side] = true;
+  return true;
 }
 
 /**
@@ -231,7 +248,33 @@ export function makeUnit(
 export function placeUnit(state: BattleState, card: CardInstance, side: Side, row: number, col: number, opts?: { minion?: boolean; atk?: number; hp?: number }): Unit {
   const u = makeUnit(state, card, side, row, col, opts);
   state.units.push(u);
+  refreshAuraHp(state);
   return u;
+}
+
+/**
+ * v0.67.0: Aura de Vida — cada carta-chave em campo dá vida (atual e máxima) aos OUTROS aliados da raça dela.
+ * Cópias da mesma carta não somam. Quando a aura sai de campo, a vida extra sai junto (sem derrubar ninguém).
+ */
+export function refreshAuraHp(state: BattleState) {
+  for (const u of state.units) {
+    if (u.hp <= 0) continue;
+    const race = u.isMinion ? undefined : getChar(u.charId).race;
+    const best = new Map<string, number>();
+    if (race)
+      for (const a of state.units) {
+        if (a === u || a.hp <= 0 || a.side !== u.side || !a.abilities.includes('auraVida')) continue;
+        const au = BALANCE_V2[a.charId]?.aura;
+        if (au?.race === race && au.hp) best.set(a.charId, Math.max(best.get(a.charId) ?? 0, au.hp));
+      }
+    let want = 0;
+    for (const v of best.values()) want += v;
+    const delta = want - (u.auraHp ?? 0);
+    if (!delta) continue;
+    u.auraHp = want;
+    u.maxHp += delta;
+    u.hp = delta > 0 ? u.hp + delta : Math.max(1, Math.min(u.hp, u.maxHp));
+  }
 }
 
 // ---------- regras de combate: alcance, ataque efetivo, dano e alvo (v0.28.1: em battleRules.ts) ----------
@@ -512,7 +555,18 @@ function checkDeath(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit): 
     ctx.emit(state, { type: 'effect', uid: victim.uid, kind: 'imune', text: `  ⏳ ${nameOf(victim)} se recusa a cair (Vontade Inquebrável): fica com 1 de vida e imune até o fim do turno!` });
     return false;
   }
-  if (victim.abilities.includes('renascer') && !victim.revived && !victim.isMinion) {
+  // v0.67.0: Golpe Final — quem ele derrota não renasce nem se reconstrói
+  const final = !!killer && killer.abilities.includes('golpeFinal');
+  if (!final && victim.abilities.includes('reconstrucao') && !victim.used?.rebuilt && !victim.isMinion) {
+    usedOf(victim).rebuilt = true;
+    if (roll(state, pw(victim, 'reconstrucao'))) {
+      victim.effects = [];
+      victim.hp = victim.maxHp;
+      ctx.emit(state, { type: 'effect', uid: victim.uid, kind: 'renascer', text: `  🔧 ${nameOf(victim)} se reconstrói com a vida cheia!` });
+      return false;
+    }
+  }
+  if (!final && victim.abilities.includes('renascer') && !victim.revived && !victim.isMinion) {
     victim.revived = true;
     victim.effects = [];
     victim.hp = Math.max(1, Math.ceil((victim.maxHp * pw(victim, 'renascer')) / 100));
@@ -566,11 +620,17 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
     atk *= 2;
     crit = true;
   }
+  // v0.67.0: Disparo Instável — 50%, 100%, 150% ou 200% do dano, ao acaso
+  let wild = 0;
+  if (!opts.counter && !opts.secondary && opts.fixed == null && u.abilities.includes('disparoInstavel')) {
+    wild = [50, 100, 150, 200][Math.min(3, Math.floor(nextRandom(state) * 4))];
+    atk = Math.round((atk * wild) / 100);
+  }
   const piercing = u.abilities.includes('perfurar');
   const pierce = piercing ? 99 : (hasTweak(u.charId, 'retaguardaSemPerfurar') ? 0 : pw(u, 'retaguarda')) + pw(u, 'precisao');
   const ranged = !(u.damageType === 'fisico' && dist <= 1 && !hasRangeBonus(u));
   const dmg = computeDamage(atk, u.damageType, target, pierce);
-  ctx.emit(state, { type: 'attack', uid: u.uid, target: target.uid, targetSide: target.side, ranged, damageType: u.damageType, text: `${nameOf(u)} ${verb} ${nameOf(target)}${crit ? ' — 🎯 CRÍTICO!' : ''}` });
+  ctx.emit(state, { type: 'attack', uid: u.uid, target: target.uid, targetSide: target.side, ranged, damageType: u.damageType, text: `${nameOf(u)} ${verb} ${nameOf(target)}${crit ? ' — 🎯 CRÍTICO!' : ''}${wild ? ` — 🎲 ${wild}%` : ''}` });
   // v0.30.0: Evasão — desvia de ataques à distância
   if (ranged && evades(target)) {
     ctx.emit(state, { type: 'effect', uid: target.uid, kind: 'habilidade', text: `  💨 ${nameOf(target)} desvia do ataque à distância!` });
@@ -578,16 +638,28 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   }
   const resisted = atk - dmg;
   const front = isMeleeFrontAttack(u, target);
-  // v0.63.0: Contra-ataque Crescente — golpeia ANTES de receber o ataque e ganha +1 de ataque (sem limite)
+  // v0.67.0: Contra-ataque Crescente (estilo Goten) — golpeia ANTES, ganha ataque e tenta empurrar o agressor 2 casas;
+  // o agressor só completa o ataque se ainda alcançar (preso por quem está atrás ou atacando de 2+ casas)
   const crescent = !opts.counter && !opts.secondary && front && target.abilities.includes('contraCrescente') && target.hp > 0 && !isHindered(target);
   if (crescent) {
     ctx.emit(state, { type: 'counter', uid: target.uid, target: u.uid, text: `🔄 ${nameOf(target)} ativa ${ABILITIES.contraCrescente.name}!` });
     attack(state, ctx, target, u, { counter: true });
-    target.atkMod = (target.atkMod ?? 0) + 1;
+    target.atkMod = (target.atkMod ?? 0) + pw(target, 'contraCrescente');
     if (state.winner || u.hp <= 0 || !state.units.includes(u)) return;
+    if (pushBack(state, ctx, u)) pushBack(state, ctx, u);
+    const still = u.row === target.row && Math.abs(target.col - u.col) <= rangeOf(u);
+    if (!still) return;
   }
   const hpBefore = target.hp;
   const died = applyDamage(state, ctx, target, dmg, u.damageType, { side: u.side, unit: u, ignoreShield: piercing }, resisted > 0 ? ` (${resisted} resistido)` : '');
+  // v0.67.0: Ímpeto (+X a cada golpe que causa dano) e Contra-ataque Crescente (+X também a cada ataque no próprio turno)
+  if (!opts.counter && !opts.secondary && u.hp > 0) {
+    const gain = (dmg > 0 ? pw(u, 'impeto') : 0) + pw(u, 'contraCrescente');
+    if (gain) {
+      u.atkMod = (u.atkMod ?? 0) + gain;
+      ctx.emit(state, { type: 'effect', uid: u.uid, kind: 'habilidade', text: `  📈 ${nameOf(u)} ganha +${gain} de ataque.` });
+    }
+  }
   // v0.30.0: Vampirismo — cura parte do dano causado
   const vamp = hasTweak(u.charId, 'vampirismoTotal') ? 0 : pw(u, 'vampirismo'); // v0.64.5: o da Vharga cura ao derrotar
   if (vamp && u.hp > 0 && u.hp < u.maxHp && state.units.includes(u)) {
@@ -601,11 +673,7 @@ export function attack(state: BattleState, ctx: Ctx, u: Unit, target: Unit | 'he
   if (died) return;
   if (state.winner || u.hp <= 0 || !state.units.includes(u)) return;
   if (!opts.counter && target.hp > 0 && state.units.includes(target)) onHit(state, ctx, u, target, !!opts.secondary);
-  if (crescent) {
-    // depois de receber o golpe, empurra o agressor 2 casas para trás
-    if (u.hp > 0 && state.units.includes(u) && pushBack(state, ctx, u)) pushBack(state, ctx, u);
-    return;
-  }
+  if (crescent) return;
   if (state.winner || u.hp <= 0 || !state.units.includes(u) || target.hp <= 0 || !state.units.includes(target)) return;
   // gancho: Couraça de Espinhos (só golpe principal, físico corpo a corpo de frente)
   if (!opts.counter && !opts.secondary && has(target.abilities, (a) => a.thorns) && front) {
@@ -694,7 +762,7 @@ function kill(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit) {
   if (st && !victim.isMinion) st.kills++;
   ctx.emit(state, { type: 'death', uid: victim.uid, text: `✖ ${nameOf(victim)} foi derrotado.` });
   // v0.30.0: Ressurreição guarda as cartas derrotadas; Fúria e Vingança somam ataque; Explosão ao morrer
-  if (!victim.isMinion && victim.card) ((state.fallen ??= { player: [], enemy: [] })[victim.side] ??= []).push({ ...victim.card });
+  if (!victim.isMinion && victim.card && !(killer && killer.abilities.includes('golpeFinal'))) ((state.fallen ??= { player: [], enemy: [] })[victim.side] ??= []).push({ ...victim.card });
   // v0.64.5: Vampirismo da Vharga — ao derrotar um inimigo, cura toda a vida
   if (killer && killer.hp > 0 && killer.side !== victim.side && killer.abilities.includes('vampirismo') && hasTweak(killer.charId, 'vampirismoTotal') && killer.hp < killer.maxHp) {
     const h = killer.maxHp - killer.hp;
@@ -724,6 +792,13 @@ function kill(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit) {
       applyDamage(state, ctx, e, boom, 'fisico', { side: victim.side }, ' 💥');
     }
   }
+  const spawner = state.units.find((a) => a.hp > 0 && a.side !== victim.side && has(a.abilities, (x) => x.onKillSummon));
+  if (spawner && inBoard(state, victim.row, victim.col) && !unitAt(state, victim.row, victim.col)) {
+    const summon = has(spawner.abilities, (x) => x.onKillSummon)!.onKillSummon!;
+    const m = placeUnit(state, { charId: summon, stars: spawner.stars, plus: spawner.plus }, spawner.side, victim.row, victim.col, { minion: true, atk: criaAtk(spawner.stars), hp: pw(spawner, 'prole') || 1 });
+    ctx.emit(state, { type: 'spawn', uid: m.uid, text: `🥚 ${nameOf(victim)} vira uma ${getChar(summon).name} de ${nameOf(spawner)}!` });
+  }
+  refreshAuraHp(state);
   if (!killer) return;
   // Sede Eterna: passa a Marca da Sede ao aliado mais próximo
   if (killer.side !== victim.side && killer.abilities.includes('sedeEterna') && killer.hp > 0) {
@@ -737,20 +812,9 @@ function kill(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit) {
   }
   // v0.15.0: sem "passo da vitória" — quem derrota fica onde está.
   const oldPos: [number, number] = [killer.row, killer.col];
-  // gancho: invocar ao derrotar
-  const summon = has(killer.abilities, (a) => a.onKillSummon)?.onKillSummon;
-  if (summon && killer.side !== victim.side) {
-    const alive = state.units.filter((x) => x.side === killer.side && x.charId === summon).length;
-    if (alive < MINION_CAP) {
-      const spot = [[victim.row, victim.col], oldPos].find(([r, c]) => inBoard(state, r, c) && !unitAt(state, r, c));
-      if (spot) {
-        const atk = criaAtk(killer.stars);
-        const hp = pw(killer, 'prole') || 1;
-        const m = placeUnit(state, { charId: summon, stars: killer.stars, plus: killer.plus }, killer.side, spot[0], spot[1], { minion: true, atk, hp });
-        ctx.emit(state, { type: 'spawn', uid: m.uid, text: `🥚 Uma ${getChar(summon).name} surge dos restos!` });
-      }
-    }
-  }
+  // v0.67.0: Prole Sombria no estilo "Cell" — QUALQUER inimigo derrotado (por qualquer aliado) vira cria na casa dele, sem limite
+  void oldPos;
+
 }
 
 /** Ataque da Cria Sombria: 2 com o Vorax Lendário (ou menos), 3 com o Vorax Mítico (o "+" não muda a Cria). */
@@ -931,6 +995,10 @@ export function act(state: BattleState, ctx: Ctx, u: Unit) {
   // v0.30.0: habilidades no início da ação
   if (u.abilities.includes('purificar')) purify(state, ctx, u);
   if (u.abilities.includes('ressurreicao')) resurrect(state, ctx, u);
+  // v0.67.0: Onda Curativa (aliado mais ferido do campo) e Pressão no Comandante
+  if (u.abilities.includes('ondaCurativa')) waveHeal(state, ctx, u);
+  const press = pw(u, 'pressao');
+  if (press) hitHero(state, ctx, enemyOf(u.side), press, `🎯 Pressão de ${nameOf(u)} no Comandante ${u.side === 'player' ? 'inimigo' : 'aliado'}`);
   if (state.winner || u.hp <= 0) return;
   if (u.abilities.includes('teleporte') && teleport(state, ctx, u)) return;
   // v0.30.0: congelado não ataca (ainda anda); lento anda 1 casa e perde o ataque no 1º turno lento
@@ -942,7 +1010,11 @@ export function act(state: BattleState, ctx: Ctx, u: Unit) {
   const charge = u.abilities.includes('investida') && !uu.charged;
   uu.charged = true;
   const bonus0 = charge ? pw(u, 'investida') : 0;
-  const moveOpts = { maxMove: slow ? 1 : charge ? u.move + 2 : undefined };
+  // v0.67.0: Arrancada — na primeira ação, anda X casas a mais
+  const dash = u.abilities.includes('arrancada') && !uu.dashed ? pw(u, 'arrancada') : 0;
+  uu.dashed = true;
+  const extra = (charge ? 2 : 0) + dash;
+  const moveOpts = { maxMove: slow ? 1 : extra ? u.move + extra : undefined };
   const startCol = u.col;
   const bleedOnMove = () => {
     const b = effectOf(u, 'sangramento');
@@ -959,18 +1031,53 @@ export function act(state: BattleState, ctx: Ctx, u: Unit) {
     // Salto Vendaval (v0.15.2/v0.15.4): salta por cima do inimigo da frente e ataca com investida ao cair
     const jumped = moveUnit(state, ctx, u, { leapFront: true });
     t = findTarget(state, u);
-    if (t) strike(state, ctx, u, t, (jumped ? pw(u, 'salto') : 0) + bonus0);
+    if (t) strikeTurn(state, ctx, u, t, (jumped ? pw(u, 'salto') : 0) + bonus0);
     return;
   }
   if (t) {
-    strike(state, ctx, u, t, bonus0);
+    strikeTurn(state, ctx, u, t, bonus0);
     return;
   }
   const jumped = moveUnit(state, ctx, u, moveOpts);
   bleedOnMove();
   if (u.hp <= 0 || state.winner || !state.units.includes(u)) return;
   t = findTarget(state, u);
-  if (t) strike(state, ctx, u, t, (jumped ? pw(u, 'salto') : 0) + bonus0);
+  if (t) strikeTurn(state, ctx, u, t, (jumped ? pw(u, 'salto') : 0) + bonus0);
+}
+
+/** v0.67.0: golpe do turno + Golpe Duplo (ataca de novo) + Bate e Recua (recua depois de atacar). */
+function strikeTurn(state: BattleState, ctx: Ctx, u: Unit, t: Unit | 'hero', bonus: number) {
+  strike(state, ctx, u, t, bonus);
+  if (u.abilities.includes('golpeDuplo') && u.hp > 0 && !state.winner && state.units.includes(u)) {
+    const t2 = findTarget(state, u);
+    if (t2) {
+      ctx.emit(state, { type: 'effect', uid: u.uid, kind: 'habilidade', text: `  ✌️ ${nameOf(u)} ataca de novo (Golpe Duplo)!` });
+      strike(state, ctx, u, t2, 0);
+    }
+  }
+  const back = pw(u, 'bateRecua');
+  if (back && u.hp > 0 && !state.winner && state.units.includes(u)) {
+    let moved = false;
+    for (let i = 0; i < back; i++) moved = stepBack(state, u) || moved;
+    if (moved) ctx.emit(state, { type: 'effect', uid: u.uid, kind: 'habilidade', text: `  ↩️ ${nameOf(u)} recua depois do golpe.` });
+  }
+}
+
+/** Recuo voluntário (Bate e Recua): anda 1 casa para trás se estiver livre (vale mesmo para quem não pode ser empurrado). */
+function stepBack(state: BattleState, u: Unit): boolean {
+  const c = u.col - dir(u.side);
+  if (!inBoard(state, u.row, c) || unitAt(state, u.row, c)) return false;
+  u.col = c;
+  return true;
+}
+
+/** v0.67.0: Onda Curativa — cura o aliado mais ferido do campo inteiro. */
+function waveHeal(state: BattleState, ctx: Ctx, u: Unit) {
+  const t = state.units.filter((a) => a.side === u.side && a.hp > 0 && a.hp < a.maxHp).sort((a, b) => b.maxHp - b.hp - (a.maxHp - a.hp) || a.uid - b.uid)[0];
+  if (!t) return;
+  const h = Math.min(pw(u, 'ondaCurativa'), t.maxHp - t.hp);
+  t.hp += h;
+  ctx.emit(state, { type: 'heal', uid: t.uid, amount: h, text: `🌊 Onda Curativa de ${nameOf(u)}: ${nameOf(t)} recupera ${h}.` });
 }
 
 /**
@@ -1022,6 +1129,16 @@ export function deploy(state: BattleState, side: Side, handIndex: number, row: n
 
 /** v0.30.0: habilidades ao entrar em campo — Escudo de Entrada e Clone. */
 export function onEnter(state: BattleState, ctx: Ctx, u: Unit) {
+  // v0.67.0: Preparação — a carta da mão com mais espera perde X rodadas
+  const prep = pw(u, 'preparacao');
+  if (prep) {
+    const hand = state.decks[u.side]?.hand ?? [];
+    const slow = hand.filter((h) => waitOf(h) > 0).sort((a, b) => waitOf(b) - waitOf(a))[0];
+    if (slow) {
+      slow.wait = Math.max(0, waitOf(slow) - prep);
+      ctx.emit(state, { type: 'effect', uid: u.uid, kind: 'habilidade', text: `⏩ ${nameOf(u)} prepara ${isSpell(slow.charId) ? getSpell(slow.charId).name : getChar(slow.charId).name}: −${prep} de espera.` });
+    }
+  }
   const sh = pw(u, 'escudoInicial');
   if (sh) addEffect(state, ctx, u, 'escudo', sh, 99);
   if (u.abilities.includes('clone')) {

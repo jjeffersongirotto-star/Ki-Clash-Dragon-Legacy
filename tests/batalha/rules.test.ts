@@ -27,7 +27,7 @@ describe('sem passo da vitória (v0.15.0)', () => {
   });
   it('à distância também não avança ao derrotar', () => {
     const s = empty();
-    const l = placeUnit(s, c('lyra', 1, 5), 'player', 1, 1, { atk: 9 });
+    const l = placeUnit(s, c('ilun', 1, 5), 'player', 1, 1, { atk: 9 }); // v0.67.0: o Feixe Perfurante está no Ilun
     placeUnit(s, c('riku'), 'enemy', 1, 3, { hp: 1 });
     placeUnit(s, c('riku'), 'enemy', 1, 4, { hp: 1 });
     act(s, new Ctx(), l);
@@ -94,7 +94,8 @@ describe('só a própria fileira (exceto diagonais)', () => {
   });
   it('Emboscada (Sayuri): o mais distante da fileira até 2 casas', () => {
     const s = empty();
-    const z = placeUnit(s, c('sayuri', 1, 3), 'player', 0, 2);
+    const z = placeUnit(s, c('sayuri', 1, 4), 'player', 0, 2);
+    z.abilities = ['retaguarda']; // v0.67.0: assassinos também têm Corte Diagonal; aqui só a Emboscada
     placeUnit(s, c('riku'), 'enemy', 0, 3);
     const far = placeUnit(s, c('riku'), 'enemy', 0, 4);
     placeUnit(s, c('riku'), 'enemy', 0, 5);
@@ -103,13 +104,16 @@ describe('só a própria fileira (exceto diagonais)', () => {
   it('Emboscada perfura resistência conforme estrelas', () => {
     const s = empty();
     const z = placeUnit(s, c('sayuri', 1, 5), 'player', 0, 2, { atk: 4 });
+    z.abilities = ['retaguarda'];
     const g = placeUnit(s, c('gorath', 1, 2), 'enemy', 0, 3, { hp: 50 });
+    g.physRes = 2;
     attack(s, new Ctx(), z, g);
     expect(g.hp).toBe(50 - 4); // resist. 2 totalmente perfurada (perfura 3)
   });
   it('Instinto Predador (Yume): menor vida da fileira até 2 casas + execução', () => {
     const s = empty();
     const y = placeUnit(s, c('yume', 1, 3), 'player', 0, 2, { atk: 4 });
+    y.abilities = ['menorVida'];
     placeUnit(s, c('gorath'), 'enemy', 0, 3, { hp: 20 });
     const weak = placeUnit(s, c('riku'), 'enemy', 0, 4, { hp: 10 });
     expect(findTarget(s, y)).toBe(weak);
@@ -120,6 +124,7 @@ describe('só a própria fileira (exceto diagonais)', () => {
   it('Feixe Perfurante (Lyra): acerta o mais próximo e os de trás na fileira', () => {
     const s = empty();
     const l = placeUnit(s, c('lyra', 1, 2), 'player', 0, 1, { atk: 4 });
+    l.abilities = ['perfurante']; // v0.67.0: a Lyra ficou sem habilidade
     const a = placeUnit(s, c('gorath'), 'enemy', 0, 2, { hp: 50 });
     const b = placeUnit(s, c('gorath'), 'enemy', 0, 4, { hp: 50 });
     const other = placeUnit(s, c('gorath'), 'enemy', 1, 2, { hp: 50 });
@@ -133,6 +138,7 @@ describe('só a própria fileira (exceto diagonais)', () => {
   it('Corte Diagonal Lendário+: corte duplo no próximo da ordem (v0.64.7)', () => {
     const s = empty();
     const n = placeUnit(s, c('nara', 1, 5), 'player', 0, 2, { atk: 4 });
+    n.abilities = ['diagFrente']; // v0.67.0: a Nara trocou o Corte pela Arrancada
     const f = placeUnit(s, c('gorath'), 'enemy', 1, 2, { hp: 50 }); // lado (alvo principal)
     const dg = placeUnit(s, c('riku'), 'enemy', 0, 3, { hp: 50 }); // frente (corte duplo)
     act(s, new Ctx(), n);
@@ -140,6 +146,7 @@ describe('só a própria fileira (exceto diagonais)', () => {
     expect(dg.hp).toBe(48); // v0.15.1: 50% máx. (ceil(4 × 50%) = 2)
     const s2 = empty();
     const n2 = placeUnit(s2, c('nara', 1, 4), 'player', 0, 2, { atk: 4 });
+    n2.abilities = ['diagFrente'];
     placeUnit(s2, c('gorath'), 'enemy', 1, 2, { hp: 50 });
     const dg2 = placeUnit(s2, c('riku'), 'enemy', 0, 3, { hp: 50 });
     act(s2, new Ctx(), n2);
@@ -165,9 +172,9 @@ describe('habilidades por estrela/nível (com teto)', () => {
   });
   it('v0.65.0: resistência sem teto (Inabalável 4 no Lendário)', () => {
     const s = empty();
-    const g = makeUnit(s, c('gorath', 50, 5), 'player', 0, 0);
+    const g = makeUnit(s, c('gorm', 50, 5), 'player', 0, 0); // v0.67.0: Inabalável no Gorm, Guarda no Aegis
     expect(g.physRes).toBe(4);
-    const t = makeUnit(s, c('toru', 50, 5), 'player', 0, 0);
+    const t = makeUnit(s, c('aegis', 50, 5), 'player', 0, 0);
     expect(t.physRes).toBe(3);
   });
   it('Sifão: −1 por Nyx (Épico/Lendário); v0.65.0: vários Nyx somam, sem teto', () => {
@@ -206,6 +213,7 @@ describe('habilidades por estrela/nível (com teto)', () => {
   it('Punho Espelhado ×2 em 4★: contra-ataca e empurra', () => {
     const s = empty();
     const k = placeUnit(s, c('kenji', 1, 4), 'enemy', 1, 5, { atk: 3, hp: 50 });
+    k.physRes = 0; // v0.67.0: Kenji virou tanque com Guarda; aqui só o Punho Espelhado
     const a = placeUnit(s, c('nara'), 'player', 1, 4, { atk: 2, hp: 20 });
     act(s, new Ctx(), a);
     expect(a.hp).toBe(20 - 6);
@@ -222,12 +230,12 @@ describe('habilidades por estrela/nível (com teto)', () => {
     expect(cria.damageType).toBe('magico');
     expect(rangeOf(cria)).toBe(2);
     expect(cria.atk).toBe(2);
-    for (let i = 0; i < 5; i++) {
-      v.col = 1;
-      placeUnit(s, c('riku'), 'enemy', 1, 3, { hp: 1 });
-      act(s, new Ctx(), v);
+    // v0.67.0 (estilo "Cell"): sem limite de crias
+    for (let i = 0; i < 4; i++) {
+      const e = placeUnit(s, c('riku'), 'enemy', 0, 2 + i, { hp: 1 });
+      attack(s, new Ctx(), v, e);
     }
-    expect(s.units.filter((u) => u.charId === 'cria').length).toBeLessThanOrEqual(MINION_CAP);
+    expect(s.units.filter((u) => u.charId === 'cria').length).toBeGreaterThan(MINION_CAP);
   });
   it('Cria Sombria: ataque 2 com Vorax 5★ e 3 com Vorax 6★', () => {
     for (const [stars, atk, hp] of [[5, 2, 1], [6, 3, 2]]) {
@@ -262,8 +270,8 @@ describe('habilidades por estrela/nível (com teto)', () => {
   it('unidade totalmente evoluída não é invencível: 6★ nv60 ainda morre para dano mínimo acumulado', () => {
     const s = empty();
     const k = placeUnit(s, c('kenji', 60, 6), 'player', 0, 3);
-    expect(k.physRes).toBeLessThanOrEqual(3);
-    const weakest = placeUnit(s, c('riku'), 'enemy', 0, 4, { atk: 1 });
+    expect(k.physRes).toBeLessThanOrEqual(4);
+    const weakest = placeUnit(s, c('riku'), 'enemy', 0, 4, { atk: 5 }); // v0.67.0: Guarda 4 do Kenji Mítico (ataque 1 tiraria 0)
     const before = k.hp;
     attack(s, new Ctx(), weakest, k);
     expect(k.hp).toBeLessThan(before);
@@ -290,7 +298,9 @@ describe('categorias e cores', () => {
     expect(avg('tanque', hp)).toBeGreaterThan(avg('dps', hp));
     expect(avg('tanque', (d) => d.atk)).toBeLessThan(avg('dps', (d) => d.atk));
     // v0.17 (decisão 14): resistência só por habilidade — todo tanque tem uma
-    expect(PLAYABLE.filter((d) => d.category === 'tanque').every((d) => d.abilities.some((a) => ABILITIES[a].resBonus))).toBe(true);
+    // v0.67.0: cerca de 1/3 dos tanques não tem habilidade (compensam com mais vida)
+    const tanks = PLAYABLE.filter((d) => d.category === 'tanque');
+    expect(tanks.filter((d) => d.abilities.some((a) => ABILITIES[a].resBonus)).length).toBeGreaterThan(tanks.length / 4);
     expect(avg('assassino', hp)).toBeLessThan(avg('dps', hp));
   });
   it('cores por estrela: 1 cinza … 6 vermelho', () => {

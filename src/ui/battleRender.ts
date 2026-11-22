@@ -5,6 +5,7 @@ import type { BattleState, RecordedEvent, Side, Snapshot } from '../core/types';
 import { INFO_DEFAULT, statusList } from './battleFx';
 import { ico } from './icons';
 import { unitSpriteHTML } from './art';
+import { auraRing } from '../core/battleRules';
 import { esc, starStyle } from './components';
 import type { BattleView } from './battleView';
 import { HOLD_MS } from './battleHand';
@@ -23,6 +24,7 @@ export function renderSnapshot(view: BattleView, snap: Snapshot, _ev?: RecordedE
       el.className = `unit side-${u.side} cat-${def.category} ${u.isMinion ? 'minion' : ''} appear`;
       el.setAttribute('style', `${starStyle(u.stars)};--ac:${def.palette.aura}`);
       el.innerHTML = `
+        <div class="u-ring"></div>
         <div class="u-portrait">${unitSpriteHTML(def, { flip: u.side === 'enemy', stars: u.stars, side: u.side })}</div>
         <div class="u-hp"><i></i></div>
         <div class="u-stat-plate"><span class="u-atk"></span><b class="u-sep">|</b><span class="u-hpn"></span></div>
@@ -66,6 +68,10 @@ export function renderSnapshot(view: BattleView, snap: Snapshot, _ev?: RecordedE
       view.tokens.set(u.uid, el);
       setTimeout(() => el!.classList.remove('appear'), 500);
     }
+    // v0.67.0: anel de aura (some se a unidade perder a habilidade, ex.: Selo do Vazio)
+    const ring = auraRing(u.abilities);
+    el.classList.toggle('ring-ally', ring === 'ally');
+    el.classList.toggle('ring-enemy', ring === 'enemy');
     el.style.setProperty('--r', String(u.row));
     el.style.setProperty('--c', String(u.col));
     (el.querySelector('.u-hp i') as HTMLElement).style.width = `${Math.max(0, (u.hp / u.maxHp) * 100)}%`;

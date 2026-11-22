@@ -29,10 +29,10 @@ describe('progressão v0.8', () => {
       const d = getChar(id);
       expect(d.minStars).toBe(1);
       expect(d.maxStars).toBe(['taro', 'hana', 'nara', 'pip', 'suri', 'daichi', 'sora'].includes(id) ? 3 : 4); // v0.62.0
-      expect(d.abilities.length).toBeGreaterThan(0);
     }
-    const sigs = new Set(NEW.map((id) => getChar(id).abilities.join('+')));
-    expect(sigs.size).toBe(NEW.length);
+    // v0.67.0: cerca de 1/3 das cartas ficou sem habilidade; as que têm continuam únicas
+    const withAb = NEW.filter((id) => getChar(id).abilities.length);
+    expect(new Set(withAb.map((id) => getChar(id).abilities.join('+'))).size).toBe(withAb.length);
     expect(new Set(CHARACTERS.map((d) => d.id)).size).toBe(CHARACTERS.length);
   });
   it('2★, 3★ e 4★ desbloqueiam pelas fases; 5★/6★ ficam "em breve" e não saem em nenhuma fase', () => {
@@ -81,22 +81,22 @@ describe('progressão v0.8', () => {
 });
 
 describe('habilidades dos novos personagens', () => {
-  it('Couraça de Espinhos (Daichi): quem bate corpo a corpo de frente sofre dano de volta', () => {
+  it('Couraça de Espinhos (Brakk; v0.67.0: o Daichi ficou sem habilidade): quem bate corpo a corpo de frente sofre dano de volta', () => {
     const s = empty();
-    const d = placeUnit(s, c('daichi', 1, 3), 'enemy', 0, 3, { hp: 50 });
+    const d = placeUnit(s, c('brakk', 1, 3), 'enemy', 0, 3, { hp: 50 });
     const a = placeUnit(s, c('riku'), 'player', 0, 2, { hp: 10 });
     attack(s, new Ctx(), a, d);
     expect(a.hp).toBe(10 - abilityPower('espinhos', 3, 0));
     // à distância não fere
     const s2 = empty();
-    const d2 = placeUnit(s2, c('daichi'), 'enemy', 0, 4, { hp: 50 });
+    const d2 = placeUnit(s2, c('brakk', 1, 3), 'enemy', 0, 4, { hp: 50 });
     const h = placeUnit(s2, c('hana'), 'player', 0, 2, { hp: 4 });
     attack(s2, new Ctx(), h, d2);
     expect(h.hp).toBe(4);
   });
-  it('Sopro Restaurador (Sora): cura o aliado mais ferido da própria fileira, a qualquer distância', () => {
+  it('Sopro Restaurador (Medi-3; v0.67.0: a Sora ficou sem habilidade): cura o aliado mais ferido da própria fileira, a qualquer distância', () => {
     const s = empty();
-    const so = placeUnit(s, c('sora'), 'player', 0, 0);
+    const so = placeUnit(s, c('medi3'), 'player', 0, 0);
     const far = placeUnit(s, c('daichi'), 'player', 0, 2, { hp: 10 });
     far.hp = 4;
     const other = placeUnit(s, c('daichi'), 'player', 1, 0, { hp: 10 });
@@ -137,25 +137,33 @@ describe('habilidades dos novos personagens', () => {
   it('Tiro Certeiro (Hana): ignora resistência física', () => {
     const s = empty();
     const h = placeUnit(s, c('hana'), 'player', 0, 1, { atk: 3 });
+    h.abilities = ['precisao']; // v0.67.0: a Hana ficou sem habilidade (o Tiro Certeiro está na Lunaris)
     const g = placeUnit(s, c('gorath', 1, 2), 'enemy', 0, 2, { hp: 30 });
+    g.physRes = 2;
     attack(s, new Ctx(), h, g);
     expect(g.hp).toBe(30 - (3 - (2 - 1)));
   });
   it('Olho de Águia (Jin): mais dano a 2–3 casas do que colado', () => {
     const s = empty();
     const j = placeUnit(s, c('jin'), 'player', 0, 1, { atk: 3 });
+    j.abilities = ['olhoAguia']; // v0.67.0: o Jin ficou sem habilidade
     const near = placeUnit(s, c('toru'), 'enemy', 0, 2, { hp: 30 });
+    near.physRes = 1;
     attack(s, new Ctx(), j, near);
     expect(near.hp).toBe(28); // 3 − 1 de resist. física
     const s2 = empty();
     const j2 = placeUnit(s2, c('jin'), 'player', 0, 1, { atk: 3 });
+    j2.abilities = ['olhoAguia'];
     const far = placeUnit(s2, c('toru'), 'enemy', 0, 4, { hp: 30 });
+    far.physRes = 1;
     attack(s2, new Ctx(), j2, far);
     expect(far.hp).toBe(27); // +1 a 3 casas
   });
   it('Caça-Conjuradores (Ren): prioriza quem ataca de longe até 2 casas', () => {
     const s = empty();
     const r = placeUnit(s, c('ren'), 'player', 0, 2);
+    r.abilities = ['cacaMagos']; // v0.67.0: o Ren virou DPS de longe sem habilidade
+    r.range = 1;
     placeUnit(s, c('toru'), 'enemy', 0, 3);
     const mage = placeUnit(s, c('wex'), 'enemy', 0, 4);
     expect(findTarget(s, r)).toBe(mage);
@@ -163,6 +171,7 @@ describe('habilidades dos novos personagens', () => {
   it('Ataque Surpresa (Kuro): mira o maior ataque até 2 casas e bate mais em vida cheia', () => {
     const s = empty();
     const k = placeUnit(s, c('kuro'), 'player', 0, 2, { atk: 3 });
+    k.abilities = ['surpresa']; // v0.67.0: assassinos também têm Corte Diagonal; aqui só o Ataque Surpresa
     placeUnit(s, c('toru'), 'enemy', 0, 3, { atk: 1, hp: 30 });
     const big = placeUnit(s, c('riku'), 'enemy', 0, 4, { atk: 6, hp: 30 });
     expect(findTarget(s, k)).toBe(big);

@@ -2,6 +2,61 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.67.0] — 21/11/2026 · Revisão completa das 6 raças, habilidades novas e começo de partida novo
+- **Todas as 120 cartas revisadas**, com base nas ~60 imagens do jogo de referência:
+  - **Força = 2 × ataque + vida** (1 de ataque vale 2 de vida).
+  - A força vem da **raridade** e da **espera**: cada rodada de espera a mais deixa a carta mais forte, e a espera é a mesma em todas as raridades da carta.
+  - Ataque e vida se distribuem conforme a **função**: tanques com muita vida; assassinos, arqueiros e magos frágeis; curandeiros com ataque 0 a 2.
+  - **Habilidade forte custa números**, e custa mais nas raridades altas.
+  - Cerca de **1/3 das cartas de cada tipo ficou sem habilidade**, com mais ataque e vida para compensar.
+  - **Menos habilidades repetidas**: as muito boas ficam em no máximo uma carta por raça.
+  - Tabela completa no REGRAS.md.
+- **DPS × Assassino:**
+  - todo Assassino tem **Corte Diagonal**, e só 1 ou 2 DPS por raça mantêm o Corte;
+  - Ren, Velka, Zarek e Vharga viram **DPS**, alguns atacando de longe (Ren e Vharga com alcance 2, Zarek com 4);
+  - Lethe vira **Arqueira** e Kenji vira **Tanque**;
+  - os Assassinos passam de 16 para 11. Shin, Sayuri, Zynna e Yume mudam de raridade; no seu save, a carta é ajustada para a faixa nova, com reembolso de quem passou do topo.
+- **Ninguém nasce Mítico:** a raridade máxima de nascimento é Lendário. As 15 cartas que nasciam Míticas agora vão de Lendário a Mítico (2 habilidades no Lendário; a 3ª abre no Mítico). Quem já tinha a carta Mítica continua com ela.
+- **Auras de raça:**
+  - Hayato: +2 de ataque aos Humanos;
+  - Halo-8: +3 de vida aos Androides;
+  - Aurel: +2 de vida aos Extraterrestres;
+  - Tiberius: +3 de vida aos Magos Arcanos;
+  - Trokk: +1 de ataque aos Monstros;
+  - Ivra: +2 de vida aos Necromantes;
+  - para outra raça: Dorian dá +1 de ataque aos Humanos e Fenra dá +2 de vida aos Necromantes.
+- **Anel no chão** embaixo de quem tem aura ou efeito contínuo: verde para quem ajuda aliados, roxo para quem enfraquece inimigos.
+- **Habilidades novas:**
+
+  | Habilidade | Carta |
+  |---|---|
+  | Pressão no Comandante | Lamenta |
+  | Bate e Recua | Zynna |
+  | Preparação | Pip |
+  | Reconstrução | Bastion-2 |
+  | Disparo Instável | Spike-11 |
+  | Arrancada | Nara |
+  | Onda Curativa | Yuna |
+  | Golpe Final | Velka |
+  | Golpe Duplo | Razor-V |
+  | Ki Oculto | Sayuri |
+  | Ímpeto | Brunna |
+  | Aura de Vida | cartas de aura de vida |
+
+- **Contra-ataque Crescente (estilo Goten):**
+  - golpeia antes e empurra o agressor 2 casas;
+  - o agressor só completa o ataque se ainda alcançar;
+  - ganha ataque a cada contra-ataque e a cada ataque no próprio turno;
+  - está só no Ryuji e na Nhyra.
+- **Vorax como o "Cell":** enquanto ele está em campo, qualquer inimigo derrotado vira Cria Sombria, sem limite.
+- **Feitiço novo, Explosão de Ki:** todos os aliados ganham +5 de ataque e queimam 2 por rodada durante 3 rodadas.
+- **Começo da partida:**
+  - a mão inicial **não começa mais adiantada**: cartas de espera 1 (pelo menos uma por raça, fracas, para pressão rápida) entram na 1ª rodada;
+  - a espera média caiu de 4,1 para 3,0;
+  - botão **🔄 Trocar mão**: uma troca grátis da mão inicial antes de jogar a primeira carta.
+- **Aventura, região 1:** os inimigos usam só cartas de raridade baixa (antes vinham Zarek, Kenji e Vorax Lendários, fortes demais na escala nova). A Sora voltou a curar (carta inicial) e a Ysmera envenena. As regiões 2 a 10 serão recalibradas depois que você jogar.
+- **Tutorial:** os textos da Sora e da Nara foram atualizados para as habilidades novas, e o tutorial continua impossível de perder.
+
 ## [0.66.0] — 21/11/2026 · Revisão dos Humanos e Aura de raça
 - **Humanos revisados carta a carta** (20 cartas): o ataque fica quase igual e a **vida passa a seguir a função** — tanques e lutadores aguentam bem mais (Tetsuo Mítico 4 | 26, Kenji Mítico 5 | 22), assassinos e arqueiros continuam frágeis. Subir de raridade dá +2 a +4 de vida e às vezes +1 de ataque. Esperas iguais. Tabela completa no REGRAS.md.
 - **Habilidade nova — Aura de Ataque:** o **Mestre Hayato** dá **+2 de ataque a todos os outros aliados Humanos** em campo, em qualquer casa (duas cópias dele não somam). É a primeira "aura de raça"; poucas cartas-chave das outras raças vão ganhar a sua.

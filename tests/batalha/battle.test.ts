@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getChar } from '../../src/core/characters';
 import {
   act,
   attack,
@@ -56,6 +57,7 @@ describe('dano e resistência', () => {
     const s = emptyBattle();
     const a = placeUnit(s, c('riku'), 'player', 0, 3, { atk: 5 });
     const g = placeUnit(s, c('gorath', 1, 2), 'enemy', 0, 4);
+    g.physRes = 2; // v0.67.0: o Gorath ficou sem habilidade
     const hp = g.hp;
     attack(s, new Ctx(), a, g);
     expect(g.hp).toBe(hp - 3);
@@ -65,7 +67,7 @@ describe('dano e resistência', () => {
 describe('movimento', () => {
   it('unidade básica anda 2 casas', () => {
     const s = emptyBattle();
-    const u = placeUnit(s, c('nara'), 'player', 0, 0);
+    const u = placeUnit(s, c('grub'), 'player', 0, 0);
     act(s, new Ctx(), u);
     expect(u.col).toBe(2);
   });
@@ -79,7 +81,7 @@ describe('movimento', () => {
   });
   it('anda até ficar de frente para o inimigo e ataca', () => {
     const s = emptyBattle();
-    const u = placeUnit(s, c('nara'), 'player', 0, 1);
+    const u = placeUnit(s, c('grub'), 'player', 0, 1);
     const e = placeUnit(s, c('riku'), 'enemy', 0, 4, { hp: 99 }); // v0.65.0: sem resistência (o golpe pode tirar 0)
     act(s, new Ctx(), u);
     expect(u.col).toBe(3);
@@ -94,7 +96,7 @@ describe('movimento', () => {
   });
   it('inimigo anda para a esquerda', () => {
     const s = emptyBattle();
-    const u = placeUnit(s, c('nara'), 'enemy', 0, 6);
+    const u = placeUnit(s, c('grub'), 'enemy', 0, 6);
     act(s, new Ctx(), u);
     expect(u.col).toBe(4);
   });
@@ -103,7 +105,7 @@ describe('movimento', () => {
 describe('alcance e mira', () => {
   it('físico só atinge a casa logo à frente (alcance 1)', () => {
     const s = emptyBattle();
-    const u = placeUnit(s, c('nara'), 'player', 0, 3);
+    const u = placeUnit(s, c('grub'), 'player', 0, 3);
     const e = placeUnit(s, c('riku'), 'enemy', 0, 4);
     expect(findTarget(s, u)).toBe(e);
     const far = emptyBattle();
@@ -129,7 +131,7 @@ describe('alcance e mira', () => {
   });
   it('v0.64.7: Corte Diagonal — Comum/Incomum só atrás e diagonal de trás; Raro+ também lado e diagonal da frente', () => {
     const s = emptyBattle();
-    const u = placeUnit(s, c('nara'), 'player', 0, 3); // Comum
+    const u = placeUnit(s, c('shin'), 'player', 0, 3); // Comum
     const e = placeUnit(s, c('riku'), 'enemy', 1, 4);
     expect(findTarget(s, u)).toBeNull(); // diagonal da frente: não no Comum
     e.col = 2;
@@ -137,7 +139,7 @@ describe('alcance e mira', () => {
     const back = placeUnit(s, c('riku'), 'enemy', 0, 2);
     expect(findTarget(s, u)).toBe(back); // atrás tem prioridade
     const s2 = emptyBattle();
-    const r = placeUnit(s2, c('nara', 1, 3), 'player', 0, 3); // Raro
+    const r = placeUnit(s2, c('shin', 1, 3), 'player', 0, 3); // Raro
     const fd = placeUnit(s2, c('riku'), 'enemy', 1, 4);
     expect(findTarget(s2, r)).toBe(fd);
     const side = placeUnit(s2, c('riku'), 'enemy', 1, 3);
@@ -154,7 +156,7 @@ describe('alcance e mira', () => {
   });
   it('golpe reverso atinge a diagonal adjacente atrás', () => {
     const s = emptyBattle();
-    const u = placeUnit(s, c('toru'), 'player', 0, 4);
+    const u = placeUnit(s, c('shin'), 'player', 0, 4);
     const e = placeUnit(s, c('riku'), 'enemy', 1, 3);
     expect(findTarget(s, u)).toBe(e);
     e.col = 2;
@@ -177,20 +179,20 @@ describe('herói como alvo (coluna virtual após a arena)', () => {
   it('vale para o inimigo também (herói do jogador à esquerda)', () => {
     const s = emptyBattle();
     const z = placeUnit(s, c('zarek', 1, 3), 'enemy', 0, 1);
-    const n = placeUnit(s, c('nara'), 'enemy', 1, 1);
+    const n = placeUnit(s, c('grub'), 'enemy', 1, 1);
     expect(findTarget(s, z)).toBe('hero');
     expect(findTarget(s, n)).toBeNull();
   });
   it('unidade de alcance 2 para de avançar quando o herói entra no alcance e ataca', () => {
     const s = emptyBattle();
-    const u = placeUnit(s, c('yume', 1, 3), 'player', 0, 3);
+    const u = placeUnit(s, c('ren', 1, 3), 'player', 0, 3); // v0.67.0: o Ren é DPS de alcance 2
     act(s, new Ctx(), u);
     expect(u.col).toBe(5);
     expect(s.heroes.enemy.hp).toBe(30 - u.atk);
   });
   it('não atravessa inimigo para chegar ao herói (exceto salto)', () => {
     const s = emptyBattle();
-    const u = placeUnit(s, c('nara'), 'player', 0, 4, { atk: 1 });
+    const u = placeUnit(s, c('grub'), 'player', 0, 4, { atk: 1 });
     placeUnit(s, c('gorath'), 'enemy', 0, 5, { hp: 99 });
     act(s, new Ctx(), u);
     expect(u.col).toBe(4);
@@ -318,7 +320,8 @@ describe('fluxo de batalha', () => {
   it('invocar exige carta pronta (contagem 0) e só vale na zona de invocação', () => {
     const ten = ['riku', 'nara', 'toru', 'daichi', 'sora', 'tobi', 'kael', 'suri', 'hana', 'jin'].map((id) => c(id));
     const s = createBattle({ playerDeck: ten, enemyDeck: ten, playerHeroHp: 30, enemyHeroHp: 30, seed: 3 });
-    const idx = s.decks.player.hand.findIndex((x) => x.charId === 'riku' || x.charId === 'nara');
+    // v0.67.0: sem adiantamento — só as de espera 1 ficam prontas na 1ª rodada
+    const idx = s.decks.player.hand.findIndex((x) => getChar(x.charId).wait === 1);
     expect(s.decks.player.hand[idx].wait).toBe(0);
     expect(deploy(s, 'player', idx, 0, 3).ok).toBe(false);
     expect(deploy(s, 'player', idx, 0, 2).ok).toBe(true);

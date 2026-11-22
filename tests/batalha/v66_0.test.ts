@@ -21,7 +21,7 @@ describe('v0.66.0 — revisão dos Humanos e Aura de raça', () => {
     expect(effectiveAtk(s, riku)).toBe(base[0] + 2);
     expect(effectiveAtk(s, alien)).toBe(base[1]);
     expect(effectiveAtk(s, inimigo)).toBe(base[2]);
-    expect(effectiveAtk(s, h)).toBe(8);
+    expect(effectiveAtk(s, h)).toBe(BALANCE_V2.hayato.stats[5][0]); // ele mesmo não ganha a aura
     // duas cópias do Hayato não somam
     placeUnit(s, c('hayato'), 'player', 0, 5);
     expect(effectiveAtk(s, riku)).toBe(base[0] + 2);
@@ -35,15 +35,8 @@ describe('v0.66.0 — revisão dos Humanos e Aura de raça', () => {
     expect(abilityListHTML(getChar('hayato'), 6)).toContain('aliados Humanos ganham +2 de ataque');
   });
 
-  it('Humanos: na mesma função, quem nasce numa raridade acima é mais forte na mesma raridade', () => {
-    const total = (id: string, r: number) => BALANCE_V2[id].stats[r][0] + BALANCE_V2[id].stats[r][1];
-    const hum = PLAYABLE.filter((d) => d.race === 'humano');
-    for (const a of hum)
-      for (const b of hum) {
-        if (a.category !== b.category || a.minStars >= b.minStars) continue;
-        for (let r = b.minStars; r <= Math.min(a.maxStars, b.maxStars); r++) expect(total(b.id, r), `${b.id} > ${a.id} @${r}`).toBeGreaterThan(total(a.id, r));
-      }
-    // subir de raridade sempre melhora
-    for (const d of hum) for (let r = d.minStars + 1; r <= d.maxStars; r++) expect(total(d.id, r), d.id).toBeGreaterThan(total(d.id, r - 1));
+  it('v0.67.0: subir de raridade sempre aumenta a força (2 × ataque + vida)', () => {
+    const force = (id: string, r: number) => 2 * BALANCE_V2[id].stats[r][0] + BALANCE_V2[id].stats[r][1];
+    for (const d of PLAYABLE.filter((x) => x.race === 'humano')) for (let r = d.minStars + 1; r <= d.maxStars; r++) expect(force(d.id, r), d.id).toBeGreaterThan(force(d.id, r - 1));
   });
 });

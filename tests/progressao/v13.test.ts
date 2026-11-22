@@ -30,8 +30,8 @@ describe('v0.13 — Poder das cartas', () => {
     const def = getChar('riku');
     const st = statsFor(def, 1, 0);
     expect(cardPower({ charId: 'riku', stars: 1 })).toBe(Math.round(POWER_SCALE * ABILITY_WEIGHT.riku * Math.sqrt(st.atk * st.hp)));
-    expect(cardPower({ charId: 'riku', stars: 1 })).toBe(36); // v0.66.0: Riku 2/6 (v0.62.0: 25): tabela do balanceamento v2.0 (v0.57.0: 29)
-    expect(cardPower({ charId: 'toru', stars: 1 })).toBe(24); // v0.62.0 (v0.57.0: 26)
+    expect(cardPower({ charId: 'riku', stars: 1 })).toBe(25); // v0.67.0: Riku 2/3 (v0.66.0: 36) (v0.62.0: 25): tabela do balanceamento v2.0 (v0.57.0: 29)
+    expect(cardPower({ charId: 'toru', stars: 1 })).toBe(35); // v0.67.0 (v0.62.0: 24) (v0.57.0: 26)
   });
   it('todo personagem jogável tem peso de habilidade, com média ~1', () => {
     // v0.30.0: as cartas novas ainda não foram medidas no simulador e usam o peso neutro 1
@@ -63,7 +63,7 @@ describe('v0.13 — Poder das cartas', () => {
   it('Poder do baralho = soma das 10 cartas', () => {
     const team = STARTER_IDS.slice(0, 10).map((id) => ({ charId: id, stars: 1 }));
     expect(deckPower(team)).toBe(team.reduce((s, c) => s + cardPower(c), 0));
-    expect(deckPower(team)).toBe(222); // v0.66.0: Humanos revisados (v0.63.0: 199) (v0.62.0: 198) (v0.57.0: 246)
+    expect(deckPower(team)).toBe(247); // v0.67.0: revisão das 6 raças (v0.66.0: 222) Humanos revisados (v0.63.0: 199) (v0.62.0: 198) (v0.57.0: 246)
     // v0.25.0: o save novo começa só com o Riku (os 10 de Comum vinham no save novo até a v0.24)
     expect(defaultSave().deck).toEqual(['riku']);
   });

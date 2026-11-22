@@ -102,7 +102,7 @@ describe('v0.10 — cores com "+" no lugar das estrelas', () => {
   it('topo (Mítico++) continua vencível: dano mínimo 1 e resistência limitada', () => {
     const s = empty();
     const k = placeUnit(s, { charId: 'kenji', stars: 6, plus: 2 }, 'player', 0, 3);
-    expect(k.physRes).toBeLessThanOrEqual(3);
+    expect(k.physRes).toBeLessThanOrEqual(4); // v0.67.0: Kenji virou tanque (Guarda 4 no Mítico)
     expect(k.magRes).toBeLessThanOrEqual(3);
   });
 });

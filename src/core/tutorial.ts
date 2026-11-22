@@ -3,7 +3,7 @@
  *
  * Uma fase só do tutorial, ANTES da fase 1 (a fase 1 não muda). O jogador novo:
  *  1. começa só com o Riku e faz a Batalha 1: 1 contra 1, guiada, feita para ele vencer;
- *  2. abre um pacote grátis com a Sora (suporte de longo alcance) e a Nara (Corte Diagonal);
+ *  2. abre um pacote grátis com a Sora (ataca de longe e cura a fileira) e a Nara (Arrancada: anda mais na rodada em que entra); v0.67.0
  *  3. faz a Batalha 2 contra Daichi, Hana e Tobi, que mostram as habilidades;
  *  4. ganha a recompensa do tutorial (Orbes, Essências e os itens do "+" dos 3) e segue para a fase 1.
  * Saves antigos (com qualquer progresso) e a conta ADM pulam o tutorial. Dá para pular a qualquer momento:
@@ -71,7 +71,7 @@ export const TUTORIAL_TIPS: { icon: string; title: string; text: string }[][] = 
   [
     { icon: '✨', title: 'Habilidades', text: 'Cada personagem tem habilidades. Segure uma carta ou unidade para ver o que ela faz.' },
     { icon: '➕', title: 'Sora', text: 'A Sora ataca de longe (até 4 casas na fileira dela) e cura o aliado mais ferido da fileira. Deixe-a atrás dos outros.' },
-    { icon: '🌙', title: 'Nara', text: 'A Nara também acerta o inimigo na diagonal logo à frente (na outra fileira).' },
+    { icon: '🌙', title: 'Nara', text: 'A Nara tem Arrancada: na rodada em que entra, anda várias casas a mais.' },
     { icon: '👀', title: 'Inimigos', text: 'Daichi devolve dano a quem o ataca de frente, Hana atira de longe e Tobi dá ataque aos vizinhos. Derrube a Hana e o Tobi primeiro!' },
     { icon: '🤖', title: 'Auto', text: 'Com o botão Auto, o jogo invoca e luta por você. Use quando quiser jogar mais rápido.' },
   ],
@@ -210,7 +210,7 @@ export function guideText(i: 0 | 1, a: GuideAction, s: BattleState, touch = true
   if (a.kind === 'card') {
     if (n === 0) return 'Isso! A descrição mostra as habilidades (vale também para as unidades em campo). Agora <b>toque</b> (sem segurar) na carta do <b>Riku</b> para escolhê-la.';
     if (n === 1) return 'A <b>Sora</b> ataca de longe (até 4 casas) e cura o aliado mais ferido da fileira. Toque na carta da Sora.';
-    if (n === 2) return 'A <b>Nara</b> também acerta o inimigo na <b>diagonal</b> logo à frente. Toque na carta da Nara.';
+    if (n === 2) return 'A <b>Nara</b> tem <b>Arrancada</b>: na rodada em que entra, anda várias casas a mais. Toque na carta da Nara.';
     return 'Invoque a carta pronta: toque nela e depois na casa circulada.';
   }
   if (a.kind === 'cell') {
