@@ -115,7 +115,7 @@ export const ENEMY_HERO_HP = [14, 14, 16, 18, 20, 22, 24, 26, 28, 30];
 export const ENEMY_SPELLS: string[][] = [
   [],
   [],
-  ['f-raio'],
+  [], // v0.67.0: sem o Raio Paralisante (a fase ficou difícil demais na escala nova)
   [],
   ['f-raio'],
   [], // v0.28.0: sem feitiços (até a v0.27.0: Flecha Envenenada e Bola de Fogo)
