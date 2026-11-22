@@ -2,6 +2,12 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.67.1] — 22/11/2026 · Aventura recalibrada para a escala nova das cartas
+- **Região 1 (fases 1–10):** os inimigos usam só cartas que nascem Comuns (fases 1–7) e algumas Incomuns (fases 8–10). As raridades das cartas inimigas e os feitiços foram ajustados no simulador, e a dificuldade ficou parecida com a da versão anterior.
+- **Regiões 2–10 (fases 11–100):** as cartas inimigas ficaram bem mais baixas. Antes a região 10 chegava a Mítico; agora vai até Épico. No simulador, a vitória ao chegar subiu de 0–15% para 17–39% por região, no mesmo nível da região 1 (24%).
+- **Inimigos Lendários e Míticos:** como o mundo agora vai até Épico, as cartas que nascem Lendárias não aparecem mais como inimigas. Alguns Comandantes escolhidos para combinar com a arena deram lugar ao sorteado.
+- **Vida dos Comandantes:** não mudou. No simulador, mudar a vida quase não altera a dificuldade nem a duração das batalhas.
+
 ## [0.67.0] — 21/11/2026 · Revisão completa das 6 raças, habilidades novas e começo de partida novo
 - **Todas as 120 cartas revisadas**, com base nas ~60 imagens do jogo de referência:
   - **Força = 2 × ataque + vida** (1 de ataque vale 2 de vida).

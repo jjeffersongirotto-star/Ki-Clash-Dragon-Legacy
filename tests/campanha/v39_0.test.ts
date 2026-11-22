@@ -49,7 +49,8 @@ describe('v0.39.0 — Mapa do mundo: 100 fases', () => {
 
   it('os 120 personagens aparecem nos baralhos inimigos do mundo', () => {
     const seen = new Set(WORLD_STAGES.flatMap((s) => s.enemyDeck.map((c) => c.charId)));
-    expect([...seen].filter((id) => !isSpell(id)).length).toBeGreaterThanOrEqual(110);
+    // v0.67.0: o mundo vai até Épico (raridades bem mais distantes); quem nasce Lendário não entra nos baralhos
+    expect([...seen].filter((id) => !isSpell(id)).length).toBeGreaterThanOrEqual(85);
   });
 
   it('dificuldade sobe: Poder do baralho, vida e nível da IA crescem de região em região', () => {
@@ -81,14 +82,13 @@ describe('v0.39.0 — Mapa do mundo: 100 fases', () => {
       }
     // v0.60.0: alguns Comandantes foram escolhidos à mão para combinar com a arena (COMMANDER_OVERRIDE), o que repete
     // um pouco mais os mesmos personagens entre regiões; a variedade continua alta
-    expect(new Set(WORLD_COMMANDERS.filter(Boolean)).size).toBeGreaterThanOrEqual(65);
+    expect(new Set(WORLD_COMMANDERS.filter(Boolean)).size).toBeGreaterThanOrEqual(50); // v0.67.0 (antes 65)
   });
 
   it('v0.60.0: os Comandantes escolhidos para combinar com a arena valem em todas as fases da lista', () => {
     // v0.63.0: quem mudou de raridade e não cabe mais na fase deixa o Comandante padrão (a maioria continua valendo)
     for (const [k, v] of Object.entries(COMMANDER_OVERRIDE)) if (OVERRIDE_APPLIED.has(Number(k))) expect(WORLD_COMMANDERS[Number(k) - 1], `fase ${k}`).toBe(v);
-    expect(OVERRIDE_APPLIED.size).toBeGreaterThanOrEqual(Object.keys(COMMANDER_OVERRIDE).length - 10);
-    expect(WORLD_COMMANDERS[75]).toBe('aurel'); // Ponte de Arco-Íris: anjo de luz no lugar da abominação
+    expect(OVERRIDE_APPLIED.size).toBeGreaterThanOrEqual(Object.keys(COMMANDER_OVERRIDE).length - 15); // v0.67.0: Lendários não cabem mais
   });
 
   it('recompensas crescem por região; Gemas na 1ª vitória das fases 3, 6, 9 (1) e 10 (3) de cada região', () => {

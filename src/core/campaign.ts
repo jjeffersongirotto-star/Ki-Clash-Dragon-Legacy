@@ -49,7 +49,7 @@ const POOLS_V8: string[][] = [
   ['riku', 'daichi', 'sora', 'wex', 'jin', 'kuro', 'quorr', 'ossian', 'nara', 'mira'],
   ['riku', 'toru', 'ysmera', 'suri', 'jin', 'grub', 'shin', 'taro', 'medi3', 'wex'],
   ['nara', 'daichi', 'wex', 'hana', 'kuro', 'grav', 'bram', 'pip', 'sora', 'fen'],
-  ['riku', 'toru', 'ysmera', 'jin', 'quorr', 'ossian', 'lyra', 'gorath', 'yume', 'akemi'],
+  ['riku', 'toru', 'ysmera', 'jin', 'quorr', 'ossian', 'lyra', 'gorath', 'yume', 'hana'],
   ['nara', 'daichi', 'wex', 'bolt', 'taro', 'mira', 'aiko', 'mei', 'isel', 'cador'],
   ['riku', 'toru', 'jin', 'grub', 'shin', 'medi3', 'gorath', 'yume', 'tobi', 'bufo'],
 ];
@@ -115,7 +115,7 @@ export const ENEMY_HERO_HP = [14, 14, 16, 18, 20, 22, 24, 26, 28, 30];
 export const ENEMY_SPELLS: string[][] = [
   [],
   [],
-  ['f-raio'],
+  [], // v0.67.0: sem o Raio Paralisante (a fase ficou difícil demais na escala nova)
   [],
   ['f-raio'],
   [], // v0.28.0: sem feitiços (até a v0.27.0: Flecha Envenenada e Bola de Fogo)
@@ -136,7 +136,7 @@ export const ENEMY_SPELL_COPIES = 2;
  * Até a v0.22.0: NÍVEL por fase (1, 4, 4, 5, 6, 6, 11, 14, 17, 12). v0.23.0–v0.27.0: 0, 0,5, 0, 1, 0,5, 0, 3, 0, 0,5, 0,5.
  * v0.28.0: reequilíbrio (scripts/balance/v28.ts).
  */
-export const ENEMY_STEPS = [2.8, 1, 0.5, 0, 1, 0.5, 0, 0, 0, 0];
+export const ENEMY_STEPS = [2.8, 1, 0, 0, 0.5, 0.5, 0, 0, 0, 0];
 /* v0.66.0: 2,8, 1, 0,5, 1,5, 2,5, 0,5, 0, 0, 0, 0 (v0.67.0: cartas de raridade alta ficaram bem mais fortes). */
 /* v0.37.0 (IA esperta). v0.36.0: 2,8, 1, 0,5, 1,5, 1,5, 0, 1,5, 0, 0, 0. */
 /* v0.36.0 (arena de 10 colunas). v0.33.0–v0.35.0: 3,34, 3,25, 0,5, 1,5, 0, 0, 1,5, 0, 0, 0. */
@@ -225,15 +225,16 @@ export function stageCommander(stage: Pick<Stage, 'id' | 'enemyDeck'>): CardInst
  * mais alto porque o jogador chega com muitas cartas Lendárias e Míticas do Banner.
  */
 export const WORLD_STEP_RANGE: [number, number][] = [
-  [2.35, 3.35],
-  [4.5, 5.5],
-  [4.65, 5.65],
-  [6.65, 7.65],
-  [7.35, 8.35],
-  [8.5, 9.5],
-  [12.7, 13.7],
-  [13.15, 14.15],
-  [15.5, 16.5],
+  // v0.67.0: escala nova (raridades bem mais distantes) — recalibrado em scripts/balance/world.ts (STEPS)
+  [0.5, 1.5],
+  [1.5, 3],
+  [2.3, 3.3],
+  [2.8, 4.2],
+  [4, 5.5],
+  [5.5, 7],
+  [6.5, 8],
+  [8, 9.5],
+  [9.5, 11],
 ];
 /** Vida do Comandante inimigo na fase 1 e na fase 10 de cada região (índice 0 = região 2). */
 // v0.62.0 (balanceamento v2.0): escala enxuta — antes 50–70 (região 2) … 130–160 (região 10)
