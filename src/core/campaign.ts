@@ -40,16 +40,18 @@ const NAMES = [
 
 /** Baralho da IA em cada fase: até a v0.32.0, sempre 10 personagens DIFERENTES (v0.8). */
 const POOLS_V8: string[][] = [
+  // v0.67.0: a diferença de força entre raridades ficou grande (como no jogo de referência); a região 1 usa só cartas que
+  // nascem Comuns (fases 1–7) e, no fim, Incomuns — nada que nasce Raro ou acima (antes: Zarek, Kenji e Vorax Lendários)
   ['riku', 'nara', 'sora', 'ysmera', 'wex', 'suri', 'hana', 'jin', 'ren', 'kuro'],
   ['riku', 'nara', 'toru', 'daichi', 'ysmera', 'wex', 'suri', 'hana', 'jin', 'ren'],
   ['riku', 'nara', 'toru', 'daichi', 'sora', 'wex', 'jin', 'hana', 'kuro', 'aiko'],
-  ['riku', 'toru', 'daichi', 'ysmera', 'wex', 'jin', 'ren', 'aiko', 'lyra', 'mei'],
-  ['nara', 'daichi', 'sora', 'wex', 'jin', 'kuro', 'aiko', 'lyra', 'gorath', 'mei'],
-  ['riku', 'toru', 'ysmera', 'suri', 'jin', 'aiko', 'lyra', 'gorath', 'mei', 'yume'],
-  ['nara', 'daichi', 'wex', 'hana', 'kuro', 'aiko', 'gorath', 'mei', 'yume', 'zarek'],
-  ['riku', 'toru', 'ysmera', 'jin', 'lyra', 'gorath', 'yume', 'zarek', 'nyx', 'kenji'],
-  ['nara', 'daichi', 'wex', 'aiko', 'lyra', 'mei', 'yume', 'zarek', 'nyx', 'kenji'],
-  ['riku', 'toru', 'jin', 'aiko', 'gorath', 'mei', 'yume', 'zarek', 'nyx', 'vorax'],
+  ['riku', 'nara', 'daichi', 'ysmera', 'wex', 'jin', 'ren', 'bolt', 'toru', 'fen'],
+  ['riku', 'daichi', 'sora', 'wex', 'jin', 'kuro', 'quorr', 'ossian', 'nara', 'mira'],
+  ['riku', 'toru', 'ysmera', 'suri', 'jin', 'grub', 'shin', 'taro', 'medi3', 'wex'],
+  ['nara', 'daichi', 'wex', 'hana', 'kuro', 'grav', 'bram', 'pip', 'aiko', 'mei'],
+  ['riku', 'toru', 'ysmera', 'jin', 'lyra', 'gorath', 'yume', 'akemi', 'kraz9', 'velka'],
+  ['nara', 'daichi', 'wex', 'aiko', 'lyra', 'mei', 'yume', 'isel', 'cador', 'rin'],
+  ['riku', 'toru', 'jin', 'aiko', 'gorath', 'mei', 'yume', 'tobi', 'bufo', 'nyx'],
 ];
 
 /**
