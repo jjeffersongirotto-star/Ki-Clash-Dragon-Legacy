@@ -230,7 +230,8 @@ export const STAGE_COMMANDERS: (string | null)[] = (() => {
 /** Carta do Comandante inimigo da fase (na raridade em que ele está no baralho dessa dificuldade), ou `null` = minotauro. */
 export function stageCommander(stage: Pick<Stage, 'id' | 'enemyDeck'>): CardInstance | null {
   const id = stage.id >= 1 ? WORLD_COMMANDERS[stage.id - 1] : [...stage.enemyDeck].filter((c) => isCleanCommander(c.charId)).sort((a, b) => cardPower(b) - cardPower(a))[0]?.charId;
-  return (id && stage.enemyDeck.find((c) => c.charId === id)) || null;
+  // v0.67.2: no Normal/Difícil o baralho é outro — sem o Comandante da fase, vai o mais forte com recorte limpo
+  return (id && stage.enemyDeck.find((c) => c.charId === id)) || [...stage.enemyDeck].filter((c) => isCleanCommander(c.charId)).sort((a, b) => cardPower(b) - cardPower(a))[0] || null;
 }
 
 // ---------------- v0.39.0: mapa do mundo (regiões 2–10, fases 11–100) ----------------

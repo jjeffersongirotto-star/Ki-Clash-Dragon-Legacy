@@ -21,22 +21,17 @@ describe('v0.20.0 — dificuldades da Aventura', () => {
     expect(DIFFICULTIES).toEqual(['facil', 'normal', 'dificil']);
     for (const s of STAGES) expect(stageFor(s.id, 'facil')).toBe(s);
   });
-  it('Normal e Difícil: mesma fase, mesmos personagens e feitiços, inimigos com mais nível (limitado pela cor)', () => {
+  it('Normal e Difícil: mesma fase e recompensa, baralho próprio e mais forte', () => {
     for (const s of STAGES) {
       const n = stageFor(s.id, 'normal');
       const d = stageFor(s.id, 'dificil');
       expect(n.name).toBe(s.name);
       expect(n.rewards).toEqual(s.rewards);
-      // v0.67.1: Normal e Difícil sobem a raridade (escada pelas 300 fases) e trocam quem não chega a ela; o Comandante fica
-      expect(n.enemyDeck[0].charId).toBe(s.enemyDeck[0].charId);
+      // v0.67.2: Normal e Difícil têm baralhos próprios (escada de dificuldade + baralhos testados no simulador)
       const g = (x: (typeof s.enemyDeck)[number]) => stepIndex(x.stars, stepOf(x));
       const avg = (deck: typeof s.enemyDeck) => { const c = deck.filter((x) => !isSpell(x.charId)); return c.reduce((t, x) => t + g(x), 0) / c.length; };
-      expect(avg(n.enemyDeck)).toBeGreaterThan(avg(s.enemyDeck));
-      expect(avg(d.enemyDeck)).toBeGreaterThanOrEqual(avg(n.enemyDeck));
-      s.enemyDeck.forEach((c, k) => {
-        if (isSpell(c.charId)) return;
-
-      });
+      expect(avg(d.enemyDeck)).toBeGreaterThanOrEqual(avg(n.enemyDeck) - 0.01);
+      expect(new Set(n.enemyDeck.map((c) => c.charId)).size).toBe(n.enemyDeck.length);
       // baralho válido para a batalha
       expect(() => createBattle({ playerDeck: [], enemyDeck: d.enemyDeck, playerHeroHp: 20, enemyHeroHp: d.enemyHeroHp, seed: 1 })).not.toThrow();
     }
