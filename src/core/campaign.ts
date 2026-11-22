@@ -154,15 +154,32 @@ export function enemyCard(charId: string, target: number, bonus = 0): CardInstan
   return { charId, ...fromStepIndex(g) };
 }
 
+/**
+ * v0.67.1: Normal e Difícil sobem a raridade das cartas inimigas até Lendário e Mítico. Quem não chega à raridade
+ * da fase (raridade máxima abaixo dela) dá lugar a um personagem que chega, de preferência da raça da região —
+ * sempre o mesmo para a mesma fase (sorteio fixo). O Comandante (1ª carta) fica.
+ */
+export function poolAtRarity(i: number, pool: string[], r: number): string[] {
+  const races = i < STAGES_PER_REGION ? [] : REGIONS[regionOf(i + 1) - 1].races;
+  const st = { seed: 15485863 * (i + 1) + r };
+  const cand = shuffle(PLAYABLE.filter((d) => d.minStars <= r && d.maxStars >= r && !pool.includes(d.id)).map((d) => d.id), st).sort(
+    (a, b) => (races.includes(getChar(b).race) ? 1 : 0) - (races.includes(getChar(a).race) ? 1 : 0),
+  );
+  return pool.map((id, k) => (k === 0 || getChar(id).maxStars >= r ? id : (cand.shift() ?? id)));
+}
+
 /** Baralho da IA na fase `i`: os personagens da fase (v0.33.0: 3 a 10) com 3 cópias (no degrau da fase + `bonus`) e os feitiços da fase com 2 cópias. */
 export function enemyDeckFor(i: number, target = WORLD_STEPS[i], spellIds = WORLD_SPELLS[i], bonus = 0): CardInstance[] {
   // v0.39.0: fases 11–100 (regiões 2–10) com os baralhos gerados em `worldPlan`
-  const pool = i < POOLS.length ? POOLS[i] : worldPlan().pools[i - POOLS.length];
+  const base = i < POOLS.length ? POOLS[i] : worldPlan().pools[i - POOLS.length];
+  const pool = bonus > 0 ? poolAtRarity(i, base, Math.max(1, Math.min(6, Math.floor((target + bonus) / 3) + 1))) : base;
   if (new Set(pool).size !== pool.length || pool.length > DECK_SLOTS) throw new Error(`Fase ${i + 1}: a IA precisa de até ${DECK_SLOTS} personagens diferentes`);
   const frac = target - Math.floor(target);
   // degrau quebrado: espalha o degrau a mais entre as cartas (k-ésima carta sobe quando a conta "vira")
   const deck = pool.map((charId, k) => enemyCard(charId, Math.floor(target) + (Math.floor((k + 1) * frac) > Math.floor(k * frac) ? 1 : 0), bonus));
-  const spells = spellIds.map((sid) => {
+  // v0.67.1: no Normal/Difícil a troca de personagens pode tirar o conjurador — o feitiço sai do baralho
+  const castable = (sid: string) => getSpell(sid).categories.some((k) => pool.some((id) => getChar(id).category === k));
+  const spells = spellIds.filter((sid) => bonus <= 0 || castable(sid)).map((sid) => {
     if (!getSpell(sid).categories.some((k) => pool.some((id) => getChar(id).category === k))) throw new Error(`Fase ${i + 1}: ${sid} sem conjurador`);
     return { charId: sid, stars: 1, copies: ENEMY_SPELL_COPIES };
   });

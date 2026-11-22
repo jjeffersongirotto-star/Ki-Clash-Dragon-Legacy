@@ -17,7 +17,7 @@ import { isSpell } from '../../src/core/spells';
 import { STARTER_IDS } from '../../src/core/characters';
 import { TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_REWARD, TUTORIAL_SPELL, TUTORIAL_SPELL_COPIES, tutorialGear } from '../../src/core/tutorial';
 import { newOwned, feedXp, ascend, canAscend, ascendCost, barFull, isMaxTier, stepIndex, xpProgress, XP_ITEMS, playXp, type OwnedCard } from '../../src/core/progression';
-import { FIRST_WIN_XP_MULT, gemsFor, rewardsFor, spellRewardFor } from '../../src/core/adventure';
+import { FIRST_WIN_XP_MULT, gemsFor, rewardsFor, spellRewardFor, type Difficulty } from '../../src/core/adventure';
 import { addGear, gearCount, gearNeeded, hasGearFor, spendGearFor, stageGearDrop, type GearBag } from '../../src/core/gear';
 import { FIRST_WIN_MULT, goldFor } from '../../src/core/profile';
 import { GEAR_PRICE } from '../../src/core/shop';
@@ -157,28 +157,33 @@ function spend(p: Player) {
   }
 }
 
-function reward(p: Player, i: number, first: boolean, repeatMult = 0.5) {
-  // v0.22.0: recompensa do Fácil em Orbes (o simulador joga a campanha no Fácil)
-  const r = rewardsFor(i + 1, 'facil');
+/** v0.67.1: fase do simulador → fase do jogo e dificuldade (padrão: índice i = fase i+1 no Fácil). long.ts joga as 300. */
+export const STAGE_MAP: { fn: (i: number) => { id: number; diff: Difficulty } } = { fn: (i) => ({ id: i + 1, diff: 'facil' }) };
+
+function reward(p: Player, i0: number, first: boolean, repeatMult = 0.5) {
+  // v0.22.0: recompensa em Orbes da fase e dificuldade (v0.67.1: STAGE_MAP)
+  const { id: sid, diff } = STAGE_MAP.fn(i0);
+  const i = sid - 1;
+  const r = rewardsFor(i + 1, diff);
   const f = first ? 1 : repeatMult;
   for (const [id, k] of Object.entries(r.orbs)) p.items[id] = (p.items[id] ?? 0) + Math.floor((k ?? 0) * f);
   p.ess += Math.floor(r.essencias * f);
   if (f >= 1) for (const g of r.gear) addGear(p.gear, g.id, g.rarity); // v0.24.0: itens só com recompensa inteira
-  p.gold += Math.floor(goldFor(i + 1, 'facil') * f * (first ? FIRST_WIN_MULT : 1)); // v0.26.0: Ouro de Dragão
-  if (first) for (const g of stageGearDrop(i + 1, 'facil')) addGear(p.gear, g.id, g.rarity); // v0.24.1: bônus da 1ª vitória
+  p.gold += Math.floor(goldFor(i + 1, diff) * f * (first ? FIRST_WIN_MULT : 1)); // v0.26.0: Ouro de Dragão
+  if (first) for (const g of stageGearDrop(i + 1, diff)) addGear(p.gear, g.id, g.rarity); // v0.24.1: bônus da 1ª vitória
   // v0.25.0: pacote da primeira vitória (o desbloqueio de sempre + um personagem de Comum) — desligado na v0.33.0
   if (first && STAGE_PACKS) for (const id of stagePack(i + 1)) if (!p.cards[id]) { p.cards[id] = newOwned(id); p.copies[id] = 3; }
   // v0.33.0: 💠 Gemas na primeira vitória (fases 3, 6, 9 e 10) viram cartas do banner
-  if (first) pullCards(p, gemsFor(i + 1));
+  if (first) pullCards(p, gemsFor(i + 1)); // em cada dificuldade (como no jogo)
   // v0.41.0: ✦ feitiço na primeira vitória das fases 2, 5 e 8 de cada região
-  const sp = first ? spellRewardFor(i + 1, 'facil') : undefined;
+  const sp = first ? spellRewardFor(i + 1, diff) : undefined;
   if (sp) p.spells[sp] = (p.spells[sp] ?? 0) + 1;
 }
 
 /** v0.22.0: XP por jogar — ao vencer jogando, a equipe ganha XP (SIM_PLAYXP=0 desliga, para comparar). */
 const SIM_PLAYXP = process.env.SIM_PLAYXP !== '0';
 function winXp(p: Player, i: number, first = false) {
-  if (SIM_PLAYXP) for (const c of team(p)) feedXp(c, playXp(i + 1) * (first ? FIRST_WIN_XP_MULT : 1));
+  if (SIM_PLAYXP) for (const c of team(p)) feedXp(c, playXp(STAGE_MAP.fn(i).id) * (first ? FIRST_WIN_XP_MULT : 1));
 }
 
 function levelUp(p: Player, sc: Schedule) {

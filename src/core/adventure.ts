@@ -35,13 +35,23 @@ export const DIFFICULTY_RULES: Record<Difficulty, DifficultyRule> = {
   dificil: { stepBonus: 2, swaps: {} },
 };
 
+/**
+ * v0.67.1: degraus a mais no Normal e no Difícil, crescendo com o mundo — o Fácil vai até Épico, o Normal chega a
+ * Lendário e o Difícil a Mítico no fim. Normal: de +1 (fase 1) a +3 (fase 100, Lendário++); Difícil: de +2 a +6 (Mítico++).
+ */
+export function stepBonusAt(diff: Difficulty, stageId: number): number {
+  if (diff === 'facil') return 0;
+  const t = (Math.min(100, Math.max(1, stageId)) - 1) / 99;
+  return diff === 'normal' ? Math.round(1 + 2 * t) : Math.round(2 + 4 * t);
+}
+
 /** A fase `stageId` na dificuldade escolhida (mesmo nome, Comandante e recompensa; baralho inimigo mais forte). */
 export function stageFor(stageId: number, diff: Difficulty): Stage {
   const i = stageId - 1;
   const base = getStage(stageId);
   if (diff === 'facil') return base;
   const rule = DIFFICULTY_RULES[diff];
-  const deck: CardInstance[] = enemyDeckFor(i, WORLD_STEPS[i], WORLD_SPELLS[i], rule.stepBonus);
+  const deck: CardInstance[] = enemyDeckFor(i, WORLD_STEPS[i], WORLD_SPELLS[i], stepBonusAt(diff, stageId));
   for (const [out, inn] of rule.swaps[i] ?? []) {
     const k = deck.findIndex((c) => c.charId === out);
     if (k >= 0 && !deck.some((c) => c.charId === inn)) deck[k] = { ...deck[k], charId: inn };
