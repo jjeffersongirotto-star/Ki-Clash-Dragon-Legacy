@@ -1622,7 +1622,7 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 | Mago | Morgause Espelho-Duplo | L→M | 4 | 4 |  |  |  |  | 6\|4 | 7\|5 | Clone, Reflexo de Magia, Barreira Arcana (a partir do Mítico) |  |
 | Mago | Eldrin Arquimago-Solar | L→M | 3 | 4 |  |  |  |  | 7\|5 | 8\|6 | Explosão de Brasas, Olho de Águia, Feixe Perfurante (a partir do Mítico) |  |
 | Mago | Aethra Tecelã-do-Trovão | L→M | 6 | 4 |  |  |  |  | 8\|6 | 9\|8 | Raio em Cadeia, Atordoamento, Feixe Perfurante (a partir do Mítico) |  |
-| Suporte | Sora Brisa-Serena | C→R | 1 | 4 | 1\|4 | 1\|6 | 1\|8 |  |  |  | — |  |
+| Suporte | Sora Brisa-Serena | C→R | 2 | 4 | 1\|3 | 1\|5 | 1\|8 |  |  |  | Sopro Restaurador | carta inicial: cura a fileira |
 | Suporte | Mei Lótus-Celeste | I→É | 2 | 4 |  | 1\|5 | 1\|8 | 1\|10 |  |  | Bênção do Lótus |  |
 | Suporte | Dorian Pena-Encantada | I→É | 3 | 4 |  | 2\|2 | 2\|3 | 3\|4 |  |  | Aura de Ataque | aura: humano +1 ataque (outra raça) |
 | Suporte | Odo Sombra-de-Papel | É→M | 3 | 4 |  |  |  | 1\|13 | 1\|16 | 2\|17 | Escudo de Entrada, Purificar (a partir do Lendário), Lentidão (a partir do Mítico) |  |
@@ -1648,7 +1648,7 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 | Arqueiro | Spindra Aranha-Tecelã | R→L | 2 | 4 |  |  | 5\|3 | 6\|4 | 7\|5 |  | — |  |
 | Mago | Bufo Sapo-Ácido | I→É | 3 | 4 |  | 3\|6 | 4\|7 | 5\|8 |  |  | — |  |
 | Mago | Oculus Olho-Medonho | L→M | 4 | 4 |  |  |  |  | 6\|6 | 7\|7 | Maldição, Atordoamento (a partir do Mítico) |  |
-| Suporte | Ysmera Serpente-Abissal | C→É | 2 | 4 | 1\|3 | 1\|5 | 1\|8 | 1\|10 |  |  | Sopro Restaurador |  |
+| Suporte | Ysmera Serpente-Abissal | C→É | 2 | 4 | 1\|3 | 1\|5 | 1\|8 | 1\|10 |  |  | Veneno | serpente: envenena |
 | Suporte | Tobi Tambor-de-Guerra | I→É | 3 | 1 |  | 2\|3 | 2\|5 | 3\|6 |  |  | Tambor de Guerra |  |
 | Suporte | Fenra Loba-Uivante | R→L | 3 | 1 |  |  | 1\|5 | 1\|8 | 1\|10 |  | Aura de Vida | aura: necromante +2 vida (outra raça) |
 
@@ -1675,3 +1675,10 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 | Suporte | Mira Sussurro-Frio | C→É | 3 | 4 | 1\|6 | 1\|9 | 1\|12 | 2\|13 |  |  | — |  |
 | Suporte | Elegia Arauta-do-Retorno | R→L | 3 | 4 |  |  | 1\|7 | 1\|10 | 1\|12 |  | Ressurreição |  |
 | Suporte | Ivra Fiandeira-de-Almas | L→M | 5 | 4 |  |  |  |  | 1\|16 | 2\|18 | Aura de Vida, Purificar, Sopro Restaurador (a partir do Mítico) | aura: necromante +2 vida |
+
+
+
+### Aventura, região 1 (fases 1–10)
+- **Baralhos inimigos só com cartas de raridade baixa:** fases 1 a 7 só com cartas que nascem Comuns, e fases 8 a 10 com algumas Incomuns. Antes vinham Zarek, Kenji e Vorax Lendários, que ficaram fortes demais na escala nova.
+- **Degraus das cartas inimigas:** 2,8 · 1 · 0,5 · 0 · 1 · 0,5 · 0 · 0 · 0 · 0.
+- **Cartas iniciais:** a Sora voltou a curar (Sopro Restaurador, espera 2) e a Ysmera passou a envenenar, para não repetir a habilidade da Sora.
