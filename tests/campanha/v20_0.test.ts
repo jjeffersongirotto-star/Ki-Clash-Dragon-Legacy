@@ -27,15 +27,15 @@ describe('v0.20.0 — dificuldades da Aventura', () => {
       const d = stageFor(s.id, 'dificil');
       expect(n.name).toBe(s.name);
       expect(n.rewards).toEqual(s.rewards);
-      expect(n.enemyDeck.map((c) => c.charId)).toEqual(s.enemyDeck.map((c) => c.charId));
+      // v0.67.1: Normal e Difícil sobem a raridade (escada pelas 300 fases) e trocam quem não chega a ela; o Comandante fica
+      expect(n.enemyDeck[0].charId).toBe(s.enemyDeck[0].charId);
+      const g = (x: (typeof s.enemyDeck)[number]) => stepIndex(x.stars, stepOf(x));
+      const avg = (deck: typeof s.enemyDeck) => { const c = deck.filter((x) => !isSpell(x.charId)); return c.reduce((t, x) => t + g(x), 0) / c.length; };
+      expect(avg(n.enemyDeck)).toBeGreaterThan(avg(s.enemyDeck));
+      expect(avg(d.enemyDeck)).toBeGreaterThanOrEqual(avg(n.enemyDeck));
       s.enemyDeck.forEach((c, k) => {
         if (isSpell(c.charId)) return;
-        // v0.23.0: degraus a mais (limitados ao topo do personagem); até a v0.22.0 eram níveis
-        const g = (x: typeof c) => stepIndex(x.stars, stepOf(x));
-        const top = stepIndex(getChar(c.charId).maxStars, 2);
-        expect(g(n.enemyDeck[k])).toBe(Math.min(top, g(c) + DIFFICULTY_RULES.normal.stepBonus));
-        expect(g(d.enemyDeck[k])).toBe(Math.min(top, g(c) + DIFFICULTY_RULES.dificil.stepBonus));
-        expect(g(d.enemyDeck[k])).toBeGreaterThanOrEqual(g(n.enemyDeck[k]));
+
       });
       // baralho válido para a batalha
       expect(() => createBattle({ playerDeck: [], enemyDeck: d.enemyDeck, playerHeroHp: 20, enemyHeroHp: d.enemyHeroHp, seed: 1 })).not.toThrow();

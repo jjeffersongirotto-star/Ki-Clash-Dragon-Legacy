@@ -3,7 +3,7 @@ import { BALANCE_V2 } from '../../src/core/balanceV2';
 import { abilityPower } from '../../src/core/abilities';
 import { placeUnit, createBattle } from '../../src/core/battle';
 import { PLAYABLE, getChar } from '../../src/core/characters';
-import { DIFFICULTIES, stageFor } from '../../src/core/adventure';
+import { stepBonusAt, DIFFICULTIES, stageFor } from '../../src/core/adventure';
 import { ENEMY_STEPS, STAGES } from '../../src/core/campaign';
 import {
   MAX_STEP,
@@ -142,15 +142,11 @@ describe('v0.23.0 — inimigos por degrau', () => {
           expect('level' in c).toBe(false);
         }
   });
-  it('Normal = +1 degrau e Difícil = +2 degraus em cada carta (limitado ao topo)', () => {
-    for (const st of STAGES) {
-      const g = (diff: (typeof DIFFICULTIES)[number]) => stageFor(st.id, diff).enemyDeck.filter((c) => !isSpell(c.charId)).map((c) => ({ g: stepIndex(c.stars, stepOf(c)), top: stepIndex(getChar(c.charId).maxStars, 2) }));
-      const [f, n, d] = DIFFICULTIES.map(g);
-      f.forEach((x, k) => {
-        expect(n[k].g).toBe(Math.min(x.top, x.g + 1));
-        expect(d[k].g).toBe(Math.min(x.top, x.g + 2));
-      });
-    }
+  it('v0.67.1: Normal e Difícil sobem os degraus numa escada (Fácil até Épico, Normal até Lendário, Difícil até Mítico)', () => {
+    const top = (diff: (typeof DIFFICULTIES)[number], id: number) => Math.max(...stageFor(id, diff).enemyDeck.filter((c) => !isSpell(c.charId)).map((c) => c.stars));
+    expect(top('normal', 100)).toBe(5);
+    expect(top('dificil', 100)).toBe(6);
+    for (const st of STAGES) for (const diff of ['normal', 'dificil'] as const) expect(stepBonusAt(diff, st.id)).toBeGreaterThanOrEqual(1);
   });
 });
 

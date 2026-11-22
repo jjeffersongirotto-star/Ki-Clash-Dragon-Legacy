@@ -36,13 +36,16 @@ export const DIFFICULTY_RULES: Record<Difficulty, DifficultyRule> = {
 };
 
 /**
- * v0.67.1: degraus a mais no Normal e no Difícil, crescendo com o mundo — o Fácil vai até Épico, o Normal chega a
- * Lendário e o Difícil a Mítico no fim. Normal: de +1 (fase 1) a +3 (fase 100, Lendário++); Difícil: de +2 a +6 (Mítico++).
+ * v0.67.1: degraus a mais no Normal e no Difícil, numa escada pelas 300 fases: o Fácil vai até Épico, o Normal começa
+ * onde o Fácil terminou e sobe até Lendário (degrau 10 → 13,5), o Difícil continua de Lendário até Mítico (13 → 16).
+ * Simulado em scripts/balance/long.ts (as 300 fases em ordem).
  */
+export const DIFF_STEP_RANGE: Record<Exclude<Difficulty, 'facil'>, [number, number]> = { normal: [10, 13.5], dificil: [13, 16] };
 export function stepBonusAt(diff: Difficulty, stageId: number): number {
   if (diff === 'facil') return 0;
   const t = (Math.min(100, Math.max(1, stageId)) - 1) / 99;
-  return diff === 'normal' ? Math.round(1 + 2 * t) : Math.round(2 + 4 * t);
+  const [a, b] = DIFF_STEP_RANGE[diff];
+  return Math.max(1, Math.round(a + (b - a) * t - WORLD_STEPS[stageId - 1]));
 }
 
 /** A fase `stageId` na dificuldade escolhida (mesmo nome, Comandante e recompensa; baralho inimigo mais forte). */

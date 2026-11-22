@@ -150,7 +150,8 @@ export function enemyCard(charId: string, target: number, bonus = 0): CardInstan
   const def = getChar(charId);
   const lo = stepIndex(def.minStars, 0);
   const hi = stepIndex(def.maxStars, 2);
-  const g = Math.min(hi, Math.max(lo, Math.floor(target)) + Math.max(0, Math.floor(bonus)));
+  // v0.67.1: o bônus de dificuldade soma ao degrau da fase (não ao piso da carta): um Lendário no Normal fica Lendário
+  const g = Math.min(hi, Math.max(lo, Math.floor(target) + Math.max(0, Math.floor(bonus))));
   return { charId, ...fromStepIndex(g) };
 }
 
