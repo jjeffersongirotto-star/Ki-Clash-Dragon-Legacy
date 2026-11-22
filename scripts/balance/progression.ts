@@ -23,6 +23,8 @@ import { FIRST_WIN_MULT, goldFor } from '../../src/core/profile';
 import { GEAR_PRICE } from '../../src/core/shop';
 import { cardPower, deckPower } from '../../src/core/power';
 import type { CardInstance } from '../../src/core/types';
+import { getChar } from '../../src/core/characters';
+import { BALANCE_V2 } from '../../src/core/balanceV2';
 import { autoDeck, deckMaxFor, profileLevelFor } from '../../src/core/deckbuild';
 
 export interface Schedule { name: string; hp: number[]; thresholds: number[]; enemyHp: (stageIdx: number) => number }
@@ -39,7 +41,35 @@ const SIM_GEAR = process.env.SIM_GEAR !== '0';
 const gearOk = (p: Player, c: OwnedCard) => !SIM_GEAR || hasGearFor(p.gear, c);
 
 function team(p: Player): OwnedCard[] {
-  return Object.values(p.cards).sort((a, b) => cardPower(b) - cardPower(a)).slice(0, 10);
+  const all = Object.values(p.cards).sort((a, b) => cardPower(b) - cardPower(a));
+  return SIM_SYNERGY ? synergyTeam(all) : all.slice(0, 10);
+}
+/**
+ * v0.67.1: SIM_SYNERGY=1 — o jogador monta o baralho com SINERGIA em vez de só os 10 de maior Poder: para cada raça,
+ * a carta de Aura de raça que ele tiver puxa os aliados da raça (valem +25%); garante 1 tanque e 1 curandeiro.
+ * Fica com a raça cuja equipe soma mais (ou com os 10 mais fortes, se nenhuma raça ganhar).
+ */
+const SIM_SYNERGY = process.env.SIM_SYNERGY === '1';
+const HEALERS = new Set(['sopro', 'lotus', 'ondaCurativa', 'regeneracao']);
+function synergyTeam(all: OwnedCard[]): OwnedCard[] {
+  const val = (c: OwnedCard, race: string | null, auraRaces: Set<string>) => cardPower(c) * (race && getChar(c.charId).race === race && auraRaces.has(race) ? 1.25 : 1);
+  let best = all.slice(0, 10);
+  let bestScore = best.reduce((n, c) => n + cardPower(c), 0);
+  const races = new Set(all.map((c) => getChar(c.charId).race));
+  for (const race of races) {
+    const auraRaces = new Set(all.filter((c) => BALANCE_V2[c.charId]?.aura).map((c) => BALANCE_V2[c.charId]!.aura!.race));
+    const pick = all.slice().sort((a, b) => val(b, race, auraRaces) - val(a, race, auraRaces));
+    const t: OwnedCard[] = [];
+    // carta de aura dessa raça primeiro
+    for (const c of pick) if (t.length < 10 && BALANCE_V2[c.charId]?.aura?.race === race) t.push(c);
+    const need = (pred: (c: OwnedCard) => boolean) => { if (!t.some(pred)) { const c = pick.find((x) => pred(x) && !t.includes(x)); if (c) t.push(c); } };
+    need((c) => getChar(c.charId).category === 'tanque');
+    need((c) => getChar(c.charId).abilities.some((a) => HEALERS.has(a)));
+    for (const c of pick) if (t.length < 10 && !t.includes(c)) t.push(c);
+    const score = t.reduce((n, c) => n + val(c, race, auraRaces), 0);
+    if (score > bestScore) { best = t; bestScore = score; }
+  }
+  return best;
 }
 const asDeck = (t: OwnedCard[]): CardInstance[] => t.map((c) => ({ charId: c.charId, stars: c.stars, plus: c.plus }));
 /**
