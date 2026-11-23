@@ -1451,9 +1451,11 @@ Revisão carta a carta, uma raça por vez (Humanos → próximas 5 raças). O **
 
   | Habilidade da carta | Comum/Incomum | Raro/Épico | Lendário/Mítico |
   |---|---|---|---|
-  | uma muito boa | −2 | −3 | −4 |
-  | extrema (aura, Sifão, Domínio) | −4 | −6 | −8 |
-  | sem habilidade | +2 | +2,5 | +3 |
+  | uma muito boa | −1 | −1,5 | −2 |
+  | extrema (aura, Sifão, Domínio) | −2 | −3 | −4 |
+  | sem habilidade | 0 | 0 | 0 |
+
+  **v0.67.3:** a carta sem habilidade **não é mais forte** que as outras. Ela tem o ataque e a vida de uma carta com habilidade normal e só ganha **1 rodada a menos de espera** (mínimo 1). As que você definiu à mão mantêm a espera e ficam com os números de quem espera 1 rodada a mais. O desconto das habilidades fortes caiu pela metade.
 - **Raridade de origem:** quem nasce numa raridade acima é uma carta "maior" e por isso costuma ter espera maior. Como a força vem da espera, a regra de origem se mantém sozinha.
 - **Cartas sem habilidade: cerca de 1/3 de cada tipo**, a maioria das raridades baixas. Cada uma tem um perfil próprio (umas batem mais, outras aguentam mais), para não ficarem iguais. Nos suportes ficaram só 21%, porque um suporte sem habilidade não ajuda ninguém. Algumas cartas baixas continuam com habilidade.
 - **Espera:** é da carta e não muda ao subir de raridade. Como escolhi a espera de cada carta:

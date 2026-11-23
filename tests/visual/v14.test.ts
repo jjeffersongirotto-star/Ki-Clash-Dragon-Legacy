@@ -15,9 +15,9 @@ import heart from '../../src/assets/card/heart.svg?raw';
 const ICONS: Record<string, string> = { dps, mago, arqueiro, assassino, tanque, suporte };
 
 describe('v0.14 — padrão de carta', () => {
-  it('Toru: espera 2 rodadas na gota, sem estrela no degrau base, nome, "Comum", raça + categoria, ATQ 2, VIDA 6 (v0.67.0)', () => {
+  it('Toru: espera 1 rodada na gota, sem estrela no degrau base, nome, "Comum", raça + categoria, ATQ 1, VIDA 6 (v0.67.3)', () => {
     const h = cardHTML({ charId: 'toru', stars: 1 });
-    expect(h).toContain('<div class="ck-cost" title="Espera 2 rodada(s) na mão"><span>2</span></div>');
+    expect(h).toContain('<div class="ck-cost" title="Espera 1 rodada(s) na mão"><span>1</span></div>');
     expect(h).not.toContain('ck-pow'); // v0.42.2: o Poder saiu do topo da carta (fica ao lado do nome no detalhe)
     expect(h).not.toContain('ck-star');
     expect(h).not.toContain('Nv.');
@@ -25,7 +25,7 @@ describe('v0.14 — padrão de carta', () => {
     expect(h).toContain('<div class="ck-rar">Comum</div>');
     expect(h).toContain('<span title="Androide"><img class="ico" src="/src/assets/icons/raca-androide.webp"');
     expect(h).toContain('<span title="Tanque"><img class="ico" src="/src/assets/icons/cat-tanque.webp"');
-    expect(h).toMatch(/class="ck-atk fisico"[^>]*><span>2<\/span>/);
+    expect(h).toMatch(/class="ck-atk fisico"[^>]*><span>1<\/span>/);
     expect(h).toMatch(/class="ck-hp"[^>]*><span>6<\/span>/);
     expect(h).toContain('cat-tanque');
   });
