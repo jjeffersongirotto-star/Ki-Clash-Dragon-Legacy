@@ -9,7 +9,10 @@
  * - Limite diário por fase e dificuldade: DAILY_LIMIT vezes por dia. Gastam 1: cada "Repetir" e cada vitória em
  *   fase já vencida. A primeira vitória e as derrotas não gastam. Volta à meia-noite de Brasília (UTC−3).
  */
-import { WORLD_SPELLS, WORLD_STEPS, enemyDeckFor, getStage, regionOrbTier, type Stage } from './campaign';
+import { ENEMY_SPELL_COPIES, WORLD_SPELLS, WORLD_STEPS, enemyCard, enemyDeckFor, getStage, regionOrbTier, type Stage } from './campaign';
+import { HARD_DECKS } from './hardDecks';
+import { getChar } from './characters';
+import { getSpell } from './spells';
 import { STAGES_PER_REGION, localOf, regionOf } from './world';
 import type { CardInstance } from './types';
 import { bagXp, orbXp, type OrbBag, type XpItemId } from './progression';
@@ -35,16 +38,73 @@ export const DIFFICULTY_RULES: Record<Difficulty, DifficultyRule> = {
   dificil: { stepBonus: 2, swaps: {} },
 };
 
-/** A fase `stageId` na dificuldade escolhida (mesmo nome, Comandante e recompensa; baralho inimigo mais forte). */
+/**
+ * v0.67.2: ESCADA de dificuldade pelo mundo inteiro (pedido do jogador). Dificuldade = degrau das cartas inimigas.
+ * - Fácil: a curva de sempre (fase 1 a 100).
+ * - Normal k = dificuldade da Fácil (5 + 2·(k − 1)): a Normal 1 é a Fácil 5, a Normal 2 é a Fácil 7, …
+ * - Difícil k = dificuldade da Normal (5 + 2·(k − 1)) = Fácil (13 + 4·(k − 1)).
+ * Depois da Fácil 100 a curva continua subindo até Mítico+ (degrau 16) na última fase do Difícil.
+ */
+/** Topo da escada (último Difícil): Mítico+ (degrau 16). Com 17 o fim do Difícil ficava quase impossível no simulador. */
+export const LADDER_TOP = 16;
+export function easyCurve(x: number): number {
+  if (x <= 10) return Math.max(0, (x - 1) / 9);
+  if (x <= 100) return WORLD_STEPS[Math.round(x) - 1];
+  return Math.min(LADDER_TOP, WORLD_STEPS[99] + ((LADDER_TOP - WORLD_STEPS[99]) * (x - 100)) / 309);
+}
+export function ladderStep(diff: Difficulty, stageId: number): number {
+  const k = Math.min(100, Math.max(1, stageId));
+  if (diff === 'facil') return WORLD_STEPS[k - 1];
+  return easyCurve(diff === 'normal' ? 5 + 2 * (k - 1) : 13 + 4 * (k - 1));
+}
+
+/**
+ * v0.67.2: baralho inimigo do Normal/Difícil — escolhido na tabela gerada por simulação (hardDecks.ts): na faixa do
+ * degrau da fase, os baralhos vão do mais fraco ao mais forte; a fase pega o da força que a escada pede e nunca um
+ * quase igual (7+ cartas em comum) aos 3 anteriores nem um repetido nas últimas 10 fases da mesma dificuldade.
+ */
+let hardPlan: Record<'normal' | 'dificil', string[][]> | null = null;
+export function hardDeckIds(diff: 'normal' | 'dificil', stageId: number): string[] {
+  if (!hardPlan) {
+    hardPlan = { normal: [], dificil: [] };
+    for (const d of ['normal', 'dificil'] as const) {
+      const chosen: string[][] = [];
+      for (let k = 1; k <= 100; k++) {
+        const s = ladderStep(d, k);
+        const b = Math.max(0, Math.min(17, Math.floor(s)));
+        const list = HARD_DECKS[b] ?? [];
+        if (!list.length) {
+          chosen.push([]);
+          continue;
+        }
+        const want = Math.round((s - b) * (list.length - 1));
+        const same = (a: string[], c: string[]) => a.filter((id) => c.includes(id)).length;
+        const ok = (ids: string[]) => chosen.slice(-3).every((c) => same(c, ids) < 7) && !chosen.slice(-10).some((c) => same(c, ids) === 10);
+        const order = list.map((_, j) => j).sort((x, y) => Math.abs(x - want) - Math.abs(y - want) || y - x);
+        const pick = order.find((j) => ok(list[j].ids)) ?? want;
+        chosen.push(list[pick].ids);
+      }
+      hardPlan[d] = chosen;
+    }
+  }
+  return hardPlan[diff][Math.min(100, Math.max(1, stageId)) - 1];
+}
+
+/** A fase `stageId` na dificuldade escolhida (mesmo nome e recompensa; v0.67.2: baralho da escada de dificuldade). */
 export function stageFor(stageId: number, diff: Difficulty): Stage {
   const i = stageId - 1;
   const base = getStage(stageId);
   if (diff === 'facil') return base;
-  const rule = DIFFICULTY_RULES[diff];
-  const deck: CardInstance[] = enemyDeckFor(i, WORLD_STEPS[i], WORLD_SPELLS[i], rule.stepBonus);
-  for (const [out, inn] of rule.swaps[i] ?? []) {
-    const k = deck.findIndex((c) => c.charId === out);
-    if (k >= 0 && !deck.some((c) => c.charId === inn)) deck[k] = { ...deck[k], charId: inn };
+  const s = ladderStep(diff, stageId);
+  const ids = hardDeckIds(diff, stageId);
+  if (!ids.length) return { ...base, enemyDeck: enemyDeckFor(i, s, WORLD_SPELLS[i], 0), aiLevel: Math.min(3, (base.aiLevel ?? 0) + (diff === 'normal' ? 1 : 2)) };
+  const frac = s - Math.floor(s);
+  const deck: CardInstance[] = ids.map((id, k) => ({ ...enemyCard(id, Math.floor(s) + (Math.floor((k + 1) * frac) > Math.floor(k * frac) ? 1 : 0)), copies: 3 }));
+  const casts = (sid: string) => getSpell(sid).categories.some((c) => ids.some((id) => getChar(id).category === c));
+  for (const sid of WORLD_SPELLS[i].filter(casts)) deck.push({ charId: sid, stars: 1, copies: ENEMY_SPELL_COPIES });
+  for (const [out, inn] of DIFFICULTY_RULES[diff].swaps[i] ?? []) {
+    const j = deck.findIndex((c) => c.charId === out);
+    if (j >= 0 && !deck.some((c) => c.charId === inn)) deck[j] = { ...deck[j], charId: inn };
   }
   return { ...base, enemyDeck: deck, aiLevel: Math.min(3, (base.aiLevel ?? 0) + (diff === 'normal' ? 1 : 2)) };
 }

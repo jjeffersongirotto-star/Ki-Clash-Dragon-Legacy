@@ -1692,3 +1692,15 @@ Raridade das cartas inimigas por região, da fase 1 à fase 10 de cada uma (esca
 | Fase 10 | 1,5 | 3 | 3,3 | 4,2 | 5,5 | 7 | 8 | 9,5 | 11 |
 
 Medido em `scripts/balance/world.ts` (4 jogadores). Vitória ao chegar, média por região (1 a 10): 24 · 31 · 39 · 24 · 17 · 29 · 32 · 32 · 27 · 38%. O mundo vai até Épico; quem nasce Lendário não entra nos baralhos inimigos.
+
+### Normal e Difícil (v0.67.2)
+- **Escada de dificuldade (degrau das cartas inimigas):**
+  - Normal k = Fácil (5 + 2·(k − 1));
+  - Difícil k = Normal (5 + 2·(k − 1)) = Fácil (13 + 4·(k − 1));
+  - depois da Fácil 100, a curva sobe em linha reta até o degrau 16 (Mítico+) na Difícil 100.
+- **Baralhos:** vêm de `src/core/hardDecks.ts`, gerado por `scripts/balance/decks.ts`.
+  - Em cada faixa, os baralhos estão ordenados do mais fraco ao mais forte (nota = vitória contra um baralho de jogador forte da faixa, com os dois lados no Auto).
+  - A fase pega o baralho da posição que a escada pede.
+  - Nunca pega um com 7 ou mais cartas em comum com os 3 anteriores, nem o mesmo usado nas últimas 10 fases.
+- **Feitiços:** os da fase, quando houver conjurador no baralho.
+- **Comandante:** o da fase, se estiver no baralho; senão, o mais forte com recorte limpo.

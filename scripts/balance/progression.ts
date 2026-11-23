@@ -17,12 +17,14 @@ import { isSpell } from '../../src/core/spells';
 import { STARTER_IDS } from '../../src/core/characters';
 import { TUTORIAL_CHARS, TUTORIAL_GEMS, TUTORIAL_REWARD, TUTORIAL_SPELL, TUTORIAL_SPELL_COPIES, tutorialGear } from '../../src/core/tutorial';
 import { newOwned, feedXp, ascend, canAscend, ascendCost, barFull, isMaxTier, stepIndex, xpProgress, XP_ITEMS, playXp, type OwnedCard } from '../../src/core/progression';
-import { FIRST_WIN_XP_MULT, gemsFor, rewardsFor, spellRewardFor } from '../../src/core/adventure';
+import { FIRST_WIN_XP_MULT, gemsFor, rewardsFor, spellRewardFor, type Difficulty } from '../../src/core/adventure';
 import { addGear, gearCount, gearNeeded, hasGearFor, spendGearFor, stageGearDrop, type GearBag } from '../../src/core/gear';
 import { FIRST_WIN_MULT, goldFor } from '../../src/core/profile';
 import { GEAR_PRICE } from '../../src/core/shop';
 import { cardPower, deckPower } from '../../src/core/power';
 import type { CardInstance } from '../../src/core/types';
+import { getChar } from '../../src/core/characters';
+import { BALANCE_V2 } from '../../src/core/balanceV2';
 import { autoDeck, deckMaxFor, profileLevelFor } from '../../src/core/deckbuild';
 
 export interface Schedule { name: string; hp: number[]; thresholds: number[]; enemyHp: (stageIdx: number) => number }
@@ -39,7 +41,35 @@ const SIM_GEAR = process.env.SIM_GEAR !== '0';
 const gearOk = (p: Player, c: OwnedCard) => !SIM_GEAR || hasGearFor(p.gear, c);
 
 function team(p: Player): OwnedCard[] {
-  return Object.values(p.cards).sort((a, b) => cardPower(b) - cardPower(a)).slice(0, 10);
+  const all = Object.values(p.cards).sort((a, b) => cardPower(b) - cardPower(a));
+  return SIM_SYNERGY ? synergyTeam(all) : all.slice(0, 10);
+}
+/**
+ * v0.67.1: SIM_SYNERGY=1 — o jogador monta o baralho com SINERGIA em vez de só os 10 de maior Poder: para cada raça,
+ * a carta de Aura de raça que ele tiver puxa os aliados da raça (valem +25%); garante 1 tanque e 1 curandeiro.
+ * Fica com a raça cuja equipe soma mais (ou com os 10 mais fortes, se nenhuma raça ganhar).
+ */
+const SIM_SYNERGY = process.env.SIM_SYNERGY === '1';
+const HEALERS = new Set(['sopro', 'lotus', 'ondaCurativa', 'regeneracao']);
+function synergyTeam(all: OwnedCard[]): OwnedCard[] {
+  const val = (c: OwnedCard, race: string | null, auraRaces: Set<string>) => cardPower(c) * (race && getChar(c.charId).race === race && auraRaces.has(race) ? 1.25 : 1);
+  let best = all.slice(0, 10);
+  let bestScore = best.reduce((n, c) => n + cardPower(c), 0);
+  const races = new Set(all.map((c) => getChar(c.charId).race));
+  for (const race of races) {
+    const auraRaces = new Set(all.filter((c) => BALANCE_V2[c.charId]?.aura).map((c) => BALANCE_V2[c.charId]!.aura!.race));
+    const pick = all.slice().sort((a, b) => val(b, race, auraRaces) - val(a, race, auraRaces));
+    const t: OwnedCard[] = [];
+    // carta de aura dessa raça primeiro
+    for (const c of pick) if (t.length < 10 && BALANCE_V2[c.charId]?.aura?.race === race) t.push(c);
+    const need = (pred: (c: OwnedCard) => boolean) => { if (!t.some(pred)) { const c = pick.find((x) => pred(x) && !t.includes(x)); if (c) t.push(c); } };
+    need((c) => getChar(c.charId).category === 'tanque');
+    need((c) => getChar(c.charId).abilities.some((a) => HEALERS.has(a)));
+    for (const c of pick) if (t.length < 10 && !t.includes(c)) t.push(c);
+    const score = t.reduce((n, c) => n + val(c, race, auraRaces), 0);
+    if (score > bestScore) { best = t; bestScore = score; }
+  }
+  return best;
 }
 const asDeck = (t: OwnedCard[]): CardInstance[] => t.map((c) => ({ charId: c.charId, stars: c.stars, plus: c.plus }));
 /**
@@ -127,28 +157,33 @@ function spend(p: Player) {
   }
 }
 
-function reward(p: Player, i: number, first: boolean, repeatMult = 0.5) {
-  // v0.22.0: recompensa do Fácil em Orbes (o simulador joga a campanha no Fácil)
-  const r = rewardsFor(i + 1, 'facil');
+/** v0.67.1: fase do simulador → fase do jogo e dificuldade (padrão: índice i = fase i+1 no Fácil). long.ts joga as 300. */
+export const STAGE_MAP: { fn: (i: number) => { id: number; diff: Difficulty } } = { fn: (i) => ({ id: i + 1, diff: 'facil' }) };
+
+function reward(p: Player, i0: number, first: boolean, repeatMult = 0.5) {
+  // v0.22.0: recompensa em Orbes da fase e dificuldade (v0.67.1: STAGE_MAP)
+  const { id: sid, diff } = STAGE_MAP.fn(i0);
+  const i = sid - 1;
+  const r = rewardsFor(i + 1, diff);
   const f = first ? 1 : repeatMult;
   for (const [id, k] of Object.entries(r.orbs)) p.items[id] = (p.items[id] ?? 0) + Math.floor((k ?? 0) * f);
   p.ess += Math.floor(r.essencias * f);
   if (f >= 1) for (const g of r.gear) addGear(p.gear, g.id, g.rarity); // v0.24.0: itens só com recompensa inteira
-  p.gold += Math.floor(goldFor(i + 1, 'facil') * f * (first ? FIRST_WIN_MULT : 1)); // v0.26.0: Ouro de Dragão
-  if (first) for (const g of stageGearDrop(i + 1, 'facil')) addGear(p.gear, g.id, g.rarity); // v0.24.1: bônus da 1ª vitória
+  p.gold += Math.floor(goldFor(i + 1, diff) * f * (first ? FIRST_WIN_MULT : 1)); // v0.26.0: Ouro de Dragão
+  if (first) for (const g of stageGearDrop(i + 1, diff)) addGear(p.gear, g.id, g.rarity); // v0.24.1: bônus da 1ª vitória
   // v0.25.0: pacote da primeira vitória (o desbloqueio de sempre + um personagem de Comum) — desligado na v0.33.0
   if (first && STAGE_PACKS) for (const id of stagePack(i + 1)) if (!p.cards[id]) { p.cards[id] = newOwned(id); p.copies[id] = 3; }
   // v0.33.0: 💠 Gemas na primeira vitória (fases 3, 6, 9 e 10) viram cartas do banner
-  if (first) pullCards(p, gemsFor(i + 1));
+  if (first) pullCards(p, gemsFor(i + 1)); // em cada dificuldade (como no jogo)
   // v0.41.0: ✦ feitiço na primeira vitória das fases 2, 5 e 8 de cada região
-  const sp = first ? spellRewardFor(i + 1, 'facil') : undefined;
+  const sp = first ? spellRewardFor(i + 1, diff) : undefined;
   if (sp) p.spells[sp] = (p.spells[sp] ?? 0) + 1;
 }
 
 /** v0.22.0: XP por jogar — ao vencer jogando, a equipe ganha XP (SIM_PLAYXP=0 desliga, para comparar). */
 const SIM_PLAYXP = process.env.SIM_PLAYXP !== '0';
 function winXp(p: Player, i: number, first = false) {
-  if (SIM_PLAYXP) for (const c of team(p)) feedXp(c, playXp(i + 1) * (first ? FIRST_WIN_XP_MULT : 1));
+  if (SIM_PLAYXP) for (const c of team(p)) feedXp(c, playXp(STAGE_MAP.fn(i).id) * (first ? FIRST_WIN_XP_MULT : 1));
 }
 
 function levelUp(p: Player, sc: Schedule) {

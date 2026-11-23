@@ -21,30 +21,25 @@ describe('v0.20.0 — dificuldades da Aventura', () => {
     expect(DIFFICULTIES).toEqual(['facil', 'normal', 'dificil']);
     for (const s of STAGES) expect(stageFor(s.id, 'facil')).toBe(s);
   });
-  it('Normal e Difícil: mesma fase, mesmos personagens e feitiços, inimigos com mais nível (limitado pela cor)', () => {
+  it('Normal e Difícil: mesma fase e recompensa, baralho próprio e mais forte', () => {
     for (const s of STAGES) {
       const n = stageFor(s.id, 'normal');
       const d = stageFor(s.id, 'dificil');
       expect(n.name).toBe(s.name);
       expect(n.rewards).toEqual(s.rewards);
-      expect(n.enemyDeck.map((c) => c.charId)).toEqual(s.enemyDeck.map((c) => c.charId));
-      s.enemyDeck.forEach((c, k) => {
-        if (isSpell(c.charId)) return;
-        // v0.23.0: degraus a mais (limitados ao topo do personagem); até a v0.22.0 eram níveis
-        const g = (x: typeof c) => stepIndex(x.stars, stepOf(x));
-        const top = stepIndex(getChar(c.charId).maxStars, 2);
-        expect(g(n.enemyDeck[k])).toBe(Math.min(top, g(c) + DIFFICULTY_RULES.normal.stepBonus));
-        expect(g(d.enemyDeck[k])).toBe(Math.min(top, g(c) + DIFFICULTY_RULES.dificil.stepBonus));
-        expect(g(d.enemyDeck[k])).toBeGreaterThanOrEqual(g(n.enemyDeck[k]));
-      });
+      // v0.67.2: Normal e Difícil têm baralhos próprios (escada de dificuldade + baralhos testados no simulador)
+      const g = (x: (typeof s.enemyDeck)[number]) => stepIndex(x.stars, stepOf(x));
+      const avg = (deck: typeof s.enemyDeck) => { const c = deck.filter((x) => !isSpell(x.charId)); return c.reduce((t, x) => t + g(x), 0) / c.length; };
+      expect(avg(d.enemyDeck)).toBeGreaterThanOrEqual(avg(n.enemyDeck) - 0.01);
+      expect(new Set(n.enemyDeck.map((c) => c.charId)).size).toBe(n.enemyDeck.length);
       // baralho válido para a batalha
       expect(() => createBattle({ playerDeck: [], enemyDeck: d.enemyDeck, playerHeroHp: 20, enemyHeroHp: d.enemyHeroHp, seed: 1 })).not.toThrow();
     }
   });
   it('trocas de carta configuradas por fase são aplicadas', () => {
     const before = DIFFICULTY_RULES.dificil.swaps;
-    const out = STAGES[0].enemyDeck.find((c) => !isSpell(c.charId))!.charId;
-    const inn = 'gorath';
+    const out = stageFor(1, 'dificil').enemyDeck.find((c) => !isSpell(c.charId))!.charId; // v0.67.2: o Difícil tem baralho próprio
+    const inn = stageFor(1, 'dificil').enemyDeck.some((c) => c.charId === 'gorath') ? 'daichi' : 'gorath';
     DIFFICULTY_RULES.dificil.swaps = { 0: [[out, inn]] };
     try {
       const d = stageFor(1, 'dificil').enemyDeck.map((c) => c.charId);
