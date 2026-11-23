@@ -6,7 +6,9 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
 - **Regra nova:** a carta sem habilidade tem o mesmo ataque e a mesma vida de uma carta com habilidade normal, e ganha só **1 rodada a menos de espera**. Antes ela ganhava +2 a +3 de força e aparecia demais nos melhores baralhos (Toru, Jin, Wex, Orun, Morv).
 - **Habilidades fortes custam metade do que custavam** em ataque e vida, e as cartas com habilidade boa voltaram a valer a pena.
 - Exemplos: Toru Comum passou de 2|6 (espera 2) para 1|6 (espera 1); Orun Incomum, de 3|4 para 2|4 (espera 1); Mestre Hayato Lendário, de 5|9 para 6|11.
-- Os baralhos inimigos do Normal e do Difícil foram gerados de novo com a tabela nova. Nos melhores baralhos, nenhuma carta aparece mais que o dobro da média, e as cartas com habilidade (Ilun, Pulse-7, Aiko, Rin, Brakk) passaram a aparecer entre as mais usadas.
+- **Poder das cartas medido de novo para as 120 cartas:** antes só 21 cartas tinham o peso da habilidade medido e as outras valiam 1, então o Poder não acompanhava a força real. Agora o peso de cada carta vem de 80 000 batalhas simuladas e inclui habilidade, espera e alcance. O Poder acerta o vencedor em 80% das batalhas (antes, 66%). O Poder médio continua o mesmo, então os requisitos do Comandante não mudam.
+- O **Montar automático** usa o Poder novo e escolhe as cartas mais fortes de verdade.
+- **Baralhos inimigos do Normal e do Difícil gerados de novo**, com a tabela nova e o Poder novo. O baralho que eles enfrentam no simulador agora é o mais forte de verdade em cada faixa. Nos melhores baralhos, nenhuma carta aparece mais que o dobro da média, e as cartas com habilidade (Pulse-7, Vexar, Vorax, Ilun, Nara) passaram a aparecer entre as mais usadas.
 
 ## [0.67.2] — 23/11/2026 · Normal e Difícil em escada, com baralhos inimigos próprios
 - **Escada de dificuldade pelo mundo inteiro:**

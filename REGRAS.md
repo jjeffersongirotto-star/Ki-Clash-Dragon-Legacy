@@ -415,7 +415,10 @@ Habilidades em detalhe:
 
 ### Poder da carta
 - **Poder = arredondar( 10 × peso da habilidade × √(ataque × vida) )**, com o ataque e a vida **atuais** da carta (nível, cor e "+" já aplicados). Por isso o Poder **sobe a cada nível, no "+" e a cada cor**.
-- **Peso da habilidade** = valor de combate medido de cada personagem (média 1,00). Ele inclui o efeito das **habilidades** e do **custo** de energia:
+- **v0.67.3 — peso medido de novo para as 120 cartas** (`scripts/balance/powerGen.ts` e `powerFit.ts`): 80 000 batalhas IA × IA com baralhos de 10 cartas e raridade e degrau sorteados. Uma regressão logística mediu quanto cada carta soma para vencer por unidade de √(ataque × vida). O peso inclui a habilidade, a espera e o alcance. A fórmula antiga só tinha peso medido para 21 cartas (as outras valiam 1) e acertava o vencedor em 65,6% das batalhas; agora acerta em 79,6%. Os pesos foram ajustados para que o Poder médio fique igual ao de antes (os requisitos do Comandante não mudam).
+  - Maiores: Vorax 2,15 · Vexar 2,03 · Pulse-7 1,84 · Aethra 1,72 · Omega-9 1,63 · Eldrin 1,60. Menores: Sanguis 0,42 · Mimic 0,49 · Kaito 0,50 · Corvin 0,58 · Hayato 0,60 · Ghor 0,61.
+  - O Poder mais fiel também melhora o **Montar automático** e os baralhos inimigos gerados do Normal e do Difícil.
+- *(até a v0.67.2)* **Peso da habilidade** = valor de combate medido de cada personagem (média 1,00). Ele inclui o efeito das **habilidades** e do **custo** de energia:
 
 | Personagem | Peso | Personagem | Peso | Personagem | Peso |
 |---|---|---|---|---|---|
@@ -1700,7 +1703,7 @@ Medido em `scripts/balance/world.ts` (4 jogadores). Vitória ao chegar, média p
   - Normal k = Fácil (5 + 2·(k − 1));
   - Difícil k = Normal (5 + 2·(k − 1)) = Fácil (13 + 4·(k − 1));
   - depois da Fácil 100, a curva sobe em linha reta até o degrau 16 (Mítico+) na Difícil 100.
-- **Baralhos:** vêm de `src/core/hardDecks.ts`, gerado por `scripts/balance/decks.ts`.
+- **Baralhos:** vêm de `src/core/hardDecks.ts`, gerado por `scripts/balance/decks.ts` (v0.67.3: gerados de novo com a tabela nova e o Poder medido de novo; o baralho de referência do jogador são as 10 cartas de maior Poder da faixa, agora as mais fortes de verdade, e entram os baralhos com nota a partir de 3%).
   - Em cada faixa, os baralhos estão ordenados do mais fraco ao mais forte (nota = vitória contra um baralho de jogador forte da faixa, com os dois lados no Auto).
   - A fase pega o baralho da posição que a escada pede.
   - Nunca pega um com 7 ou mais cartas em comum com os 3 anteriores, nem o mesmo usado nas últimas 10 fases.

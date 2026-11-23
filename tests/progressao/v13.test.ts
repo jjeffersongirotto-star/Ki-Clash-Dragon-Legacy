@@ -30,12 +30,12 @@ describe('v0.13 — Poder das cartas', () => {
     const def = getChar('riku');
     const st = statsFor(def, 1, 0);
     expect(cardPower({ charId: 'riku', stars: 1 })).toBe(Math.round(POWER_SCALE * ABILITY_WEIGHT.riku * Math.sqrt(st.atk * st.hp)));
-    expect(cardPower({ charId: 'riku', stars: 1 })).toBe(25); // v0.67.0: Riku 2/3 (v0.66.0: 36) (v0.62.0: 25): tabela do balanceamento v2.0 (v0.57.0: 29)
-    expect(cardPower({ charId: 'toru', stars: 1 })).toBe(24); // v0.67.3 (v0.67.0: 35) (v0.62.0: 24) (v0.57.0: 26)
+    expect(cardPower({ charId: 'riku', stars: 1 })).toBe(24); // v0.67.3: peso medido de novo (v0.67.0: 25) Riku 2/3 (v0.66.0: 36) (v0.62.0: 25): tabela do balanceamento v2.0 (v0.57.0: 29)
+    expect(cardPower({ charId: 'toru', stars: 1 })).toBe(23); // v0.67.3 (v0.67.0: 35) (v0.62.0: 24) (v0.57.0: 26)
   });
   it('todo personagem jogável tem peso de habilidade, com média ~1', () => {
     // v0.30.0: as cartas novas ainda não foram medidas no simulador e usam o peso neutro 1
-    for (const d of PLAYABLE) expect(abilityWeight(d.id), d.id).toBeGreaterThan(0.5);
+    for (const d of PLAYABLE) expect(abilityWeight(d.id), d.id).toBeGreaterThan(0.4); // v0.67.3: pesos medidos para as 120 cartas
     for (const id of Object.keys(ABILITY_WEIGHT)) expect(PLAYABLE.some((d) => d.id === id)).toBe(true);
     const ws = PLAYABLE.map((d) => abilityWeight(d.id));
     expect(ws.reduce((a, b) => a + b, 0) / ws.length).toBeCloseTo(1, 1);
@@ -55,15 +55,15 @@ describe('v0.13 — Poder das cartas', () => {
     }
   });
   it('habilidade mais forte = mais Poder com os mesmos status', () => {
-    // Kenji tem o maior peso medido; Ren o menor
+    // v0.67.3: Vorax (Prole + Necromancia) tem o maior peso medido; Sanguis o menor
     const top = Object.entries(ABILITY_WEIGHT).sort((a, b) => b[1] - a[1]);
-    expect(top[0][0]).toBe('kenji');
-    expect(top[top.length - 1][0]).toBe('ren');
+    expect(top[0][0]).toBe('vorax');
+    expect(top[top.length - 1][0]).toBe('sanguis');
   });
   it('Poder do baralho = soma das 10 cartas', () => {
     const team = STARTER_IDS.slice(0, 10).map((id) => ({ charId: id, stars: 1 }));
     expect(deckPower(team)).toBe(team.reduce((s, c) => s + cardPower(c), 0));
-    expect(deckPower(team)).toBe(206); // v0.67.3: sem habilidade = mesmos números, 1 rodada a menos (v0.67.0: 247): revisão das 6 raças (v0.66.0: 222) Humanos revisados (v0.63.0: 199) (v0.62.0: 198) (v0.57.0: 246)
+    expect(deckPower(team)).toBe(210); // v0.67.3: Poder medido de novo (antes 206); sem habilidade = mesmos números, 1 rodada a menos (v0.67.0: 247): revisão das 6 raças (v0.66.0: 222) Humanos revisados (v0.63.0: 199) (v0.62.0: 198) (v0.57.0: 246)
     // v0.25.0: o save novo começa só com o Riku (os 10 de Comum vinham no save novo até a v0.24)
     expect(defaultSave().deck).toEqual(['riku']);
   });
