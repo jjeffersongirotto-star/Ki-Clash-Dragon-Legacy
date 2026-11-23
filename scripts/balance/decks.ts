@@ -14,7 +14,7 @@ import { writeFileSync } from 'node:fs';
 import { Ctx, createBattle, endPlayerTurn } from '../../src/core/battle';
 import { aiDeploy } from '../../src/core/ai';
 import { BALANCE_V2 } from '../../src/core/balanceV2';
-import { PLAYABLE, getChar } from '../../src/core/characters';
+import { PLAYABLE } from '../../src/core/characters';
 import { enemyCard } from '../../src/core/campaign';
 import { cardPower } from '../../src/core/power';
 import { shuffle } from '../../src/core/rng';
