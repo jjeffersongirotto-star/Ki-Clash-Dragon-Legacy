@@ -9,6 +9,11 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
 - **Poder das cartas medido de novo para as 120 cartas:** antes só 21 cartas tinham o peso da habilidade medido e as outras valiam 1, então o Poder não acompanhava a força real. Agora o peso de cada carta vem de 80 000 batalhas simuladas e inclui habilidade, espera e alcance. O Poder acerta o vencedor em 80% das batalhas (antes, 66%). O Poder médio continua o mesmo, então os requisitos do Comandante não mudam.
 - O **Montar automático** usa o Poder novo e escolhe as cartas mais fortes de verdade.
 - **Baralhos inimigos do Normal e do Difícil gerados de novo**, com a tabela nova e o Poder novo. O baralho que eles enfrentam no simulador agora é o mais forte de verdade em cada faixa. Nos melhores baralhos, nenhuma carta aparece mais que o dobro da média, e as cartas com habilidade (Pulse-7, Vexar, Vorax, Ilun, Nara) passaram a aparecer entre as mais usadas.
+- **Simulador das 300 fases (4 jogadores, baralho com sinergia), vitória ao chegar por região:**
+  - **Fácil:** de 11% a 62%, parecido com a versão anterior.
+  - **Normal:** começa em 100% e cai devagar até 19–23% na região 10.
+  - **Difícil:** começa em 100% e cai até 34–57% nas regiões 8 a 10. Antes eram 2–8%, e o fim ficou alcançável.
+  - **Tempo até o fim:** cerca de 2.200 batalhas, contando derrotas (antes, de 3.800 a 8.000).
 
 ## [0.67.2] — 23/11/2026 · Normal e Difícil em escada, com baralhos inimigos próprios
 - **Escada de dificuldade pelo mundo inteiro:**
