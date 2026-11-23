@@ -148,7 +148,7 @@ describe('v0.23.0 — inimigos por degrau', () => {
     expect(ladderStep('dificil', 1)).toBe(easyCurve(13));
     expect(ladderStep('dificil', 2)).toBe(ladderStep('normal', 7));
     for (const d of ['normal', 'dificil'] as const) for (let k = 2; k <= 100; k++) expect(ladderStep(d, k)).toBeGreaterThanOrEqual(ladderStep(d, k - 1) - 1.6);
-    expect(ladderStep('dificil', 100)).toBe(17);
+    expect(ladderStep('dificil', 100)).toBe(16);
     const top = (diff: (typeof DIFFICULTIES)[number], id: number) => Math.max(...stageFor(id, diff).enemyDeck.filter((c) => !isSpell(c.charId)).map((c) => c.stars));
     expect(top('dificil', 100)).toBe(6);
   });

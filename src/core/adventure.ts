@@ -43,12 +43,14 @@ export const DIFFICULTY_RULES: Record<Difficulty, DifficultyRule> = {
  * - Fácil: a curva de sempre (fase 1 a 100).
  * - Normal k = dificuldade da Fácil (5 + 2·(k − 1)): a Normal 1 é a Fácil 5, a Normal 2 é a Fácil 7, …
  * - Difícil k = dificuldade da Normal (5 + 2·(k − 1)) = Fácil (13 + 4·(k − 1)).
- * Depois da Fácil 100 a curva continua subindo até Mítico++ (degrau 17) na última fase do Difícil.
+ * Depois da Fácil 100 a curva continua subindo até Mítico+ (degrau 16) na última fase do Difícil.
  */
+/** Topo da escada (último Difícil): Mítico+ (degrau 16). Com 17 o fim do Difícil ficava quase impossível no simulador. */
+export const LADDER_TOP = 16;
 export function easyCurve(x: number): number {
   if (x <= 10) return Math.max(0, (x - 1) / 9);
   if (x <= 100) return WORLD_STEPS[Math.round(x) - 1];
-  return Math.min(17, WORLD_STEPS[99] + ((17 - WORLD_STEPS[99]) * (x - 100)) / 309);
+  return Math.min(LADDER_TOP, WORLD_STEPS[99] + ((LADDER_TOP - WORLD_STEPS[99]) * (x - 100)) / 309);
 }
 export function ladderStep(diff: Difficulty, stageId: number): number {
   const k = Math.min(100, Math.max(1, stageId));

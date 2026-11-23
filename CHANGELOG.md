@@ -2,6 +2,19 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.67.2] — 23/11/2026 · Normal e Difícil em escada, com baralhos inimigos próprios
+- **Escada de dificuldade pelo mundo inteiro:**
+  - a Normal 1 tem a dificuldade da Fácil 5, a Normal 2 a da Fácil 7, a Normal 3 a da Fácil 9, e assim por diante, de 2 em 2;
+  - a Difícil 1 tem a dificuldade da Normal 5, a Difícil 2 a da Normal 7, e assim por diante;
+  - depois da Fácil 100, níveis novos continuam subindo: o Normal chega a Lendário e o Difícil a Mítico no fim.
+- **Baralhos inimigos próprios no Normal e no Difícil, escolhidos por simulação:**
+  - em cada faixa de dificuldade, o simulador montou de 28 a 44 baralhos de estratégias diferentes (raça com aura, muralha, pressão rápida, desgaste e misturas);
+  - cada um foi testado em batalhas, e as melhores variações (trocando 1 ou 2 cartas) ficaram;
+  - cada fase pega o baralho com a força que a escada pede, e fases vizinhas nunca ficam quase iguais;
+  - uma Épica pode aparecer no Difícil quando faz parte da estratégia.
+- **Simulador das 300 fases (jogador montando o baralho com sinergia):** o Normal cai devagar de ~95% para ~25% de vitória ao chegar. O Difícil fica entre 30% e 66% nas regiões 3 a 7 e é o desafio final nas regiões 8 a 10.
+- **Tempo para chegar ao fim das 300 fases:** de 3.800 a 8.000 batalhas, contando derrotas e repetições (no simulador).
+
 ## [0.67.1] — 22/11/2026 · Aventura recalibrada para a escala nova das cartas
 - **Região 1 (fases 1–10):** os inimigos usam só cartas que nascem Comuns (fases 1–7) e algumas Incomuns (fases 8–10). As raridades das cartas inimigas e os feitiços foram ajustados no simulador, e a dificuldade ficou parecida com a da versão anterior.
 - **Regiões 2–10 (fases 11–100):** as cartas inimigas ficaram bem mais baixas. Antes a região 10 chegava a Mítico; agora vai até Épico. No simulador, a vitória ao chegar subiu de 0–15% para 17–39% por região, no mesmo nível da região 1 (24%).
