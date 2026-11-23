@@ -98,8 +98,8 @@ describe('v0.16.0 — contagem de rodadas no lugar da energia', () => {
     expect(s.decks.enemy.hand.every((h) => waitOf(h) === 3)).toBe(true);
   });
   it('a gota da carta mostra as rodadas: na mão, as que faltam; fora da batalha, a espera cheia', () => {
-    expect(cardHTML(c('toru'))).toContain('<span>2</span>'); // v0.67.0: Toru espera 2
-    expect(cardHTML(c('toru'), { wait: 1 })).toContain('<span>1</span>');
+    expect(cardHTML(c('toru'))).toContain('<span>1</span>'); // v0.67.3: Toru (sem habilidade) espera 1
+    expect(cardHTML(c('toru'), { wait: 2 })).toContain('<span>2</span>');
     expect(cardHTML(c('toru'), { wait: 0 })).toContain('ck-cost ready');
   });
   it('o estado da batalha não tem mais energia', () => {
