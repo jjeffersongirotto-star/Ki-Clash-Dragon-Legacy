@@ -92,11 +92,21 @@ export function hardDeckIds(diff: 'normal' | 'dificil', stageId: number): string
 
 /** A fase `stageId` na dificuldade escolhida (mesmo nome e recompensa; v0.67.2: baralho da escada de dificuldade). */
 export function stageFor(stageId: number, diff: Difficulty): Stage {
+  if (diff === 'facil') return getStage(stageId);
+  return hardStageAt(stageId, diff, ladderStep(diff, stageId), hardDeckIds(diff, stageId));
+}
+
+/** Baralho da faixa do degrau `s` na posição que ele pede (sem o filtro de repetição; usado na calibração). */
+export function hardIdsAt(s: number): string[] {
+  const b = Math.max(0, Math.min(17, Math.floor(s)));
+  const list = HARD_DECKS[b] ?? [];
+  return list.length ? list[Math.round((s - b) * (list.length - 1))].ids : [];
+}
+
+/** Fase do Normal/Difícil com as cartas inimigas no degrau `s` (v0.67.4: separado para a calibração). */
+export function hardStageAt(stageId: number, diff: 'normal' | 'dificil', s: number, ids: string[] = hardIdsAt(s)): Stage {
   const i = stageId - 1;
   const base = getStage(stageId);
-  if (diff === 'facil') return base;
-  const s = ladderStep(diff, stageId);
-  const ids = hardDeckIds(diff, stageId);
   if (!ids.length) return { ...base, enemyDeck: enemyDeckFor(i, s, WORLD_SPELLS[i], 0), aiLevel: Math.min(3, (base.aiLevel ?? 0) + (diff === 'normal' ? 1 : 2)) };
   const frac = s - Math.floor(s);
   const deck: CardInstance[] = ids.map((id, k) => ({ ...enemyCard(id, Math.floor(s) + (Math.floor((k + 1) * frac) > Math.floor(k * frac) ? 1 : 0)), copies: 3 }));
