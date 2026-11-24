@@ -3,7 +3,7 @@ import { BALANCE_V2 } from '../../src/core/balanceV2';
 import { abilityPower } from '../../src/core/abilities';
 import { placeUnit, createBattle } from '../../src/core/battle';
 import { PLAYABLE, getChar } from '../../src/core/characters';
-import { easyCurve, ladderStep, DIFFICULTIES, stageFor } from '../../src/core/adventure';
+import { ladderStep, DIFFICULTIES, stageFor } from '../../src/core/adventure';
 import { ENEMY_STEPS, STAGES } from '../../src/core/campaign';
 import {
   MAX_STEP,
@@ -142,13 +142,9 @@ describe('v0.23.0 — inimigos por degrau', () => {
           expect('level' in c).toBe(false);
         }
   });
-  it('v0.67.2: escada de dificuldade — Normal k = Fácil 5+2(k−1), Difícil k = Normal 5+2(k−1), até Mítico no fim', () => {
-    expect(ladderStep('normal', 1)).toBe(easyCurve(5));
-    expect(ladderStep('normal', 2)).toBe(easyCurve(7));
-    expect(ladderStep('dificil', 1)).toBe(easyCurve(13));
-    expect(ladderStep('dificil', 2)).toBe(ladderStep('normal', 7));
-    for (const d of ['normal', 'dificil'] as const) for (let k = 2; k <= 100; k++) expect(ladderStep(d, k)).toBeGreaterThanOrEqual(ladderStep(d, k - 1) - 1.6);
-    expect(ladderStep('dificil', 100)).toBe(16);
+  it('v0.67.4: escada calibrada — tabela LADDER_STEPS, sobe com o nível, até Mítico no fim do Difícil', () => {
+    for (const d of ['normal', 'dificil'] as const) for (let k = 2; k <= 100; k++) expect(ladderStep(d, k)).toBeGreaterThanOrEqual(ladderStep(d, k - 1));
+    expect(ladderStep('dificil', 100)).toBeGreaterThan(ladderStep('normal', 100));
     const top = (diff: (typeof DIFFICULTIES)[number], id: number) => Math.max(...stageFor(id, diff).enemyDeck.filter((c) => !isSpell(c.charId)).map((c) => c.stars));
     expect(top('dificil', 100)).toBe(6);
   });
