@@ -9,7 +9,8 @@
  * - Limite diário por fase e dificuldade: DAILY_LIMIT vezes por dia. Gastam 1: cada "Repetir" e cada vitória em
  *   fase já vencida. A primeira vitória e as derrotas não gastam. Volta à meia-noite de Brasília (UTC−3).
  */
-import { ENEMY_SPELL_COPIES, WORLD_SPELLS, WORLD_STEPS, enemyCard, enemyDeckFor, getStage, regionOrbTier, type Stage } from './campaign';
+import { LADDER_STEPS } from './ladderSteps';
+import { ENEMY_SPELL_COPIES, WORLD_SPELLS, WORLD_STEPS, WORLD_STEPS_V673, enemyCard, enemyDeckFor, getStage, regionOrbTier, type Stage } from './campaign';
 import { HARD_DECKS } from './hardDecks';
 import { getChar } from './characters';
 import { getSpell } from './spells';
@@ -49,12 +50,14 @@ export const DIFFICULTY_RULES: Record<Difficulty, DifficultyRule> = {
 export const LADDER_TOP = 16;
 export function easyCurve(x: number): number {
   if (x <= 10) return Math.max(0, (x - 1) / 9);
-  if (x <= 100) return WORLD_STEPS[Math.round(x) - 1];
-  return Math.min(LADDER_TOP, WORLD_STEPS[99] + ((LADDER_TOP - WORLD_STEPS[99]) * (x - 100)) / 309);
+  if (x <= 100) return WORLD_STEPS_V673[Math.round(x) - 1];
+  return Math.min(LADDER_TOP, WORLD_STEPS_V673[99] + ((LADDER_TOP - WORLD_STEPS_V673[99]) * (x - 100)) / 309);
 }
 export function ladderStep(diff: Difficulty, stageId: number): number {
   const k = Math.min(100, Math.max(1, stageId));
   if (diff === 'facil') return WORLD_STEPS[k - 1];
+  const t = LADDER_STEPS[diff]; // v0.67.4: escada calibrada pela vitória ao chegar
+  if (t) return t[k - 1];
   return easyCurve(diff === 'normal' ? 5 + 2 * (k - 1) : 13 + 4 * (k - 1));
 }
 
