@@ -416,6 +416,7 @@ Habilidades em detalhe:
 ### Poder da carta
 - **Poder = arredondar( 10 × peso da habilidade × √(ataque × vida) )**, com o ataque e a vida **atuais** da carta (nível, cor e "+" já aplicados). Por isso o Poder **sobe a cada nível, no "+" e a cada cor**.
 - **v0.67.3 — peso medido de novo para as 120 cartas** (`scripts/balance/powerGen.ts` e `powerFit.ts`): 80 000 batalhas IA × IA com baralhos de 10 cartas e raridade e degrau sorteados. Uma regressão logística mediu quanto cada carta soma para vencer por unidade de √(ataque × vida). O peso inclui a habilidade, a espera e o alcance. A fórmula antiga só tinha peso medido para 21 cartas (as outras valiam 1) e acertava o vencedor em 65,6% das batalhas; agora acerta em 79,6%. Os pesos foram ajustados para que o Poder médio fique igual ao de antes (os requisitos do Comandante não mudam).
+- **v0.67.4:** pesos medidos outra vez depois do ajuste das rodadas, com o Poder médio igual ao de antes. Baralhos do Normal e do Difícil (`hardDecks.ts`) gerados de novo.
   - Maiores: Vorax 2,15 · Vexar 2,03 · Pulse-7 1,84 · Aethra 1,72 · Omega-9 1,63 · Eldrin 1,60. Menores: Sanguis 0,42 · Mimic 0,49 · Kaito 0,50 · Corvin 0,58 · Hayato 0,60 · Ghor 0,61.
   - O Poder mais fiel também melhora o **Montar automático** e os baralhos inimigos gerados do Normal e do Difícil.
 - *(até a v0.67.2)* **Peso da habilidade** = valor de combate medido de cada personagem (média 1,00). Ele inclui o efeito das **habilidades** e do **custo** de energia:
@@ -1459,6 +1460,8 @@ Revisão carta a carta, uma raça por vez (Humanos → próximas 5 raças). O **
   | sem habilidade | 0 | 0 | 0 |
 
   **v0.67.3:** a carta sem habilidade **não é mais forte** que as outras. Ela tem o ataque e a vida de uma carta com habilidade normal e só ganha **1 rodada a menos de espera** (mínimo 1). As que você definiu à mão mantêm a espera e ficam com os números de quem espera 1 rodada a mais. O desconto das habilidades fortes caiu pela metade.
+
+  **v0.67.4 — rodadas ajustadas pela contribuição medida:** em batalhas simuladas, cada carta foi medida pelo quanto ajuda a vencer comparada às outras da mesma raridade. As que ajudavam demais ganharam rodadas de espera (ex.: Vorax, Vexar e Aethra 6 → 8; Pulse-7 4 → 8; Zarek 5 → 7; Kael 7 → 8). As que ajudavam pouco perderam (ex.: Kaito 5 → 3; Sanguis 7 → 5; Hayato e Mimic 6 → 5). As cartas que nasciam Míticas e passaram a Lendárias tiveram a força corrigida e agora ficam entre 0,9× e 1,1× da média dos Lendários. A diferença entre as cartas caiu de 0,39 para 0,16. Vorax, Vexar e Aethra continuam acima da média por causa das habilidades (Prole e Evasão).
 - **Raridade de origem:** quem nasce numa raridade acima é uma carta "maior" e por isso costuma ter espera maior. Como a força vem da espera, a regra de origem se mantém sozinha.
 - **Cartas sem habilidade: cerca de 1/3 de cada tipo**, a maioria das raridades baixas. Cada uma tem um perfil próprio (umas batem mais, outras aguentam mais), para não ficarem iguais. Nos suportes ficaram só 21%, porque um suporte sem habilidade não ajuda ninguém. Algumas cartas baixas continuam com habilidade.
 - **Espera:** é da carta e não muda ao subir de raridade. Como escolhi a espera de cada carta:
@@ -1699,10 +1702,11 @@ Raridade das cartas inimigas por região, da fase 1 à fase 10 de cada uma (esca
 Medido em `scripts/balance/world.ts` (4 jogadores). Vitória ao chegar, média por região (1 a 10): 24 · 31 · 39 · 24 · 17 · 29 · 32 · 32 · 27 · 38%. O mundo vai até Épico; quem nasce Lendário não entra nos baralhos inimigos.
 
 ### Normal e Difícil (v0.67.2)
-- **Escada de dificuldade (degrau das cartas inimigas):**
-  - Normal k = Fácil (5 + 2·(k − 1));
-  - Difícil k = Normal (5 + 2·(k − 1)) = Fácil (13 + 4·(k − 1));
-  - depois da Fácil 100, a curva sobe em linha reta até o degrau 16 (Mítico+) na Difícil 100.
+- **Escada de dificuldade (degrau das cartas inimigas), v0.67.4 — fixa e calibrada:** vem da tabela `src/core/ladderSteps.ts`, gerada por `scripts/balance/ladder.ts`. Vale para a Fácil a partir da fase 11, para a Normal e para a Difícil.
+  - O simulador joga as 300 fases na ordem de um jogador real: a Normal k logo depois da Fácil 5 + 2·(k − 1), e a Difícil k logo depois da Normal 5 + 2·(k − 1).
+  - Em cada fase, procura o degrau que dá a vitória ao chegar pedida. Depois a curva é suavizada e nunca desce.
+  - **Alvo de vitória ao chegar (a dificuldade não muda com o jogador):** Fácil, de 45% na fase 11 a 25% na fase 100; Normal, de 50% a 20%; Difícil, de 45% a 12%. Fora do primeiro mundo, nunca passa de 50%. A ideia é repetir fases já ganhas para juntar itens e subir cartas, ou comprar pacotes.
+  - Até v0.67.3: Normal k = Fácil (5 + 2·(k − 1)) e Difícil k = Normal (5 + 2·(k − 1)).
 - **Baralhos:** vêm de `src/core/hardDecks.ts`, gerado por `scripts/balance/decks.ts` (v0.67.3: gerados de novo com a tabela nova e o Poder medido de novo; o baralho de referência do jogador são as 10 cartas de maior Poder da faixa, agora as mais fortes de verdade, e entram os baralhos com nota a partir de 3%).
   - Em cada faixa, os baralhos estão ordenados do mais fraco ao mais forte (nota = vitória contra um baralho de jogador forte da faixa, com os dois lados no Auto).
   - A fase pega o baralho da posição que a escada pede.
