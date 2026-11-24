@@ -22,7 +22,10 @@ const PROBE = Number(process.env.PROBE ?? 12);
 export const target = (d: Difficulty, k: number) =>
   d === 'facil' ? 0.45 - (0.2 * (k - 11)) / 89 : d === 'normal' ? 0.5 - (0.3 * (k - 1)) / 99 : 0.45 - (0.33 * (k - 1)) / 99;
 const CALIB = process.env.CALIB !== '0';
-const base = (d: Difficulty, k: number) => (d === 'facil' ? WORLD_STEPS[k - 1] : CALIB ? easyCurve(d === 'normal' ? 5 + 2 * (k - 1) : 13 + 4 * (k - 1)) : ladderStep(d, k));
+// CALIB=2: refina a partir da tabela atual (LADDER_STEPS), com margem de 3 pontos abaixo do alvo
+const REFINE = process.env.CALIB === '2';
+const MARGIN = REFINE ? 0.03 : 0;
+const base = (d: Difficulty, k: number) => (d === 'facil' ? WORLD_STEPS[k - 1] : CALIB && !REFINE ? easyCurve(d === 'normal' ? 5 + 2 * (k - 1) : 13 + 4 * (k - 1)) : ladderStep(d, k));
 const stageAt = (d: Difficulty, k: number, s: number): Stage =>
   d === 'facil' ? { ...WORLD_STAGES[k - 1], enemyDeck: enemyDeckFor(k - 1, s) } : hardStageAt(k, d, s);
 
@@ -45,7 +48,7 @@ const stats = runCampaign({ name: 'escada', hp: LEADER_HP, thresholds: LEADER_TH
   pick: !CALIB ? undefined : (i, winAt) => {
     const { id: k, diff: d } = order[i];
     if (d === 'facil' && k <= 10) return undefined;
-    const T = target(d, k), s0 = base(d, k);
+    const T = target(d, k) - MARGIN, s0 = base(d, k);
     const at = (b: number) => stageAt(d, k, Math.max(0, Math.min(17.99, s0 + b)));
     let lo: number, hi: number;
     if (winAt(at(0), PROBE) > T) { lo = 0; hi = Math.min(6, 17.99 - s0); }
