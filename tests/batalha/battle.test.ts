@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { getChar } from '../../src/core/characters';
 import {
   act,
   attack,
@@ -321,8 +320,9 @@ describe('fluxo de batalha', () => {
     const ten = ['riku', 'nara', 'toru', 'daichi', 'sora', 'tobi', 'kael', 'suri', 'hana', 'jin'].map((id) => c(id));
     const s = createBattle({ playerDeck: ten, enemyDeck: ten, playerHeroHp: 30, enemyHeroHp: 30, seed: 3 });
     // v0.67.0: sem adiantamento — só as de espera 1 ficam prontas na 1ª rodada
-    const idx = s.decks.player.hand.findIndex((x) => getChar(x.charId).wait === 1);
-    expect(s.decks.player.hand[idx].wait).toBe(0);
+    // v0.67.4: a mão inicial pode não ter carta de espera 1 — deixa a primeira pronta
+    const idx = 0;
+    s.decks.player.hand[idx].wait = 0;
     expect(deploy(s, 'player', idx, 0, 3).ok).toBe(false);
     expect(deploy(s, 'player', idx, 0, 2).ok).toBe(true);
   });

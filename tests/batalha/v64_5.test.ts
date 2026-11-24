@@ -11,13 +11,13 @@ const empty = (): BattleState => createBattle({ playerDeck: [], enemyDeck: [], p
 describe('v0.64.5 — ajustes do jogador no editor', () => {
   it('valores das cartas', () => {
     const v = (id: string) => [getChar(id).wait, getChar(id).range, getChar(id).damageType];
-    expect(v('hayato')).toEqual([6, 2, 'fisico']);
-    expect(v('zarek')).toEqual([5, 4, 'magico']); // v0.65.2: espera 5
-    expect(v('kael')).toEqual([7, 4, 'magico']);
+    expect(v('hayato')).toEqual([5, 2, 'fisico']); // v0.67.4: rodadas ajustadas pela força medida
+    expect(v('zarek')).toEqual([7, 4, 'magico']); // v0.67.4: espera 7 (v0.65.2: 5)
+    expect(v('kael')).toEqual([8, 4, 'magico']);
     expect(getChar('hayato').abilities).not.toContain('critico');
     expect(getChar('zarek').abilities).not.toContain('critico');
     expect(getChar('mimic').abilities).toEqual(['copiador', 'anular', 'investida']); // v0.67.0: Investida abre no Mítico
-    expect([getChar('titanx').wait, getChar('aethra').wait, getChar('mimic').wait]).toEqual([5, 6, 6]);
+    expect([getChar('titanx').wait, getChar('aethra').wait, getChar('mimic').wait]).toEqual([5, 8, 5]); // v0.67.4
     expect(abilityListHTML(getChar('vharga'), 6)).toContain('totalmente');
   });
 

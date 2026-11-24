@@ -17,12 +17,12 @@ describe('v0.64.0 — filtros dos Heróis', () => {
   it('raridade, ataque, vida e rodadas valem juntos com grupo e tipo', () => {
     const all = heroGroups();
     expect(ids(filterHeroes(all, {}))).toEqual(ids(all));
-    const f = { race: 'humano', cat: 'dps', rarity: 4, atk: '3-4', hp: '4-6', wait: 2 }; // v0.67.0: Riku Épico 4|6
+    const f = { race: 'humano', cat: 'dps', rarity: 4, atk: '3-4', hp: '4-6', wait: 3 }; // v0.67.4: Riku Épico 4|6, espera 3
     const got = ids(filterHeroes(all, f));
     expect(got.length).toBeGreaterThan(0);
     for (const id of got) {
       const d = getChar(id);
-      expect([d.race, d.category, d.wait]).toEqual(['humano', 'dps', 2]);
+      expect([d.race, d.category, d.wait]).toEqual(['humano', 'dps', 3]);
       const cells = heroCells(d, f);
       expect(cells).toEqual([4]);
       const s = statsFor(d, 4, 0);
