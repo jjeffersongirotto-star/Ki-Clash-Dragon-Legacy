@@ -63,7 +63,7 @@ describe('v0.13 — Poder das cartas', () => {
   it('Poder do baralho = soma das 10 cartas', () => {
     const team = STARTER_IDS.slice(0, 10).map((id) => ({ charId: id, stars: 1 }));
     expect(deckPower(team)).toBe(team.reduce((s, c) => s + cardPower(c), 0));
-    expect(deckPower(team)).toBe(210); // v0.67.3: Poder medido de novo (antes 206); sem habilidade = mesmos números, 1 rodada a menos (v0.67.0: 247): revisão das 6 raças (v0.66.0: 222) Humanos revisados (v0.63.0: 199) (v0.62.0: 198) (v0.57.0: 246)
+    expect(deckPower(team)).toBe(216); // v0.67.4: rodadas ajustadas (v0.67.3: 210); sem habilidade = mesmos números, 1 rodada a menos (v0.67.0: 247): revisão das 6 raças (v0.66.0: 222) Humanos revisados (v0.63.0: 199) (v0.62.0: 198) (v0.57.0: 246)
     // v0.25.0: o save novo começa só com o Riku (os 10 de Comum vinham no save novo até a v0.24)
     expect(defaultSave().deck).toEqual(['riku']);
   });

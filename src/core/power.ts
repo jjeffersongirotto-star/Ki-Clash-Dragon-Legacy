@@ -18,7 +18,7 @@ import { statsFor, stepOf } from './progression';
 /**
  * Peso de habilidade por personagem — v0.67.3: medido de novo para as 120 cartas (regressão logística em 80 000
  * batalhas IA × IA com baralhos e raridades sorteados; scripts/balance/powerGen.ts e powerFit.ts). Inclui a habilidade, a espera e
- * o alcance de cada carta. Acerto do vencedor: 65,6% → 79,6%.
+ * o alcance de cada carta. Acerto do vencedor: 65,6% → 79,6% (v0.67.4: medido de novo depois do ajuste de rodadas).
  */
 export const ABILITY_WEIGHT: Record<string, number> = {
   riku: 0.96, nara: 1.01, toru: 0.93, aiko: 1.24, lyra: 1.20, gorath: 0.96, mei: 1.05, yume: 0.83, zarek: 0.98,

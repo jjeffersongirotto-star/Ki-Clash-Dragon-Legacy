@@ -55,7 +55,7 @@ describe('v0.63.0 — trocas de raridade, Regra de Origem, Espera e habilidades 
       expect(d.wait!, d.id).toBeGreaterThanOrEqual(1);
       expect(d.wait!, d.id).toBeLessThanOrEqual(8); // v0.67.0: a espera é da carta (1 a 8)
     }
-    expect(getChar('zarek').wait).toBe(5); // v0.65.2: ajustado pelo jogador
+    expect(getChar('zarek').wait).toBe(7); // v0.67.4: rodadas ajustadas pela força medida (v0.65.2: 5)
     expect(getChar('zynna').wait).toBeLessThan(7);
     expect(getChar('velka').wait).toBeLessThanOrEqual(3);
   });

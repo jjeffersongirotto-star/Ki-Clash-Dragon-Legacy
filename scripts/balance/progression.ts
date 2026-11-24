@@ -198,7 +198,7 @@ export interface StageStat { arrivePower: number[]; leader: number[]; winAtArriv
  * antes de tentar cada fase nova (simula um dia: 5 Repetir e depois a fase nova). `opts.repeatMult` = fração da
  * recompensa nas repetições (v0.20.0: 1; antes: 0,5).
  */
-export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { repeats?: number; repeatMult?: number; stages?: Stage[]; bannerGold?: boolean; maxAttempts?: number; firstPlayer?: number; onPlayer?: (pi: number) => void } = {}) {
+export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { repeats?: number; repeatMult?: number; stages?: Stage[]; bannerGold?: boolean; maxAttempts?: number; firstPlayer?: number; onPlayer?: (pi: number) => void; pick?: (i: number, winAt: (st: Stage, n: number) => number) => Stage | undefined } = {}) {
   const repeats = opts.repeats ?? 0;
   const repeatMult = opts.repeatMult ?? 0.5;
   // v0.39.0: `stages` = as 100 fases do mundo; `bannerGold` = o Ouro que sobra da Loja vira cartas do Banner (10 por vez)
@@ -224,6 +224,12 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
     for (let i = 0; i < STAGES.length; i++) {
       if (i > 0) for (let k = 0; k < repeats; k++) reward(p, i - 1, false, repeatMult);
       spend(p); if (opts.bannerGold) bannerBuy(p); levelUp(p, sc);
+      // v0.67.4: calibração — escolhe a fase (o degrau) pela vitória ao chegar
+      if (opts.pick) {
+        const hp0 = sc.hp[p.leader - 1];
+        const chosen = opts.pick(i, (stg, n) => { let w = 0; for (let k = 0; k < n; k++) if (simulate(battleDeck(p, i), stg.enemyDeck, hp0, stg.enemyHeroHp, 900000 + seed * 31 + k, stg.aiLevel).winner === 'player') w++; return w / n; });
+        if (chosen) STAGES[i] = chosen;
+      }
       const st = stats[i];
       st.arrivePower.push(deckPower(team(p))); st.leader.push(p.leader);
       // taxa de vitória exatamente no momento em que chega à fase

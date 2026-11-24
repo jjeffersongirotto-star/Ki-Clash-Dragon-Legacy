@@ -2,6 +2,19 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.67.4] — 24/11/2026 · Dificuldade fixa e mais alta, e rodadas das cartas ajustadas
+- **Dificuldade fixa e calibrada:** a partir da fase 11 do Fácil, e em todo o Normal e o Difícil, a força dos inimigos de cada fase foi escolhida pelo simulador. Ele joga as 300 fases na ordem de um jogador real e procura, em cada fase, a força que dá a chance de vitória pedida. A dificuldade não muda conforme o jogador.
+- **Alvo:** fora do primeiro mundo, no máximo 50% de chance de vencer uma fase na primeira tentativa, caindo com o nível. Fácil, de 45% para 25%; Normal, de 50% para 20%; Difícil, de 45% para 12%. A ideia é repetir fases já ganhas para juntar itens e subir as cartas, ou comprar pacotes.
+- **Simulador (4 jogadores), chance de vencer na primeira tentativa, por mundo (1 a 10):**
+  - **Fácil:** 21 · 30 · 27 · 36 · 38 · 30 · 23 · 24 · 26 · 10%.
+  - **Normal:** 27 · 42 · 29 · 25 · 48 · 29 · 24 · 22 · 17 · 16%.
+  - **Difícil:** 34 · 29 · 48 · 27 · 16 · 18 · 20 · 42 · 11 · 12%.
+- **Rodadas de espera ajustadas** conforme quanto cada carta ajuda a vencer, comparada às outras da mesma raridade:
+  - As fortes demais esperam mais: Vorax, Vexar e Aethra 6 → 8; Pulse-7 4 → 8; Zarek 5 → 7; Kael 7 → 8.
+  - As fracas esperam menos: Kaito 5 → 3; Sanguis 7 → 5; Hayato e Mimic 6 → 5.
+- **Cartas que nasciam Míticas e viraram Lendárias:** força corrigida, agora perto da média dos Lendários (de 0,9× a 1,1×).
+- **Poder medido de novo** depois do ajuste e **baralhos do Normal e do Difícil gerados de novo**.
+
 ## [0.67.3] — 23/11/2026 · Cartas sem habilidade não são mais as mais fortes
 - **Regra nova:** a carta sem habilidade tem o mesmo ataque e a mesma vida de uma carta com habilidade normal, e ganha só **1 rodada a menos de espera**. Antes ela ganhava +2 a +3 de força e aparecia demais nos melhores baralhos (Toru, Jin, Wex, Orun, Morv).
 - **Habilidades fortes custam metade do que custavam** em ataque e vida, e as cartas com habilidade boa voltaram a valer a pena.
