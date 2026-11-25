@@ -53,7 +53,7 @@ export const BALANCE_V2: Record<string, BalanceEntry> = {
   zarek: { min: 5, max: 6, wait: 7, stats: { 5: [6, 15], 6: [7, 18] }, cat: 'dps', ab: ['retaguarda', 'renascer'], up: { renascer: 6 }, range: 4, dmg: 'magico', tweaks: ['retaguardaSemPerfurar', 'emboscadaComAliado'], desc: { retaguarda: 'Se tiver um aliado à frente dele na fileira (protegendo), ataca o inimigo mais distante no alcance (até 4 casas); senão, ataca o inimigo mais próximo.' }, manual: true },
   kenji: { min: 5, max: 6, wait: 6, stats: { 5: [2, 19], 6: [3, 22] }, cat: 'tanque', ab: ['contraGolpe', 'guarda', 'regeneracao'], up: { regeneracao: 6 }, range: 1, manual: true },
   nyx: { min: 3, max: 5, wait: 3, stats: { 3: [1, 10], 4: [1, 13], 5: [1, 16] }, ab: ['sifao'], range: 4, manual: true },
-  vorax: { min: 5, max: 6, wait: 9, stats: { 5: [4, 22], 6: [5, 25] }, ab: ['prole', 'explosao'], range: 4, tweaks: ['explosaoCell'], desc: { explosao: 'Ao morrer, explode e causa 8 de dano em todos os inimigos ao redor (inclusive diagonais e a outra fileira).' }, manual: true },
+  vorax: { min: 5, max: 6, wait: 9, stats: { 5: [4, 22], 6: [6, 23] }, ab: ['prole', 'explosao'], range: 4, tweaks: ['explosaoCell'], desc: { explosao: 'Ao morrer, explode e causa 8 de dano em todos os inimigos ao redor (inclusive diagonais e a outra fileira).' }, manual: true },
   daichi: { min: 1, max: 3, wait: 2, stats: { 1: [1, 6], 2: [2, 6], 3: [2, 9] }, ab: [], range: 1, manual: true },
   sora: { min: 1, max: 3, wait: 1, stats: { 1: [1, 4], 2: [1, 6], 3: [1, 9] }, ab: ['sopro'], range: 4, manual: true },
   tobi: { min: 2, max: 4, wait: 1, stats: { 2: [2, 4], 3: [3, 4], 4: [3, 7] }, ab: ['tambor'], range: 1, manual: true },

@@ -1531,7 +1531,7 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 ### Outras mudanças
 - **Ninguém nasce Mítico.** A raridade máxima de nascimento é Lendário. As 15 cartas que nasciam Míticas agora vão de Lendário a Mítico: no Lendário têm 2 habilidades, e a 3ª abre no Mítico. As esperas são as mesmas.
 - **Vorax como o "Cell":** qualquer inimigo derrotado, por qualquer aliado, vira Cria Sombria na mesma casa, **sem limite**.
-  - **v0.67.5 — Vorax igual à referência do "Cell":** só 2 habilidades, **Prole Sombria** (acima) e **Explosão** (ao morrer, 8 de dano em todos os inimigos ao redor). Saíram o Chamado da Necropolis e a Vingança, que não existem na referência. Espera **9**; ataque|vida **4|22** no Lendário (como a carta da referência) e **5|25** no Mítico. Valores fixos (fora do ajuste automático das rodadas e da força).
+  - **v0.67.5 — Vorax igual à referência do "Cell":** só 2 habilidades, **Prole Sombria** (acima) e **Explosão** (ao morrer, 8 de dano em todos os inimigos ao redor). Saíram o Chamado da Necropolis e a Vingança, que não existem na referência. Espera **9**; ataque|vida **4|22** no Lendário (como a carta da referência) e **6|23** no Mítico (definido por você em 25/11). Valores fixos (fora do ajuste automático das rodadas e da força).
 - **Anel no chão** embaixo de quem tem aura ou efeito contínuo, com uma cor por tipo:
   - verde: ajuda aliados (auras de raça, Tambor, Grito de Guerra);
   - roxo: enfraquece inimigos (Sifão, Domínio).
@@ -1679,7 +1679,7 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 | Mago | Wex Bruxo-do-Pântano | C→É | 2 | 4 | 2\|4 | 3\|4 | 4\|5 | 5\|6 |  |  | — |  |
 | Mago | Lamenta Viúva-Vingativa | I→É | 2 | 4 |  | 2\|4 | 3\|5 | 4\|5 |  |  | Pressão no Comandante (nova) |  |
 | Mago | Nocturna Bruxa-Pestilenta | É→M | 3 | 4 |  |  |  | 6\|4 | 7\|5 | 8\|6 | Maldição, Veneno (a partir do Lendário), Queimadura (a partir do Mítico) |  |
-| Mago | Vorax | L→M | 6 | 4 |  |  |  |  | 4\|22 | 5\|25 | Prole Sombria, Explosão (8 de dano) — v0.67.5 | Prole "Cell": qualquer inimigo derrotado vira cria, sem limite |
+| Mago | Vorax | L→M | 6 | 4 |  |  |  |  | 4\|22 | 6\|23 | Prole Sombria, Explosão (8 de dano) — v0.67.5 | Prole "Cell": qualquer inimigo derrotado vira cria, sem limite |
 | Mago | Pira Vela-Fúnebre | L→M | 3 | 4 |  |  |  |  | 7\|5 | 8\|6 | Queimadura, Explosão de Brasas |  |
 | Suporte | Mira Sussurro-Frio | C→É | 3 | 4 | 1\|6 | 1\|9 | 1\|12 | 2\|13 |  |  | — |  |
 | Suporte | Elegia Arauta-do-Retorno | R→L | 3 | 4 |  |  | 1\|7 | 1\|10 | 1\|12 |  | Ressurreição |  |
