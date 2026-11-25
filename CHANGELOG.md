@@ -9,6 +9,10 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
   - Golpes para derrubar uma carta da mesma raridade: de 3,7 (Lendário) para 2,4, igual às raridades baixas.
   - Batalhas simuladas com a mesma vida de Comandante: Lendário e Mítico caem de 14,7 e 14,8 rodadas para 13,1 e 13,3.
 - **Riku e Kaori** (arquivo do editor): Riku Raro 3|6 → 2|7 e Épico 4|6 → 3|8; Kaori Lendário 1|18 → 2|18 e Mítico 2|21 → 3|21.
+- **Fases ajustadas de novo** para os números novos (no máximo 50% de vitória ao chegar fora do primeiro mundo). Simulador (4 jogadores), vitória ao chegar por mundo 1 a 10:
+  - **Fácil:** 31 · 33 · 42 · 30 · 26 · 33 · 28 · 21 · 25 · 19%.
+  - **Normal:** 41 · 31 · 42 · 29 · 13 · 35 · 37 · 38 · 33 · 20%.
+  - **Difícil:** 36 · 23 · 29 · 27 · 21 · 17 · 20 · 24 · 9 · 10%.
 - **Editor:** o arquivo do "⬇ Balanceamento" mostrava a espera original errada (ex.: Kaori 7 em vez de 3). Agora mostra a espera real.
 
 ## [0.67.8] — 25/11/2026 · Feitiços nos Heróis: ver e alterar
