@@ -16,7 +16,7 @@ describe('v0.67.0 — tabela das 6 raças', () => {
     for (const d of PLAYABLE) {
       const b = BALANCE_V2[d.id];
       expect(b.wait, d.id).toBeGreaterThanOrEqual(1);
-      expect(b.wait, d.id).toBeLessThanOrEqual(8);
+      expect(b.wait, d.id).toBeLessThanOrEqual(d.id === 'vorax' ? 9 : 8); // v0.67.5: Vorax espera 9 (referência do "Cell")
       for (let r = b.min + 1; r <= b.max; r++) expect(2 * b.stats[r][0] + b.stats[r][1], `${d.id}@${r}`).toBeGreaterThan(2 * b.stats[r - 1][0] + b.stats[r - 1][1]);
     }
   });
@@ -170,6 +170,13 @@ describe('v0.67.0 — habilidades novas', () => {
       attack(s, new Ctx(), r, e);
     }
     expect(s.units.filter((u) => u.charId === 'cria' && u.side === 'player').length).toBe(5);
+  });
+  it('v0.67.5: Vorax explode ao morrer com 8 de dano em quem está ao redor', () => {
+    const s = empty();
+    const v = placeUnit(s, c('vorax'), 'player', 0, 2);
+    const e = placeUnit(s, c('riku'), 'enemy', 1, 3, { hp: 20 });
+    applyDamage(s, new Ctx(), v, 999, 'fisico', { side: 'enemy' });
+    expect(e.hp).toBe(e.maxHp - 8);
   });
   it('Explosão de Ki: aliados +5 de ataque e queimadura', () => {
     const s = empty();

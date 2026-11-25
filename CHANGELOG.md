@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.67.5] — 25/11/2026 · Vorax igual à referência do "Cell"
+- **Habilidades:** só **Prole Sombria** (todo inimigo derrotado enquanto ele está em campo vira Cria Sombria na casa dele, sem limite) e **Explosão** (ao morrer, causa 8 de dano em todos os inimigos ao redor). Saíram o Chamado da Necropolis e a Vingança, que não existem na referência.
+- **Números:** espera **9**; ataque|vida **4|22** no Lendário, como a carta da referência, e **5|25** no Mítico (antes, 6|6 e 7|7 com espera 8).
+- O Vorax fica fora do ajuste automático das rodadas e da força, para não mudar de novo sozinho.
+
 ## [0.67.4] — 24/11/2026 · Dificuldade fixa e mais alta, e rodadas das cartas ajustadas
 - **Dificuldade fixa e calibrada:** a partir da fase 11 do Fácil, e em todo o Normal e o Difícil, a força dos inimigos de cada fase foi escolhida pelo simulador. Ele joga as 300 fases na ordem de um jogador real e procura, em cada fase, a força que dá a chance de vitória pedida. A dificuldade não muda conforme o jogador.
 - **Alvo:** fora do primeiro mundo, no máximo 50% de chance de vencer uma fase na primeira tentativa, caindo com o nível. Fácil, de 45% para 25%; Normal, de 50% para 20%; Difícil, de 45% para 12%. A ideia é repetir fases já ganhas para juntar itens e subir as cartas, ou comprar pacotes.

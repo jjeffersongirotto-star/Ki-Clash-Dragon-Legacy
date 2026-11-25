@@ -784,7 +784,8 @@ function kill(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit) {
       ctx.emit(state, { type: 'effect', uid: a.uid, kind: 'habilidade', text: `  🕯️ Vingança: ${nameOf(a)} ganha +1 de ataque.` });
     }
   }
-  const boom = pw(victim, 'explosao');
+  // v0.67.5: Vorax (referência do "Cell") explode com 8 de dano
+  const boom = pw(victim, 'explosao') && hasTweak(victim.charId, 'explosaoCell') ? 8 : pw(victim, 'explosao');
   if (boom) {
     ctx.emit(state, { type: 'effect', uid: victim.uid, kind: 'habilidade', text: `💥 ${nameOf(victim)} explode!` });
     for (const e of state.units.filter((e) => e.side !== victim.side && e.hp > 0 && Math.abs(e.row - victim.row) <= 1 && Math.abs(e.col - victim.col) <= 1)) {

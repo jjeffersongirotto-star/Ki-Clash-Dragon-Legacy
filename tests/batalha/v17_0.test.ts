@@ -1,5 +1,6 @@
+import { BALANCE_V2 } from '../../src/core/balanceV2';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { Ctx, actionOrder, effectiveAtk, addEffect, applyDamage, attack, castSpell, createBattle, deploy, effectOf, placeUnit, resolveSide, spellCasters, spellTargets, waitFor } from '../../src/core/battle';
+import { Ctx, actionOrder, effectiveAtk, addEffect, applyDamage, attack, castSpell, createBattle, effectOf, placeUnit, resolveSide, spellCasters, spellTargets, waitFor } from '../../src/core/battle';
 import { aiDeploy, pickSpellTarget } from '../../src/core/ai';
 import { ABILITIES } from '../../src/core/abilities';
 import { PLAYABLE, STARTER_IDS, getChar } from '../../src/core/characters';
@@ -109,24 +110,10 @@ describe('v0.17.0 — salvamentos (decisões 18 e 21)', () => {
     applyDamage(s, new Ctx(), z, 50, 'fisico', { side: 'player' });
     expect(s.units.includes(z)).toBe(false);
   });
-  it('Necromancia (Vorax) ao entrar traz a última carta derrotada para a mão, pronta', () => {
-    const s = createBattle({ playerDeck: deck10.slice(0, 6).concat([c('vorax')]), enemyDeck: deck10, playerHeroHp: 30, enemyHeroHp: 30, seed: 3 });
-    const d = s.decks.player;
-    d.hand.forEach((h) => (h.wait = 0));
-    const first = d.hand.findIndex((h) => h.charId !== 'vorax');
-    const id = d.hand[first].charId;
-    expect(deploy(s, 'player', first, 0, 0).ok).toBe(true);
-    const u = s.units.find((x) => x.charId === id)!;
-    applyDamage(s, new Ctx(), u, 999, 'fisico', { side: 'enemy' });
-    expect(d.defeated.map((x) => x.charId)).toEqual([id]);
-    // coloca o Vorax na mão e invoca
-    const vs = d.slots.find((x) => x.card.charId === 'vorax')!;
-    while (d.hand.length >= 6) d.hand.pop();
-    vs.inHand++;
-    d.hand.push({ ...vs.card, slot: vs.slot, wait: 0 });
-    expect(deploy(s, 'player', d.hand.length - 1, 1, 0).ok).toBe(true);
-    expect(d.defeated).toHaveLength(0);
-    expect(d.hand.some((h) => h.charId === id && h.wait === 0)).toBe(true);
+  it('v0.67.5: Vorax segue a referência do "Cell" — Prole e Explosão, sem Necromancia nem Vingança', () => {
+    expect(BALANCE_V2.vorax.ab).toEqual(['prole', 'explosao']);
+    expect(BALANCE_V2.vorax.wait).toBe(9);
+    expect(BALANCE_V2.vorax.stats[5]).toEqual([4, 22]);
   });
   it('returnFromNecropolis com a mão cheia devolve a carta ao baralho', () => {
     const rng = { seed: 1 };
