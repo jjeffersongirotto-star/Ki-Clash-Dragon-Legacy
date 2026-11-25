@@ -96,6 +96,7 @@ describe('só a própria fileira (exceto diagonais)', () => {
     const s = empty();
     const z = placeUnit(s, c('sayuri', 1, 4), 'player', 0, 2);
     z.abilities = ['retaguarda']; // v0.67.0: assassinos também têm Corte Diagonal; aqui só a Emboscada
+    z.range = 1; // v0.67.9: a Sayuri virou maga (alcance 4); a regra testada é a do corpo a corpo
     placeUnit(s, c('riku'), 'enemy', 0, 3);
     const far = placeUnit(s, c('riku'), 'enemy', 0, 4);
     placeUnit(s, c('riku'), 'enemy', 0, 5);

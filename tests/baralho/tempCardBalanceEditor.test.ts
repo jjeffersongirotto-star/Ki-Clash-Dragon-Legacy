@@ -197,3 +197,10 @@ describe('v0.58.2 seletor de habilidades', () => {
     expect((h.match(/data-pick=/g) ?? []).length).toBe(Object.keys(ABILITIES).length - 1); // + "nova", − Longo Alcance (v0.64.6), − Golpe Reverso (v0.64.7)
   });
 });
+
+describe("v0.67.9 — espera original no arquivo", () => {
+  it("é a espera real da carta (Kaori 3, não 7)", () => {
+    expect(JSON.parse(exportJSON({ kaori: { atk: 2 } })).kaori.original.wait).toBe(waitFor("kaori"));
+    expect(waitFor("kaori")).toBe(3);
+  });
+});
