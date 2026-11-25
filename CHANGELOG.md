@@ -9,7 +9,10 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
 - Exemplos: Nhyra 7|5 → **7|15** (Mítico 8|6 → 8|18); Kryx 5|7 → 5|16; Morgause 6|4 → 6|13 (Mítico 7|5 → 7|16).
 - **Kolossus e Ghor com menos vida:** Kolossus 3|25 → **3|18** (Mítico 4|28 → 4|21) e Ghor 3|27 → **3|17** (Mítico 4|30 → 4|20). Os dois se curam e bloqueiam, então ficam abaixo do teto dos tanques.
 - **Vorax Mítico 6|23**, como você definiu (a entrada da 0.67.5 dizia 5|25 por engano).
-- **Fases ajustadas de novo** para as vidas novas, com o mesmo alvo da 0.67.4 (no máximo 50% de vitória ao chegar fora do primeiro mundo, caindo com o nível).
+- **Fases ajustadas de novo** para as vidas novas, com o mesmo alvo da 0.67.4 (no máximo 50% de vitória ao chegar fora do primeiro mundo, caindo com o nível). Simulador (4 jogadores), vitória ao chegar por mundo 1 a 10:
+  - **Fácil:** 30 · 30 · 37 · 39 · 32 · 31 · 17 · 18 · 28 · 25%.
+  - **Normal:** 36 · 32 · 47 · 30 · 39 · 39 · 28 · 33 · 29 · 25%.
+  - **Difícil:** 38 · 30 · 37 · 19 · 16 · 19 · 19 · 15 · 9 · 8%.
 - REGRAS.md: tabela das cartas atualizada com os valores do jogo.
 
 ## [0.67.5] — 25/11/2026 · Vorax igual à referência do "Cell"
