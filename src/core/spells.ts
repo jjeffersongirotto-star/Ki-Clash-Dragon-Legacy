@@ -30,7 +30,14 @@ export interface SpellDef {
   description: string;
   /** v0.41.0: raridade da carta de feitiço (1 Comum … 4 Épico): em que raridade ela sai no Banner */
   rarity: number;
+  /** v0.67.8: raridade final (máxima) definida no editor TEMP; sem ela, = rarity. Ainda sem efeito na batalha. */
+  maxRarity?: number;
 }
+
+export type SpellNumKey =
+  | 'investida' | 'giratoria' | 'muralhaHp' | 'muralhaTurns' | 'tremor' | 'chuva'
+  | 'flechaHit' | 'flechaDot' | 'flechaTurns' | 'bolaHit' | 'bolaDot' | 'bolaTurns'
+  | 'raio' | 'veneno' | 'venenoTurns' | 'sombras' | 'cura' | 'kiAtk' | 'kiBurn' | 'kiTurns';
 
 export const SPELL_PREFIX = 'f-';
 
@@ -68,9 +75,9 @@ export const getSpell = (id: string) => {
   if (!s) throw new Error(`Feitiço desconhecido: ${id}`);
   return s;
 };
-/** percentuais usados pelos feitiços (um lugar só para o REGRAS e os testes) */
-export const SPELL_NUM = {
+/** percentuais usados pelos feitiços (um lugar só para o REGRAS e os testes). v0.67.8: mutável — o editor TEMP dos feitiços troca os valores. */
+export const SPELL_NUM: Record<SpellNumKey, number> = {
   investida: 250, giratoria: 120, muralhaHp: 80, muralhaTurns: 2, tremor: 100, chuva: 100,
   flechaHit: 80, flechaDot: 60, flechaTurns: 3, bolaHit: 200, bolaDot: 50, bolaTurns: 2,
   raio: 130, veneno: 100, venenoTurns: 3, sombras: 250, cura: 50, kiAtk: 5, kiBurn: 2, kiTurns: 3,
-} as const;
+};

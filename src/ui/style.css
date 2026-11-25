@@ -1912,3 +1912,11 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 }
 .tbe-abd textarea { field-sizing: content; min-height: 2.6em; max-height: none; overflow: hidden; }
 .tbe-clear { position: fixed; right: 10px; bottom: 52px; z-index: 40; }
+/* v0.67.8: feitiços nos Heróis — tocar mostra o que faz; TEMP editor do feitiço (.tse) */
+.spell-grid .card.hr-sel { outline: 3px solid #ffd76a; outline-offset: 2px; border-radius: 8px; }
+.hr-spell-info { margin-top: 10px; }
+.tse-cats, .tse-desc { grid-column: 1 / -1; }
+.tse-cats { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; font-size: 12px; color: #c9d1f5; }
+.tse-cats b { width: 100%; }
+.tse .tse-cat { display: flex; gap: 4px; align-items: center; font-weight: 600; }
+.tse textarea { font: inherit; font-size: 13px; padding: 6px; border-radius: 8px; border: 1px solid #3a4580; background: #0c1130; color: #fff; resize: vertical; }
