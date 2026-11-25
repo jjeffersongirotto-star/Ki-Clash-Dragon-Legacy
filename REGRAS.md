@@ -1303,6 +1303,11 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - Enquanto os personagens agem, a dica do tutorial fica na **faixa vazia acima da arena**; na instrução, fica no lugar de sempre.
 - Janela de detalhes da carta: **sem rolagem** quando o conteúdo cabe; rola só se não couber.
 
+## Feitiços nos Heróis e editor dos feitiços (v0.67.8)
+- **Tocar num feitiço** na tela Heróis mostra embaixo da grade o que ele faz, quem conjura e a espera, como nos personagens. Tocar em outro troca; no mesmo, fecha.
+- **Segurar o feitiço** abre o editor temporário (igual ao das cartas): espera (rodadas), raridade (Comum a Épico), quem conjura (tipos), os números do efeito (porcentagens e rodadas) e a descrição. Ao trocar um número, a descrição troca o mesmo número sozinha.
+- Vale no jogo na hora e fica no aparelho. **Restaurar** volta o feitiço ao jogo; **⬇ Balanceamento** baixa os feitiços mudados junto com as cartas (em `_feiticos`, com o original ao lado); **🗑 Limpar balanceamento** apaga os dois.
+
 ## Contas de teste e filtros (v0.55.1)
 - ADM / 12345: tudo no máximo. adm2 / 12345: tudo na raridade mínima (para revisar equilíbrio).
 - Coleção & Baralho: filtros de Raça e Tipo com várias escolhas — OU dentro do mesmo filtro, E entre filtros.

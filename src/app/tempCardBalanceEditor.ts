@@ -44,6 +44,7 @@ import { waitFor } from "../core/battle";
 import { esc } from "../ui/components";
 import { showDialog, gameAlert, gameConfirm } from "../ui/dialog";
 import { onLongPress } from "../ui/battleModals";
+import { exportSpells, applySpellEdits, loadSpellEdits, SPELL_KEY } from "./tempSpellEditor"; // TEMP spell editor
 
 export const TEMP_CARD_BALANCE_EDITOR = true; // v0.56.0: LIGADO para o balanceamento (pôr false para desligar)
 
@@ -206,7 +207,9 @@ export function exportJSON(edits = loadEdits()): string {
       original: { ...o, wait: Math.max(1, 2 * d.cost - 1) },
     };
   }
-  if (!Object.keys(out).length) return "{}";
+  const feiticos = exportSpells(); // TEMP spell editor
+  if (!Object.keys(out).length && !feiticos) return "{}";
+  if (feiticos) out._feiticos = feiticos;
   const conflitos: Record<string, string[]> = {};
   for (const [k, list] of Object.entries(uses)) {
     const cards = [...new Set(list.map((u) => u.card))];
@@ -699,17 +702,19 @@ export function bindCardEditor(root: HTMLElement, refresh: () => void) {
     c.className = "btn small tbe-clear";
     c.textContent = "🗑 Limpar balanceamento";
     c.addEventListener("click", async () => {
-      const n = Object.keys(loadEdits()).length;
+      const n = Object.keys(loadEdits()).length + Object.keys(loadSpellEdits()).length;
       if (!n) return void gameAlert("Nada para limpar", "O editor não tem alterações salvas.", "ℹ️");
       const ok = await gameConfirm(
         "Limpar balanceamento",
-        `Apaga as alterações do editor em ${n} carta(s) e as cartas voltam aos valores do jogo. Se ainda não mandou o arquivo, toque em "⬇ Balanceamento" antes.`,
+        `Apaga as alterações do editor em ${n} carta(s)/feitiço(s) e eles voltam aos valores do jogo. Se ainda não mandou o arquivo, toque em "⬇ Balanceamento" antes.`,
         "Limpar",
         true,
       );
       if (!ok) return;
       localStorage.removeItem(BALANCE_KEY);
+      localStorage.removeItem(SPELL_KEY); // TEMP spell editor
       applyEdits({});
+      applySpellEdits({});
       refresh();
       void gameAlert("Balanceamento limpo", "As alterações do editor foram apagadas.", "✅");
     });

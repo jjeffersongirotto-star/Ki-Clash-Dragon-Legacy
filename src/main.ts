@@ -10,12 +10,14 @@ import { migrateV17 } from './ui/save';
 import { app, save } from './app/state';
 import { bakeAllGrid } from './app/ui';
 import { applyEdits } from './app/tempCardBalanceEditor'; // TEMP card balance editor
+import { applySpellEdits } from './app/tempSpellEditor'; // TEMP spell editor
 import { loginScreen } from './app/login';
 import { confirmUpdateOk } from './ui/update';
 
 // garante que o save tem todos os campos e personagens válidos
 void confirmUpdateOk(); // v0.64.0: a versão abriu bem (senão o celular volta para a anterior)
 applyEdits(); // TEMP card balance editor
+applySpellEdits(); // TEMP spell editor
 migrateV17(save);
 installPerfGuards(app);
 installLandscape();

@@ -2,6 +2,10 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.67.8] — 25/11/2026 · Feitiços nos Heróis: ver e alterar
+- **Tocar num feitiço** na tela Heróis mostra o que ele faz, quem conjura e a espera, como nas cartas de personagem.
+- **Segurar o feitiço** abre o editor: espera, raridade, quem conjura, os números do efeito e a descrição (a descrição acompanha o número trocado). As mudanças valem na hora, saem no arquivo do **⬇ Balanceamento** junto com as cartas e somem com **Limpar balanceamento**.
+
 ## [0.67.7] — 25/11/2026 · Filtro de Rodadas até a maior espera
 - **Heróis:** o filtro de Rodadas ia só até 8, e o Vorax (espera 9) não aparecia em nenhuma opção. Agora as opções vão de 1 até a maior espera entre as cartas do jogo (hoje, 9) e crescem sozinhas se alguma carta passar a esperar mais.
 

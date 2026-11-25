@@ -3,17 +3,20 @@
  * lado a lado (escuras até obter aquela raridade), contadores, prêmios com Resgatar e os feitiços.
  * O editor TEMP de balanceamento (segurar a carta) mora aqui agora.
  */
-import { bindCardEditor } from './tempCardBalanceEditor'; // TEMP card balance editor
+import { bindCardEditor, TEMP_CARD_BALANCE_EDITOR } from './tempCardBalanceEditor'; // TEMP card balance editor
+import { openSpellEditor } from './tempSpellEditor'; // TEMP spell editor
+import { onLongPress } from '../ui/battleModals';
 import { CATEGORY_INFO, CHAR_BY_ID, RACE_INFO } from '../core/characters';
-import { SPELLS } from '../core/spells';
+import { SPELLS, getSpell } from '../core/spells';
 import { addProfileXp } from '../core/profile';
 import { statsFor, type XpItemId } from '../core/progression';
 import { filterHeroes, showSpellsFor, heroCells, ATK_RANGES, HP_RANGES, WAIT_VALUES, type HeroFilter, RACE_ORDER, CAT_ORDER, claimAll, claimableCount, claimGoal, claimVariant, goalClaimed, hasRarity, heroGoals, heroGroups, spellOwned, syncSeen, variantClaimable, VARIANT_REWARD, type Goal, type Reward } from '../core/heroes';
-import { abilityListHTML, reachLabel, cardHTML, catIcon, esc, gemHTML, goldHTML, orbHTML, raceIcon, spellCardHTML } from '../ui/components';
+import { abilityListHTML, reachLabel, cardHTML, catIcon, esc, gemHTML, goldHTML, orbHTML, raceIcon, spellCardHTML, spellInfoHTML } from '../ui/components';
 import { showDialog } from '../ui/dialog';
 import { rewardListHTML } from '../ui/rewardList';
 import { leaveBattleMode } from '../ui/orientation';
 import { app, persist, prof, save } from './state';
+import { waitFor } from '../core/battle';
 import { bindNav, topbar } from './ui';
 
 type R = Reward & { orb?: string; orbs?: number };
@@ -73,7 +76,8 @@ export function heroes() {
       ${g.types.map((t) => `<div class="hr-type"><h4>${catIcon(t.cat)} ${CATEGORY_INFO[t.cat as keyof typeof CATEGORY_INFO].label}${goalHTML(goals[`t:${g.race}:${t.cat}`])}</h4><div class="hr-rows">${t.chars.map((c) => row(c.id)).join('')}</div></div>`).join('')}
     </section>`).join('')}
     ${showSpellsFor(F) ? `<section class="hr-group"><h3 class="sec-title">✦ Feitiços${goalHTML(sp)}</h3>
-      <div class="card-grid spell-grid">${[...SPELLS].filter((s) => !F.rarity || s.rarity === F.rarity).sort((a, b) => a.rarity - b.rarity).map((s) => spellCardHTML(s.id, { locked: false, extraClass: `grid-card${spellOwned(save, s.id) ? '' : ' hr-dark'}` })).join('')}</div>
+      <div class="card-grid spell-grid">${[...SPELLS].filter((s) => !F.rarity || s.rarity === F.rarity).sort((a, b) => a.rarity - b.rarity).map((s) => spellCardHTML(s.id, { locked: false, attrs: `data-spell="${s.id}"`, extraClass: `grid-card${spellOwned(save, s.id) ? '' : ' hr-dark'}` })).join('')}</div>
+      <div class="hr-info hr-spell-info" id="hrSpellInfo" hidden></div>
     </section>` : ''}
   </div>`;
   bindNav();
@@ -109,6 +113,23 @@ export function heroes() {
       info.hidden = false;
     }),
   );
+  // v0.67.8: tocar num feitiço mostra o que ele faz embaixo da grade (tocar em outro troca; no mesmo, fecha);
+  // segurar abre o editor TEMP do feitiço
+  const spInfo = app.querySelector<HTMLElement>('#hrSpellInfo');
+  app.querySelectorAll<HTMLElement>('[data-spell]').forEach((el) => {
+    el.addEventListener('click', () => {
+      if (!spInfo) return;
+      const was = el.classList.contains('hr-sel');
+      app.querySelectorAll('[data-spell].hr-sel').forEach((x) => x.classList.remove('hr-sel'));
+      if (was) return void (spInfo.hidden = true);
+      el.classList.add('hr-sel');
+      const sp = getSpell(el.dataset.spell!);
+      spInfo.innerHTML = `<div class="hr-info-h"><b>${esc(sp.name)}</b> · ${RAR_NAMES[sp.rarity]}<span>✦ Feitiço · 💧 ${waitFor(sp.id)}</span></div>${spellInfoHTML(sp.id)}`;
+      spInfo.hidden = false;
+      spInfo.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+    if (TEMP_CARD_BALANCE_EDITOR) onLongPress(el, () => void openSpellEditor(el.dataset.spell!, heroes), 550); // TEMP spell editor
+  });
   app.querySelectorAll<HTMLButtonElement>('[data-goal]').forEach((b) =>
     b.addEventListener('click', () => {
       const r = claimGoal(save, goals[b.dataset.goal!]);
