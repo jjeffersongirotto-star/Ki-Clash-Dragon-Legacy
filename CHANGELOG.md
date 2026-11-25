@@ -2,6 +2,9 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.67.7] — 25/11/2026 · Filtro de Rodadas até a maior espera
+- **Heróis:** o filtro de Rodadas ia só até 8, e o Vorax (espera 9) não aparecia em nenhuma opção. Agora as opções vão de 1 até a maior espera entre as cartas do jogo (hoje, 9) e crescem sozinhas se alguma carta passar a esperar mais.
+
 ## [0.67.6] — 25/11/2026 · Lendários com vida de verdade
 - **Vida dos Lendários de 12 a 20, conforme o tipo:** tanque 17 a 20, DPS 15 a 19, suporte 14 a 18, assassino, arqueiro e mago 12 a 16. Antes, vários Lendários de corpo a corpo tinham de 4 a 8 de vida.
 - **Menos de 15 de vida só para quem tem bloqueio ou recuperação de vida** (Postura de Guarda, Evasão, Regeneração, Vampirismo, Renascer, Escudo de Entrada, Reflexo, Couraça e parecidas).

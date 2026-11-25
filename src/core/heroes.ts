@@ -162,7 +162,8 @@ export interface HeroFilter {
 /** Faixas dos filtros de Ataque e Vida (rótulo = chave). */
 export const ATK_RANGES = ['1-2', '3-4', '5-6', '7+'];
 export const HP_RANGES = ['1-3', '4-6', '7-10', '11+'];
-export const WAIT_VALUES = [1, 2, 3, 4, 5, 6, 7, 8];
+/** v0.67.7: de 1 até a maior espera entre as cartas jogáveis (antes, fixo até 8 e o Vorax, com 9, ficava de fora). */
+export const WAIT_VALUES = Array.from({ length: Math.max(1, ...PLAYABLE.map((d) => d.wait ?? 0)) }, (_, i) => i + 1);
 export const inRange = (v: number, key: string | null | undefined) => {
   if (!key) return true;
   const [a, b] = key.endsWith('+') ? [+key.slice(0, -1), Infinity] : key.split('-').map(Number);

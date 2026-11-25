@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterHeroes, heroCells, heroGroups, inRange, showSpellsFor } from '../../src/core/heroes';
+import { filterHeroes, heroCells, heroGroups, inRange, showSpellsFor, WAIT_VALUES } from '../../src/core/heroes';
 import { getChar, PLAYABLE } from '../../src/core/characters';
 import { statsFor } from '../../src/core/progression';
 import { checkForUpdate, SITE_URL } from '../../src/ui/update';
@@ -64,5 +64,14 @@ describe('v0.64.0 — atualização automática', () => {
   it('já na versão do site: nada a fazer', async () => {
     const r = await checkForUpdate({ native: true, desktop: false, current: '0.65.0', installed: '0.64.0', fetchFn });
     expect(r.status).toBe('latest');
+  });
+});
+
+describe('v0.67.7 — filtro de Rodadas', () => {
+  it('vai de 1 até a maior espera entre as cartas (o Vorax, com 9, entra)', () => {
+    const max = Math.max(...PLAYABLE.map((d) => d.wait ?? 0));
+    expect(WAIT_VALUES).toEqual(Array.from({ length: max }, (_, i) => i + 1));
+    expect(WAIT_VALUES).toContain(getChar('vorax').wait);
+    expect(filterHeroes(heroGroups(), { wait: getChar('vorax').wait }).flatMap((g) => g.types.flatMap((t) => t.chars.map((d) => d.id)))).toContain('vorax');
   });
 });
