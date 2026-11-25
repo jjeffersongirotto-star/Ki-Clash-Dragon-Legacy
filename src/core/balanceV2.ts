@@ -36,7 +36,7 @@ export interface BalanceEntry {
 }
 
 /** Variações de habilidade só de uma carta. */
-export type CardTweak = 'couracaMagica' | 'execucao13' | 'predadorVidaCheia' | 'emboscadaComAliado' | 'retaguardaSemPerfurar' | 'furiaSemLimite' | 'vampirismoTotal' | 'inabalavelSemMagia';
+export type CardTweak = 'couracaMagica' | 'execucao13' | 'predadorVidaCheia' | 'emboscadaComAliado' | 'retaguardaSemPerfurar' | 'furiaSemLimite' | 'vampirismoTotal' | 'inabalavelSemMagia' | 'explosaoCell';
 /** A unidade/carta tem essa variação? */
 export const hasTweak = (charId: string, t: CardTweak) => !!BALANCE_V2[charId]?.tweaks?.includes(t);
 
@@ -53,7 +53,7 @@ export const BALANCE_V2: Record<string, BalanceEntry> = {
   zarek: { min: 5, max: 6, wait: 7, stats: { 5: [6, 8], 6: [7, 10] }, cat: 'dps', ab: ['retaguarda', 'renascer'], up: { renascer: 6 }, range: 4, dmg: 'magico', tweaks: ['retaguardaSemPerfurar', 'emboscadaComAliado'], desc: { retaguarda: 'Se tiver um aliado à frente dele na fileira (protegendo), ataca o inimigo mais distante no alcance (até 4 casas); senão, ataca o inimigo mais próximo.' }, manual: true },
   kenji: { min: 5, max: 6, wait: 6, stats: { 5: [2, 18], 6: [3, 19] }, cat: 'tanque', ab: ['contraGolpe', 'guarda', 'regeneracao'], up: { regeneracao: 6 }, range: 1, manual: true },
   nyx: { min: 3, max: 5, wait: 3, stats: { 3: [1, 7], 4: [1, 10], 5: [1, 13] }, ab: ['sifao'], range: 4, manual: true },
-  vorax: { min: 5, max: 6, wait: 8, stats: { 5: [6, 6], 6: [7, 7] }, ab: ['prole', 'necromancia', 'vinganca'], up: { vinganca: 6 }, range: 4, manual: true },
+  vorax: { min: 5, max: 6, wait: 9, stats: { 5: [4, 22], 6: [5, 25] }, ab: ['prole', 'explosao'], range: 4, tweaks: ['explosaoCell'], desc: { explosao: 'Ao morrer, explode e causa 8 de dano em todos os inimigos ao redor (inclusive diagonais e a outra fileira).' }, manual: true },
   daichi: { min: 1, max: 3, wait: 2, stats: { 1: [1, 6], 2: [2, 6], 3: [2, 9] }, ab: [], range: 1, manual: true },
   sora: { min: 1, max: 3, wait: 1, stats: { 1: [1, 4], 2: [1, 6], 3: [1, 9] }, ab: ['sopro'], range: 4, manual: true },
   tobi: { min: 2, max: 4, wait: 1, stats: { 2: [2, 4], 3: [3, 4], 4: [3, 7] }, ab: ['tambor'], range: 1, manual: true },
