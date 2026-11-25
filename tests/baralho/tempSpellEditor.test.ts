@@ -43,4 +43,14 @@ describe('v0.67.8 — editor TEMP dos feitiços', () => {
     expect(swapNumber('sofre 250% do ataque', 250, 300)).toBe('sofre 300% do ataque');
     expect(swapNumber('ganha +5 de ataque, 2 de dano, por 3 rodadas', 3, 4)).toBe('ganha +5 de ataque, 2 de dano, por 4 rodadas');
   });
+  it('raridade inicial e final: a inicial vale no jogo, a final é guardada e volta ao restaurar', () => {
+    applySpellEdits({ 'f-cura': { rarity: 2, maxRarity: 4 } });
+    expect(SPELL_BY_ID['f-cura'].rarity).toBe(2);
+    expect(SPELL_BY_ID['f-cura'].maxRarity).toBe(4);
+    applySpellEdits({ 'f-cura': { rarity: 3, maxRarity: 2 } }); // final abaixo da inicial = sem final
+    expect(SPELL_BY_ID['f-cura'].maxRarity).toBeUndefined();
+    applySpellEdits({});
+    expect(SPELL_BY_ID['f-cura'].rarity).toBe(1);
+    expect(SPELL_BY_ID['f-cura'].maxRarity).toBeUndefined();
+  });
 });

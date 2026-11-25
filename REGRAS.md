@@ -1305,7 +1305,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 
 ## Feitiços nos Heróis e editor dos feitiços (v0.67.8)
 - **Tocar num feitiço** na tela Heróis mostra embaixo da grade o que ele faz, quem conjura e a espera, como nos personagens. Tocar em outro troca; no mesmo, fecha.
-- **Segurar o feitiço** abre o editor temporário (igual ao das cartas): espera (rodadas), raridade (Comum a Épico), quem conjura (tipos), os números do efeito (porcentagens e rodadas) e a descrição. Ao trocar um número, a descrição troca o mesmo número sozinha.
+- **Segurar o feitiço** abre o editor temporário (igual ao das cartas): espera (rodadas), raridade inicial e final (Comum a Mítico; a inicial é a do Banner e das recompensas, a final por enquanto só fica anotada e aparece nos Heróis como "Comum → Raro"), quem conjura (tipos), os números do efeito (porcentagens e rodadas) e a descrição. Ao trocar um número, a descrição troca o mesmo número sozinha.
 - Vale no jogo na hora e fica no aparelho. **Restaurar** volta o feitiço ao jogo; **⬇ Balanceamento** baixa os feitiços mudados junto com as cartas (em `_feiticos`, com o original ao lado); **🗑 Limpar balanceamento** apaga os dois.
 
 ## Contas de teste e filtros (v0.55.1)

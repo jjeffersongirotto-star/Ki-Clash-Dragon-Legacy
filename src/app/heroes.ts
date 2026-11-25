@@ -76,7 +76,7 @@ export function heroes() {
       ${g.types.map((t) => `<div class="hr-type"><h4>${catIcon(t.cat)} ${CATEGORY_INFO[t.cat as keyof typeof CATEGORY_INFO].label}${goalHTML(goals[`t:${g.race}:${t.cat}`])}</h4><div class="hr-rows">${t.chars.map((c) => row(c.id)).join('')}</div></div>`).join('')}
     </section>`).join('')}
     ${showSpellsFor(F) ? `<section class="hr-group"><h3 class="sec-title">✦ Feitiços${goalHTML(sp)}</h3>
-      <div class="card-grid spell-grid">${[...SPELLS].filter((s) => !F.rarity || s.rarity === F.rarity).sort((a, b) => a.rarity - b.rarity).map((s) => spellCardHTML(s.id, { locked: false, attrs: `data-spell="${s.id}"`, extraClass: `grid-card${spellOwned(save, s.id) ? '' : ' hr-dark'}` })).join('')}</div>
+      <div class="card-grid spell-grid">${[...SPELLS].filter((s) => !F.rarity || (F.rarity >= s.rarity && F.rarity <= (s.maxRarity ?? s.rarity))).sort((a, b) => a.rarity - b.rarity).map((s) => spellCardHTML(s.id, { locked: false, attrs: `data-spell="${s.id}"`, extraClass: `grid-card${spellOwned(save, s.id) ? '' : ' hr-dark'}` })).join('')}</div>
       <div class="hr-info hr-spell-info" id="hrSpellInfo" hidden></div>
     </section>` : ''}
   </div>`;
@@ -124,7 +124,7 @@ export function heroes() {
       if (was) return void (spInfo.hidden = true);
       el.classList.add('hr-sel');
       const sp = getSpell(el.dataset.spell!);
-      spInfo.innerHTML = `<div class="hr-info-h"><b>${esc(sp.name)}</b> · ${RAR_NAMES[sp.rarity]}<span>✦ Feitiço · 💧 ${waitFor(sp.id)}</span></div>${spellInfoHTML(sp.id)}`;
+      spInfo.innerHTML = `<div class="hr-info-h"><b>${esc(sp.name)}</b> · ${RAR_NAMES[sp.rarity]}${sp.maxRarity && sp.maxRarity > sp.rarity ? ` → ${RAR_NAMES[sp.maxRarity]}` : ''}<span>✦ Feitiço · 💧 ${waitFor(sp.id)}</span></div>${spellInfoHTML(sp.id)}`;
       spInfo.hidden = false;
       spInfo.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     });

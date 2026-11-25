@@ -30,6 +30,8 @@ export interface SpellDef {
   description: string;
   /** v0.41.0: raridade da carta de feitiço (1 Comum … 4 Épico): em que raridade ela sai no Banner */
   rarity: number;
+  /** v0.67.8: raridade final (máxima) definida no editor TEMP; sem ela, = rarity. Ainda sem efeito na batalha. */
+  maxRarity?: number;
 }
 
 export type SpellNumKey =

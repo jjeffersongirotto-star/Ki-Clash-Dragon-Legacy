@@ -1,7 +1,7 @@
 /**
  * TEMP (v0.67.8) — editor TEMPORÁRIO dos feitiços (Heróis: segurar o feitiço), irmão do editor das cartas.
  *
- * Edita a espera (rodadas na mão), a raridade (em que raridade sai no Banner), os tipos que conjuram,
+ * Edita a espera (rodadas na mão), a raridade inicial (em que raridade sai no Banner) e a final, os tipos que conjuram,
  * os números do efeito (porcentagens e rodadas de SPELL_NUM) e a descrição.
  * Fica no aparelho (localStorage) e vale no jogo na hora. "⬇ Balanceamento" baixa junto com as cartas.
  *
@@ -17,7 +17,7 @@ import { esc } from '../ui/components';
 import { showDialog, gameAlert } from '../ui/dialog';
 
 export const SPELL_KEY = 'kiclash.tempSpellBalance';
-const RARITY = ['', 'Comum', 'Incomum', 'Raro', 'Épico'];
+const RARITY = ['', 'Comum', 'Incomum', 'Raro', 'Épico', 'Lendário', 'Mítico'];
 const CATS: Category[] = ['tanque', 'dps', 'assassino', 'arqueiro', 'mago', 'suporte'];
 
 /** Números de cada feitiço (SPELL_NUM) com o rótulo que aparece no editor. */
@@ -41,6 +41,8 @@ export const SPELL_FIELDS: Record<string, [SpellNumKey, string][]> = {
 export interface SpellEdit {
   wait?: number;
   rarity?: number;
+  /** raridade final (máxima); sem efeito na batalha por enquanto, só anotada */
+  maxRarity?: number;
   categories?: Category[];
   description?: string;
   num?: Partial<Record<SpellNumKey, number>>;
@@ -48,8 +50,8 @@ export interface SpellEdit {
 
 /** Valores do código, guardados antes da 1ª mudança (para restaurar e para o "original" do arquivo). */
 const ORIG_NUM: Record<SpellNumKey, number> = { ...SPELL_NUM };
-const ORIG: Record<string, { rarity: number; categories: Category[]; description: string; wait: number }> = Object.fromEntries(
-  Object.values(SPELL_BY_ID).map((s) => [s.id, { rarity: s.rarity, categories: [...s.categories], description: s.description, wait: Math.max(1, s.cost - 1) }]),
+const ORIG: Record<string, { rarity: number; maxRarity: number; categories: Category[]; description: string; wait: number }> = Object.fromEntries(
+  Object.values(SPELL_BY_ID).map((s) => [s.id, { rarity: s.rarity, maxRarity: s.maxRarity ?? s.rarity, categories: [...s.categories], description: s.description, wait: Math.max(1, s.cost - 1) }]),
 );
 
 export function loadSpellEdits(): Record<string, SpellEdit> {
@@ -64,13 +66,15 @@ export function loadSpellEdits(): Record<string, SpellEdit> {
 export function applySpellEdits(edits = loadSpellEdits()) {
   Object.assign(SPELL_NUM, ORIG_NUM);
   for (const [id, o] of Object.entries(ORIG)) {
-    Object.assign(SPELL_BY_ID[id], { rarity: o.rarity, categories: [...o.categories], description: o.description });
+    Object.assign(SPELL_BY_ID[id], { rarity: o.rarity, maxRarity: o.maxRarity === o.rarity ? undefined : o.maxRarity, categories: [...o.categories], description: o.description });
     delete TEMP_WAIT[id];
   }
   for (const [id, e] of Object.entries(edits)) {
     const s = SPELL_BY_ID[id];
     if (!s) continue;
     if (e.rarity) s.rarity = e.rarity;
+    if (e.maxRarity) s.maxRarity = e.maxRarity;
+    if (s.maxRarity != null && s.maxRarity <= s.rarity) s.maxRarity = undefined;
     if (e.categories?.length) s.categories = [...e.categories];
     if (e.description?.trim()) s.description = e.description;
     if (e.wait != null) TEMP_WAIT[id] = e.wait;
@@ -104,12 +108,14 @@ export async function openSpellEditor(id: string, refresh: () => void) {
   const fields = SPELL_FIELDS[id] ?? [];
   const num: Partial<Record<SpellNumKey, number>> = Object.fromEntries(fields.map(([k]) => [k, SPELL_NUM[k]]));
   const cats = new Set<Category>(s.categories);
+  const opts = (sel: number) => RARITY.map((n, i) => (i ? `<option value="${i}"${i === sel ? ' selected' : ''}>${n}</option>` : '')).join('');
   const v = await showDialog({
     title: `Editar ${s.name}`,
     icon: '🛠',
     html: `<form class="tbe tse" onsubmit="return false">
       <label>Espera (rodadas)<input type="number" min="1" id="tsWait" value="${waitFor(id)}"></label>
-      <label>Raridade<select id="tsRar">${RARITY.map((n, i) => (i ? `<option value="${i}"${i === s.rarity ? ' selected' : ''}>${n}</option>` : '')).join('')}</select></label>
+      <label>Raridade inicial<select id="tsRar">${opts(s.rarity)}</select></label>
+      <label>Raridade final<select id="tsMax">${opts(s.maxRarity ?? s.rarity)}</select></label>
       <div class="tse-cats"><b>Quem conjura</b>${CATS.map((c) => `<label class="tse-cat"><input type="checkbox" data-cat="${c}"${cats.has(c) ? ' checked' : ''}> ${CATEGORY_INFO[c].label}</label>`).join('')}</div>
       ${fields.map(([k, label]) => `<label>${esc(label)}<input type="number" step="any" data-num="${k}" value="${SPELL_NUM[k]}"></label>`).join('')}
       <label class="tse-desc">Descrição<textarea id="tsDesc" rows="4">${esc(s.description)}</textarea></label>
@@ -130,6 +136,14 @@ export async function openSpellEditor(id: string, refresh: () => void) {
       root.querySelectorAll<HTMLInputElement>('[data-cat]').forEach((c) =>
         c.addEventListener('change', () => (c.checked ? cats.add(c.dataset.cat as Category) : cats.delete(c.dataset.cat as Category))),
       );
+      const minSel = root.querySelector<HTMLSelectElement>('#tsRar')!;
+      const maxSel = root.querySelector<HTMLSelectElement>('#tsMax')!;
+      const onRange = (changed: HTMLSelectElement) => {
+        // a final nunca fica abaixo da inicial (mexer numa empurra a outra)
+        if (+maxSel.value < +minSel.value) (changed === minSel ? maxSel : minSel).value = changed.value;
+      };
+      minSel.addEventListener('change', () => onRange(minSel));
+      maxSel.addEventListener('change', () => onRange(maxSel));
       root.querySelector('[data-t=reset]')!.addEventListener('click', () => close('reset'));
       root.querySelector('[data-t=save]')!.addEventListener('click', () => {
         if (!cats.size) return void gameAlert('Falta quem conjura', 'Marque pelo menos um tipo de personagem que conjura o feitiço.');
@@ -140,6 +154,8 @@ export async function openSpellEditor(id: string, refresh: () => void) {
         if (wait !== o.wait) e.wait = wait;
         const rar = Number(root.querySelector<HTMLSelectElement>('#tsRar')!.value);
         if (rar !== o.rarity) e.rarity = rar;
+        const max = Math.max(rar, Number(maxSel.value));
+        if (max !== o.maxRarity) e.maxRarity = max;
         const cl = CATS.filter((c) => cats.has(c));
         if (cl.join() !== [...o.categories].sort((a, b) => CATS.indexOf(a) - CATS.indexOf(b)).join()) e.categories = cl;
         if (desc.value.trim() !== o.description.trim()) e.description = desc.value.trim();
