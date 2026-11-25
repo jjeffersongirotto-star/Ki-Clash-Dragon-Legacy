@@ -2,6 +2,19 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.67.9] — 25/11/2026 · Quem ataca de longe com pouca vida, mais ataque nas raridades altas e troca de tipos
+- **Sayuri vira Maga** (alcance 4, dano mágico) e **Daisuke vira Assassino** (corpo a corpo, dano físico). Os dois trocam uma habilidade para combinar com o tipo novo: a Sayuri fica com o Perfurar e o Daisuke com o Corte Diagonal (todo assassino tem).
+- **Quem ataca de longe tem no máximo 10 de vida, e só no Mítico+ dos 3 de mais vida** (Mestre Hayato, Odo e Tiberius). Teto por raridade: Comum 4, Incomum 5, Raro 6, Épico 7, Lendário 7, Mítico 8 (o degrau "+" dá +1). 38 cartas perderam vida. Exemplos: Kael 6|17 → 6|7; Lunaris 6|15 → 6|7; Hayato 6|19 → 6|8. O Vorax segue a carta de referência.
+- **Mais ataque nas raridades altas**, para as partidas não ficarem longas: quem tem vida maior que o dobro do ataque ganha +1 no Épico e +2 no Lendário e no Mítico (tanques, só +1 no Lendário e no Mítico; suportes ficam de fora). 40 cartas mudaram. Exemplos: Nhyra Lendário 7|15 → 9|15; Ryuji Lendário 6|15 → 8|15; Kolossus 3|18 → 4|18.
+  - Golpes para derrubar uma carta da mesma raridade: de 3,7 (Lendário) para 2,4, igual às raridades baixas.
+  - Batalhas simuladas com a mesma vida de Comandante: Lendário e Mítico caem de 14,7 e 14,8 rodadas para 13,1 e 13,3.
+- **Riku e Kaori** (arquivo do editor): Riku Raro 3|6 → 2|7 e Épico 4|6 → 3|8; Kaori Lendário 1|18 → 2|18 e Mítico 2|21 → 3|21.
+- **Fases ajustadas de novo** para os números novos (no máximo 50% de vitória ao chegar fora do primeiro mundo). Simulador (4 jogadores), vitória ao chegar por mundo 1 a 10:
+  - **Fácil:** 31 · 33 · 42 · 30 · 26 · 33 · 28 · 21 · 25 · 19%.
+  - **Normal:** 41 · 31 · 42 · 29 · 13 · 35 · 37 · 38 · 33 · 20%.
+  - **Difícil:** 36 · 23 · 29 · 27 · 21 · 17 · 20 · 24 · 9 · 10%.
+- **Editor:** o arquivo do "⬇ Balanceamento" mostrava a espera original errada (ex.: Kaori 7 em vez de 3). Agora mostra a espera real.
+
 ## [0.67.8] — 25/11/2026 · Feitiços nos Heróis: ver e alterar
 - **Tocar num feitiço** na tela Heróis mostra o que ele faz, quem conjura e a espera, como nas cartas de personagem.
 - **Segurar o feitiço** abre o editor: espera, raridade inicial e final, quem conjura, os números do efeito e a descrição (a descrição acompanha o número trocado). As mudanças valem na hora, saem no arquivo do **⬇ Balanceamento** junto com as cartas e somem com **Limpar balanceamento**.

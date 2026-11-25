@@ -34,7 +34,7 @@ describe('v0.67.0 — tabela das 6 raças', () => {
       const all = PLAYABLE.filter((d) => d.category === cat);
       const none = all.filter((d) => d.abilities.length === 0).length;
       expect(none / all.length, cat).toBeGreaterThan(0.25);
-      expect(none / all.length, cat).toBeLessThan(0.5);
+      expect(none / all.length, cat).toBeLessThanOrEqual(0.5); // v0.67.9: o Daisuke saiu dos arqueiros (virou assassino)
     }
   });
   it('cartas de espera 1 existem em todas as raças', () => {

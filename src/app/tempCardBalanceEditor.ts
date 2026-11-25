@@ -204,7 +204,7 @@ export function exportJSON(edits = loadEdits()): string {
       nome: d.name,
       ...rest,
       ...(rar ? { raridades } : {}),
-      original: { ...o, wait: Math.max(1, 2 * d.cost - 1) },
+      original: { ...o, wait: d.wait ?? Math.max(1, 2 * d.cost - 1) }, // v0.67.9: a espera real da carta (antes, uma fórmula antiga)
     };
   }
   const feiticos = exportSpells(); // TEMP spell editor
