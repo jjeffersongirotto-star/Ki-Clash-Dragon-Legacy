@@ -1462,6 +1462,22 @@ Revisão carta a carta, uma raça por vez (Humanos → próximas 5 raças). O **
   **v0.67.3:** a carta sem habilidade **não é mais forte** que as outras. Ela tem o ataque e a vida de uma carta com habilidade normal e só ganha **1 rodada a menos de espera** (mínimo 1). As que você definiu à mão mantêm a espera e ficam com os números de quem espera 1 rodada a mais. O desconto das habilidades fortes caiu pela metade.
 
   **v0.67.4 — rodadas ajustadas pela contribuição medida:** em batalhas simuladas, cada carta foi medida pelo quanto ajuda a vencer comparada às outras da mesma raridade. As que ajudavam demais ganharam rodadas de espera (ex.: Vorax, Vexar e Aethra 6 → 8; Pulse-7 4 → 8; Zarek 5 → 7; Kael 7 → 8). As que ajudavam pouco perderam (ex.: Kaito 5 → 3; Sanguis 7 → 5; Hayato e Mimic 6 → 5). As cartas que nasciam Míticas e passaram a Lendárias tiveram a força corrigida e agora ficam entre 0,9× e 1,1× da média dos Lendários. A diferença entre as cartas caiu de 0,39 para 0,16. Vorax, Vexar e Aethra continuam acima da média por causa das habilidades (Prole e Evasão).
+
+  **v0.67.6 — vida dos Lendários:** nenhum Lendário de corpo a corpo fica mais com 4 a 8 de vida. A vida no Lendário vai de **12 a 20**, conforme o tipo:
+
+  | Tipo | Vida no Lendário |
+  |---|---|
+  | Tanque | 17 a 20 |
+  | DPS | 15 a 19 |
+  | Suporte | 14 a 18 |
+  | Assassino, arqueiro e mago | 12 a 16 |
+
+  - Dentro da faixa, quem já era mais "vida" que "ataque" fica mais perto do topo.
+  - **Menos de 15 de vida só para quem tem habilidade de bloqueio ou de recuperação de vida** (Postura de Guarda, Evasão, Regeneração, Vampirismo, Renascer, Escudo de Entrada, Reflexo, Couraça e parecidas).
+  - Mítico = vida do Lendário + 3. As raridades de baixo sobem só o necessário para a vida crescer sem saltos: no máximo 3 a menos por raridade. O ataque não muda, e nenhuma vida diminui por essa regra.
+  - O Vorax segue a carta de referência (4|22 e 6|23).
+  - Kolossus e Ghor caíram de 3|25 e 3|27 para **3|18** e **3|17** no Lendário (Mítico de 4|28 e 4|30 para 4|21 e 4|20). Os dois se curam e bloqueiam, então ficam abaixo do teto dos tanques.
+  - Exemplos: Nhyra 7|5 → **7|15** (Mítico 8|6 → 8|18); Kryx 5|7 → 5|16; Morgause 6|4 → 6|13 (Mítico 7|5 → 7|16).
 - **Raridade de origem:** quem nasce numa raridade acima é uma carta "maior" e por isso costuma ter espera maior. Como a força vem da espera, a regra de origem se mantém sozinha.
 - **Cartas sem habilidade: cerca de 1/3 de cada tipo**, a maioria das raridades baixas. Cada uma tem um perfil próprio (umas batem mais, outras aguentam mais), para não ficarem iguais. Nos suportes ficaram só 21%, porque um suporte sem habilidade não ajuda ninguém. Algumas cartas baixas continuam com habilidade.
 - **Espera:** é da carta e não muda ao subir de raridade. Como escolhi a espera de cada carta:
@@ -1531,7 +1547,7 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 ### Outras mudanças
 - **Ninguém nasce Mítico.** A raridade máxima de nascimento é Lendário. As 15 cartas que nasciam Míticas agora vão de Lendário a Mítico: no Lendário têm 2 habilidades, e a 3ª abre no Mítico. As esperas são as mesmas.
 - **Vorax como o "Cell":** qualquer inimigo derrotado, por qualquer aliado, vira Cria Sombria na mesma casa, **sem limite**.
-  - **v0.67.5 — Vorax igual à referência do "Cell":** só 2 habilidades, **Prole Sombria** (acima) e **Explosão** (ao morrer, 8 de dano em todos os inimigos ao redor). Saíram o Chamado da Necropolis e a Vingança, que não existem na referência. Espera **9**; ataque|vida **4|22** no Lendário (como a carta da referência) e **5|25** no Mítico. Valores fixos (fora do ajuste automático das rodadas e da força).
+  - **v0.67.5 — Vorax igual à referência do "Cell":** só 2 habilidades, **Prole Sombria** (acima) e **Explosão** (ao morrer, 8 de dano em todos os inimigos ao redor). Saíram o Chamado da Necropolis e a Vingança, que não existem na referência. Espera **9**; ataque|vida **4|22** no Lendário (como a carta da referência) e **6|23** no Mítico (definido por você em 25/11). Valores fixos (fora do ajuste automático das rodadas e da força).
 - **Anel no chão** embaixo de quem tem aura ou efeito contínuo, com uma cor por tipo:
   - verde: ajuda aliados (auras de raça, Tambor, Grito de Guerra);
   - roxo: enfraquece inimigos (Sifão, Domínio).
@@ -1542,148 +1558,151 @@ A **Aura de Vida** é uma habilidade nova: os aliados da raça ganham vida (atua
 
 
 ### Humano
+
+Números das tabelas abaixo atualizados para os valores do jogo na v0.67.6 (esperas e ataque|vida).
+
 | Tipo | Carta | Raridade | Espera | Alcance | C | I | R | É | L | M | Habilidades | Observação |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Tanque | Taro Escudo-de-Bambu | C→R | 2 | 1 | 1\|8 | 1\|10 | 2\|11 |  |  |  | — |  |
-| Tanque | Goro Martelo-Solar | R→L | 2 | 1 |  |  | 2\|11 | 2\|14 | 2\|17 |  | — |  |
-| Tanque | Tetsuo Muralha-Viva | É→M | 4 | 1 |  |  |  | 2\|13 | 2\|16 | 2\|19 | Protetor, Provocar, Couraça de Espinhos (a partir do Lendário) |  |
-| Tanque | Kenji Punho-Espelhado | L→M | 4 | 1 |  |  |  |  | 2\|16 | 2\|19 | Punho Espelhado, Postura de Guarda, Regeneração (a partir do Mítico) | vira Tanque |
-| DPS | Riku Vendaval | C→É | 2 | 1 | 2\|3 | 2\|5 | 3\|6 | 4\|6 |  |  | Salto Vendaval |  |
-| DPS | Ren Presa-Oculta | C→É | 2 | 2 | 2\|4 | 3\|4 | 4\|5 | 4\|7 |  |  | — | Assassino → DPS de longe |
-| DPS | Akemi Lança-Dupla | I→É | 2 | 1 |  | 2\|5 | 3\|6 | 4\|6 |  |  | Corte Diagonal, Sangramento |  |
-| DPS | Masao Leque-Cortante | R→L | 2 | 1 |  |  | 4\|6 | 4\|9 | 5\|10 |  | — |  |
-| DPS | Ryuji Punho-de-Tempestade | É→M | 4 | 1 |  |  |  | 4\|7 | 5\|7 | 6\|8 | Fúria, Golpe Crítico, Contra-ataque Crescente (revista) (a partir do Lendário) |  |
-| DPS | Mestre Hayato Céu-Partido | L→M | 6 | 2 |  |  |  |  | 5\|9 | 6\|11 | Atordoamento, Aura de Ataque, Corte Diagonal (a partir do Mítico) | aura: humano +2 ataque |
-| DPS | Kaito Selo-do-Vazio | L→M | 5 | 1 |  |  |  |  | 6\|10 | 7\|12 | Selo do Vazio, Golpe Crítico, Investida (a partir do Mítico) |  |
-| DPS | Aya Vontade-Inquebrável | L→M | 4 | 1 |  |  |  |  | 5\|9 | 6\|10 | Vontade Inquebrável, Ombrada, Vingança (a partir do Mítico) |  |
-| Assassino | Shin Passo-Fantasma | C→É | 2 | 1 | 3\|2 | 3\|4 | 4\|5 | 5\|6 |  |  | Corte Diagonal | vaga C→É (era do Ren) |
-| Assassino | Sayuri Agulha-Venenosa | É→M | 3 | 1 |  |  |  | 6\|4 | 7\|5 | 8\|6 | Corte Diagonal, Emboscada, Ki Oculto (nova) (a partir do Lendário) | vaga É→M |
-| Arqueiro | Hana Pena-Veloz | C→R | 1 | 4 | 2\|3 | 3\|3 | 4\|3 |  |  |  | — | entra na hora, frágil |
-| Arqueiro | Rin Flecha-do-Amanhecer | I→É | 2 | 4 |  | 3\|2 | 4\|3 | 5\|3 |  |  | Olho de Águia |  |
-| Arqueiro | Daisuke Arco-de-Ferro | L→M | 5 | 4 |  |  |  |  | 7\|7 | 9\|7 | Lentidão, Perfurar, Golpe Crítico (a partir do Mítico) |  |
-| Mago | Emi Brisa-Arcana | R→L | 2 | 4 |  |  | 4\|3 | 5\|3 | 6\|4 |  | Maldição |  |
-| Suporte | Yuna Mão-Curadora | I→É | 2 | 4 |  | 1\|5 | 1\|8 | 1\|10 |  |  | Onda Curativa (nova) |  |
-| Suporte | Kaori Vendaval-Sagrado | É→M | 3 | 1 |  |  |  | 1\|13 | 1\|16 | 2\|17 | Grito de Guerra, Purificar (a partir do Lendário) |  |
+| Tanque | Taro Escudo-de-Bambu | C→R | 1 | 1 | 1\|6 | 1\|8 | 1\|11 |  |  |  | — |  |
+| Tanque | Goro Martelo-Solar | R→L | 1 | 1 |  |  | 1\|11 | 2\|14 | 2\|17 |  | — |  |
+| Tanque | Tetsuo Muralha-Viva | É→M | 4 | 1 |  |  |  | 2\|16 | 2\|19 | 3\|22 | Protetor, Provocar, Couraça de Espinhos (a partir do Lendário) |  |
+| Tanque | Kenji Punho-Espelhado | L→M | 6 | 1 |  |  |  |  | 2\|19 | 3\|22 | Punho Espelhado, Postura de Guarda, Regeneração (a partir do Mítico) | vira Tanque |
+| DPS | Riku Vendaval | C→É | 3 | 1 | 2\|3 | 2\|5 | 3\|6 | 4\|6 |  |  | Salto Vendaval |  |
+| DPS | Ren Presa-Oculta | C→É | 1 | 2 | 2\|2 | 2\|4 | 3\|4 | 4\|5 |  |  | — | Assassino → DPS de longe |
+| DPS | Akemi Lança-Dupla | I→É | 3 | 1 |  | 2\|5 | 3\|6 | 4\|6 |  |  | Corte Diagonal, Sangramento |  |
+| DPS | Masao Leque-Cortante | R→L | 1 | 1 |  |  | 3\|13 | 4\|16 | 4\|19 |  | — |  |
+| DPS | Ryuji Punho-de-Tempestade | É→M | 4 | 1 |  |  |  | 5\|12 | 6\|15 | 6\|18 | Fúria, Golpe Crítico, Contra-ataque Crescente (revista) (a partir do Lendário) |  |
+| DPS | Mestre Hayato Céu-Partido | L→M | 5 | 2 |  |  |  |  | 6\|19 | 7\|22 | Atordoamento, Aura de Ataque, Corte Diagonal (a partir do Mítico) | aura: humano +2 ataque |
+| DPS | Kaito Selo-do-Vazio | L→M | 3 | 1 |  |  |  |  | 7\|16 | 8\|19 | Selo do Vazio, Golpe Crítico, Investida (a partir do Mítico) |  |
+| DPS | Aya Vontade-Inquebrável | L→M | 4 | 1 |  |  |  |  | 6\|17 | 7\|20 | Vontade Inquebrável, Ombrada, Vingança (a partir do Mítico) |  |
+| Assassino | Shin Passo-Fantasma | C→É | 1 | 1 | 2\|2 | 3\|3 | 4\|3 | 5\|4 |  |  | Corte Diagonal | vaga C→É (era do Ren) |
+| Assassino | Sayuri Agulha-Venenosa | É→M | 2 | 1 |  |  |  | 6\|12 | 7\|15 | 8\|18 | Corte Diagonal, Emboscada, Ki Oculto (nova) (a partir do Lendário) | vaga É→M |
+| Arqueiro | Hana Pena-Veloz | C→R | 2 | 4 | 2\|2 | 3\|2 | 4\|3 |  |  |  | — | entra na hora, frágil |
+| Arqueiro | Rin Flecha-do-Amanhecer | I→É | 3 | 4 |  | 3\|2 | 4\|3 | 5\|3 |  |  | Olho de Águia |  |
+| Arqueiro | Daisuke Arco-de-Ferro | L→M | 7 | 4 |  |  |  |  | 8\|15 | 9\|18 | Lentidão, Perfurar, Golpe Crítico (a partir do Mítico) |  |
+| Mago | Emi Brisa-Arcana | R→L | 3 | 4 |  |  | 4\|9 | 5\|12 | 6\|15 |  | Maldição |  |
+| Suporte | Yuna Mão-Curadora | I→É | 1 | 4 |  | 1\|5 | 1\|8 | 1\|10 |  |  | Onda Curativa (nova) |  |
+| Suporte | Kaori Vendaval-Sagrado | É→M | 3 | 1 |  |  |  | 1\|15 | 1\|18 | 2\|21 | Grito de Guerra, Purificar (a partir do Lendário) |  |
 
 ### Androide
 | Tipo | Carta | Raridade | Espera | Alcance | C | I | R | É | L | M | Habilidades | Observação |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Tanque | Toru Sombra-Reversa | C→É | 2 | 1 | 2\|6 | 2\|8 | 3\|9 | 3\|12 |  |  | — | tanque que também bate |
-| Tanque | Bastion-2 Placa-Pesada | I→É | 4 | 1 |  | 1\|9 | 1\|12 | 2\|13 |  |  | Reconstrução (nova) |  |
-| Tanque | Sentinel-0 Guardião-Prime | É→M | 3 | 1 |  |  |  | 2\|14 | 2\|17 | 2\|20 | Escudo de Entrada, Postura de Guarda (a partir do Lendário) |  |
-| Tanque | Titan-X Núcleo-de-Aço | L→M | 5 | 1 |  |  |  |  | 2\|17 | 3\|19 | Provocar, Inabalável, Casca Reativa (a partir do Mítico) |  |
-| Tanque | Aegis-Ω Protocolo-Final | L→M | 4 | 1 |  |  |  |  | 2\|16 | 2\|19 | Protocolo de Retaliação, Postura de Guarda, Couraça de Espinhos (a partir do Mítico) |  |
-| DPS | Bolt-12 Rebite-Veloz | C→É | 1 | 1 | 2\|4 | 3\|4 | 4\|4 | 4\|6 |  |  | — | rápido e frágil |
+| Tanque | Toru Sombra-Reversa | C→É | 1 | 1 | 1\|6 | 2\|6 | 2\|9 | 3\|9 |  |  | — | tanque que também bate |
+| Tanque | Bastion-2 Placa-Pesada | I→É | 3 | 1 |  | 1\|10 | 1\|13 | 2\|15 |  |  | Reconstrução (nova) |  |
+| Tanque | Sentinel-0 Guardião-Prime | É→M | 4 | 1 |  |  |  | 2\|15 | 2\|18 | 2\|21 | Escudo de Entrada, Postura de Guarda (a partir do Lendário) |  |
+| Tanque | Titan-X Núcleo-de-Aço | L→M | 5 | 1 |  |  |  |  | 2\|20 | 3\|23 | Provocar, Inabalável, Casca Reativa (a partir do Mítico) |  |
+| Tanque | Aegis-Ω Protocolo-Final | L→M | 6 | 1 |  |  |  |  | 2\|19 | 3\|22 | Protocolo de Retaliação, Postura de Guarda, Couraça de Espinhos (a partir do Mítico) |  |
+| DPS | Bolt-12 Rebite-Veloz | C→É | 1 | 1 | 2\|3 | 3\|3 | 4\|4 | 4\|6 |  |  | — | rápido e frágil |
 | DPS | Kraz-9 Serra-Dupla | I→É | 2 | 1 |  | 2\|5 | 3\|6 | 4\|6 |  |  | Corte Diagonal |  |
-| DPS | Spike-11 Punho-Pistão | R→L | 2 | 2 |  |  | 3\|4 | 4\|5 | 4\|7 |  | Disparo Instável (nova) |  |
-| DPS | Razor-V Lâmina-Fantasma | L→M | 4 | 1 |  |  |  |  | 5\|9 | 6\|10 | Corte Diagonal, Golpe Duplo (nova), Vampirismo (a partir do Mítico) |  |
-| DPS | Mímesis Copiadora | L→M | 6 | 1 |  |  |  |  | 6\|11 | 7\|13 | Copiador, Selo do Vazio, Investida (a partir do Mítico) |  |
-| Assassino | Vex-4 Caçador-Furtivo | I→É | 2 | 1 |  | 4\|2 | 5\|3 | 6\|4 |  |  | Corte Diagonal |  |
-| Assassino | Phase-3 Salto-Quântico | R→L | 3 | 1 |  |  | 4\|2 | 5\|3 | 6\|3 |  | Corte Diagonal, Teleporte |  |
-| Arqueiro | Jin Arco-Trovão | C→É | 2 | 4 | 2\|4 | 3\|4 | 4\|5 | 5\|6 |  |  | — |  |
-| Arqueiro | Echo-5 Mira-Laser | R→L | 3 | 4 |  |  | 4\|2 | 5\|3 | 5\|5 |  | Perfurar |  |
-| Mago | Cryo-6 Bobina-Gélida | I→É | 2 | 4 |  | 3\|4 | 3\|7 | 4\|8 |  |  | — | mais vida, menos dano |
-| Mago | Pulse-7 Tempestade-Elétrica | É→M | 4 | 4 |  |  |  | 5\|5 | 6\|6 | 7\|7 | Raio em Cadeia, Lentidão (a partir do Lendário) |  |
-| Mago | Omega-9 Domínio | L→M | 3 | 4 |  |  |  |  | 2\|9 | 2\|12 | Domínio Enfraquecedor, Barreira Arcana (a partir do Mítico) | como o Androide 19: habilidade forte, números baixos |
-| Suporte | Medi-3 Faísca-Azul | C→É | 2 | 4 | 1\|3 | 1\|5 | 1\|8 | 1\|10 |  |  | Sopro Restaurador |  |
-| Suporte | Nyx-07 | R→L | 3 | 4 |  |  | 1\|5 | 1\|8 | 1\|10 |  | Sifão de Energia |  |
-| Suporte | Halo-8 Reparadora | É→M | 5 | 4 |  |  |  | 1\|12 | 1\|14 | 2\|16 | Aura de Vida, Regeneração (a partir do Lendário), Pulso Vital (a partir do Mítico) | aura: androide +3 vida |
+| DPS | Spike-11 Punho-Pistão | R→L | 1 | 2 |  |  | 3\|12 | 4\|15 | 4\|18 |  | Disparo Instável (nova) |  |
+| DPS | Razor-V Lâmina-Fantasma | L→M | 5 | 1 |  |  |  |  | 6\|17 | 7\|20 | Corte Diagonal, Golpe Duplo (nova), Vampirismo (a partir do Mítico) |  |
+| DPS | Mímesis Copiadora | L→M | 5 | 1 |  |  |  |  | 7\|18 | 8\|21 | Copiador, Selo do Vazio, Investida (a partir do Mítico) |  |
+| Assassino | Vex-4 Caçador-Furtivo | I→É | 1 | 1 |  | 3\|3 | 4\|4 | 5\|5 |  |  | Corte Diagonal |  |
+| Assassino | Phase-3 Salto-Quântico | R→L | 3 | 1 |  |  | 4\|10 | 5\|13 | 6\|16 |  | Corte Diagonal, Teleporte |  |
+| Arqueiro | Jin Arco-Trovão | C→É | 2 | 4 | 2\|2 | 2\|4 | 3\|5 | 4\|5 |  |  | — |  |
+| Arqueiro | Echo-5 Mira-Laser | R→L | 4 | 4 |  |  | 4\|9 | 5\|12 | 6\|15 |  | Perfurar |  |
+| Mago | Cryo-6 Bobina-Gélida | I→É | 2 | 4 |  | 2\|4 | 3\|5 | 3\|7 |  |  | — | mais vida, menos dano |
+| Mago | Pulse-7 Tempestade-Elétrica | É→M | 8 | 4 |  |  |  | 4\|12 | 5\|15 | 6\|18 | Raio em Cadeia, Lentidão (a partir do Lendário) |  |
+| Mago | Omega-9 Domínio | L→M | 6 | 4 |  |  |  |  | 2\|16 | 2\|19 | Domínio Enfraquecedor, Barreira Arcana (a partir do Mítico) | como o Androide 19: habilidade forte, números baixos |
+| Suporte | Medi-3 Faísca-Azul | C→É | 1 | 4 | 1\|3 | 1\|6 | 1\|8 | 1\|11 |  |  | Sopro Restaurador |  |
+| Suporte | Nyx-07 | R→L | 3 | 4 |  |  | 1\|10 | 1\|13 | 1\|16 |  | Sifão de Energia |  |
+| Suporte | Halo-8 Reparadora | É→M | 5 | 4 |  |  |  | 1\|15 | 2\|16 | 2\|20 | Aura de Vida, Regeneração (a partir do Lendário), Pulso Vital (a partir do Mítico) | aura: androide +3 vida |
 
 ### Extraterrestre
 | Tipo | Carta | Raridade | Espera | Alcance | C | I | R | É | L | M | Habilidades | Observação |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Tanque | Quorr Casco-Estelar | C→É | 3 | 1 | 1\|9 | 1\|12 | 1\|15 | 1\|18 |  |  | — | mais vida, demora mais |
-| Tanque | Brakk Couraça-de-Meteoro | R→L | 2 | 1 |  |  | 1\|11 | 2\|11 | 2\|14 |  | Couraça de Espinhos |  |
-| Tanque | Gorm Titã-Orbital | L→M | 4 | 1 |  |  |  |  | 2\|16 | 2\|19 | Inabalável, Provocar, Regeneração (a partir do Mítico) |  |
-| DPS | Nara Lâmina-Lunar | C→R | 2 | 1 | 2\|3 | 2\|5 | 3\|6 |  |  |  | Arrancada (nova) |  |
-| DPS | Velka Garra-de-Cometa | I→É | 2 | 1 |  | 3\|3 | 4\|4 | 4\|6 |  |  | Golpe Final (nova) | Assassino → DPS |
-| DPS | Thessa Espiral-Prateada | I→É | 2 | 1 |  | 3\|5 | 3\|8 | 4\|9 |  |  | — |  |
-| DPS | Kryx Lâmina-Nebulosa | R→L | 2 | 1 |  |  | 4\|6 | 5\|7 | 6\|8 |  | — |  |
-| DPS | Zarek do Eclipse | L→M | 5 | 4 |  |  |  |  | 5\|8 | 6\|10 | Emboscada, Renascer (a partir do Mítico) | Assassino → DPS de longe (mágico); mantém as 2 habilidades que você definiu |
-| DPS | Vexar Rei-das-Marés | L→M | 6 | 1 |  |  |  |  | 7\|11 | 8\|13 | Fúria, Corte Diagonal, Evasão, Sangramento (a partir do Mítico) |  |
-| Assassino | Zynna Portal-Errante | I→É | 1 | 1 |  | 2\|3 | 3\|3 | 4\|3 |  |  | Corte Diagonal, Bate e Recua (nova) | vaga I→É (era da Velka) |
-| Assassino | Nhyra Fantasma-Estelar | É→M | 4 | 1 |  |  |  | 5\|4 | 6\|4 | 7\|5 | Corte Diagonal, Golpe pelas Costas, Contra-ataque Crescente (revista) (a partir do Lendário) |  |
-| Arqueiro | Aiko Flecha-Celeste | I→É | 2 | 4 |  | 3\|2 | 4\|3 | 5\|3 |  |  | Flecha Dupla |  |
-| Arqueiro | Orun Arpão-Gélido | I→É | 2 | 4 |  | 3\|4 | 4\|5 | 5\|6 |  |  | — |  |
-| Arqueiro | Lunaris Arqueira-do-Vácuo | L→M | 3 | 4 |  |  |  |  | 7\|5 | 8\|6 | Olho de Águia, Tiro Certeiro, Vigia (a partir do Mítico) |  |
+| Tanque | Quorr Casco-Estelar | C→É | 2 | 1 | 1\|7 | 1\|10 | 1\|13 | 1\|16 |  |  | — | mais vida, demora mais |
+| Tanque | Brakk Couraça-de-Meteoro | R→L | 2 | 1 |  |  | 1\|11 | 2\|14 | 2\|17 |  | Couraça de Espinhos |  |
+| Tanque | Gorm Titã-Orbital | L→M | 5 | 1 |  |  |  |  | 2\|19 | 3\|22 | Inabalável, Provocar, Regeneração (a partir do Mítico) |  |
+| DPS | Nara Lâmina-Lunar | C→R | 3 | 1 | 2\|3 | 2\|5 | 3\|6 |  |  |  | Arrancada (nova) |  |
+| DPS | Velka Garra-de-Cometa | I→É | 1 | 1 |  | 3\|3 | 4\|4 | 4\|6 |  |  | Golpe Final (nova) | Assassino → DPS |
+| DPS | Thessa Espiral-Prateada | I→É | 1 | 1 |  | 2\|5 | 3\|6 | 3\|8 |  |  | — |  |
+| DPS | Kryx Lâmina-Nebulosa | R→L | 1 | 1 |  |  | 3\|10 | 4\|13 | 5\|16 |  | — |  |
+| DPS | Zarek do Eclipse | L→M | 7 | 4 |  |  |  |  | 6\|15 | 7\|18 | Emboscada, Renascer (a partir do Mítico) | Assassino → DPS de longe (mágico); mantém as 2 habilidades que você definiu |
+| DPS | Vexar Rei-das-Marés | L→M | 8 | 1 |  |  |  |  | 6\|15 | 6\|18 | Fúria, Corte Diagonal, Evasão, Sangramento (a partir do Mítico) |  |
+| Assassino | Zynna Portal-Errante | I→É | 1 | 1 |  | 3\|3 | 4\|3 | 5\|4 |  |  | Corte Diagonal, Bate e Recua (nova) | vaga I→É (era da Velka) |
+| Assassino | Nhyra Fantasma-Estelar | É→M | 3 | 1 |  |  |  | 6\|12 | 7\|15 | 8\|18 | Corte Diagonal, Golpe pelas Costas, Contra-ataque Crescente (revista) (a partir do Lendário) |  |
+| Arqueiro | Aiko Flecha-Celeste | I→É | 3 | 4 |  | 3\|2 | 4\|3 | 5\|3 |  |  | Flecha Dupla |  |
+| Arqueiro | Orun Arpão-Gélido | I→É | 3 | 4 |  | 2\|4 | 3\|5 | 4\|5 |  |  | — |  |
+| Arqueiro | Lunaris Arqueira-do-Vácuo | L→M | 5 | 4 |  |  |  |  | 6\|15 | 7\|18 | Olho de Águia, Tiro Certeiro, Vigia (a partir do Mítico) |  |
 | Mago | Suri Maré-Gélida | C→R | 2 | 4 | 2\|2 | 3\|2 | 4\|3 |  |  |  | Maré Implacável |  |
-| Mago | Morv Coração-de-Gelo | R→L | 2 | 4 |  |  | 5\|3 | 6\|4 | 7\|5 |  | — |  |
-| Mago | Ilun Olho-Cósmico | É→M | 4 | 4 |  |  |  | 5\|5 | 6\|6 | 7\|7 | Feixe Perfurante, Maldição (a partir do Lendário), Atordoamento (a partir do Mítico) |  |
-| Suporte | Pip Faísca-Lunar | C→R | 2 | 4 | 1\|3 | 1\|5 | 1\|8 |  |  |  | Preparação (nova) |  |
-| Suporte | Sylith Tecelã-de-Luz | É→M | 2 | 1 |  |  |  | 1\|10 | 1\|13 | 1\|15 | Grito de Guerra, Purificar, Escudo de Entrada (a partir do Lendário) |  |
-| Suporte | Aurel Farol-Celeste | L→M | 5 | 4 |  |  |  |  | 1\|14 | 2\|16 | Aura de Vida, Escudo de Entrada, Anjo da Guarda (a partir do Mítico) | aura: extraterrestre +2 vida |
+| Mago | Morv Coração-de-Gelo | R→L | 3 | 4 |  |  | 4\|9 | 5\|12 | 6\|15 |  | — |  |
+| Mago | Ilun Olho-Cósmico | É→M | 6 | 4 |  |  |  | 5\|12 | 6\|15 | 7\|18 | Feixe Perfurante, Maldição (a partir do Lendário), Atordoamento (a partir do Mítico) |  |
+| Suporte | Pip Faísca-Lunar | C→R | 1 | 4 | 1\|3 | 1\|6 | 1\|8 |  |  |  | Preparação (nova) |  |
+| Suporte | Sylith Tecelã-de-Luz | É→M | 2 | 1 |  |  |  | 1\|14 | 1\|17 | 1\|20 | Grito de Guerra, Purificar, Escudo de Entrada (a partir do Lendário) |  |
+| Suporte | Aurel Farol-Celeste | L→M | 4 | 4 |  |  |  |  | 2\|16 | 2\|20 | Aura de Vida, Escudo de Entrada, Anjo da Guarda (a partir do Mítico) | aura: extraterrestre +2 vida |
 
 ### Mago Arcano
 | Tipo | Carta | Raridade | Espera | Alcance | C | I | R | É | L | M | Habilidades | Observação |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Tanque | Bram Guardião-do-Tomo | C→É | 1 | 1 | 1\|7 | 1\|9 | 1\|11 | 1\|13 |  |  | — | barato e leve |
-| Tanque | Varo Golem-de-Cristal | R→L | 2 | 1 |  |  | 2\|11 | 2\|14 | 2\|17 |  | — |  |
+| Tanque | Bram Guardião-do-Tomo | C→É | 1 | 1 | 1\|6 | 1\|8 | 1\|11 | 1\|13 |  |  | — | barato e leve |
+| Tanque | Varo Golem-de-Cristal | R→L | 1 | 1 |  |  | 1\|11 | 2\|14 | 2\|17 |  | — |  |
 | DPS | Isel Bruma-Cortante | I→É | 2 | 1 |  | 2\|5 | 3\|6 | 4\|6 |  |  | Corte Diagonal |  |
-| DPS | Kael Chama-Rubra | L→M | 7 | 4 |  |  |  |  | 8\|12 | 9\|15 | Explosão de Brasas, Fúria, Queimadura (a partir do Mítico) |  |
-| DPS | Corvin Lâmina-das-Runas | L→M | 4 | 1 |  |  |  |  | 5\|9 | 6\|10 | Fúria, Perfurar (a partir do Mítico) |  |
-| Assassino | Kaela Lâmina-Espectral | É→M | 3 | 1 |  |  |  | 6\|4 | 7\|5 | 8\|6 | Corte Diagonal, Maldição, Ataque Surpresa (a partir do Lendário) |  |
-| Arqueiro | Nalia Arco-Rúnico | R→L | 2 | 4 |  |  | 4\|5 | 5\|6 | 6\|7 |  | — |  |
-| Arqueiro | Vesna Senhora-do-Inverno | L→M | 4 | 4 |  |  |  |  | 8\|6 | 9\|7 | Congelamento, Lentidão, Flecha Dupla (a partir do Mítico) |  |
-| Mago | Fen Aprendiz-das-Brasas | C→É | 1 | 4 | 2\|3 | 3\|3 | 4\|3 | 4\|5 |  |  | — |  |
-| Mago | Lyra Olho-de-Falcão | I→É | 1 | 4 |  | 3\|3 | 4\|3 | 5\|3 |  |  | — | dano alto, muito frágil |
-| Mago | Celina Geada-Eterna | R→L | 2 | 4 |  |  | 4\|5 | 5\|6 | 6\|7 |  | — |  |
-| Mago | Selene Lua-Arcana | É→M | 3 | 4 |  |  |  | 6\|4 | 7\|5 | 8\|6 | Queimadura, Congelamento (a partir do Lendário), Maldição (a partir do Mítico) |  |
-| Mago | Morgause Espelho-Duplo | L→M | 4 | 4 |  |  |  |  | 6\|4 | 7\|5 | Clone, Reflexo de Magia, Barreira Arcana (a partir do Mítico) |  |
-| Mago | Eldrin Arquimago-Solar | L→M | 3 | 4 |  |  |  |  | 7\|5 | 8\|6 | Explosão de Brasas, Olho de Águia, Feixe Perfurante (a partir do Mítico) |  |
-| Mago | Aethra Tecelã-do-Trovão | L→M | 6 | 4 |  |  |  |  | 8\|6 | 9\|8 | Raio em Cadeia, Atordoamento, Feixe Perfurante (a partir do Mítico) |  |
-| Suporte | Sora Brisa-Serena | C→R | 2 | 4 | 1\|3 | 1\|5 | 1\|8 |  |  |  | Sopro Restaurador | carta inicial: cura a fileira |
-| Suporte | Mei Lótus-Celeste | I→É | 2 | 4 |  | 1\|5 | 1\|8 | 1\|10 |  |  | Bênção do Lótus |  |
-| Suporte | Dorian Pena-Encantada | I→É | 3 | 4 |  | 2\|2 | 2\|3 | 3\|4 |  |  | Aura de Ataque | aura: humano +1 ataque (outra raça) |
-| Suporte | Odo Sombra-de-Papel | É→M | 3 | 4 |  |  |  | 1\|13 | 1\|16 | 2\|17 | Escudo de Entrada, Purificar (a partir do Lendário), Lentidão (a partir do Mítico) |  |
-| Suporte | Tiberius Runa-Viva | L→M | 5 | 4 |  |  |  |  | 1\|16 | 2\|18 | Aura de Vida, Purificar, Bênção do Lótus (a partir do Mítico) | aura: mago +3 vida |
+| DPS | Kael Chama-Rubra | L→M | 8 | 4 |  |  |  |  | 6\|17 | 7\|20 | Explosão de Brasas, Fúria, Queimadura (a partir do Mítico) |  |
+| DPS | Corvin Lâmina-das-Runas | L→M | 2 | 1 |  |  |  |  | 6\|17 | 7\|20 | Fúria, Perfurar (a partir do Mítico) |  |
+| Assassino | Kaela Lâmina-Espectral | É→M | 2 | 1 |  |  |  | 6\|12 | 7\|15 | 8\|18 | Corte Diagonal, Maldição, Ataque Surpresa (a partir do Lendário) |  |
+| Arqueiro | Nalia Arco-Rúnico | R→L | 3 | 4 |  |  | 4\|10 | 4\|13 | 5\|16 |  | — |  |
+| Arqueiro | Vesna Senhora-do-Inverno | L→M | 6 | 4 |  |  |  |  | 7\|15 | 8\|18 | Congelamento, Lentidão, Flecha Dupla (a partir do Mítico) |  |
+| Mago | Fen Aprendiz-das-Brasas | C→É | 2 | 4 | 2\|2 | 3\|2 | 4\|3 | 4\|5 |  |  | — |  |
+| Mago | Lyra Olho-de-Falcão | I→É | 2 | 4 |  | 3\|2 | 4\|3 | 5\|3 |  |  | — | dano alto, muito frágil |
+| Mago | Celina Geada-Eterna | R→L | 3 | 4 |  |  | 3\|10 | 4\|13 | 5\|16 |  | — |  |
+| Mago | Selene Lua-Arcana | É→M | 5 | 4 |  |  |  | 6\|12 | 7\|15 | 8\|18 | Queimadura, Congelamento (a partir do Lendário), Maldição (a partir do Mítico) |  |
+| Mago | Morgause Espelho-Duplo | L→M | 6 | 4 |  |  |  |  | 6\|13 | 7\|16 | Clone, Reflexo de Magia, Barreira Arcana (a partir do Mítico) |  |
+| Mago | Eldrin Arquimago-Solar | L→M | 6 | 4 |  |  |  |  | 5\|15 | 6\|18 | Explosão de Brasas, Olho de Águia, Feixe Perfurante (a partir do Mítico) |  |
+| Mago | Aethra Tecelã-do-Trovão | L→M | 8 | 4 |  |  |  |  | 6\|15 | 8\|18 | Raio em Cadeia, Atordoamento, Feixe Perfurante (a partir do Mítico) |  |
+| Suporte | Sora Brisa-Serena | C→R | 1 | 4 | 1\|4 | 1\|6 | 1\|9 |  |  |  | Sopro Restaurador | carta inicial: cura a fileira |
+| Suporte | Mei Lótus-Celeste | I→É | 1 | 4 |  | 1\|6 | 1\|9 | 1\|11 |  |  | Bênção do Lótus |  |
+| Suporte | Dorian Pena-Encantada | I→É | 1 | 4 |  | 2\|3 | 2\|5 | 3\|6 |  |  | Aura de Ataque | aura: humano +1 ataque (outra raça) |
+| Suporte | Odo Sombra-de-Papel | É→M | 2 | 4 |  |  |  | 1\|15 | 1\|18 | 2\|21 | Escudo de Entrada, Purificar (a partir do Lendário), Lentidão (a partir do Mítico) |  |
+| Suporte | Tiberius Runa-Viva | L→M | 5 | 4 |  |  |  |  | 2\|17 | 2\|21 | Aura de Vida, Purificar, Bênção do Lótus (a partir do Mítico) | aura: mago +3 vida |
 
 ### Monstro
 | Tipo | Carta | Raridade | Espera | Alcance | C | I | R | É | L | M | Habilidades | Observação |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Tanque | Daichi Punho-de-Rocha | C→R | 2 | 1 | 2\|6 | 2\|8 | 2\|11 |  |  |  | — | punho de rocha: bate um pouco mais |
-| Tanque | Gorath Muralha-de-Ferro | I→É | 2 | 1 |  | 2\|8 | 2\|11 | 2\|14 |  |  | — |  |
-| Tanque | Mag'ra Colosso-de-Lava | R→L | 2 | 1 |  |  | 1\|11 | 2\|11 | 2\|14 |  | Explosão |  |
-| Tanque | Borgo Tronco-Antigo | É→M | 3 | 1 |  |  |  | 2\|14 | 2\|17 | 2\|20 | Regeneração, Provocar, Couraça de Espinhos (a partir do Lendário) |  |
-| Tanque | Grendar Pai-da-Ninhada | L→M | 4 | 1 |  |  |  |  | 2\|14 | 2\|17 | Protetor, Pulso Vital (a partir do Mítico) |  |
-| Tanque | Kolossus Couraça-Viva | L→M | 7 | 1 |  |  |  |  | 3\|23 | 3\|28 | Couraça Adaptativa, Provocar, Postura de Guarda (a partir do Mítico) |  |
-| DPS | Grub Presa-Lamacenta | C→É | 3 | 1 | 2\|6 | 3\|7 | 3\|10 | 4\|11 |  |  | — | aguenta mais |
-| DPS | Ghul Devora-Ossos | I→É | 2 | 1 |  | 3\|5 | 4\|6 | 5\|7 |  |  | — |  |
-| DPS | Rhazor Rei-das-Feras | R→L | 3 | 1 |  |  | 4\|8 | 5\|9 | 6\|11 |  | — |  |
-| DPS | Krag Javali-de-Guerra | É→M | 3 | 1 |  |  |  | 5\|7 | 6\|8 | 6\|11 | Investida, Ombrada (a partir do Lendário) |  |
-| DPS | Trokk Chifre-Partido | L→M | 4 | 1 |  |  |  |  | 5\|7 | 6\|8 | Corte Diagonal, Aura de Ataque, Fúria (a partir do Mítico) | aura: monstro +1 ataque |
-| DPS | Vharga Ceifadora-Voraz | L→M | 6 | 2 |  |  |  |  | 6\|11 | 7\|13 | Execução, Instinto Predador, Vampirismo (a partir do Mítico) | Assassino → DPS de longe (mágico) |
-| Assassino | Kuro Garra-Noturna | C→É | 1 | 1 | 2\|1 | 3\|1 | 3\|3 | 4\|3 |  |  | Corte Diagonal, Ataque Surpresa | espera 1: pressão rápida |
-| Assassino | Skarr Escorpião-de-Areia | É→M | 3 | 1 |  |  |  | 6\|4 | 7\|5 | 8\|6 | Corte Diagonal, Emboscada, Veneno (a partir do Lendário) |  |
-| Arqueiro | Spindra Aranha-Tecelã | R→L | 2 | 4 |  |  | 5\|3 | 6\|4 | 7\|5 |  | — |  |
-| Mago | Bufo Sapo-Ácido | I→É | 3 | 4 |  | 3\|6 | 4\|7 | 5\|8 |  |  | — |  |
-| Mago | Oculus Olho-Medonho | L→M | 4 | 4 |  |  |  |  | 6\|6 | 7\|7 | Maldição, Atordoamento (a partir do Mítico) |  |
-| Suporte | Ysmera Serpente-Abissal | C→É | 2 | 4 | 1\|3 | 1\|5 | 1\|8 | 1\|10 |  |  | Veneno | serpente: envenena |
-| Suporte | Tobi Tambor-de-Guerra | I→É | 3 | 1 |  | 2\|3 | 2\|5 | 3\|6 |  |  | Tambor de Guerra |  |
-| Suporte | Fenra Loba-Uivante | R→L | 3 | 1 |  |  | 1\|5 | 1\|8 | 1\|10 |  | Aura de Vida | aura: necromante +2 vida (outra raça) |
+| Tanque | Daichi Punho-de-Rocha | C→R | 2 | 1 | 1\|6 | 2\|6 | 2\|9 |  |  |  | — | punho de rocha: bate um pouco mais |
+| Tanque | Gorath Muralha-de-Ferro | I→É | 1 | 1 |  | 1\|8 | 2\|9 | 2\|11 |  |  | — |  |
+| Tanque | Mag'ra Colosso-de-Lava | R→L | 2 | 1 |  |  | 1\|12 | 2\|15 | 2\|18 |  | Explosão |  |
+| Tanque | Borgo Tronco-Antigo | É→M | 4 | 1 |  |  |  | 2\|15 | 2\|18 | 2\|21 | Regeneração, Provocar, Couraça de Espinhos (a partir do Lendário) |  |
+| Tanque | Grendar Pai-da-Ninhada | L→M | 3 | 1 |  |  |  |  | 2\|19 | 2\|22 | Protetor, Pulso Vital (a partir do Mítico) |  |
+| Tanque | Kolossus Couraça-Viva | L→M | 7 | 1 |  |  |  |  | 3\|18 | 4\|21 | Couraça Adaptativa, Provocar, Postura de Guarda (a partir do Mítico) |  |
+| DPS | Grub Presa-Lamacenta | C→É | 2 | 1 | 2\|4 | 2\|7 | 3\|8 | 3\|11 |  |  | — | aguenta mais |
+| DPS | Ghul Devora-Ossos | I→É | 1 | 1 |  | 2\|5 | 3\|6 | 4\|6 |  |  | — |  |
+| DPS | Rhazor Rei-das-Feras | R→L | 2 | 1 |  |  | 3\|13 | 4\|16 | 5\|19 |  | — |  |
+| DPS | Krag Javali-de-Guerra | É→M | 2 | 1 |  |  |  | 5\|13 | 6\|16 | 6\|19 | Investida, Ombrada (a partir do Lendário) |  |
+| DPS | Trokk Chifre-Partido | L→M | 4 | 1 |  |  |  |  | 6\|16 | 6\|19 | Corte Diagonal, Aura de Ataque, Fúria (a partir do Mítico) | aura: monstro +1 ataque |
+| DPS | Vharga Ceifadora-Voraz | L→M | 7 | 2 |  |  |  |  | 7\|18 | 8\|21 | Execução, Instinto Predador, Vampirismo (a partir do Mítico) | Assassino → DPS de longe (mágico) |
+| Assassino | Kuro Garra-Noturna | C→É | 1 | 1 | 3\|1 | 4\|2 | 5\|3 | 6\|4 |  |  | Corte Diagonal, Ataque Surpresa | espera 1: pressão rápida |
+| Assassino | Skarr Escorpião-de-Areia | É→M | 2 | 1 |  |  |  | 6\|12 | 7\|15 | 8\|18 | Corte Diagonal, Emboscada, Veneno (a partir do Lendário) |  |
+| Arqueiro | Spindra Aranha-Tecelã | R→L | 2 | 4 |  |  | 4\|9 | 5\|12 | 6\|15 |  | — |  |
+| Mago | Bufo Sapo-Ácido | I→É | 4 | 4 |  | 3\|4 | 4\|5 | 5\|6 |  |  | — |  |
+| Mago | Oculus Olho-Medonho | L→M | 5 | 4 |  |  |  |  | 7\|15 | 8\|18 | Maldição, Atordoamento (a partir do Mítico) |  |
+| Suporte | Ysmera Serpente-Abissal | C→É | 1 | 4 | 1\|3 | 1\|5 | 1\|8 | 1\|10 |  |  | Veneno | serpente: envenena |
+| Suporte | Tobi Tambor-de-Guerra | I→É | 1 | 1 |  | 2\|4 | 3\|4 | 3\|7 |  |  | Tambor de Guerra |  |
+| Suporte | Fenra Loba-Uivante | R→L | 1 | 1 |  |  | 1\|11 | 1\|15 | 2\|16 |  | Aura de Vida | aura: necromante +2 vida (outra raça) |
 
 ### Necromante
 | Tipo | Carta | Raridade | Espera | Alcance | C | I | R | É | L | M | Habilidades | Observação |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Tanque | Grav Coveiro-Robusto | C→É | 3 | 1 | 1\|9 | 1\|12 | 2\|13 | 2\|16 |  |  | — | mais vida |
-| Tanque | Thane Cavaleiro-Caído | É→M | 4 | 1 |  |  |  | 2\|13 | 2\|16 | 2\|19 | Provocar, Couraça de Espinhos, Casca Reativa (a partir do Lendário) |  |
-| Tanque | Ghor Abominação-Costurada | L→M | 7 | 1 |  |  |  |  | 3\|27 | 4\|30 | Provocar, Postura de Guarda, Regeneração (a partir do Mítico) |  |
-| DPS | Ossian Esqueleto-Lanceiro | C→É | 1 | 1 | 2\|4 | 3\|4 | 3\|6 | 4\|6 |  |  | — | esqueleto frágil |
-| DPS | Drakon Lorde-dos-Ossos | I→É | 3 | 1 |  | 3\|7 | 4\|8 | 4\|11 |  |  | — | mais vida |
-| DPS | Morrigan Lâmina-Cinzenta | R→L | 2 | 1 |  |  | 3\|6 | 4\|6 | 5\|7 |  | Corte Diagonal |  |
-| DPS | Brunna Carniçal-Faminta | L→M | 4 | 1 |  |  |  |  | 5\|9 | 6\|10 | Ímpeto (nova), Vingança, Corte Diagonal (a partir do Mítico) |  |
-| DPS | Sanguis Sede-Eterna | L→M | 7 | 1 |  |  |  |  | 8\|12 | 9\|15 | Sede Eterna, Golpe Crítico, Investida (a partir do Mítico) |  |
-| Assassino | Yume Caçadora | I→É | 2 | 1 |  | 3\|2 | 4\|3 | 5\|3 |  |  | Corte Diagonal, Instinto Predador | vaga I→É (era da Lethe) |
-| Assassino | Sabbath Ceifador-Pálido | É→M | 3 | 1 |  |  |  | 6\|4 | 7\|5 | 8\|6 | Corte Diagonal, Sangramento, Golpe pelas Costas (a partir do Lendário) |  |
-| Arqueiro | Lethe Sombra-Rastejante | I→É | 1 | 4 |  | 3\|3 | 4\|3 | 4\|5 |  |  | — | Assassino → Arqueira |
-| Arqueiro | Cador Arqueiro-Ossudo | I→É | 2 | 4 |  | 3\|2 | 4\|3 | 5\|3 |  |  | Veneno |  |
-| Mago | Wex Bruxo-do-Pântano | C→É | 2 | 4 | 2\|4 | 3\|4 | 4\|5 | 5\|6 |  |  | — |  |
-| Mago | Lamenta Viúva-Vingativa | I→É | 2 | 4 |  | 2\|4 | 3\|5 | 4\|5 |  |  | Pressão no Comandante (nova) |  |
-| Mago | Nocturna Bruxa-Pestilenta | É→M | 3 | 4 |  |  |  | 6\|4 | 7\|5 | 8\|6 | Maldição, Veneno (a partir do Lendário), Queimadura (a partir do Mítico) |  |
-| Mago | Vorax | L→M | 6 | 4 |  |  |  |  | 4\|22 | 5\|25 | Prole Sombria, Explosão (8 de dano) — v0.67.5 | Prole "Cell": qualquer inimigo derrotado vira cria, sem limite |
-| Mago | Pira Vela-Fúnebre | L→M | 3 | 4 |  |  |  |  | 7\|5 | 8\|6 | Queimadura, Explosão de Brasas |  |
-| Suporte | Mira Sussurro-Frio | C→É | 3 | 4 | 1\|6 | 1\|9 | 1\|12 | 2\|13 |  |  | — |  |
-| Suporte | Elegia Arauta-do-Retorno | R→L | 3 | 4 |  |  | 1\|7 | 1\|10 | 1\|12 |  | Ressurreição |  |
-| Suporte | Ivra Fiandeira-de-Almas | L→M | 5 | 4 |  |  |  |  | 1\|16 | 2\|18 | Aura de Vida, Purificar, Sopro Restaurador (a partir do Mítico) | aura: necromante +2 vida |
+| Tanque | Grav Coveiro-Robusto | C→É | 2 | 1 | 1\|7 | 1\|10 | 1\|13 | 2\|14 |  |  | — | mais vida |
+| Tanque | Thane Cavaleiro-Caído | É→M | 4 | 1 |  |  |  | 2\|17 | 2\|20 | 3\|23 | Provocar, Couraça de Espinhos, Casca Reativa (a partir do Lendário) |  |
+| Tanque | Ghor Abominação-Costurada | L→M | 7 | 1 |  |  |  |  | 3\|17 | 4\|20 | Provocar, Postura de Guarda, Regeneração (a partir do Mítico) |  |
+| DPS | Ossian Esqueleto-Lanceiro | C→É | 1 | 1 | 2\|3 | 3\|3 | 3\|6 | 4\|6 |  |  | — | esqueleto frágil |
+| DPS | Drakon Lorde-dos-Ossos | I→É | 2 | 1 |  | 3\|5 | 3\|8 | 4\|9 |  |  | — | mais vida |
+| DPS | Morrigan Lâmina-Cinzenta | R→L | 2 | 1 |  |  | 3\|10 | 4\|13 | 5\|16 |  | Corte Diagonal |  |
+| DPS | Brunna Carniçal-Faminta | L→M | 3 | 1 |  |  |  |  | 6\|18 | 7\|21 | Ímpeto (nova), Vingança, Corte Diagonal (a partir do Mítico) |  |
+| DPS | Sanguis Sede-Eterna | L→M | 5 | 1 |  |  |  |  | 8\|18 | 10\|21 | Sede Eterna, Golpe Crítico, Investida (a partir do Mítico) |  |
+| Assassino | Yume Caçadora | I→É | 1 | 1 |  | 3\|3 | 5\|2 | 6\|3 |  |  | Corte Diagonal, Instinto Predador | vaga I→É (era da Lethe) |
+| Assassino | Sabbath Ceifador-Pálido | É→M | 2 | 1 |  |  |  | 6\|12 | 7\|15 | 8\|18 | Corte Diagonal, Sangramento, Golpe pelas Costas (a partir do Lendário) |  |
+| Arqueiro | Lethe Sombra-Rastejante | I→É | 2 | 4 |  | 3\|2 | 4\|3 | 4\|5 |  |  | — | Assassino → Arqueira |
+| Arqueiro | Cador Arqueiro-Ossudo | I→É | 3 | 4 |  | 3\|2 | 4\|3 | 5\|3 |  |  | Veneno |  |
+| Mago | Wex Bruxo-do-Pântano | C→É | 2 | 4 | 2\|2 | 2\|4 | 3\|5 | 4\|5 |  |  | — |  |
+| Mago | Lamenta Viúva-Vingativa | I→É | 4 | 4 |  | 2\|4 | 3\|5 | 4\|5 |  |  | Pressão no Comandante (nova) |  |
+| Mago | Nocturna Bruxa-Pestilenta | É→M | 5 | 4 |  |  |  | 5\|12 | 6\|15 | 7\|18 | Maldição, Veneno (a partir do Lendário), Queimadura (a partir do Mítico) |  |
+| Mago | Vorax | L→M | 9 | 4 |  |  |  |  | 4\|22 | 6\|23 | Prole Sombria, Explosão (8 de dano) — v0.67.5 | Prole "Cell": qualquer inimigo derrotado vira cria, sem limite |
+| Mago | Pira Vela-Fúnebre | L→M | 5 | 4 |  |  |  |  | 6\|15 | 7\|18 | Queimadura, Explosão de Brasas |  |
+| Suporte | Mira Sussurro-Frio | C→É | 1 | 4 | 1\|5 | 1\|7 | 1\|11 | 1\|14 |  |  | — |  |
+| Suporte | Elegia Arauta-do-Retorno | R→L | 1 | 4 |  |  | 1\|11 | 1\|14 | 1\|17 |  | Ressurreição |  |
+| Suporte | Ivra Fiandeira-de-Almas | L→M | 4 | 4 |  |  |  |  | 2\|17 | 2\|21 | Aura de Vida, Purificar, Sopro Restaurador (a partir do Mítico) | aura: necromante +2 vida |
 
 
 
@@ -1707,7 +1726,7 @@ Medido em `scripts/balance/world.ts` (4 jogadores). Vitória ao chegar, média p
   - O simulador joga as 300 fases na ordem de um jogador real: a Normal k logo depois da Fácil 5 + 2·(k − 1), e a Difícil k logo depois da Normal 5 + 2·(k − 1).
   - Em cada fase, procura o degrau que dá a vitória ao chegar pedida. Depois a curva é suavizada e nunca desce.
   - **Alvo de vitória ao chegar (a dificuldade não muda com o jogador):** Fácil, de 45% na fase 11 a 25% na fase 100; Normal, de 50% a 20%; Difícil, de 45% a 12%. Fora do primeiro mundo, nunca passa de 50%. A ideia é repetir fases já ganhas para juntar itens e subir cartas, ou comprar pacotes.
-  - **Medido no simulador (4 jogadores), vitória ao chegar por região 1 a 10:** Fácil 21 · 30 · 27 · 36 · 38 · 30 · 23 · 24 · 26 · 10%; Normal 27 · 42 · 29 · 25 · 48 · 29 · 24 · 22 · 17 · 16%; Difícil 34 · 29 · 48 · 27 · 16 · 18 · 20 · 42 · 11 · 12%. Para refinar a tabela: `CALIB=2` (parte da tabela atual, mira 3 pontos abaixo do alvo); `CALIB=0` só mede.
+  - **Medido no simulador (4 jogadores), vitória ao chegar por região 1 a 10 (v0.67.6, depois da vida nova dos Lendários):** Fácil 30 · 30 · 37 · 39 · 32 · 31 · 17 · 18 · 28 · 25%; Normal 36 · 32 · 47 · 30 · 39 · 39 · 28 · 33 · 29 · 25%; Difícil 38 · 30 · 37 · 19 · 16 · 19 · 19 · 15 · 9 · 8%. Com só 4 jogadores, a mesma tabela varia até ±15 pontos numa região de uma medição para outra. Para refinar a tabela: `CALIB=2` (parte da tabela atual, mira 3 pontos abaixo do alvo); `CALIB=0` só mede.
   - Até v0.67.3: Normal k = Fácil (5 + 2·(k − 1)) e Difícil k = Normal (5 + 2·(k − 1)).
 - **Baralhos:** vêm de `src/core/hardDecks.ts`, gerado por `scripts/balance/decks.ts` (v0.67.3: gerados de novo com a tabela nova e o Poder medido de novo; o baralho de referência do jogador são as 10 cartas de maior Poder da faixa, agora as mais fortes de verdade, e entram os baralhos com nota a partir de 3%).
   - Em cada faixa, os baralhos estão ordenados do mais fraco ao mais forte (nota = vitória contra um baralho de jogador forte da faixa, com os dois lados no Auto).
