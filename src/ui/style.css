@@ -406,6 +406,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .swap-card.sel-off { filter: grayscale(1) brightness(.55); opacity: .7; outline: 3px dashed #ff3d6e; outline-offset: 2px; transform: scale(.94); }
 /* evolução ao despertar */
 .evo-bg { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: radial-gradient(circle, rgba(40,20,80,.98), rgba(2,3,10,.99)); animation: fade .25s; }
+/* v0.67.10: celular deitado (tela baixa) — a arte encolhe para o Continuar caber; se ainda faltar espaço, rola */
+.evo-bg { overflow-y: auto; padding: 8px 0; }
 .evo { text-align: center; padding: 16px; }
 .evo-title { font-size: 40px; font-weight: 900; font-style: italic; color: #fff; text-shadow: 0 0 12px #ffcf4a, 0 0 30px #ff6a00, 0 3px 0 #7a2a00; animation: pop .5s 1.3s both cubic-bezier(.2,1.4,.4,1); }
 .evo-stage { position: relative; width: min(240px, 64vw); aspect-ratio: 1; margin: 12px auto; }
@@ -584,6 +586,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
 @keyframes evoPlus { 0% { transform: scale(.85); filter: brightness(2); } 100% { transform: scale(1); filter: none; } }
 .evo-plus .evo-stars, .evo-plus .evo-stats, .evo-plus .evo-name { animation-delay: .3s; }
 .evo-stars .tier-tag { font-size: 16px; padding: 3px 12px; }
+@media (max-height: 560px) {
+  .evo-title { font-size: 28px; }
+  .evo-stage { width: min(240px, 64vw, 36vh); margin: 6px auto; }
+  .evo-name { font-size: 18px; }
+  .evo-stars { font-size: 18px; margin: 2px 0; }
+  .evo-stats { margin-bottom: 8px; font-size: 13px; }
+}
 .ess { color: var(--gold); font-weight: 800; }
 .ladder { margin-top: 10px; background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 6px 8px; }
 .ladder summary { cursor: pointer; font-weight: 900; color: var(--gold); }

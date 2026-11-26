@@ -4,6 +4,7 @@ Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Ho
 
 ## [0.67.10] — 26/11/2026 · Tempo da partida na batalha
 - **Relógio entre as duas vidas**, no lugar do ∞: conta os segundos até 59 e depois minutos e segundos (01:04, 01:05 …). Para quando a batalha acaba e quando o app vai para segundo plano.
+- **Correção:** no celular deitado, a tela do **Despertar** (ao subir uma carta de degrau no Treinar) cortava o botão **Continuar** fora da tela, e não havia como sair. Agora a arte encolhe em telas baixas e o botão aparece.
 
 ## [0.67.9] — 25/11/2026 · Quem ataca de longe com pouca vida, mais ataque nas raridades altas e troca de tipos
 - **Sayuri vira Maga** (alcance 4, dano mágico) e **Daisuke vira Assassino** (corpo a corpo, dano físico). Os dois trocam uma habilidade para combinar com o tipo novo: a Sayuri fica com o Perfurar e o Daisuke com o Corte Diagonal (todo assassino tem).
