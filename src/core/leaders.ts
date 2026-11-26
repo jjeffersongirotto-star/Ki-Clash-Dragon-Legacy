@@ -30,7 +30,7 @@ export const LEADER_HP = Array.from({ length: LEADER_LEVELS }, (_, i) => Math.ro
  * mais forte possível (13 personagens × 3 cópias + 1, todos no máximo ++) = 6075.
  * Até a v0.69 (10 níveis): 0, 120, 125, 145, 150, 155, 180, 185, 190, 215.
  */
-export const LEADER_THRESHOLDS = [0, 520, 560, 615, 680, 785, 890, 1015, 1060, 1145, 1325, 1465, 1630, 1715, 1870, 2005, 2220, 2310, 2555, 2775, 3000, 3245, 3510, 3795, 4105, 4440, 4800, 5195, 5615, 6075];
+export const LEADER_THRESHOLDS = [0, 520, 570, 595, 710, 795, 895, 1020, 1060, 1170, 1210, 1360, 1515, 1660, 1850, 2000, 2110, 2320, 2570, 2695, 2925, 3170, 3440, 3730, 4045, 4390, 4760, 5165, 5600, 6075];
 
 /** Habilidade especial do Comandante (reservado: os Comandantes futuros terão habilidades que evoluem por nível). */
 export interface LeaderAbility {
