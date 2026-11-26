@@ -11,7 +11,7 @@ import { leaveBattleMode } from '../ui/orientation';
 import { bindGearTaps, gearTapHTML } from './gearItem';
 import { GEAR_CATEGORIES, GEAR_PER_STEP, GEAR_RARITIES, GEAR_SETS, reqRarity, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor } from '../core/gear';
 import { app, save, trainSel, trainRef, setTrainSel, persist } from './state';
-import { bestCopy, copyAt, copyGroups, copyList, materialize } from '../core/copies';
+import { bestCopy, copyAt, copyList, materialize, pickOf } from '../core/copies';
 import { cardPower } from '../core/power';
 import { topbar, bindNav, modal, closeModal, bakeAllGrid } from './ui';
 
@@ -165,14 +165,18 @@ function strongestRef(id: string): number {
 
 /** v0.71.0: escolher qual cópia treinar — as usadas (✔ = no baralho) e as guardadas (por cor). */
 function copyTabsHTML(id: string, sel: number): string {
-  // v0.71.0: cópias iguais (mesma cor, "+" e XP) aparecem uma vez só, com ×N; o toque abre uma delas
-  const used = copyGroups(save, id, save.deck.includes(id)).map((g) => `<button class="copy-tab ${g.refs.includes(sel) ? 'sel' : ''}" data-cref="${g.refs.includes(sel) ? sel : g.refs[0]}" style="${starStyle(g.stars)}"><span class="tier-dot"></span><b>${tierLabel(g.stars, g.plus)}</b>${g.refs.length > 1 ? ` <span class="copy-n">×${g.refs.length}</span>` : ''}${g.inDeck ? ` ✔${g.inDeck > 1 ? g.inDeck : ''}` : ''}</button>`);
+  // v0.71.0: no Treinar cada cópia aparece separada (cada uma tem a sua barra de XP); as do baralho ficam marcadas
+  const inDeck = save.deck.includes(id) ? pickOf(save, id) : [];
+  const used = copyList(save, id)
+    .map((c, ref) => ({ c, ref, on: inDeck.includes(ref) }))
+    .sort((a, b) => Number(b.on) - Number(a.on) || cardPower(b.c) - cardPower(a.c) || b.c.xp - a.c.xp)
+    .map(({ c, ref, on }) => `<button class="copy-tab ${ref === sel ? 'sel' : ''} ${on ? 'on' : ''}" data-cref="${ref}" style="${starStyle(c.stars)}" title="${on ? 'No baralho' : 'Fora do baralho'}"><span class="tier-dot"></span>${on ? '<span class="copy-on">✔</span> ' : ''}<b>${tierLabel(c.stars, stepOf(c))}</b> <small>${isMaxTier(c) ? 'topo' : `${Math.round(xpProgress(c) * 100)}% XP`}</small></button>`);
   const box = Object.entries(save.dupes?.[id] ?? {})
     .filter(([, k]) => k > 0)
     .sort((a, b) => +b[0] - +a[0])
     .map(([r, k]) => `<button class="copy-tab box" data-cbox="${r}" style="${starStyle(+r)}" title="Cópia guardada (nunca treinada): toque para treinar"><span class="tier-dot"></span><b>${tierLabel(+r)}</b>${k > 1 ? ` <span class="copy-n">×${k}</span>` : ''} · guardada</button>`);
   return `<div class="copy-tabs"><span class="copy-tabs-lbl">Cópias de ${esc(getChar(id).name)}:</span>${[...used, ...box].join('')}</div>
-    <p class="hint copy-hint">Cada cópia é uma carta própria: treine e desperte uma de cada vez (cada uma paga o preço inteiro). ✔ = no baralho.</p>`;
+    <p class="hint copy-hint">Cada cópia é uma carta própria: treine e desperte uma de cada vez (cada uma paga o preço inteiro). <span class="copy-on">✔</span> = no baralho de batalha.</p>`;
 }
 
 /**

@@ -163,20 +163,22 @@ export function bestCopy(d: CopySave, id: string): OwnedCard | undefined {
 }
 
 /**
- * Cópias usadas iguais (mesma cor, degrau e XP) juntas — a tela mostra uma vez só, com "×N".
- * `refs` = referências do grupo (as do baralho primeiro); `inDeck` = quantas estão no baralho.
+ * v0.71.0: cópias usadas iguais (mesma cor e degrau; o XP não conta) juntas — a tela mostra uma vez só, com "×N".
+ * As do baralho ficam num grupo separado das de fora (`inDeck`). `refs`: ao pôr no baralho sai a de mais XP;
+ * ao tirar, a de menos XP.
  */
-export function copyGroups(d: CopySave, id: string, deck: boolean): { stars: number; plus: number; xp: number; refs: number[]; inDeck: number }[] {
+export function copyGroups(d: CopySave, id: string, deck: boolean): { stars: number; plus: number; refs: number[]; inDeck: boolean }[] {
   const picked = deck ? pickOf(d, id) : [];
-  const groups = new Map<string, { stars: number; plus: number; xp: number; refs: number[]; inDeck: number }>();
-  copyList(d, id).forEach((c, ref) => {
-    const k = `${c.stars}:${stepOf(c)}:${c.xp}`;
-    const g = groups.get(k) ?? { stars: c.stars, plus: stepOf(c), xp: c.xp, refs: [], inDeck: 0 };
+  const list = copyList(d, id);
+  const groups = new Map<string, { stars: number; plus: number; refs: number[]; inDeck: boolean }>();
+  list.forEach((c, ref) => {
+    const on = picked.includes(ref);
+    const k = `${c.stars}:${stepOf(c)}:${on}`;
+    const g = groups.get(k) ?? { stars: c.stars, plus: stepOf(c), refs: [], inDeck: on };
     g.refs.push(ref);
-    if (picked.includes(ref)) g.inDeck++;
     groups.set(k, g);
   });
   const out = [...groups.values()];
-  for (const g of out) g.refs.sort((a, b) => Number(picked.includes(b)) - Number(picked.includes(a)) || a - b);
-  return out.sort((a, b) => cardPower({ charId: id, stars: b.stars, plus: b.plus }) - cardPower({ charId: id, stars: a.stars, plus: a.plus }) || b.xp - a.xp);
+  for (const g of out) g.refs.sort((a, b) => (g.inDeck ? list[a].xp - list[b].xp : list[b].xp - list[a].xp) || a - b);
+  return out.sort((a, b) => Number(b.inDeck) - Number(a.inDeck) || cardPower({ charId: id, stars: b.stars, plus: b.plus }) - cardPower({ charId: id, stars: a.stars, plus: a.plus }));
 }

@@ -1815,7 +1815,8 @@ Lógica em `src/core/copies.ts`; telas em `src/app/collection.ts` (Suas cópias)
 - **Cada cópia é uma carta própria**, com a sua raridade (cor), o seu degrau ("+", "++") e a sua barra de XP. Ter um personagem Mítico não faz a cópia Épica dele ficar Mítica.
 - **Baralho:** de 1 a 3 cópias de cada personagem, em qualquer combinação de cores (ex.: só 2 cópias, uma Épica e uma Rara). Cada cópia luta com a cor e o "+" dela; na batalha as cópias saem do monte em ordem sorteada.
   - **− / +** no baralho: o "+" põe a cópia mais forte que está fora; o "−" tira a mais fraca.
-  - Na janela do personagem, **Suas cópias** lista as cópias (e as guardadas, por cor) com **− / ＋** (tirar/pôr no baralho) e 🔥 **Treinar**. Cópias iguais (mesma cor, "+" e XP) aparecem uma vez só, com o selo **×N**; o mesmo vale na linha de cópias do Treinar.
+  - Na janela do personagem, **Suas cópias** lista as cópias (e as guardadas, por cor) com **− / ＋** (tirar/pôr no baralho) e 🔥 **Treinar**. Cópias iguais (mesma cor e "+"; **o XP não conta**) aparecem uma vez só, com o selo **×N**. As que estão no baralho de batalha ficam numa linha própria, marcada com **✔ Baralho** (fundo verde). Ao pôr no baralho entra a de mais XP; ao tirar, sai a de menos XP.
+  - **No Treinar cada cópia aparece separada** (cada uma com a sua barra de XP); as do baralho têm o ✔ verde.
   - A carta mostrada no baralho é a cópia mais forte; as bolinhas embaixo mostram a cor de cada cópia.
 - **Treinar e Despertar valem para uma cópia de cada vez**, e cada cópia paga o preço inteiro (Orbes, Essências e itens). No Treinar, escolha a cópia na linha **Cópias de …** (✔ = no baralho).
 - **XP por jogar:** cada cópia do baralho ganha o XP.
