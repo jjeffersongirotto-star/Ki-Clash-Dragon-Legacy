@@ -45,10 +45,10 @@ describe('progressão v0.8', () => {
     const order = Object.entries(UNLOCKS).sort((a, b) => +a[0] - +b[0]).map(([, id]) => getChar(id).minStars);
     for (let i = 1; i < order.length; i++) expect(order[i]).toBeGreaterThanOrEqual(order[i - 1]);
   });
-  it('baralho da IA: personagens diferentes, v0.33.0: 3 na fase 1 e +1 por fase até 10', () => {
+  it('baralho da IA: personagens diferentes (v0.71.0: 3 a 5, começo mais leve)', () => {
     // v0.18.0: os feitiços da IA ficam fora da contagem de personagens
     const chars = (st: (typeof STAGES)[number]) => st.enemyDeck.filter((x) => !x.charId.startsWith('f-'));
-    const want = [3, 4, 5, 6, 7, 8, 9, 10, 10, 10];
+    const want = [3, 3, 4, 4, 5, 5, 5, 5, 5, 5];
     STAGES.forEach((st, i) => {
       expect(chars(st)).toHaveLength(want[i]);
       expect(new Set(chars(st).map((x) => x.charId)).size).toBe(want[i]);

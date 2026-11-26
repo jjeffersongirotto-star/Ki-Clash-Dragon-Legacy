@@ -10,7 +10,6 @@ const N = Number(process.argv[2] ?? 24);
 const scans: { name: string; diff: Difficulty; rarity: number; from: number }[] = [
   { name: 'azul (cartas Incomuns) no Fácil', diff: 'facil', rarity: 2, from: 11 },
   { name: 'roxo (cartas Raras) no Fácil', diff: 'facil', rarity: 3, from: 11 },
-  { name: 'laranja (cartas Épicas) no Normal', diff: 'normal', rarity: 4, from: 1 },
 ];
 for (const s of scans) {
   let hit = 0;

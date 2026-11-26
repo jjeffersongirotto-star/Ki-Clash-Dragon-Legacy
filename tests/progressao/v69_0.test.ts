@@ -13,14 +13,15 @@ describe('v0.69.0 — cores dos itens por faixa', () => {
       expect(Math.min(...stageGearRarity(s, 'normal'))).toBeGreaterThanOrEqual(3);
       expect(Math.min(...stageGearRarity(s, 'dificil'))).toBeGreaterThanOrEqual(4);
     }
-    expect(stageGearRarity(71, 'normal')).toEqual([5, 5]);
-    expect(stageGearChance(71, 'normal')).toBe(0);
+    // v0.71.0: laranja só no Difícil
+    for (let s = 1; s <= 100; s++) expect(Math.max(...stageGearRarity(s, 'normal'))).toBeLessThanOrEqual(4);
+    expect(stageGearChance(71, 'normal')).toBe(0.5);
   });
 
   it('onde conseguir: item da fase 1 em cinza sai no Fácil 1 e 11', () => {
     const src = gearSources('elmo', 1);
     expect(src).toEqual([{ diff: 'facil', stages: [1, 11] }]);
-    expect(gearSources('elmo', 5).map((s) => s.diff)).toEqual(['normal', 'dificil']);
+    expect(gearSources('elmo', 5).map((s) => s.diff)).toEqual(['dificil']);
   });
 });
 

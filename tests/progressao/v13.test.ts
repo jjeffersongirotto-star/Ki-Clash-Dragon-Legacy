@@ -163,7 +163,7 @@ describe('v0.13 — migração do save', () => {
 describe('v0.13 — campanha e batalha', () => {
   // v0.28.0: tabela reequilibrada no simulador (até a v0.27.0: 12 + 7·i)
   it('Líder inimigo: vida por fase da tabela da v0.33.0', () => {
-    expect(STAGES.map((s) => s.enemyHeroHp)).toEqual([14, 14, 16, 18, 20, 22, 24, 26, 28, 30]); // v0.62.0 (v0.37.0: 14, 14, 18, 34, 36, 40, 36, 41, 39, 56)
+    expect(STAGES.map((s) => s.enemyHeroHp)).toEqual([12, 12, 13, 14, 15, 16, 16, 15, 16, 15]); // v0.71.0: começo mais leve (v0.62.0: 14, 14, 16 … 30) // v0.62.0 (v0.37.0: 14, 14, 18, 34, 36, 40, 36, 41, 39, 56)
     for (let i = 0; i < 10; i++) expect(enemyLeaderHp(i)).toBe(STAGES[i].enemyHeroHp);
   });
   it('a batalha usa a vida do nível do Líder', () => {

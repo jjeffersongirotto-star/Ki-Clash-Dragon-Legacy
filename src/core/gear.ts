@@ -138,7 +138,7 @@ export interface GearBand {
 }
 /**
  * v0.69.0 — TABELA DE CORES DOS ITENS POR DIFICULDADE E FASE (mude só aqui).
- * O Fácil tem teto (azul, com roxo só no fim); o Normal dá azul para cima; o Difícil, roxo para cima.
+ * O Fácil tem teto (azul, com roxo só no fim); o Normal dá azul e roxo; o Difícil, roxo e laranja (v0.71.0: laranja só no Difícil).
  * Até a v0.68: cada dificuldade tinha [comum, rara] e subia +1 cor a cada 2 regiões (o Fácil chegava ao laranja).
  */
 export const GEAR_BANDS: Record<Difficulty, GearBand[]> = {
@@ -148,10 +148,10 @@ export const GEAR_BANDS: Record<Difficulty, GearBand[]> = {
     { upTo: 80, low: 3, high: 4, rare: 0.1 },
     { upTo: 100, low: 3, high: 4, rare: 0.4 },
   ],
+  // v0.71.0 (pedido do jogador): laranja só no Difícil — o Normal dá azul e roxo
   normal: [
-    { upTo: 30, low: 3, high: 4, rare: 0.2 },
-    { upTo: 70, low: 4, high: 5, rare: 0.2 },
-    { upTo: 100, low: 5, high: 5, rare: 0 },
+    { upTo: 50, low: 3, high: 4, rare: 0.2 },
+    { upTo: 100, low: 3, high: 4, rare: 0.5 },
   ],
   dificil: [
     { upTo: 30, low: 4, high: 5, rare: 0.2 },
