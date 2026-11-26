@@ -231,7 +231,10 @@ function levelUp(p: Player, sc: Schedule) {
   while (p.leader < sc.hp.length && dp >= sc.thresholds[p.leader - 1]) p.leader++; // thresholds[L-1] = requisito do nível L+1
 }
 
-export interface StageStat { arrivePower: number[]; leader: number[]; winAtArrival: number[]; attempts: number[]; burst: number[]; maxAtk: number[]; hpLeftWin: number[]; winStats: { cards: number; spells: number; kills: number }[] }
+export interface StageStat {
+  /** v0.71.0: fração das cartas do baralho com a barra cheia, mas sem Essências ou itens para o Despertar (travadas por recurso) */
+  blocked: number[];
+  arrivePower: number[]; leader: number[]; winAtArrival: number[]; attempts: number[]; burst: number[]; maxAtk: number[]; hpLeftWin: number[]; winStats: { cards: number; spells: number; kills: number }[] }
 
 /**
  * v0.20.1: `opts.repeats` = quantos "Repetir" (recompensa inteira, sem batalha) o jogador usa na última fase vencida
@@ -243,7 +246,7 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
   const repeatMult = opts.repeatMult ?? 0.5;
   // v0.39.0: `stages` = as 100 fases do mundo; `bannerGold` = o Ouro que sobra da Loja vira cartas do Banner (10 por vez)
   const STAGES = opts.stages ?? CAMPAIGN;
-  const stats: StageStat[] = STAGES.map(() => ({ arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [], winStats: [] }));
+  const stats: StageStat[] = STAGES.map(() => ({ blocked: [], arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [], winStats: [] }));
   let seed = 7;
   for (let pi = opts.firstPlayer ?? 0; pi < (opts.firstPlayer ?? 0) + players; pi++) {
     opts.onPlayer?.(pi);
@@ -272,6 +275,7 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
       }
       const st = stats[i];
       st.arrivePower.push(deckPower(team(p))); st.leader.push(p.leader);
+      { const t = team(p); st.blocked.push(t.filter((c) => !isMaxTier(c) && barFull(c) && (p.ess < ascendCost(c) || !gearOk(p, c))).length / Math.max(1, t.length)); }
       // taxa de vitória exatamente no momento em que chega à fase
       const hp = sc.hp[p.leader - 1];
       let w = 0;

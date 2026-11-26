@@ -55,8 +55,9 @@ const stats = runCampaign({ name: 'escada', hp: LEADER_HP, thresholds: LEADER_TH
     const at = (b: number) => stageAt(d, k, Math.max(0, Math.min(top, s0 + b)));
     let lo: number, hi: number;
     const w0 = winAt(at(0), PROBE);
-    // v0.71.0: já perto da meta (±6 pontos) → mantém o degrau, sem buscar (poupa ~6 medições por fase)
-    if (Math.abs(w0 - T) <= 0.06) { (bonus[d][k - 1] ??= []).push(0); return at(0); }
+    // v0.71.0: já perto da meta → mantém o degrau, sem buscar (poupa ~6 medições por fase). Pedido do jogador: um pouco
+    // abaixo da meta pode ficar (até 10 pontos) — mais recursos (missões diárias, torre…) ajudam a passar.
+    if (w0 <= T + 0.06 && w0 >= T - 0.1) { (bonus[d][k - 1] ??= []).push(0); return at(0); }
     if (w0 > T) { lo = 0; hi = Math.min(6, 17.99 - s0); }
     else { lo = -Math.min(6, s0); hi = 0; }
     for (let it = 0; it < 6; it++) { const m = (lo + hi) / 2; if (winAt(at(m), PROBE) > T) lo = m; else hi = m; }
@@ -64,10 +65,10 @@ const stats = runCampaign({ name: 'escada', hp: LEADER_HP, thresholds: LEADER_TH
     return at(hi);
   },
 });
-const res = { order, bonus, win: stats.map((s) => s.winAtArrival), pow: stats.map((s) => s.arrivePower) };
+const res = { order, bonus, win: stats.map((s) => s.winAtArrival), pow: stats.map((s) => s.arrivePower), blocked: stats.map((s) => s.blocked) };
 if (out) writeFileSync(out, JSON.stringify(res));
 for (const d of ['facil', 'normal', 'dificil'] as const)
   for (let r = 0; r < 10; r++) {
     const idx = order.map((o, i) => (o.diff === d && o.id > r * 10 && o.id <= r * 10 + 10 ? i : -1)).filter((i) => i >= 0);
-    console.log(`${d} região ${r + 1}: vitória ao chegar ${Math.round(100 * mean(idx.map((i) => mean(res.win[i]))))}% · degrau extra ${mean(idx.map((i) => mean(bonus[d][order[i].id - 1] ?? [0]))).toFixed(2)}`);
+    console.log(`${d} região ${r + 1}: vitória ao chegar ${Math.round(100 * mean(idx.map((i) => mean(res.win[i]))))}% · degrau extra ${mean(idx.map((i) => mean(bonus[d][order[i].id - 1] ?? [0]))).toFixed(2)} · travadas por recurso ${Math.round(100 * mean(idx.map((i) => mean(res.blocked[i]))))}%`);
   }
