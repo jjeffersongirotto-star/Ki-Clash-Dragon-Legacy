@@ -898,7 +898,7 @@ Cada categoria de personagem tem o seu **conjunto de 5 itens**:
 | 9 | Botas de ferro, Sandálias, Botas |
 | 10 | Anel, Botas leves, Diamante negro |
 
-- A **raridade** de cada item é sorteada pela dificuldade: **Fácil** cinza 60% / verde 40% (v0.24.1; antes 80/20) · **Normal** azul 80% / roxo 20% · **Difícil** roxo 80% / laranja 20% (tabela `GEAR_DROP` em `src/core/gear.ts`).
+- A **raridade** de cada item é sorteada pela dificuldade: **Fácil** cinza 60% / verde 40% (v0.24.1; antes 80/20) · **Normal** azul 80% / roxo 20% · **Difícil** roxo 80% / laranja 20% (tabela `GEAR_DROP` em `src/core/gear.ts`). *v0.69.0: substituída pelas faixas de cor da seção "Itens: faixas de cor, fusão e cadeado".*
 - **Primeira vitória** de cada fase (em cada dificuldade): os 3 itens saem **2 vezes** (a recompensa normal + o bônus), cada um com a sua cor sorteada (v0.24.1). O XP de perfil da primeira vitória chega com a energia (etapa 4).
 - A janela da fase mostra os 3 itens e as chances; a vitória e o Repetir mostram os itens ganhos. A mochila fica em **Treinar → 🎒 Itens de ascensão**.
 - Saves antigos começam com a mochila **vazia**. A conta ADM tem 99 de cada item em cada raridade.
@@ -1180,7 +1180,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Inimigos das regiões 2–10:** 10 personagens diferentes por fase, tirados dos **120 personagens**, com a raça da região em maioria; raridade e degrau sobem de região em região (de Comum++/Incomum na região 2 até Mítico+/++ na 10). Vida do Comandante inimigo de 50 (fase 2-1) a 160 (fase 10-10). **IA:** nível 1 a 3 nas regiões 2–5 (sobe dentro da região) e sempre 3 da região 6 em diante; Normal +1 e Difícil +2 (até 3). Feitiços da IA nas fases 3 e 6 (1) e 9 e 10 (2) de cada região.
 - **Comandantes:** cada fase tem um Comandante com recorte limpo (seção 40), que nunca se repete dentro da região; no mundo inteiro aparecem os **79** recortes limpos (alguns voltam numa região mais adiante). A fase 1-10 continua com o minotauro.
 - **Objetivos (⭐):** da mesma lista (vida do Comandante, máximo de cartas, sem feitiços / pelo menos 2, abates); o par gira de fase em fase e os números apertam no Normal, no Difícil e a partir da região 6.
-- **Recompensas:** o XP dos Orbes de cada fase é o da fase de mesmo número da região 1 × **2 por região**, em Orbes de raridade maior a cada 2 regiões (região 2–3: Incomum/Raro … região 8–10: Lendário/Mítico; Normal e Difícil também sobem). Os itens de ascensão sobem 1 cor a cada 2 regiões (até laranja). Essências, Ouro, XP de perfil e XP por jogar seguem crescendo com o número da fase. **💠 Gemas** na primeira vitória das fases 3, 6 e 9 (1) e 10 (3) de **cada região**, em cada dificuldade.
+- **Recompensas:** o XP dos Orbes de cada fase é o da fase de mesmo número da região 1 × **2 por região**, em Orbes de raridade maior a cada 2 regiões (região 2–3: Incomum/Raro … região 8–10: Lendário/Mítico; Normal e Difícil também sobem). Os itens de ascensão sobem 1 cor a cada 2 regiões (até laranja) *(até a v0.68; v0.69.0: faixas de cor por dificuldade, ver "Itens: faixas de cor, fusão e cadeado")*. Essências, Ouro, XP de perfil e XP por jogar seguem crescendo com o número da fase. **💠 Gemas** na primeira vitória das fases 3, 6 e 9 (1) e 10 (3) de **cada região**, em cada dificuldade.
 - **Save:** o progresso de antes (fases 1–10, ⭐, limite do dia) continua igual — é a região 1. Quem já venceu a fase 10 encontra a região 2 liberada.
 - **Curva de dificuldade** (simulador de longo prazo `scripts/balance/world.ts`, 32 jogadores no Fácil, com Loja e Banner pelo Ouro): vitória ao chegar, média de cada região: **83 · 77 · 75 · 74 · 69 · 63 · 60 · 58 · 53 · 52%**.
 - **Visual da carta (v0.40.0):** a arte aparece limpa, sem aura colorida e sem estrelinhas. Ficam só o reflexo (cartas Raras ou melhores) e a borda na cor da raridade.
@@ -1755,3 +1755,37 @@ Medido em `scripts/balance/world.ts` (4 jogadores). Vitória ao chegar, média p
   - Nunca pega um com 7 ou mais cartas em comum com os 3 anteriores, nem o mesmo usado nas últimas 10 fases.
 - **Feitiços:** os da fase, quando houver conjurador no baralho.
 - **Comandante:** o da fase, se estiver no baralho; senão, o mais forte com recorte limpo.
+
+## Itens: faixas de cor, fusão e cadeado (v0.69.0)
+Lógica em `src/core/gear.ts` (`GEAR_BANDS`, `fuseGear`, `gearSources`); janela do item em `src/app/gearItem.ts`.
+
+### Cores dos itens por dificuldade e fase (tabela `GEAR_BANDS`)
+Cada vitória continua dando os 3 itens fixos da fase (a fase 3 de toda região dá os mesmos 3 itens). A cor agora vem da **faixa de fases**:
+
+| Dificuldade | Fases | Cor comum / cor rara | Chance da rara |
+|---|---|---|---|
+| Fácil | 1–20 | cinza / verde | 40% |
+| Fácil | 21–50 | verde / azul | 40% |
+| Fácil | 51–80 | azul / roxo | 10% |
+| Fácil | 81–100 | azul / roxo | 40% |
+| Normal | 1–30 | azul / roxo | 20% |
+| Normal | 31–70 | roxo / laranja | 20% |
+| Normal | 71–100 | laranja | — |
+| Difícil | 1–30 | roxo / laranja | 20% |
+| Difícil | 31–100 | laranja | — |
+
+- O **Fácil tem teto** (azul, com roxo só no fim). Para evoluir cartas Raras e acima, o jogador precisa tentar o **Normal**; os itens laranja (cartas Lendárias e Míticas) vêm do Normal avançado e do Difícil.
+- *(Até a v0.68: Fácil cinza/verde, Normal azul/roxo e Difícil roxo/laranja, subindo +1 cor a cada 2 regiões; o Fácil chegava ao laranja.)*
+
+### 🔒 Cadeado (por item e cor)
+- O jogo guarda os itens **já ganhos numa fase** (ou no tutorial), **por item e cor** (ex.: "Elmo roxo"). Só esses podem ser **fundidos** ou **comprados na Loja**. Assim a fusão e a Loja não deixam pular etapas.
+- Na Loja, o item ainda não ganho aparece com **🔒 Ganhe numa fase**.
+- Saves antigos: tudo o que já estava na mochila fica liberado, e também a cor comum dos itens das fases já vencidas.
+
+### 🔨 Fusão
+- **3 itens iguais** de uma cor viram **1 do mesmo item na cor acima**, pagando **Essências** pela cor que sai: **verde 5 · azul 10 · roxo 20 · laranja 40**.
+- Precisa do item na cor de destino liberado (cadeado acima).
+
+### 🗺️ Onde conseguir
+- **Tocar num item** (Inventário, mochila do Treinar, itens que faltam para o Despertar ou Loja) abre a janela do item: quantos tem de cada cor, o cadeado, o botão **Fundir** e as **fases que dão** o item naquela cor, por dificuldade.
+

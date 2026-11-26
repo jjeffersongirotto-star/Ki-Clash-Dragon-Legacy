@@ -2,6 +2,13 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.69.0] — 26/11/2026 · Itens: cores por dificuldade, fusão, cadeado e onde conseguir
+Segunda parte das mudanças do teste de jogador novo. O gargalo do jogo era conseguir o item certo para evoluir as cartas.
+- **Cores dos itens por dificuldade:** o **Fácil** dá de cinza a azul, com roxo só no fim (fases 51–80 com 10% de chance, fases 81–100 com 40%). O **Normal** dá de azul para cima, e o **Difícil**, de roxo para cima. Antes o Fácil chegava ao laranja e o Normal não fazia falta.
+- **Fusão:** 3 itens iguais viram 1 do mesmo item na cor acima, pagando Essências: verde 5, azul 10, roxo 20, laranja 40. As Essências que sobravam ganham uso.
+- **🔒 Cadeado por item e cor:** só dá para fundir ou comprar na Loja um item numa cor depois de ganhá-lo numa fase. Quem já joga fica com tudo o que tem na mochila liberado, e também com a cor dos itens das fases que já venceu.
+- **Toque no item:** no Inventário, no Treinar e na Loja, tocar num item mostra quantos você tem de cada cor, o cadeado, o botão **Fundir** e **onde conseguir** (as fases que dão aquele item naquela cor).
+
 ## [0.68.0] — 26/11/2026 · Economia: energia, nível de perfil, ouro e limite diário
 Primeira parte das mudanças combinadas depois do teste de jogador novo.
 - **Energia:** subir de nível agora **reabastece até o máximo** do nível novo, em vez de somar por cima. No teste, o bônus empilhado chegou a 985 de energia no nível 23 e a energia não limitava nada. Quem já está acima do máximo fica com o que tem.

@@ -10,7 +10,7 @@
  *   Cartas Lendárias e Míticas pedem só itens Lendários (laranja).
  *   Quais itens (e quais são os "de cima"): fixos para cada personagem, numa ordem sorteada do conjunto da categoria.
  * - Cada fase dá sempre os mesmos 3 itens (de categorias diferentes); as 10 fases cobrem os 30.
- *   A cor sai pela tabela GEAR_DROP (uma cor comum e uma rara por dificuldade).
+ *   A cor sai pela tabela GEAR_BANDS (v0.69.0: cor comum, cor rara e chance por dificuldade e faixa de fases).
  */
 import { getChar } from './characters';
 import { shuffle } from './rng';
@@ -129,23 +129,108 @@ export const STAGE_GEAR: string[][] = Array.from({ length: 10 }, (_, p) =>
   }),
 );
 
-/** TABELA DE CORES DOS ITENS POR DIFICULDADE (mude só aqui): [raridade comum, raridade rara] e a chance da rara. */
-export const GEAR_DROP: Record<Difficulty, [number, number]> = { facil: [1, 2], normal: [3, 4], dificil: [4, 5] };
-/** v0.24.1: Fácil 60/40 (antes 80/20); Normal e Difícil 80/20. */
-export const GEAR_RARE_CHANCE: Record<Difficulty, number> = { facil: 0.4, normal: 0.2, dificil: 0.2 };
+/** Cor comum e cor rara do drop até a fase `upTo` (inclusive) e a chance da rara. */
+export interface GearBand {
+  upTo: number;
+  low: number;
+  high: number;
+  rare: number;
+}
+/**
+ * v0.69.0 — TABELA DE CORES DOS ITENS POR DIFICULDADE E FASE (mude só aqui).
+ * O Fácil tem teto (azul, com roxo só no fim); o Normal dá azul para cima; o Difícil, roxo para cima.
+ * Até a v0.68: cada dificuldade tinha [comum, rara] e subia +1 cor a cada 2 regiões (o Fácil chegava ao laranja).
+ */
+export const GEAR_BANDS: Record<Difficulty, GearBand[]> = {
+  facil: [
+    { upTo: 20, low: 1, high: 2, rare: 0.4 },
+    { upTo: 50, low: 2, high: 3, rare: 0.4 },
+    { upTo: 80, low: 3, high: 4, rare: 0.1 },
+    { upTo: 100, low: 3, high: 4, rare: 0.4 },
+  ],
+  normal: [
+    { upTo: 30, low: 3, high: 4, rare: 0.2 },
+    { upTo: 70, low: 4, high: 5, rare: 0.2 },
+    { upTo: 100, low: 5, high: 5, rare: 0 },
+  ],
+  dificil: [
+    { upTo: 30, low: 4, high: 5, rare: 0.2 },
+    { upTo: 100, low: 5, high: 5, rare: 0 },
+  ],
+};
+/** A faixa de cores da fase. */
+export function stageGearBand(stageId: number, diff: Difficulty): GearBand {
+  const bands = GEAR_BANDS[diff];
+  return bands.find((b) => stageId <= b.upTo) ?? bands[bands.length - 1];
+}
 
 /** v0.39.0: os 3 itens da fase pelo número dela na região (a fase 3 de toda região dá os itens da fase 3). */
 export const stageGearIds = (stageId: number): string[] => STAGE_GEAR[(stageId - 1) % STAGE_GEAR.length] ?? [];
-/** v0.39.0: cores dos itens na fase — as da dificuldade (GEAR_DROP), +1 raridade a cada 2 regiões (até Lendário). */
+/** Cores dos itens na fase: [comum, rara] (iguais quando só sai uma cor). */
 export function stageGearRarity(stageId: number, diff: Difficulty): [number, number] {
-  const up = Math.floor(Math.ceil(stageId / STAGE_GEAR.length) / 2);
-  const [low, high] = GEAR_DROP[diff];
-  return [Math.min(GEAR_MAX_RARITY, low + up), Math.min(GEAR_MAX_RARITY, high + up)];
+  const b = stageGearBand(stageId, diff);
+  return [b.low, b.rare > 0 ? b.high : b.low];
 }
-/** Itens que a fase dá numa vitória ou Repetir: os 3 da fase, cada um com a cor sorteada (GEAR_RARE_CHANCE). */
+/** Chance da cor rara na fase (0 quando só sai uma cor). */
+export const stageGearChance = (stageId: number, diff: Difficulty) => {
+  const b = stageGearBand(stageId, diff);
+  return b.high > b.low ? b.rare : 0;
+};
+/** Itens que a fase dá numa vitória ou Repetir: os 3 da fase, cada um com a cor sorteada. */
 export function stageGearDrop(stageId: number, diff: Difficulty, rng: () => number = Math.random): { id: string; rarity: number }[] {
   const [low, high] = stageGearRarity(stageId, diff);
-  return stageGearIds(stageId).map((id) => ({ id, rarity: rng() < GEAR_RARE_CHANCE[diff] ? high : low }));
+  const chance = stageGearChance(stageId, diff);
+  return stageGearIds(stageId).map((id) => ({ id, rarity: rng() < chance ? high : low }));
+}
+
+/** Onde conseguir um item numa cor: as fases (por dificuldade) que podem dar esse item nessa cor. */
+export function gearSources(id: string, rarity: number, stages = 100): { diff: Difficulty; stages: number[] }[] {
+  const out: { diff: Difficulty; stages: number[] }[] = [];
+  for (const diff of ['facil', 'normal', 'dificil'] as Difficulty[]) {
+    const list: number[] = [];
+    for (let s = 1; s <= stages; s++) {
+      if (!stageGearIds(s).includes(id)) continue;
+      const [lo, hi] = stageGearRarity(s, diff);
+      if (lo === rarity || hi === rarity) list.push(s);
+    }
+    if (list.length) out.push({ diff, stages: list });
+  }
+  return out;
+}
+
+// ---------- v0.69.0: cadeado e fusão ----------
+
+/**
+ * Itens (id + cor) já ganhos numa fase (ou no tutorial). Só esses podem ser fundidos ou comprados na Loja:
+ * a fusão e a Loja não deixam pular etapas. Chave "item:raridade".
+ */
+export type GearSeen = string[];
+export const isGearUnlocked = (seen: GearSeen | undefined, id: string, rarity: number) => !!seen?.includes(gearKey(id, rarity));
+export function markGearSeen(seen: GearSeen, id: string, rarity: number) {
+  const k = gearKey(id, rarity);
+  if (!seen.includes(k)) seen.push(k);
+}
+/** Fusão: 3 itens iguais de uma cor viram 1 do mesmo item na cor acima. */
+export const FUSE_INPUT = 3;
+/** Essências da fusão, pela cor que SAI: verde 5 · azul 10 · roxo 20 · laranja 40. */
+export const FUSE_COST: Record<number, number> = { 2: 5, 3: 10, 4: 20, 5: 40 };
+export type FuseResult = { ok: true; cost: number } | { ok: false; cost: number; reason: 'cadeado' | 'itens' | 'essencias' | 'invalido' };
+/** Funde 3 × (`id`, cor `to − 1`) em 1 × (`id`, cor `to`). Muda a mochila e `wallet.essencias`. */
+export function fuseGear(bag: GearBag, wallet: { essencias: number }, seen: GearSeen | undefined, id: string, to: number): FuseResult {
+  const cost = FUSE_COST[to] ?? 0;
+  if (!GEAR_BY_ID[id] || !cost) return { ok: false, cost, reason: 'invalido' };
+  if (!isGearUnlocked(seen, id, to)) return { ok: false, cost, reason: 'cadeado' };
+  if (gearCount(bag, id, to - 1) < FUSE_INPUT) return { ok: false, cost, reason: 'itens' };
+  if (wallet.essencias < cost) return { ok: false, cost, reason: 'essencias' };
+  wallet.essencias -= cost;
+  addGear(bag, id, to - 1, -FUSE_INPUT);
+  addGear(bag, id, to, 1);
+  return { ok: true, cost };
+}
+/** Confere a lista de itens já ganhos. */
+export function normalizeGearSeen(v: unknown): GearSeen {
+  if (!Array.isArray(v)) return [];
+  return [...new Set(v.filter((k): k is string => typeof k === 'string' && (() => { const [id, r] = k.split(':'); return !!GEAR_BY_ID[id] && Number(r) >= 1 && Number(r) <= GEAR_MAX_RARITY; })()))];
 }
 
 /** Confere uma mochila salva (chaves válidas e quantidades inteiras ≥ 0). */

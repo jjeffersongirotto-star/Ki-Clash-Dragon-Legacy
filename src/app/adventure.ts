@@ -13,7 +13,7 @@ import { getSpell, isSpell } from '../core/spells';
 import { gameAlert, showDialog } from '../ui/dialog';
 import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
 import { MAX_COPIES, addToDeck, copiesIn, maxCopiesFor, setCopies, deckMin, deckCards, deckCount, deckIssue, deckMax, teamReady } from '../ui/save';
-import { GEAR_RARE_CHANCE, addGear, stageGearDrop, stageGearIds, stageGearRarity } from '../core/gear';
+import { addGear, markGearSeen, stageGearChance, stageGearDrop, stageGearIds, stageGearRarity } from '../core/gear';
 import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, gemsFor, spellRewardFor, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, goalPlain, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, regionUnlocked, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from '../core/adventure';
 import { enemyCommanderArt, faceUrl } from '../ui/art';
 import { cardDetails, onLongPress } from '../ui/battleModals';
@@ -260,7 +260,7 @@ export function stageDialog(stageId: number) {
 function dropInfo(stageId: number, diff: Difficulty) {
   const [lo, hi] = stageGearRarity(stageId, diff);
   const ids = stageGearIds(stageId);
-  const rare = GEAR_RARE_CHANCE[diff] * 100;
+  const rare = Math.round(stageGearChance(stageId, diff) * 100);
   return showDialog({
     title: 'Chances dos itens',
     html: `<p class="hint">Cada vitória dá ${ids.length} itens desta fase:</p>
@@ -316,7 +316,10 @@ export function grantRewards(st: Stage, diff: Difficulty, first = false) {
   if (first) r.gear.push(...stageGearDrop(st.id, diff));
   for (const o of XP_ITEMS) save.items[o.id] += r.orbs[o.id] ?? 0;
   save.essencias += r.essencias;
-  for (const g of r.gear) addGear((save.gear ??= {}), g.id, g.rarity);
+  for (const g of r.gear) {
+    addGear((save.gear ??= {}), g.id, g.rarity);
+    markGearSeen((save.gearSeen ??= []), g.id, g.rarity); // v0.69.0: libera a fusão e a Loja desse item nessa cor
+  }
   return `<div class="res big"><span>${essIcon()} +${r.essencias}</span>${XP_ITEMS.filter((o) => r.orbs[o.id]).map((o) => `<span class="orb-pill">${orbHTML(o.id, `+${r.orbs[o.id]}`)}</span>`).join('')}${r.gear.map((g) => gearHTML(g.id, g.rarity, '+1')).join('')}</div>`;
 }
 

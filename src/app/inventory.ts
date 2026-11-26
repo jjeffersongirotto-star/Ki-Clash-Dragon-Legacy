@@ -16,12 +16,13 @@ import { GEAR_CATEGORIES, GEAR_RARITIES, GEAR_SETS, gearCount } from '../core/ge
 import { CATEGORY_INFO } from '../core/characters';
 import { bankXp, feedCopy, generalXp, spareSpells, takeDupe, dupBaseXp, type CopyXp } from '../core/banner';
 import { SPELLS, getSpell, isSpell } from '../core/spells';
-import { cardHTML, catIcon, esc, gearHTML, orbBagHTML, orbHTML, spellCardHTML, starStyle, essIcon } from '../ui/components';
+import { cardHTML, catIcon, esc, orbBagHTML, orbHTML, spellCardHTML, starStyle, essIcon } from '../ui/components';
 import { ico } from '../ui/icons';
 import { leaveBattleMode } from '../ui/orientation';
 import { copiesIn } from '../ui/save';
 import { app, save, persist, fmt } from './state';
 import { topbar, bindNav, modal, closeModal } from './ui';
+import { bindGearTaps, gearTapHTML } from './gearItem';
 import { gameConfirm } from '../ui/dialog';
 
 let tab: 'itens' | 'repetidos' = 'itens';
@@ -50,6 +51,7 @@ export function inventory() {
     inventory();
     window.scrollTo(0, y);
   };
+  bindGearTaps(app, rerender); // v0.69.0
   app.querySelectorAll<HTMLElement>('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab as typeof tab; rerender(); }));
   app.querySelectorAll<HTMLElement>('[data-mode]').forEach((b) => b.addEventListener('click', () => { mode = b.dataset.mode as typeof mode; rerender(); }));
   app.querySelectorAll<HTMLElement>('[data-dis]').forEach((b) =>
@@ -70,13 +72,13 @@ function itemsHTML(): string {
   const bag = save.gear ?? {};
   const orbs = XP_ITEMS.map((o) => `<div class="inv-item">${orbHTML(o.id)}<b>${fmt(save.items[o.id] ?? 0)}</b><small>${esc(o.name)} · +${fmt(o.xp)} XP</small></div>`).join('');
   const gear = GEAR_CATEGORIES.map((cat) => {
-    const owned = GEAR_SETS[cat].flatMap((g) => GEAR_RARITIES.filter((r) => gearCount(bag, g.id, r) > 0).map((r) => gearHTML(g.id, r, gearCount(bag, g.id, r))));
+    const owned = GEAR_SETS[cat].flatMap((g) => GEAR_RARITIES.filter((r) => gearCount(bag, g.id, r) > 0).map((r) => gearTapHTML(g.id, r, gearCount(bag, g.id, r))));
     return `<div class="gear-cat">${catIcon(cat)} ${CATEGORY_INFO[cat].label}</div><div class="gear-bag">${owned.join('') || '<small>nenhum ainda</small>'}</div>`;
   }).join('');
   return `<div class="inv-section"><h3>${essIcon()} Essências: ${fmt(save.essencias)}</h3></div>
     <div class="inv-section"><h3>🔮 Orbes</h3><div class="inv-grid">${orbs}</div>
       <p class="hint">XP guardado do Desmanchar geral: <b>${fmt(save.genXp ?? 0)}</b> (vira Orbe ao completar 100).</p></div>
-    <div class="inv-section"><h3>${ico('inventario', '🎒')} Itens de ascensão</h3>${gear}</div>`;
+    <div class="inv-section"><h3>${ico('inventario', '🎒')} Itens de ascensão</h3><p class="hint">Toque num item para <b>fundir</b> (3 iguais → 1 da cor acima, com Essências) e ver <b>onde conseguir</b>.</p>${gear}</div>`;
 }
 
 function dupesHTML(dupes: NonNullable<typeof save.dupes>): string {
