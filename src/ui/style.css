@@ -1944,3 +1944,23 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .gi-sub { margin: 8px 0 2px; font-weight: 800; }
 .gi-where { margin: 0; padding-left: 18px; text-align: left; font-size: 14px; }
 .shop-item.locked { opacity: 0.7; }
+
+/* v0.70.0 — resultado da batalha compacto: em tela baixa (celular deitado), 2 colunas e menos espaço, sem rolar */
+@media (max-height: 560px) and (min-width: 600px) {
+  .modal:has(.result-body) { width: min(880px, 96vw); padding: 10px 16px 10px; }
+  .result-body { columns: 2; column-gap: 22px; text-align: center; }
+  .result-body > * { break-inside: avoid; }
+  .result-body > h2 { column-span: all; margin: 0 0 4px; font-size: 24px; }
+  .result-body p { margin: 3px 0; font-size: 13px; }
+  .result-body .first-pick-t { font-size: 14px; margin: 0 0 2px; }
+  .result-body .first-pick-h { display: none; }
+  .result-body .res.big { margin: 4px 0; gap: 6px; }
+  .result-body .win-stars { font-size: 26px; margin: 0; line-height: 1.1; }
+  .result-body .stage-goals { margin: 2px auto; font-size: 12px; }
+  .result-body .stage-goals li { margin: 0; }
+  .modal:has(.result-body) .result-btns { margin-top: 6px; }
+}
+/* v0.70.0 — pacote do tutorial: até 4 cartas numa linha */
+.modal:has(.pull-reveal) .pull-reveal.pull-10.pull-pack { grid-template-columns: repeat(4, 1fr); --pc: min(19vw, calc(98dvh - 250px) * 0.68); }
+/* v0.70.0 — botão Montar melhor no título do baralho */
+.deck-best { margin-right: 8px; vertical-align: middle; }

@@ -105,7 +105,7 @@ export function nextEnergyText(): string {
 export function levelNote(r: { levels: number; energy: number; level: number }, deckBefore: number): string {
   if (!r.levels) return '';
   const grew = deckMax(save) > deckBefore;
-  return `<p class="hint">⬆ Nível de perfil <b>${r.level}</b>! +${r.energy} ⚡ de energia${grew ? ` · o baralho agora aceita até <b>${deckMax(save)}</b> cartas` : ''}.</p>`;
+  return `<p class="hint">⬆ Nível de perfil <b>${r.level}</b>!${r.energy ? ` Energia reabastecida (+${r.energy} ⚡)` : ''}${grew ? ` · o baralho agora aceita até <b>${deckMax(save)}</b> cartas` : ''}.</p>`;
 }
 /** XP de perfil e Ouro de uma vitória ou Repetir (em dobro na primeira vitória). */
 export function grantProfileAndGold(stageId: number, diff: Difficulty, first = false): string {

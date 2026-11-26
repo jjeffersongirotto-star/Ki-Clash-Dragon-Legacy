@@ -4,8 +4,8 @@
  *
  * Ordem de jogo intercalada, como o jogo foi pensado: a Normal k entra logo depois da Fácil 5 + 2·(k − 1) (a de mesma
  * dificuldade) e a Difícil k logo depois da Normal 5 + 2·(k − 1). Em cada fase (menos as 10 do primeiro mundo), procura
- * (bisseção) o degrau das cartas inimigas para a vitória ao chegar ficar no alvo (pedido do jogador: até 50%, caindo com
- * o nível): Fácil 45% (fase 11) → 25% (fase 100) · Normal 50% → 20% · Difícil 45% → 12%.
+ * (bisseção) o degrau das cartas inimigas para a vitória ao chegar ficar no alvo. v0.70.0: Fácil 97% (fase 1) → 30%
+ * (fase 100), todas as 100 fases (Fácil 1 e 2 só com Comuns) · Normal 50% → 20% · Difícil 45% → 12%.
  * Grava o degrau extra de cada fase. CALIB=0 só mede a escada que está no jogo.
  */
 import { writeFileSync } from 'node:fs';
@@ -19,8 +19,9 @@ const first = Number(process.argv[3] ?? 0);
 const out = process.argv[4];
 const PROBE = Number(process.env.PROBE ?? 12);
 // v0.67.4 (pedido do jogador): fora do primeiro mundo, no máximo 50% de vitória ao chegar, caindo com o nível
+// v0.70.0 (pedido do jogador): o Fácil começa perto de 100% e cai devagar até ~30% na fase 100
 export const target = (d: Difficulty, k: number) =>
-  d === 'facil' ? 0.45 - (0.2 * (k - 11)) / 89 : d === 'normal' ? 0.5 - (0.3 * (k - 1)) / 99 : 0.45 - (0.33 * (k - 1)) / 99;
+  d === 'facil' ? 0.97 - (0.67 * (k - 1)) / 99 : d === 'normal' ? 0.5 - (0.3 * (k - 1)) / 99 : 0.45 - (0.33 * (k - 1)) / 99;
 const CALIB = process.env.CALIB !== '0';
 // CALIB=2: refina a partir da tabela atual (LADDER_STEPS), com margem de 3 pontos abaixo do alvo
 const REFINE = process.env.CALIB === '2';
@@ -47,9 +48,10 @@ const stats = runCampaign({ name: 'escada', hp: LEADER_HP, thresholds: LEADER_TH
   onPlayer: (pi) => console.error(`jogador ${pi} (${Math.round((Date.now() - t0) / 1000)} s)`),
   pick: !CALIB ? undefined : (i, winAt) => {
     const { id: k, diff: d } = order[i];
-    if (d === 'facil' && k <= 10) return undefined;
     const T = target(d, k) - MARGIN, s0 = base(d, k);
-    const at = (b: number) => stageAt(d, k, Math.max(0, Math.min(17.99, s0 + b)));
+    // v0.70.0: Fácil 1 e 2 só com cartas Comuns (degrau até 2 = Comum++)
+    const top = d === 'facil' && k <= 2 ? 2 : 17.99;
+    const at = (b: number) => stageAt(d, k, Math.max(0, Math.min(top, s0 + b)));
     let lo: number, hi: number;
     if (winAt(at(0), PROBE) > T) { lo = 0; hi = Math.min(6, 17.99 - s0); }
     else { lo = -Math.min(3, s0); hi = 0; }
@@ -58,7 +60,7 @@ const stats = runCampaign({ name: 'escada', hp: LEADER_HP, thresholds: LEADER_TH
     return at(hi);
   },
 });
-const res = { order, bonus, win: stats.map((s) => s.winAtArrival) };
+const res = { order, bonus, win: stats.map((s) => s.winAtArrival), pow: stats.map((s) => s.arrivePower) };
 if (out) writeFileSync(out, JSON.stringify(res));
 for (const d of ['facil', 'normal', 'dificil'] as const)
   for (let r = 0; r < 10; r++) {

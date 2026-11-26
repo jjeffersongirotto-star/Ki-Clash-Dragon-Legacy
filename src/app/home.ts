@@ -20,6 +20,8 @@ const HUB_FILES = import.meta.glob('../assets/hub/*.webp', { eager: true, query:
 const HUB_IMG: Record<string, string> = Object.fromEntries(Object.entries(HUB_FILES).map(([k, v]) => [k.slice(k.lastIndexOf('/') + 1, -5), v]));
 import { bannerGuide, tutorial } from './tutorial';
 import { bindProfileCard, profileCardHTML } from './profile';
+import { LEADER_GUIDE_HOME, leaderGuideActive } from './collection';
+import { spotlight } from '../ui/spotlight';
 
 // ---------------- BASE ----------------
 
@@ -60,6 +62,11 @@ export function home(): void {
   bindNav();
   bindProfileCard(app, home, accountDialog);
   app.querySelector('#updBtn')!.addEventListener('click', (e) => searchUpdate(e.currentTarget as HTMLButtonElement));
+  // v0.70.0: passo guiado do Comandante (primeira vez que pode evoluir)
+  if (leaderGuideActive()) {
+    const i = HUB_SPOTS.findIndex((s) => s.nav === 'collection');
+    requestAnimationFrame(() => spotlight(app.querySelector(`.hub-spot[data-spot="${i}"]`), LEADER_GUIDE_HOME));
+  }
 }
 
 let tapping = false;

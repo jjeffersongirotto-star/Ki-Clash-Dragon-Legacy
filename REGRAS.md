@@ -4,7 +4,7 @@
 > As mudanças **planejadas** (ainda não feitas) ficam em [MELHORIAS.md](MELHORIAS.md).
 
 ## 1. Objetivo
-Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandante do jogador: **20** de vida no nível 1, até **110** no nível 10 (ver seção 15). Comandante inimigo: de **12** (fase 1) a **75** (fase 10).
+Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandante do jogador: **20** de vida no nível 1, até **64** no nível 30 (v0.70.0; ver "Comandante com 30 níveis"). Comandante inimigo: de **12** (fase 1) a **75** (fase 10).
 
 ## 2. Arena e Lutadores Interativos
 - **2 fileiras × 10 colunas (v0.36.0; v0.16.0 a v0.35 era 2 × 12; antes 2 × 7).** *(Os tamanhos de casa abaixo são da época das 12 colunas.)* Você fica à esquerda, o inimigo à direita. As casas ficam menores para caber as 12 colunas: deitado no celular (915 × 412) cada casa tem ~52 px; no computador (1366 × 768) ~80 px; em pé (412 × 915) ~25 px, sem as coordenadas das casas e com a placa `ATQ | VIDA` mais enxuta.
@@ -1358,7 +1358,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 ## Balanceamento v2.0 — escala enxuta (v0.62.0)
 - Fonte: `docs/balanceamento-v2.md`. ATQ e vida de cada personagem em cada raridade vêm da tabela `src/core/balanceV2.ts` (ATQ 1–9, vida 1–16), junto com a raridade mínima/máxima e a Espera. **Substitui** a regra de "+17% por degrau" (seção 22): o **"+"** dá +1 de vida (o "++" mantém esse +1) e o **"++"** dá +1 de ataque só na raridade máxima da carta.
 - Raridade máxima reduzida para **Raro**: Taro, Hana, Nara, Pip, Suri, Daichi e Sora. Saves antigos: a carta volta para Raro++ com reembolso das Essências e itens dos Despertares acima do topo; cópias repetidas acima do topo viram Raras.
-- **Vida do Comandante do jogador** por nível: 20, 26, 32, 38, 44, 48, 52, 56, 60, 64. **Requisitos de Poder**: 0, 120, 125, 145, 150, 155, 180, 185, 190, 215.
+- **Vida do Comandante do jogador** por nível: 20, 26, 32, 38, 44, 48, 52, 56, 60, 64. **Requisitos de Poder**: 0, 120, 125, 145, 150, 155, 180, 185, 190, 215. *(Até a v0.69; v0.70.0: 30 níveis, ver "Comandante com 30 níveis".)*
 - **Vida do Comandante inimigo:** região 1 = 14, 14, 16, 18, 20, 22, 24, 26, 28, 30; regiões 2–10 = de 32–40 (região 2) a 48–56 (região 10), subindo dentro de cada região.
 - **Fúria de batalha:** a partir do turno 8, +1 de ataque a cada 5 turnos.
 - Tutorial, Batalha 1: Riku contra **Ossian**.
@@ -1788,4 +1788,24 @@ Cada vitória continua dando os 3 itens fixos da fase (a fase 3 de toda região 
 
 ### 🗺️ Onde conseguir
 - **Tocar num item** (Inventário, mochila do Treinar, itens que faltam para o Despertar ou Loja) abre a janela do item: quantos tem de cada cor, o cadeado, o botão **Fundir** e as **fases que dão** o item naquela cor, por dificuldade.
+
+## Comandante com 30 níveis (v0.70.0)
+Lógica em `src/core/leaders.ts`; painel e janela em `src/app/collection.ts`.
+- **30 níveis**, com a vida de **20 a 64** distribuída (cerca de +1,5 por nível: 20, 22, 23, 25 … 64). A vida máxima é a mesma de antes; só o caminho ficou mais gradual.
+- **Requisitos de Poder** (`LEADER_THRESHOLDS`):
+  - **Níveis 2 a 20** acompanham a campanha: Poder típico medido no simulador ao longo das 300 fases (Fácil, Normal e Difícil intercalados), um pouco abaixo do jogador simulado. Quem zera o Difícil fica perto do nível 20.
+  - **Níveis 21 a 30** são o fim de jogo e sobem em progressão até o **nível 30 = Poder do baralho máximo**: 40 personagens diferentes, cada um na raridade mais alta que alcança, com "++" (hoje **4.785**).
+- O Poder continua sendo conferido **só na hora de evoluir**: dá para montar o baralho mais forte, evoluir e depois voltar ao baralho que quiser. O Comandante nunca perde nível.
+- **Um toque sobe todos os níveis** que o Poder já alcança (a janela mostra "alcança N níveis de uma vez").
+- **Passo guiado (uma vez só):** na primeira vez que o Poder alcança o nível 2, a tela escurece e destaca o caminho: **Baralho** na Base e depois **Evoluir**, com a explicação. Termina ao evoluir ("Agora não" faz o destaque voltar).
+- **Vida do Comandante inimigo** não muda (continua calculada pela escala antiga de 10 níveis).
+- **Saves antigos:** o nível novo é o que o Poder do baralho atual alcança nos requisitos novos, sem passar da vida que o Comandante já tinha.
+
+## Interface (v0.70.0)
+- **⚡ Montar melhor** (título do Baralho): troca o baralho pelas cartas de maior Poder, com as cópias que você tem, e até 3 feitiços que combinam. Pede confirmação; dá para trocar as cartas depois.
+- **Resultado da batalha:** no celular deitado, o conteúdo fica em **2 colunas** e mais compacto, sem precisar rolar.
+- **Comprar 10:** o selo das cartas repetidas mostra "Repetido" sem cortar.
+- **Pacote do tutorial:** as cartas aparecem lado a lado (como no Comprar 10), sem texto sobreposto.
+- **Mãozinha do tutorial:** centralizada no alvo; no passo da descrição da carta, aponta para o **✕** que fecha.
+- **Nível de perfil:** o aviso diz "Energia reabastecida (+N ⚡)".
 

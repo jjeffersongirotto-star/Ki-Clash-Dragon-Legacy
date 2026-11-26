@@ -59,7 +59,8 @@ export function openTutorialPack() {
   const got = grantPack(TUTORIAL_PACK) + grantTutorialSpell();
   save.tutorial = TUT_BATTLE2;
   persist();
-  resultModalWith(`<h2 class="win">🎁 Pacote aberto!</h2>${got}<p class="hint">Eles já entraram no seu baralho. O feitiço vem com <b>${TUTORIAL_SPELL_COPIES} cópias</b>.</p>`, [{ label: 'Continuar', primary: true, run: tutorial }]);
+  // v0.70.0: as cartas lado a lado (como no Comprar 10), sem rolar e sem texto sobreposto
+  resultModalWith(`<h2 class="win">🎁 Pacote aberto!</h2><div class="pull-reveal pull-10 pull-pack">${got}</div><p class="hint">Eles já entraram no seu baralho. O feitiço vem com <b>${TUTORIAL_SPELL_COPIES} cópias</b>.</p>`, [{ label: 'Continuar', primary: true, run: tutorial }]);
 }
 
 /** v0.41.0: o feitiço do tutorial (com TUTORIAL_SPELL_COPIES cópias, todas no baralho). Quem já tem não ganha de novo. */
@@ -152,7 +153,7 @@ export function tutorialBattle(i: 0 | 1) {
     // o roteiro segue direto para jogar a carta (não precisa abrir de novo)
     const infoWrap = view.root.querySelector('.info-wrap');
     if (reading && holdPhase(memo, !!(battleEl?.classList.contains('has-info') && infoWrap)) === 'info')
-      return spotlight(infoWrap, 'Esta é a <b>descrição</b> da carta: as habilidades dela, como em qualquer partida. Quando terminar de ler, toque no <b>✕</b> para continuar.', { onSkip: skip, tipAt: 'top-left' });
+      return spotlight(infoWrap, 'Esta é a <b>descrição</b> da carta: as habilidades dela, como em qualquer partida. Quando terminar de ler, toque no <b>✕</b> para continuar.', { onSkip: skip, tipAt: 'top-left', arrowAt: infoWrap?.querySelector('.info-close') });
     if (memo.held && view.selected != null) memo.infoDone = true;
     const target =
       a.kind === 'card' || a.kind === 'hold'

@@ -31,6 +31,8 @@ export interface SpotOptions {
   tipAt?: 'top' | 'bottom' | 'top-left';
   /** v0.55.2: põe a caixa de texto (compacta) numa faixa da tela — ex.: o espaço vago acima da arena */
   strip?: { top: number; height: number };
+  /** v0.70.0: a mãozinha aponta para este elemento (ex.: o ✕ de um painel destacado inteiro) */
+  arrowAt?: Element | null;
 }
 let nextFn: (() => void) | undefined;
 
@@ -125,16 +127,19 @@ export function spotlight(target: Element | null, html: string, opts: SpotOption
       frame.classList.add('ring');
     }
   }
-  const ax0 = abox && hasT ? tbox.left : x0;
-  const ax1 = abox && hasT ? tbox.right : x1;
-  const ay0 = abox && hasT ? tbox.top : y0;
-  const ay1 = abox && hasT ? tbox.bottom : y1;
+  const pbox = opts.arrowAt?.getBoundingClientRect();
+  const usePt = !!pbox && pbox.width > 0;
+  const ax0 = usePt ? pbox.left : abox && hasT ? tbox.left : x0;
+  const ax1 = usePt ? pbox.right : abox && hasT ? tbox.right : x1;
+  const ay0 = usePt ? pbox.top : abox && hasT ? tbox.top : y0;
+  const ay1 = usePt ? pbox.bottom : abox && hasT ? tbox.bottom : y1;
   // seta acima do alvo (ou abaixo, se não couber) e caixa de texto do outro lado da tela
   const above = ay0 > 70;
   // v0.42.0: a manopla dourada (aponta para baixo; virada quando fica embaixo do alvo)
   arrow.innerHTML = ico('seta-tutorial', above ? '👇' : '👆');
   arrow.classList.toggle('up', !above);
-  arrow.style.left = `${(ax0 + ax1) / 2 - 18}px`;
+  // v0.70.0: centraliza pela largura real da mãozinha (48 px; antes usava 18, ficava ~6 px para a direita)
+  arrow.style.left = `${(ax0 + ax1) / 2 - (arrow.offsetWidth || 36) / 2}px`;
   arrow.style.top = `${above ? ay0 - 46 : ay1 + 6}px`;
   const tipBelow = (y0 + y1) / 2 < vh / 2;
   tip.style.top = tipBelow ? `${Math.min(vh - 140, y1 + 56)}px` : '';

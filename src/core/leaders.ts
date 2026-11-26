@@ -18,14 +18,17 @@ import type { Category } from './types';
 
 /** Vida máxima do Comandante por nível (índice 0 = nível 1). */
 /** v0.62.0 (balanceamento v2.0, escala enxuta): até a v0.61.0 era 20 → 110 (+10 por nível). */
-export const LEADER_HP = [20, 26, 32, 38, 44, 48, 52, 56, 60, 64];
+/** v0.70.0: 30 níveis, de 20 a 64 em passos de ~1,5 (até a v0.69: 10 níveis — 20, 26, 32, 38, 44, 48, 52, 56, 60, 64). */
+export const LEADER_LEVELS = 30;
+export const LEADER_HP = Array.from({ length: LEADER_LEVELS }, (_, i) => Math.round(20 + (44 * i) / (LEADER_LEVELS - 1)));
 /**
  * Poder do baralho necessário para CHEGAR a cada nível (índice 0 = nível 1 = 0).
- * ≈ Poder típico com que o jogador chega na fase de mesmo número (mediana do simulador).
+ * v0.70.0 (30 níveis): níveis 2–20 acompanham a campanha (Poder típico do simulador ao longo das 300 fases, ×0,85 —
+ * o jogador real é menos eficiente que o simulado); quem zera o Difícil fica perto do 20. Níveis 21–30 são o fim de jogo:
+ * sobem em progressão geométrica até o nível 30 = Poder do baralho máximo (40 personagens diferentes no máximo ++, 4785).
+ * Até a v0.69 (10 níveis): 0, 120, 125, 145, 150, 155, 180, 185, 190, 215.
  */
-/** v0.23.0: recalibrado para o Poder sem nível (até a v0.22.0: 0, 480, 510, 560, 610, 660, 760, 840, 930, 980). */
-/** v0.62.0: recalibrado no simulador para o Poder da escala enxuta (até a v0.61.0: 0, 420, 440, 470, 520, 590, 670, 690, 800, 820). */
-export const LEADER_THRESHOLDS = [0, 120, 125, 145, 150, 155, 180, 185, 190, 215];
+export const LEADER_THRESHOLDS = [0,  185,  385,  550,  565,  575,  640,  750,  780,  835,  875,  900,  965,  1055,  1080,  1130,  1135,  1325,  1345,  1350,  1770,  1975,  2210,  2465,  2755,  3075,  3435,  3835,  4285,  4785];
 
 /** Habilidade especial do Comandante (reservado: os Comandantes futuros terão habilidades que evoluem por nível). */
 export interface LeaderAbility {
@@ -83,4 +86,11 @@ export function evolveLeader(def: LeaderDef, level: number, deckPower: number): 
   const cur = Math.max(1, Math.floor(level) || 1);
   if (!canEvolve(def, cur, deckPower)) return { ok: false, level: cur };
   return { ok: true, level: cur + 1 };
+}
+
+/** v0.70.0: o nível mais alto que o Poder do baralho alcança agora (nunca abaixo do atual). Um toque sobe tudo. */
+export function reachableLevel(def: LeaderDef, level: number, deckPower: number): number {
+  let l = Math.max(1, Math.floor(level) || 1);
+  while (canEvolve(def, l, deckPower)) l++;
+  return l;
 }

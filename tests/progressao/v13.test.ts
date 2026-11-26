@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ABILITY_WEIGHT, POWER_SCALE, abilityWeight, cardPower, deckPower } from '../../src/core/power';
-import { LEADERS, LEADER_HP, LEADER_THRESHOLDS, canEvolve, evolveLeader, getLeader, leaderHp, nextRequirement } from '../../src/core/leaders';
+import { LEADERS, LEADER_HP, LEADER_THRESHOLDS, canEvolve, evolveLeader, getLeader, leaderHp, nextRequirement, reachableLevel } from '../../src/core/leaders';
 import { PLAYABLE, STARTER_IDS, getChar } from '../../src/core/characters';
 import { STAGES, PLAYER_HERO_HP, enemyLeaderHp } from '../../src/core/campaign';
 import { statsFor } from '../../src/core/progression';
@@ -81,8 +81,11 @@ describe('v0.13 — Líder', () => {
     }
     expect(getLeader('nao-existe').id).toBe('barbaro');
   });
-  it('vida por nível (v0.62.0, escala enxuta: 20 → 64); nível 1 = vida antiga', () => {
-    expect(LEADER_HP).toEqual([20, 26, 32, 38, 44, 48, 52, 56, 60, 64]);
+  it('vida por nível (v0.70.0: 30 níveis, 20 → 64); nível 1 = vida antiga', () => {
+    expect(LEADER_HP.length).toBe(30);
+    expect(LEADER_HP[0]).toBe(20);
+    expect(LEADER_HP[29]).toBe(64);
+    for (let i = 1; i < 30; i++) expect(LEADER_HP[i] - LEADER_HP[i - 1]).toBeGreaterThanOrEqual(1);
     expect(leaderHp(bar, 1)).toBe(PLAYER_HERO_HP);
     expect(PLAYER_HERO_HP).toBe(20);
     expect(leaderHp(bar, 99)).toBe(64);
@@ -91,25 +94,30 @@ describe('v0.13 — Líder', () => {
   it('requisitos crescentes de Poder', () => {
     expect(LEADER_THRESHOLDS[0]).toBe(0);
     for (let i = 1; i < LEADER_THRESHOLDS.length; i++) expect(LEADER_THRESHOLDS[i]).toBeGreaterThan(LEADER_THRESHOLDS[i - 1]);
-    expect(nextRequirement(bar, 1)).toBe(120); // v0.62.0 (v0.23.0: 420; até a v0.22.0: 480)
-    expect(nextRequirement(bar, 10)).toBeNull();
+    expect(nextRequirement(bar, 1)).toBe(LEADER_THRESHOLDS[1]);
+    expect(nextRequirement(bar, 30)).toBeNull();
+    expect(LEADER_THRESHOLDS[29]).toBe(4785); // v0.70.0: nível 30 = baralho máximo (40 personagens no máximo ++)
   });
   it('trava pelo Poder: só evolui com Poder ≥ requisito, 1 nível por vez', () => {
-    expect(canEvolve(bar, 1, 119)).toBe(false);
-    expect(evolveLeader(bar, 1, 119)).toEqual({ ok: false, level: 1 });
-    expect(canEvolve(bar, 1, 120)).toBe(true);
+    const t = LEADER_THRESHOLDS[1];
+    expect(canEvolve(bar, 1, t - 1)).toBe(false);
+    expect(evolveLeader(bar, 1, t - 1)).toEqual({ ok: false, level: 1 });
+    expect(canEvolve(bar, 1, t)).toBe(true);
     expect(evolveLeader(bar, 1, 5000)).toEqual({ ok: true, level: 2 });
-    expect(evolveLeader(bar, 10, 1e9)).toEqual({ ok: false, level: 10 });
+    expect(evolveLeader(bar, 30, 1e9)).toEqual({ ok: false, level: 30 });
+    // v0.70.0: um toque sobe todos os níveis que o Poder alcança
+    expect(reachableLevel(bar, 1, LEADER_THRESHOLDS[5])).toBe(6);
+    expect(reachableLevel(bar, 8, 0)).toBe(8);
   });
   it('nunca perde nível quando o Poder cai depois', () => {
     let lv = 1;
-    for (const p of [120, 125, 145]) lv = evolveLeader(bar, lv, p).level;
+    for (const p of LEADER_THRESHOLDS.slice(1, 4)) lv = evolveLeader(bar, lv, p).level;
     expect(lv).toBe(4);
     // trocou cartas: Poder bem abaixo do requisito do nível atual
     const r = evolveLeader(bar, lv, 50);
     expect(r.ok).toBe(false);
     expect(r.level).toBe(4);
-    expect(leaderHp(bar, r.level)).toBe(38);
+    expect(leaderHp(bar, r.level)).toBe(LEADER_HP[3]);
     // o save guarda o nível e a vida da batalha vem dele, não do Poder
     const s = defaultSave();
     s.leaders = { barbaro: { level: 4 } };
@@ -148,7 +156,7 @@ describe('v0.13 — migração do save', () => {
     expect(s.activeLeader).toBe('barbaro');
     s.leaders = { barbaro: { level: 999 } };
     migrateV13(s);
-    expect(s.leaders.barbaro.level).toBe(10);
+    expect(s.leaders.barbaro.level).toBe(30);
   });
 });
 
