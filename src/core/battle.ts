@@ -59,8 +59,14 @@ export interface BattleSetup {
 
 /** Coletor de eventos: cada evento leva um retrato do estado para a UI animar. */
 export class Ctx {
+  /** v0.71.0: simulador — sem retrato do estado nem texto do registro (só a tela usa; o resultado da batalha é o mesmo) */
+  static headless = false;
   events: RecordedEvent[] = [];
   emit(state: BattleState, ev: BattleEvent) {
+    if (Ctx.headless) {
+      this.events.push({ ...ev } as RecordedEvent);
+      return;
+    }
     state.log.push(ev.text);
     this.events.push({ ...ev, snap: snapshot(state) } as RecordedEvent);
   }

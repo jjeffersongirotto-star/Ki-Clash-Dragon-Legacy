@@ -54,7 +54,10 @@ const stats = runCampaign({ name: 'escada', hp: LEADER_HP, thresholds: LEADER_TH
     const top = d === 'facil' && k <= 2 ? 2 : 17.99;
     const at = (b: number) => stageAt(d, k, Math.max(0, Math.min(top, s0 + b)));
     let lo: number, hi: number;
-    if (winAt(at(0), PROBE) > T) { lo = 0; hi = Math.min(6, 17.99 - s0); }
+    const w0 = winAt(at(0), PROBE);
+    // v0.71.0: já perto da meta (±6 pontos) → mantém o degrau, sem buscar (poupa ~6 medições por fase)
+    if (Math.abs(w0 - T) <= 0.06) { (bonus[d][k - 1] ??= []).push(0); return at(0); }
+    if (w0 > T) { lo = 0; hi = Math.min(6, 17.99 - s0); }
     else { lo = -Math.min(6, s0); hi = 0; }
     for (let it = 0; it < 6; it++) { const m = (lo + hi) / 2; if (winAt(at(m), PROBE) > T) lo = m; else hi = m; }
     (bonus[d][k - 1] ??= []).push(hi);
