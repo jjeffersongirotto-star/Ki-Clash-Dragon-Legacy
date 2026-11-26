@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { deckMaxFor } from '../../src/core/deckbuild';
 import { gearCount } from '../../src/core/gear';
 import {
-  ENERGY_COST, ENERGY_REGEN_MS, FIRST_WIN_MULT, PROFILE_MAX, addProfileXp, energyMax, goldFor, levelFromXp, maxEnergy, msToNextEnergy,
+  ENERGY_COST, ENERGY_REGEN_MS, FIRST_WIN_MULT, PROFILE_MAX, addProfileXp, goldFor, levelFromXp, maxEnergy, msToNextEnergy,
   newProfile, normalizeProfile, profileLevelOf, profileXpFor, spendEnergy, tickEnergy, totalXpFor, xpToNext,
 } from '../../src/core/profile';
 import { GEAR_PRICE, ORB_PRICE, buyGear, buyOrb } from '../../src/core/shop';
@@ -26,8 +26,8 @@ beforeEach(() => {
 const T0 = 1_800_000_000_000;
 
 describe('v0.26.0 — nível de perfil', () => {
-  it('XP por nível 10, 15, 20… e o total bate com a soma', () => {
-    expect([1, 2, 3, 10].map(xpToNext)).toEqual([10, 15, 20, 55]);
+  it('XP por nível (v0.68.0: 10 × 1,09^(n−1) + 5 × (n−1)) e o total bate com a soma', () => {
+    expect([1, 2, 3, 10, 50].map(xpToNext)).toEqual([10, 16, 22, 67, 927]);
     let sum = 0;
     for (let l = 1; l < PROFILE_MAX; l++) {
       expect(totalXpFor(l)).toBe(sum);
@@ -46,20 +46,21 @@ describe('v0.26.0 — nível de perfil', () => {
     for (let l = 2; l <= 100; l++) expect(maxEnergy(l)).toBeGreaterThanOrEqual(maxEnergy(l - 1));
   });
 
-  it('subir de nível soma a energia máxima do nível novo (pode passar do máximo)', () => {
-    const p = newProfile(T0);
-    expect(p.energy).toBe(20);
+  it('v0.68.0: subir de nível reabastece até o máximo do nível novo (não soma por cima)', () => {
+    const p = { ...newProfile(T0), energy: 5 };
     const r = addProfileXp(p, totalXpFor(3), T0);
     expect(r.levels).toBe(2);
-    expect(r.energy).toBe(maxEnergy(2) + maxEnergy(3));
-    expect(p.energy).toBe(20 + maxEnergy(2) + maxEnergy(3));
-    expect(p.energy).toBeGreaterThan(energyMax(p));
+    expect(p.energy).toBe(maxEnergy(3));
+    expect(r.energy).toBe(maxEnergy(3) - 5);
+    const q = { ...newProfile(T0), energy: 500 };
+    addProfileXp(q, totalXpFor(2), T0);
+    expect(q.energy).toBe(500); // acima do máximo fica com o que tem
   });
 });
 
 describe('v0.26.0 — energia', () => {
-  it('custos: Fácil 1 · Normal 3 · Difícil 6; gastar dá 1 XP de perfil por energia', () => {
-    expect(ENERGY_COST).toEqual({ facil: 1, normal: 3, dificil: 6 });
+  it('custos (v0.68.0): Fácil 2 · Normal 4 · Difícil 6; gastar dá 1 XP de perfil por energia', () => {
+    expect(ENERGY_COST).toEqual({ facil: 2, normal: 4, dificil: 6 });
     const p = newProfile(T0);
     expect(spendEnergy(p, 6, T0).ok).toBe(true);
     expect(p.energy).toBe(14);
@@ -101,8 +102,8 @@ describe('v0.26.0 — XP de perfil e Ouro das fases', () => {
   it('sobem com a fase e com a dificuldade (proporcional ao custo de energia); primeira vitória em dobro', () => {
     expect(profileXpFor(1, 'facil')).toBe(5);
     expect(profileXpFor(10, 'dificil')).toBe(84);
-    expect(goldFor(1, 'facil')).toBe(15);
-    expect(goldFor(10, 'facil')).toBe(60);
+    expect(goldFor(1, 'facil')).toBe(35); // v0.68.0: 30 + 5 × fase
+    expect(goldFor(10, 'facil')).toBe(80);
     expect(goldFor(5, 'normal')).toBe(3 * goldFor(5, 'facil'));
     expect(goldFor(5, 'dificil')).toBe(6 * goldFor(5, 'facil'));
     expect(FIRST_WIN_MULT).toBe(2);

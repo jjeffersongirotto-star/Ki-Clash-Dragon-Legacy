@@ -9,7 +9,7 @@ import { addGear, charGear, normalizeGear, reqRarity, type GearBag } from '../co
 import { DIFFICULTIES, clearedIn, regionUnlocked, type DailyUse, type Difficulty } from '../core/adventure';
 import { REGION_COUNT, WORLD_STAGE_COUNT } from '../core/world';
 import { TUTORIAL_STARTER, TUT_BATTLE1, TUT_DONE } from '../core/tutorial';
-import { levelFromXp, newProfile, normalizeProfile, type ProfileState } from '../core/profile';
+import { convertOldXp, levelFromXp, newProfile, normalizeProfile, type ProfileState } from '../core/profile';
 import { addDupe, dupeCount, totalCopies, type Dupes, type SpellBag } from '../core/banner';
 
 export interface SaveData {
@@ -88,6 +88,8 @@ export interface SaveData {
   v63?: boolean;
   /** v0.67.0: revisão das 6 raças — cartas que trocaram de raridade (Shin, Sayuri, Zynna, Yume) já ajustadas */
   v67?: boolean;
+  /** v0.68.0: curva de XP de perfil nova — XP convertido mantendo o nível */
+  v68?: boolean;
   /** v0.59.0: Heróis — raridades já obtidas de cada personagem (ver core/heroes.ts) */
   heroSeen?: Record<string, number[]>;
   /** v0.59.0: prêmios dos Heróis já resgatados */
@@ -171,6 +173,7 @@ export function defaultSave(): SaveData {
     v62: true,
     v63: true,
     v67: true,
+    v68: true,
     spells: {},
     gems: 0,
     dupes: {},
@@ -339,6 +342,7 @@ export function loadSave(): SaveData {
     // sempre normaliza os Comandantes (save antigo sem o campo, ou campo corrompido)
     migrateV13(merged);
     migrateV26(merged, d); // antes do baralho: o tamanho máximo vem do nível de perfil
+    migrateV68(merged, d);
     migrateV32(merged, d); // antes do baralho: as cópias que você tem limitam o baralho
     migrateV41(merged, d); // idem para os feitiços
     migrateV17(merged);
@@ -467,6 +471,13 @@ export function migrateV25(merged: SaveData, raw: Partial<SaveData>): SaveData {
 export function migrateV26(merged: SaveData, raw: Partial<SaveData>, now = Date.now()): SaveData {
   merged.profile = raw.v26 ? normalizeProfile(raw.profile, 1, now) : normalizeProfile(undefined, profileLevelFor(merged.cleared.length), now);
   merged.v26 = true;
+  return merged;
+}
+
+/** v0.68.0: curva de XP de perfil nova — o XP salvo é convertido para continuar no mesmo nível (e na mesma fração da barra). */
+export function migrateV68(merged: SaveData, raw: Partial<SaveData>): SaveData {
+  if (!raw.v68 && raw.v26 && merged.profile) merged.profile.xp = convertOldXp(merged.profile.xp);
+  merged.v68 = true;
   return merged;
 }
 

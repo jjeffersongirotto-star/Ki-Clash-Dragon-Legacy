@@ -701,7 +701,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 
 ### Jogar, Repetir e o limite de 5 por dia
 - **⚔ Jogar:** joga a batalha da fase. **⟲ Repetir:** não joga; dá na hora a **recompensa inteira** da fase (inclusive 🔮), como se tivesse vencido. **v0.21.0:** o Repetir só fica liberado nas fases com **3 ⭐** naquela dificuldade (seção 20).
-- **Limite: 5 vezes por dia em cada fase**, contadas **separadas por dificuldade**. Gastam 1: cada **Repetir** e cada **vitória** numa fase **já vencida**.
+- **Limite: 10 vezes por dia em cada fase** (v0.68.0; antes 5), contadas **separadas por dificuldade**. Gastam 1: cada **Repetir** e cada **vitória** numa fase **já vencida**.
 - **Não gastam:** a **primeira vitória** da fase e as **derrotas** (nem sair da batalha).
 - Quando as 5 acabam, a fase fica **bloqueada (Jogar e Repetir) até o dia seguinte**. O limite volta à **meia-noite (horário de Brasília)**.
 - Toda vitória dá a **recompensa inteira** (antes, repetir dava 50%).
@@ -954,22 +954,22 @@ Cada categoria de personagem tem o seu **conjunto de 5 itens**:
 Lógica em `src/core/profile.ts` (perfil, energia, Ouro) e `src/core/shop.ts` (Loja).
 
 ### Energia
-- **Jogar** ou **Repetir** uma fase gasta energia: **Fácil 1 · Normal 3 · Difícil 6**. Na batalha, a energia é gasta **ao começar** (a derrota também gasta). As batalhas do **tutorial são grátis**.
+- **Jogar** ou **Repetir** uma fase gasta energia: **Fácil 2 · Normal 4 · Difícil 6** (v0.68.0; antes Fácil 1 · Normal 3 · Difícil 6). Na batalha, a energia é gasta **ao começar** (a derrota também gasta). As batalhas do **tutorial são grátis**.
 - **Máximo pelo nível de perfil**, em linha reta: nível 1 = **20** … nível 100 = **300** (`20 + 280 × (nível − 1) ÷ 99`, arredondado; ex.: nível 10 = 45, nível 50 = 159).
 - **Recupera 1 a cada 6 minutos** até o máximo (240 por dia). Acima do máximo não recupera, só gasta.
-- **Ao subir de nível de perfil**, ganha a **energia máxima do nível novo**, somada à que tem (pode passar do máximo).
+- **Ao subir de nível de perfil**, a energia é **reabastecida até o máximo do nível novo** (v0.68.0). Quem já está acima do máximo fica com o que tem. *(Até a v0.67: ganhava a energia máxima do nível novo somada à que tinha, o que acumulava centenas de energia.)*
 - Sem energia suficiente, a janela avisa quanto falta e quando vem a próxima.
-- O **limite de 5 por dia** em cada fase continua valendo.
+- O **limite diário** de cada fase continua valendo (**10 por dia** desde a v0.68.0).
 
 ### Nível de perfil
-- Vai do **1 ao 100**. XP para passar de nível: **10 + 5 × (nível − 1)** (10, 15, 20, …); para chegar ao 100 são 25.245 XP.
-- Ganha XP de perfil: **1 por energia gasta** e, a cada **vitória ou Repetir**, **(4 + fase) × custo de energia** (Fácil fase 1 = 5, Difícil fase 10 = 84). **Primeira vitória: em dobro.**
+- Vai do **1 ao 100**. XP para passar de nível (v0.68.0): **10 × 1,09^(nível − 1) + 5 × (nível − 1)**, arredondado (1→2 = 10, 10→11 = 67, 50→51 = 927, 99→100 ≈ 47 mil). Um jogador que zera as 3 dificuldades repetindo algumas fases chega perto do **nível 90**; o 100 é meta de longo prazo. *(Até a v0.67: 10 + 5 × (nível − 1), e o nível 100 chegava no fim do Fácil.)* Saves antigos têm o XP convertido e **continuam no mesmo nível** (e na mesma fração da barra).
+- Ganha XP de perfil: **1 por energia gasta** e, a cada **vitória ou Repetir**, **(4 + fase) × multiplicador da dificuldade** (Fácil 1 · Normal 3 · Difícil 6; Fácil fase 1 = 5, Difícil fase 10 = 84). **Primeira vitória: em dobro.**
 - O nível aumenta o **tamanho máximo do baralho** como antes: **28 + 2 × nível**, até 40 (nível 6 ou mais).
 - A barra de nível fica na **Base**, ao lado da conta.
 
 ### 🪙 Ouro de Dragão
 - Moeda **Ryo** dourada (redonda, com borda), com o **dragão 🐉 dourado-alaranjado em relevo** no lugar do furo do meio, **borda serrilhada**, anel de pontinhos, ouro metálico com sombreamento e brilho (v0.26.2; na v0.26.0 era um desenho oval próprio).
-- Cada **vitória ou Repetir** dá **(10 + 5 × fase) × custo de energia** (Fácil fase 1 = 15, fase 10 = 60; Normal ×3; Difícil ×6). **Primeira vitória: em dobro.** Derrota não dá.
+- Cada **vitória ou Repetir** dá **(30 + 5 × fase) × multiplicador da dificuldade** (v0.68.0: Fácil fase 1 = 35, fase 10 = 80; Normal ×3; Difícil ×6). *(Até a v0.67: 10 + 5 × fase; o começo pagava pouco demais para comprar a primeira carta.)* **Primeira vitória: em dobro.** Derrota não dá.
 
 ### 🏪 Loja
 - Fica na **Base**. Compra com Ouro de Dragão:
