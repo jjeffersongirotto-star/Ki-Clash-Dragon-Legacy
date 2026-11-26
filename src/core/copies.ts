@@ -161,3 +161,22 @@ export function bestCopy(d: CopySave, id: string): OwnedCard | undefined {
   }
   return best;
 }
+
+/**
+ * Cópias usadas iguais (mesma cor, degrau e XP) juntas — a tela mostra uma vez só, com "×N".
+ * `refs` = referências do grupo (as do baralho primeiro); `inDeck` = quantas estão no baralho.
+ */
+export function copyGroups(d: CopySave, id: string, deck: boolean): { stars: number; plus: number; xp: number; refs: number[]; inDeck: number }[] {
+  const picked = deck ? pickOf(d, id) : [];
+  const groups = new Map<string, { stars: number; plus: number; xp: number; refs: number[]; inDeck: number }>();
+  copyList(d, id).forEach((c, ref) => {
+    const k = `${c.stars}:${stepOf(c)}:${c.xp}`;
+    const g = groups.get(k) ?? { stars: c.stars, plus: stepOf(c), xp: c.xp, refs: [], inDeck: 0 };
+    g.refs.push(ref);
+    if (picked.includes(ref)) g.inDeck++;
+    groups.set(k, g);
+  });
+  const out = [...groups.values()];
+  for (const g of out) g.refs.sort((a, b) => Number(picked.includes(b)) - Number(picked.includes(a)) || a - b);
+  return out.sort((a, b) => cardPower({ charId: id, stars: b.stars, plus: b.plus }) - cardPower({ charId: id, stars: a.stars, plus: a.plus }) || b.xp - a.xp);
+}

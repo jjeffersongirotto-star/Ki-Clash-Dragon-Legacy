@@ -8,7 +8,7 @@ import { cardMatches, toggleSel } from '../core/cardFilter';
 import { MAX_STEP, TIER_NAMES, statsFor, stepOf, tierLabel } from '../core/progression';
 import { playerLeaderImg, unitSpriteHTML } from '../ui/art';
 import { cardPower, deckPower } from '../core/power';
-import { bestCopy, copyList, materialize, pickCopy, pickOf, unpickCopy } from '../core/copies';
+import { bestCopy, copyGroups, copyList, materialize, pickCopy, pickOf, unpickCopy } from '../core/copies';
 import { canEvolve, leaderHp, leaderMaxLevel, nextRequirement, reachableLevel } from '../core/leaders';
 import { abilityListHTML, cardHTML, raceIcon, catIcon, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML, gemHTML } from '../ui/components';
 import { ico } from '../ui/icons';
@@ -221,19 +221,21 @@ function copiesSectionHTML(id: string): string {
   const picked = inDeck ? pickOf(save, id) : [];
   const full = deckCount(save) >= deckMax(save);
   const canAdd = !full && picked.length < MAX_COPIES;
-  const row = (label: string, c: { stars: number; plus: number }, deckBtn: string, trainAttr: string) =>
-    `<div class="copy-row" style="${starStyle(c.stars)}"><span class="tier-dot"></span><span class="copy-name">${label} · <b>${tierLabel(c.stars, c.plus)}</b> <small>${ico('poder', '⚡')}${fmt(cardPower({ charId: id, ...c }))}</small></span>${deckBtn}<button class="btn small ghost" ${trainAttr} title="Treinar esta cópia">${ico('treinar', '🔥')}</button></div>`;
-  const used = copyList(save, id).map((c, ref) => {
-    const on = picked.includes(ref);
-    const btn = on
-      ? `<button class="btn small" data-cunpick="${ref}" ${picked.length <= 1 ? 'disabled title="O baralho fica com pelo menos 1 cópia (use Tirar do baralho)"' : ''}>✔ No baralho</button>`
-      : `<button class="btn small primary" data-cpick="${ref}" ${canAdd ? '' : 'disabled'}>＋ Baralho</button>`;
-    return row(`Cópia ${ref + 1}`, { stars: c.stars, plus: stepOf(c) }, btn, `data-ctrain="${ref}"`);
+  // v0.71.0: cópias iguais (mesma cor, "+" e XP) aparecem uma vez só, com ×N
+  const row = (c: { stars: number; plus: number }, n: number, note: string, btns: string, trainAttr: string) =>
+    `<div class="copy-row" style="${starStyle(c.stars)}"><span class="tier-dot"></span><span class="copy-name"><b>${tierLabel(c.stars, c.plus)}</b>${n > 1 ? ` <span class="copy-n">×${n}</span>` : ''} <small>${ico('poder', '⚡')}${fmt(cardPower({ charId: id, ...c }))}${note}</small></span>${btns}<button class="btn small ghost" ${trainAttr} title="Treinar uma cópia">${ico('treinar', '🔥')}</button></div>`;
+  const used = copyGroups(save, id, inDeck).map((g) => {
+    const out = g.refs.filter((r) => !picked.includes(r));
+    const inG = g.refs.filter((r) => picked.includes(r));
+    const minus = `<button class="btn small" data-cunpick="${inG[inG.length - 1] ?? ''}" ${inG.length && picked.length > 1 ? '' : 'disabled'} title="Tirar uma cópia do baralho">−</button>`;
+    const plus = `<button class="btn small primary" data-cpick="${out[0] ?? ''}" ${out.length && canAdd ? '' : 'disabled'} title="Pôr uma cópia no baralho">＋</button>`;
+    const note = g.inDeck ? ` · <span class="copy-in">✔ ${g.inDeck} no baralho</span>` : '';
+    return row(g, g.refs.length, note, minus + plus, `data-ctrain="${g.refs[0]}"`);
   });
   const box = Object.entries(save.dupes?.[id] ?? {})
     .filter(([, k]) => k > 0)
     .sort((a, b) => +b[0] - +a[0])
-    .map(([r, k]) => row(`Guardada ×${k}`, { stars: +r, plus: 0 }, `<button class="btn small primary" data-cpickbox="${r}" ${canAdd ? '' : 'disabled'}>＋ Baralho</button>`, `data-ctrainbox="${r}"`));
+    .map(([r, k]) => row({ stars: +r, plus: 0 }, k, ' · guardada', `<button class="btn small primary" data-cpickbox="${r}" ${canAdd ? '' : 'disabled'} title="Pôr uma cópia no baralho">＋</button>`, `data-ctrainbox="${r}"`));
   return `<div class="copy-list"><div class="copy-head">${ico('colecao', '🃏')} Suas cópias <small>(cada uma é uma carta própria: cor, "+" e XP dela · no baralho: ${picked.length}/${MAX_COPIES})</small></div>${[...used, ...box].join('')}${full && !picked.length ? '<p class="hint warn">Baralho cheio: tire uma carta para abrir espaço.</p>' : ''}</div>`;
 }
 

@@ -1982,3 +1982,5 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .copy-row .btn.small { padding: 4px 8px; font-size: 12px; }
 .copy-row:first-of-type { border-top: 0; }
 .copy-name { flex: 1 1 110px; min-width: 0; font-size: 13px; }
+.copy-n { display: inline-block; padding: 0 6px; border-radius: 8px; background: var(--rc); color: #fff; font-size: 11px; font-weight: 800; line-height: 16px; box-shadow: 0 0 5px var(--rg); }
+.copy-in { color: #7ee08a; }
