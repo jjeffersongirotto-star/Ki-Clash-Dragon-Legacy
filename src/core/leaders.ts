@@ -25,10 +25,12 @@ export const LEADER_HP = Array.from({ length: LEADER_LEVELS }, (_, i) => Math.ro
  * Poder do baralho necessário para CHEGAR a cada nível (índice 0 = nível 1 = 0).
  * v0.70.0 (30 níveis): níveis 2–20 acompanham a campanha (Poder típico do simulador ao longo das 300 fases, mediana de
  * 4 jogadores, ×0,85 e suavizado — o jogador real é menos eficiente que o simulado); quem zera o Difícil fica perto do 20. Níveis 21–30 são o fim de jogo:
- * sobem em progressão geométrica até o nível 30 = Poder do baralho máximo (40 personagens diferentes no máximo ++, 4785).
+ * sobem em progressão geométrica até o nível 30 = Poder do baralho máximo (4785 na v0.70.0, quando cada personagem contava uma vez).
+ * v0.71.0: cada cópia conta no Poder (cada uma com a sua cor) — requisitos medidos de novo; nível 30 = o baralho de 40 cartas
+ * mais forte possível (13 personagens × 3 cópias + 1, todos no máximo ++) = 6075.
  * Até a v0.69 (10 níveis): 0, 120, 125, 145, 150, 155, 180, 185, 190, 215.
  */
-export const LEADER_THRESHOLDS = [0,465,725,865,990,1075,1200,1325,1440,1565,1625,1715,1915,2040,2175,2490,2625,2875,3175,3365,3570,3790,4020,4265,4525,4800,5090,5400,5730,6080].map((v) => v);
+export const LEADER_THRESHOLDS = [0, 325, 525, 535, 640, 710, 855, 950, 1055, 1160, 1295, 1510, 1555, 1635, 1765, 2005, 2225, 2415, 2685, 2845, 3070, 3310, 3570, 3855, 4155, 4485, 4840, 5220, 5630, 6075];
 
 /** Habilidade especial do Comandante (reservado: os Comandantes futuros terão habilidades que evoluem por nível). */
 export interface LeaderAbility {
