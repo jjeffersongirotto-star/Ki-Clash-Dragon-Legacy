@@ -55,7 +55,7 @@ const stats = runCampaign({ name: 'escada', hp: LEADER_HP, thresholds: LEADER_TH
     const at = (b: number) => stageAt(d, k, Math.max(0, Math.min(top, s0 + b)));
     let lo: number, hi: number;
     if (winAt(at(0), PROBE) > T) { lo = 0; hi = Math.min(6, 17.99 - s0); }
-    else { lo = -Math.min(3, s0); hi = 0; }
+    else { lo = -Math.min(6, s0); hi = 0; }
     for (let it = 0; it < 6; it++) { const m = (lo + hi) / 2; if (winAt(at(m), PROBE) > T) lo = m; else hi = m; }
     (bonus[d][k - 1] ??= []).push(hi);
     return at(hi);
