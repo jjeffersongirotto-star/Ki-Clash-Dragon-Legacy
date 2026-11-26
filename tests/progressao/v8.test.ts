@@ -3,7 +3,7 @@ import { act, attack, createBattle, Ctx, effectiveAtk, findTarget, placeUnit } f
 import { CHARACTERS, NEW_IDS, PLAYABLE, STARTER_IDS, getChar, isComingSoon } from '../../src/core/characters';
 import { STAGES, UNLOCKS } from '../../src/core/campaign';
 import { abilityPower } from '../../src/core/abilities';
-import { defaultSave, migrateV8, migrateV32, migrateV72, teamReady, type SaveData } from '../../src/ui/save';
+import { defaultSave, migrateV8, migrateV32, migrateV71, teamReady, type SaveData } from '../../src/ui/save';
 import { newOwned } from '../../src/core/progression';
 import type { BattleState, CardInstance, Category } from '../../src/core/types';
 
@@ -75,7 +75,7 @@ describe('progressão v0.8', () => {
     expect(m.deck.slice(0, 3)).toEqual(['riku', 'nara', 'kenji']);
     expect(m.deck).toHaveLength(10);
     migrateV32(m, {}); // v0.32.0: save antigo ganha 3 cópias de cada personagem (o baralho não perde nada)
-    migrateV72(m, {}); // v0.72.0: as cópias do baralho viram cópias próprias
+    migrateV71(m, {}); // v0.71.0: as cópias do baralho viram cópias próprias
     expect(teamReady(m)).toBe(true);
     expect(m.v8).toBe(true);
   });

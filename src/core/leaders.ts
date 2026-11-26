@@ -28,7 +28,7 @@ export const LEADER_HP = Array.from({ length: LEADER_LEVELS }, (_, i) => Math.ro
  * sobem em progressão geométrica até o nível 30 = Poder do baralho máximo (40 personagens diferentes no máximo ++, 4785).
  * Até a v0.69 (10 níveis): 0, 120, 125, 145, 150, 155, 180, 185, 190, 215.
  */
-export const LEADER_THRESHOLDS = [0, 185, 290, 345, 395, 430, 480, 530, 575, 625, 650, 685, 765, 815, 870, 995, 1050, 1150, 1270, 1345, 1525, 1730, 1965, 2235, 2535, 2880, 3270, 3710, 4215, 4785];
+export const LEADER_THRESHOLDS = [0,465,725,865,990,1075,1200,1325,1440,1565,1625,1715,1915,2040,2175,2490,2625,2875,3175,3365,3570,3790,4020,4265,4525,4800,5090,5400,5730,6080].map((v) => v);
 
 /** Habilidade especial do Comandante (reservado: os Comandantes futuros terão habilidades que evoluem por nível). */
 export interface LeaderAbility {

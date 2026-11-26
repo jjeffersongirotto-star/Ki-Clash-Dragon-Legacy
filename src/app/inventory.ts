@@ -30,7 +30,7 @@ let mode: 'direcionado' | 'geral' = 'direcionado';
 export const setInventoryTab = (t: typeof tab) => (tab = t);
 
 /**
- * Cópias guardadas "presas" ao baralho. v0.72.0: as cópias do baralho são cópias próprias (fora das guardadas),
+ * Cópias guardadas "presas" ao baralho. v0.71.0: as cópias do baralho são cópias próprias (fora das guardadas),
  * então nenhuma cópia guardada fica presa — todas podem ser desmanchadas.
  */
 const deckUse = (_id: string) => 0;

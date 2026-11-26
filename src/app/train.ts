@@ -52,7 +52,7 @@ export function train() {
   leaveBattleMode();
   void bakeAllGrid();
   if (!save.cards[trainSel]) setTrainSel(Object.keys(save.cards)[0]);
-  // v0.72.0: o Treinar vale para UMA cópia (cada cópia tem a sua cor, degrau e XP, e paga o preço inteiro)
+  // v0.71.0: o Treinar vale para UMA cópia (cada cópia tem a sua cor, degrau e XP, e paga o preço inteiro)
   if (!copyAt(save, trainSel, trainRef)) setTrainSel(trainSel, 0);
   const card = copyAt(save, trainSel, trainRef)!;
   const def = getChar(card.charId);
@@ -163,7 +163,7 @@ function strongestRef(id: string): number {
   return best;
 }
 
-/** v0.72.0: escolher qual cópia treinar — as usadas (✔ = no baralho) e as guardadas (por cor). */
+/** v0.71.0: escolher qual cópia treinar — as usadas (✔ = no baralho) e as guardadas (por cor). */
 function copyTabsHTML(id: string, sel: number): string {
   const inDeck = save.deck.includes(id) ? pickOf(save, id) : [];
   const used = copyList(save, id).map((c, ref) => `<button class="copy-tab ${ref === sel ? 'sel' : ''}" data-cref="${ref}" style="${starStyle(c.stars)}"><span class="tier-dot"></span>Cópia ${ref + 1} · <b>${tierLabel(c.stars, stepOf(c))}</b>${inDeck.includes(ref) ? ' ✔' : ''}</button>`);

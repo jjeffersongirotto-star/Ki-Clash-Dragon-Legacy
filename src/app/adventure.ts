@@ -289,7 +289,7 @@ export function grantedHTML(g: GrantResult): string {
     const joined = addToDeck(save, def.id) > 0;
     return `<div class="unlock" style="${starStyle(g.stars)}">${cardHTML(save.cards[def.id], { compact: true })}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${raceHTML(def)} ${categoryHTML(def, true)} · ${tierHTML(g.stars)}${joined ? '<br><small>Entrou direto no seu baralho.</small>' : ''}</div></div>`;
   }
-  // v0.32.0: o repetido vira mais 1 cópia guardada. v0.72.0: ela é uma carta própria (pode ir para o baralho ou ser treinada)
+  // v0.32.0: o repetido vira mais 1 cópia guardada. v0.71.0: ela é uma carta própria (pode ir para o baralho ou ser treinada)
   return `<div class="unlock dup" style="${starStyle(g.stars)}">${cardHTML({ charId: g.charId, stars: g.stars }, { compact: true })}<div><b>Repetido</b>: ${esc(def.name)} ${tierHTML(g.stars)}<br>${ico('colecao', '🃏')} <b>+1 cópia</b> · agora você tem <b>${ownedCopies(save, g.charId)}</b><br><small>Uma cópia própria, nesta cor: use no baralho ou treine (Coleção), ou desmanche no ${ico('inventario', '🎒')} Inventário.</small></div></div>`;
 }
 
@@ -323,7 +323,7 @@ export function grantRewards(st: Stage, diff: Difficulty, first = false) {
   return `<div class="res big"><span>${essIcon()} +${r.essencias}</span>${XP_ITEMS.filter((o) => r.orbs[o.id]).map((o) => `<span class="orb-pill">${orbHTML(o.id, `+${r.orbs[o.id]}`)}</span>`).join('')}${r.gear.map((g) => gearHTML(g.id, g.rarity, '+1')).join('')}</div>`;
 }
 
-/** v0.22.0: XP por jogar — ao vencer jogando, todo o baralho ganha XP (v0.72.0: cada cópia do baralho ganha). */
+/** v0.22.0: XP por jogar — ao vencer jogando, todo o baralho ganha XP (v0.71.0: cada cópia do baralho ganha). */
 export function grantPlayXp(stageId: number, first = false): string {
   // v0.24.1: na primeira vitória o XP por jogar vem em dobro
   const xp = playXp(stageId) * (first ? FIRST_WIN_XP_MULT : 1);

@@ -1809,3 +1809,16 @@ Lógica em `src/core/leaders.ts`; painel e janela em `src/app/collection.ts`.
 - **Mãozinha do tutorial:** centralizada no alvo; no passo da descrição da carta, aponta para o **✕** que fecha.
 - **Nível de perfil:** o aviso diz "Energia reabastecida (+N ⚡)".
 
+
+## Cópias individuais (v0.71.0)
+Lógica em `src/core/copies.ts`; telas em `src/app/collection.ts` (Suas cópias) e `src/app/train.ts`.
+- **Cada cópia é uma carta própria**, com a sua raridade (cor), o seu degrau ("+", "++") e a sua barra de XP. Ter um personagem Mítico não faz a cópia Épica dele ficar Mítica.
+- **Baralho:** de 1 a 3 cópias de cada personagem, em qualquer combinação de cores (ex.: só 2 cópias, uma Épica e uma Rara). Cada cópia luta com a cor e o "+" dela; na batalha as cópias saem do monte em ordem sorteada.
+  - **− / +** no baralho: o "+" põe a cópia mais forte que está fora; o "−" tira a mais fraca.
+  - Na janela do personagem, **Suas cópias** lista cada cópia (e as guardadas, por cor) com **＋ Baralho / ✔ No baralho** e **Treinar**.
+  - A carta mostrada no baralho é a cópia mais forte; as bolinhas embaixo mostram a cor de cada cópia.
+- **Treinar e Despertar valem para uma cópia de cada vez**, e cada cópia paga o preço inteiro (Orbes, Essências e itens). No Treinar, escolha a cópia na linha **Cópias de …** (✔ = no baralho).
+- **XP por jogar:** cada cópia do baralho ganha o XP.
+- **Poder do baralho** = soma do Poder de **cada carta** do baralho (cada cópia com a cor dela; feitiços não contam). O Comandante usa esse Poder.
+- **Cópias guardadas:** as que nunca foram treinadas ficam guardadas por cor (Inventário → Personagens repetidos) e podem ser desmanchadas. Ao entrar no baralho ou ser treinada, a cópia passa a ser uma cópia própria; se sair do baralho sem nunca ter sido treinada, volta a ser guardada. Cópia já treinada não é desmanchada.
+- **Saves antigos:** as cópias que já estavam no baralho viram cópias próprias **na cor, degrau e XP da principal** (ninguém perde força); cada uma usa uma cópia guardada. As outras guardadas continuam como estavam.

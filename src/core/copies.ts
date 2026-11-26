@@ -1,5 +1,5 @@
 /**
- * v0.72.0 — Cada cópia de um personagem é uma carta própria: tem a sua raridade (cor), o seu degrau ("+", "++")
+ * v0.71.0 — Cada cópia de um personagem é uma carta própria: tem a sua raridade (cor), o seu degrau ("+", "++")
  * e a sua barra de XP. Treinar e Despertar valem para UMA cópia (cada uma paga o preço inteiro).
  *
  * Onde ficam as cópias:

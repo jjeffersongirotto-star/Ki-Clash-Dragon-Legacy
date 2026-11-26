@@ -27,9 +27,11 @@ export function refDeck(rarity: number): CardInstance[] {
   const owned = PLAYABLE.filter((d) => d.minStars <= rarity && d.maxStars >= rarity).map((d) => ({ charId: d.id, stars: rarity, plus: 0 }));
   return autoDeck(owned.sort((a, b) => cardPower(b) - cardPower(a)), 40, 4);
 }
+/** v0.71.0: Poder do baralho = cada cópia conta */
+export const refPower = (deck: CardInstance[]) => deckPower(deck.filter((c) => !c.charId.startsWith('f-')).flatMap((c) => Array.from({ length: c.copies ?? 3 }, () => c)));
 /** Nível do Comandante que esse baralho alcança (pode evoluir com ele). */
 export function refLeaderHp(deck: CardInstance[]): number {
-  const p = deckPower(deck.filter((c) => !c.charId.startsWith('f-')));
+  const p = refPower(deck);
   let l = 1;
   while (l < LEADER_HP.length && LEADER_THRESHOLDS[l] != null && p >= LEADER_THRESHOLDS[l]) l++;
   return LEADER_HP[l - 1];
@@ -54,6 +56,6 @@ if (process.env.GATES_RUN === '1') {
       min = Math.min(min, w);
       res.push(`${s}:${Math.round(w * 100)}%`);
     }
-    console.log(`${g.diff} ${g.from}–${g.to} · ${g.color} · Poder ${deckPower(deck.filter((c) => !c.charId.startsWith('f-')))} · vida ${refLeaderHp(deck)} · mín ${Math.round(min * 100)}% ${min >= 0.3 ? 'OK' : 'ABAIXO'}\n  ${res.join(' ')}`);
+    console.log(`${g.diff} ${g.from}–${g.to} · ${g.color} · Poder ${refPower(deck)} · vida ${refLeaderHp(deck)} · mín ${Math.round(min * 100)}% ${min >= 0.3 ? 'OK' : 'ABAIXO'}\n  ${res.join(' ')}`);
   }
 }

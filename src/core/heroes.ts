@@ -14,7 +14,7 @@ import type { CharacterDef } from './types';
 export interface HeroSave {
   cards: Record<string, { stars: number }>;
   dupes?: Record<string, Record<number, number>>;
-  /** v0.72.0: cópias usadas (cada uma com a sua raridade) */
+  /** v0.71.0: cópias usadas (cada uma com a sua raridade) */
   extra?: Record<string, { stars: number }[]>;
   spells?: Record<string, number>;
   heroSeen?: Record<string, number[]>;

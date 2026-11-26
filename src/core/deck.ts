@@ -57,7 +57,7 @@ export interface DeckSlot {
   seq: number;
   /** última compra em que veio (-1 = nunca) */
   lastStep: number;
-  /** v0.72.0: cópias (índices em `card.variants`) que estão no monte, na ordem em que saem */
+  /** v0.71.0: cópias (índices em `card.variants`) que estão no monte, na ordem em que saem */
   pile?: number[];
 }
 
@@ -112,7 +112,7 @@ export function buildSlots(cards: CardInstance[]): CardInstance[] {
   return out;
 }
 
-/** v0.72.0: a carta de uma cópia (cor e "+" da cópia, quando as cópias são diferentes). */
+/** v0.71.0: a carta de uma cópia (cor e "+" da cópia, quando as cópias são diferentes). */
 export function copyCard(card: CardInstance, copy: number | undefined): CardInstance {
   const v = copy != null ? card.variants?.[copy] : undefined;
   return v ? { ...card, stars: v.stars, plus: v.plus ?? 0, copy } : card;
@@ -139,7 +139,7 @@ export function createDeck(cards: CardInstance[], rng: { seed: number }): DeckSt
     pile: card.variants ? Array.from({ length: copies }, (_, i) => i) : undefined,
     };
   });
-  // v0.72.0: cópias diferentes saem do monte em ordem sorteada (cópias iguais não gastam sorteio)
+  // v0.71.0: cópias diferentes saem do monte em ordem sorteada (cópias iguais não gastam sorteio)
   for (const s of slots) if (s.pile && !sameCopies(s.card)) shuffle(s.pile, rng);
   // ordem aleatória para os grupos nunca comprados
   shuffle(slots, rng).forEach((s, i) => (s.seq = -1000 + i));
@@ -162,7 +162,7 @@ function take(d: DeckState, s: DeckSlot, k: number, opening: boolean) {
   s.seq = d.step * 100 + k;
   d.hand.push({ ...copyCard(s.card, s.pile?.shift()), slot: s.slot });
 }
-/** v0.72.0: a cópia volta para o monte (fim da fila). */
+/** v0.71.0: a cópia volta para o monte (fim da fila). */
 export function toPile(s: DeckSlot | undefined, copy: number | undefined) {
   if (s?.pile && copy != null) s.pile.push(copy);
 }

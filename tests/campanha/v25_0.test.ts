@@ -101,7 +101,7 @@ describe('v0.25.0 — tutorial', () => {
     for (const id of TUTORIAL_PACK) d.cards[id] = newOwned(id);
     d.dupes = Object.fromEntries(TUTORIAL_CHARS.map((id) => [id, { 1: 2 }])); // v0.32.0: 3 cópias de cada (fim do tutorial)
     d.deck = ['riku', 'sora']; // tem 3 personagens: o mínimo conta os que ele TEM
-    for (const id of d.deck) setCopies(d, id, 3); // v0.72.0: cópias escolhidas
+    for (const id of d.deck) setCopies(d, id, 3); // v0.71.0: cópias escolhidas
     expect(deckIssue(d)).toMatch(/6 de no mínimo 9/);
   });
 

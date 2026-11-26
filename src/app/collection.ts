@@ -142,7 +142,7 @@ export function collection() {
     const card = isSpell(id)
       ? spellCardHTML(id, { compact: true, extraClass: 'grid-card', attrs: `data-card="${id}"` })
       : cardHTML(deckCopies(save, id)[0], { compact: true, grid: true, attrs: `data-card="${id}"`, power: deckPower(deckCopies(save, id)) });
-    // v0.72.0: a cor de cada cópia do baralho
+    // v0.71.0: a cor de cada cópia do baralho
     const dots = isSpell(id) ? '' : `<div class="copy-dots">${deckCopies(save, id).map((c) => `<span style="${starStyle(c.stars)}" title="${tierLabel(c.stars, stepOf(c))}">${'+'.repeat(stepOf(c))}</span>`).join('')}</div>`;
     return `<div class="deck-entry">${card}${dots}<div class="copies" data-copies="${id}"><button class="cp-btn" data-cp="-1" aria-label="Menos uma cópia" ${n <= 1 ? 'disabled' : ''}>−</button><b>×${n}</b><button class="cp-btn" data-cp="1" aria-label="Mais uma cópia" title="${n >= maxCopiesFor(save, id) && n < MAX_COPIES ? `Você tem ${maxCopiesFor(save, id)} cópia(s) desta carta` : ''}" ${n >= maxCopiesFor(save, id) || count >= max ? 'disabled' : ''}>+</button></div></div>`;
   };
@@ -215,7 +215,7 @@ export function collection() {
   if (leaderGuideActive()) requestAnimationFrame(() => { const el = app.querySelector('#lpEvolve'); if (el) { el.scrollIntoView({ block: 'center' }); spotlight(el, LEADER_GUIDE_DECK); } });
 }
 
-/** v0.72.0: as cópias do personagem — cada uma com a sua cor; pôr/tirar do baralho e treinar uma por uma. */
+/** v0.71.0: as cópias do personagem — cada uma com a sua cor; pôr/tirar do baralho e treinar uma por uma. */
 function copiesSectionHTML(id: string): string {
   const inDeck = save.deck.includes(id);
   const picked = inDeck ? pickOf(save, id) : [];
@@ -292,7 +292,7 @@ export function cardDetail(id: string, previewStars?: number) {
         closeModal();
         train();
       });
-      // v0.72.0: cópias — pôr/tirar do baralho e treinar
+      // v0.71.0: cópias — pôr/tirar do baralho e treinar
       const after = () => {
         persist();
         collection();

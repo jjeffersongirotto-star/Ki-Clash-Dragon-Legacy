@@ -171,7 +171,7 @@ export function adminMinSave(): SaveData {
   return d;
 }
 
-/** v0.72.0: as cópias do baralho da ADM são cópias próprias iguais à principal (as 9 guardadas continuam para testar). */
+/** v0.71.0: as cópias do baralho da ADM são cópias próprias iguais à principal (as 9 guardadas continuam para testar). */
 function deckAsCopies(d: SaveData, deck: { charId: string; copies?: number }[]) {
   d.extra = {};
   d.pick = {};

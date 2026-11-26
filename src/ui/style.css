@@ -1965,7 +1965,7 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 /* v0.70.0 — botão Montar melhor no título do baralho */
 .deck-best { margin-right: 8px; vertical-align: middle; }
 
-/* v0.72.0 — cópias individuais (cada cópia com a sua cor) */
+/* v0.71.0 — cópias individuais (cada cópia com a sua cor) */
 .copy-dots { display: flex; gap: 3px; justify-content: center; margin: 2px 0 1px; }
 .copy-dots span { min-width: 14px; height: 10px; border-radius: 5px; background: var(--rc); box-shadow: 0 0 4px var(--rg); font-size: 9px; line-height: 10px; color: #fff; text-align: center; font-weight: 800; }
 .copy-tabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 2px; }

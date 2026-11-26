@@ -3,7 +3,7 @@ import { createDeck, defeatCopy, drawOpening, drawStep, playFromHand, returnFrom
 import { bestCopy, copyList, materialize, pickCopy, pickOf, pickStrongest, setPickCount, unpickCopy } from '../../src/core/copies';
 import { cardPower } from '../../src/core/power';
 import { newOwned } from '../../src/core/progression';
-import { addToDeck, deckCards, deckOwnedCopies, defaultSave, migrateV72, ownedCopies, removeFromDeck, setCopies } from '../../src/ui/save';
+import { addToDeck, deckCards, deckOwnedCopies, defaultSave, migrateV71, ownedCopies, removeFromDeck, setCopies } from '../../src/ui/save';
 import type { CardInstance } from '../../src/core/types';
 
 /** save com o Riku (principal Rara) e cópias guardadas Comuns e Incomuns */
@@ -16,7 +16,7 @@ function withCopies() {
   return d;
 }
 
-describe('v0.72.0 — cada cópia é uma carta própria', () => {
+describe('v0.71.0 — cada cópia é uma carta própria', () => {
   it('cópias guardadas viram cópias próprias (com a cor delas) ao entrar no baralho', () => {
     const d = withCopies();
     expect(ownedCopies(d, 'riku')).toBe(4);
@@ -89,10 +89,10 @@ describe('v0.72.0 — cada cópia é uma carta própria', () => {
     d.deck = ['riku'];
     d.dupes = { riku: { 1: 3 } };
     d.copies = { riku: 3 };
-    migrateV72(d, { copies: { riku: 3 } });
+    migrateV71(d, { copies: { riku: 3 } });
     expect(deckOwnedCopies(d).map((c) => `${c.stars}${c.plus}`)).toEqual(['31', '31', '31']);
     expect(d.dupes!.riku).toEqual({ 1: 1 });
-    expect(d.v72).toBe(true);
+    expect(d.v71).toBe(true);
   });
 
   it('batalha: cada cópia sai com a cor dela e a derrotada volta com a mesma cor', () => {
