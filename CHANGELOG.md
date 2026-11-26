@@ -2,6 +2,14 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.68.0] — 26/11/2026 · Economia: energia, nível de perfil, ouro e limite diário
+Primeira parte das mudanças combinadas depois do teste de jogador novo.
+- **Energia:** subir de nível agora **reabastece até o máximo** do nível novo, em vez de somar por cima. No teste, o bônus empilhado chegou a 985 de energia no nível 23 e a energia não limitava nada. Quem já está acima do máximo fica com o que tem.
+- **Custo das partidas:** Fácil **2** (antes 1) · Normal **4** (antes 3) · Difícil 6 (igual). O XP e o Ouro de cada fase não mudam com isso.
+- **Nível de perfil:** o XP para o próximo nível cresce **9% a cada nível** (10, 16, 22 … 67 no 10 → 11, 927 no 50 → 51, cerca de 47 mil no 99 → 100). Antes, o nível 100 chegava no fim do Fácil; agora quem zera as 3 dificuldades fica perto do 90. **Ninguém perde nível:** o XP salvo é convertido para o mesmo nível e a mesma fração da barra.
+- **Ouro:** cada vitória dá **30 + 5 × fase** (antes 10 + 5 × fase). Fácil 1 paga 35 (antes 15) e Fácil 10 paga 80 (antes 60); mais para frente muda pouco. A primeira carta da Loja sai em umas 4 a 8 vitórias.
+- **Limite diário:** cada fase pode ser jogada **10 vezes por dia** (antes 5), para dar para voltar e juntar itens quando travar.
+
 ## [0.67.10] — 26/11/2026 · Tempo da partida na batalha
 - **Relógio entre as duas vidas**, no lugar do ∞: conta os segundos até 59 e depois minutos e segundos (01:04, 01:05 …). Para quando a batalha acaba e quando o app vai para segundo plano.
 - **Correção:** no celular deitado, a tela do **Despertar** (ao subir uma carta de degrau no Treinar) cortava o botão **Continuar** fora da tela, e não havia como sair. Agora a arte encolhe em telas baixas e o botão aparece.

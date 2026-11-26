@@ -158,7 +158,8 @@ export const regionUnlocked = (p: AdventureProgress, diff: Difficulty, region: n
 
 // ---------- limite diário ----------
 
-export const DAILY_LIMIT = 5;
+/** v0.68.0: 10 (antes 5). */
+export const DAILY_LIMIT = 10;
 /** Brasília não tem horário de verão desde 2019: UTC−3 fixo. */
 const BRASILIA_OFFSET_MS = 3 * 3600 * 1000;
 /** dia de hoje em Brasília, "AAAA-MM-DD" */
