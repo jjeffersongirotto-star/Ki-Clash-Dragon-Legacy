@@ -18,10 +18,10 @@ const N = Number(process.argv[2] ?? 1);
 const first = Number(process.argv[3] ?? 0);
 const out = process.argv[4];
 const PROBE = Number(process.env.PROBE ?? 12);
-// v0.67.4 (pedido do jogador): fora do primeiro mundo, no máximo 50% de vitória ao chegar, caindo com o nível
+// v0.71.0 (pedido do jogador): curva mais suave — Fácil 97%→45%, Normal 55%→30%, Difícil 50%→20% (o simulador joga pior que uma pessoa)
 // v0.70.0 (pedido do jogador): o Fácil começa perto de 100% e cai devagar até ~30% na fase 100
 export const target = (d: Difficulty, k: number) =>
-  d === 'facil' ? 0.97 - (0.67 * (k - 1)) / 99 : d === 'normal' ? 0.5 - (0.3 * (k - 1)) / 99 : 0.45 - (0.33 * (k - 1)) / 99;
+  d === 'facil' ? 0.97 - (0.52 * (k - 1)) / 99 : d === 'normal' ? 0.55 - (0.25 * (k - 1)) / 99 : 0.5 - (0.3 * (k - 1)) / 99;
 const CALIB = process.env.CALIB !== '0';
 // CALIB=2: refina a partir da tabela atual (LADDER_STEPS), com margem de 3 pontos abaixo do alvo
 const REFINE = process.env.CALIB === '2';
