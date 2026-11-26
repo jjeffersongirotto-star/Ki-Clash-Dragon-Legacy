@@ -61,8 +61,10 @@ const stats = runCampaign({ name: 'escada', hp: LEADER_HP, thresholds: LEADER_TH
     if (w0 > T) { lo = 0; hi = Math.min(6, 17.99 - s0); }
     else { lo = -Math.min(6, s0); hi = 0; }
     for (let it = 0; it < 6; it++) { const m = (lo + hi) / 2; if (winAt(at(m), PROBE) > T) lo = m; else hi = m; }
-    (bonus[d][k - 1] ??= []).push(hi);
-    return at(hi);
+    // v0.71.0: fica com o lado que ainda passa da meta (lo). O `hi` caía às vezes logo depois de um "degrau" em que a
+    // vitória despenca (troca de raridade dos inimigos) e a fase ficava com 0% ao chegar.
+    (bonus[d][k - 1] ??= []).push(lo);
+    return at(lo);
   },
 });
 const res = { order, bonus, win: stats.map((s) => s.winAtArrival), pow: stats.map((s) => s.arrivePower), blocked: stats.map((s) => s.blocked) };
