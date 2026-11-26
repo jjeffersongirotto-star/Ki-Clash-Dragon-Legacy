@@ -2,14 +2,14 @@
  * Treinar: barra de XP, degraus, itens de ascensão e Despertar.
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
  */
-import { CATEGORY_INFO, STAR_COLORS, getChar } from '../core/characters';
+import { CATEGORY_INFO, getChar } from '../core/characters';
 import { MAX_STEP, TIER_NAMES, XP_ITEMS, ascendCost, ascendCostFor, barFull, canAscend, cardBarXp, feedXp, isMaxTier, nextTier, statsFor, stepOf, stepXp, tierLabel, xpProgress, type XpItemId } from '../core/progression';
 import { portraitHTML, unitSpriteHTML } from '../ui/art';
 import { abilityListHTML, catIcon, gearHTML, orbHTML, cardHTML, categoryHTML, esc, raceHTML, starStyle, tierHTML, essIcon } from '../ui/components';
 import { ico } from '../ui/icons';
 import { leaveBattleMode } from '../ui/orientation';
-import { GEAR_CATEGORIES, GEAR_DROP, GEAR_PER_STEP, GEAR_RARE_CHANCE, GEAR_RARITIES, GEAR_SETS, reqRarity, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor } from '../core/gear';
-import { DIFFICULTIES, DIFFICULTY_LABEL } from '../core/adventure';
+import { bindGearTaps, gearTapHTML } from './gearItem';
+import { GEAR_CATEGORIES, GEAR_PER_STEP, GEAR_RARITIES, GEAR_SETS, reqRarity, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor } from '../core/gear';
 import { app, save, trainSel, setTrainSel, persist } from './state';
 import { topbar, bindNav, modal, closeModal, bakeAllGrid } from './ui';
 
@@ -37,11 +37,12 @@ export function ladderHTML(card: { charId: string; stars: number; plus?: number 
 export function gearBagDialog() {
   const bag = save.gear ?? {};
   const rows = GEAR_CATEGORIES.map((cat) => {
-    const owned = GEAR_SETS[cat].flatMap((g) => GEAR_RARITIES.filter((r) => gearCount(bag, g.id, r) > 0).map((r) => gearHTML(g.id, r, gearCount(bag, g.id, r))));
+    const owned = GEAR_SETS[cat].flatMap((g) => GEAR_RARITIES.filter((r) => gearCount(bag, g.id, r) > 0).map((r) => gearTapHTML(g.id, r, gearCount(bag, g.id, r))));
     return `<div class="gear-cat">${catIcon(cat)} ${CATEGORY_INFO[cat].label}: <small>${GEAR_SETS[cat].map((g) => g.name).join(', ')}</small></div><div class="gear-bag">${owned.join('') || '<small>nenhum ainda</small>'}</div>`;
   }).join('');
-  modal(`<h2>${ico('inventario', '🎒')} Itens de ascensão</h2><p class="hint">Cada fase dá 3 itens. A cor do fundo é a raridade (cinza, verde, azul, roxo, laranja). Cada degrau pede 3 / 4 / 5 itens ("+" / "++" / nova raridade): 1 / 2 / 3 deles da raridade <b>um acima</b> da carta e 2 da raridade dela (cartas Lendárias e Míticas: só laranja). ${DIFFICULTIES.map((d) => `${DIFFICULTY_LABEL[d]}: ${STAR_COLORS[GEAR_DROP[d][0]].label} ${100 - GEAR_RARE_CHANCE[d] * 100}% / ${STAR_COLORS[GEAR_DROP[d][1]].label} ${GEAR_RARE_CHANCE[d] * 100}%`).join(' · ')}.</p>${rows}<div class="row"><button class="btn primary" data-m="close">Fechar</button></div>`, (m) => {
+  modal(`<h2>${ico('inventario', '🎒')} Itens de ascensão</h2><p class="hint">Cada fase dá 3 itens. A cor do fundo é a raridade (cinza, verde, azul, roxo, laranja). Cada degrau pede 3 / 4 / 5 itens ("+" / "++" / nova raridade): 1 / 2 / 3 deles da raridade <b>um acima</b> da carta e 2 da raridade dela (cartas Lendárias e Míticas: só laranja). Cores: <b>Fácil</b> cinza até azul (roxo só no fim) · <b>Normal</b> azul a laranja · <b>Difícil</b> roxo e laranja. <b>Toque num item</b> para fundir (3 iguais → 1 da cor acima, com Essências) e ver onde conseguir.</p>${rows}<div class="row"><button class="btn primary" data-m="close">Fechar</button></div>`, (m) => {
     m.querySelector('[data-m=close]')!.addEventListener('click', closeModal);
+    bindGearTaps(m, gearBagDialog);
   });
 }
 
@@ -62,7 +63,7 @@ export function train() {
   const need = gearNeeded(card);
   const gearOk = hasGearFor(save.gear, card);
   const needHTML = need.length
-    ? `<div class="gear-need"><span>Itens (${need.length}):</span>${need.map((n) => gearHTML(n.id, n.rarity, `${Math.min(1, gearCount(save.gear, n.id, n.rarity))}/1`, gearCount(save.gear, n.id, n.rarity) < 1)).join('')}</div>`
+    ? `<div class="gear-need"><span>Itens (${need.length}):</span>${need.map((n) => gearTapHTML(n.id, n.rarity, `${Math.min(1, gearCount(save.gear, n.id, n.rarity))}/1`, gearCount(save.gear, n.id, n.rarity) < 1)).join('')}</div>`
     : '';
   const ascendBtn = nt
     ? `${needHTML}<button class="btn primary" id="ascend" ${canAscend(card) && gearOk && save.essencias >= ascendCost(card) ? '' : 'disabled'}>✨ Subir para ${ntLabel} (${essIcon()} ${ascendCost(card)})</button>
@@ -95,6 +96,7 @@ export function train() {
       </div>
     </div></div>`;
   bindNav();
+  bindGearTaps(app, train); // v0.69.0: tocar num item que falta abre fusão e onde conseguir
   app.querySelectorAll<HTMLElement>('[data-sel]').forEach((el) =>
     el.addEventListener('click', () => {
       setTrainSel(el.dataset.sel!);

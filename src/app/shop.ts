@@ -10,7 +10,8 @@ import { ico } from '../ui/icons';
 import { cardDetails, onLongPress } from '../ui/battleModals';
 import { catIcon, gemHTML, goldHTML, gearHTML, orbHTML, esc, starStyle } from '../ui/components';
 import { leaveBattleMode } from '../ui/orientation';
-import { GEAR_BY_ID, GEAR_CATEGORIES, GEAR_RARITIES, GEAR_SETS, gearCount, gearNeeded } from '../core/gear';
+import { GEAR_BY_ID, GEAR_CATEGORIES, GEAR_RARITIES, GEAR_SETS, gearCount, gearNeeded, isGearUnlocked } from '../core/gear';
+import { bindGearTaps, gearTapHTML } from './gearItem';
 import { BANNERS, PITY_EVERY, PITY_RARITY as PITY_RARITY_LABEL, bannerPrice, grantCard, pityCount, pull, type Banner } from '../core/banner';
 import { GEAR_PRICE, ORB_PRICE, buyGear, buyOrb } from '../core/shop';
 import { app, save, persist, teamCards, fmt, prof } from './state';
@@ -39,7 +40,10 @@ export function shop() {
   const needKeys = new Set(need.keys());
   const gearCell = (id: string, rarity: number, extra = '') => {
     const price = GEAR_PRICE[rarity];
-    return `<div class="shop-item${needKeys.has(`${id}:${rarity}`) ? ' need' : ''}">${gearHTML(id, rarity)}<span>${esc(GEAR_BY_ID[id].name)}</span><small>${STAR_COLORS[rarity].label} · tem ${gearCount(bag, id, rarity)}${extra}</small><button class="btn small ${gold >= price ? 'primary' : ''}" data-gear="${id}" data-r="${rarity}" ${gold >= price ? '' : 'disabled'}>Comprar ${goldHTML(fmt(price))}</button></div>`;
+    // v0.69.0: só vende o item nessa cor depois de ganhá-lo numa fase
+    const open = isGearUnlocked(save.gearSeen, id, rarity);
+    const ok = open && gold >= price;
+    return `<div class="shop-item${needKeys.has(`${id}:${rarity}`) ? ' need' : ''}${open ? '' : ' locked'}">${gearTapHTML(id, rarity)}<span>${esc(GEAR_BY_ID[id].name)}</span><small>${STAR_COLORS[rarity].label} · tem ${gearCount(bag, id, rarity)}${extra}</small>${open ? `<button class="btn small ${ok ? 'primary' : ''}" data-gear="${id}" data-r="${rarity}" ${ok ? '' : 'disabled'}>Comprar ${goldHTML(fmt(price))}</button>` : `<button class="btn small" disabled title="Ganhe este item nesta cor numa fase para liberar">🔒 Ganhe numa fase</button>`}</div>`;
   };
   const list =
     shopCat === 'need'
@@ -74,7 +78,8 @@ export function shop() {
   app.querySelectorAll<HTMLElement>('[data-binfo]').forEach((b) => b.addEventListener('click', () => bannerInfo(BANNERS.find((x) => x.id === b.dataset.binfo)!)));
   app.querySelectorAll<HTMLElement>('[data-cat]').forEach((b) => b.addEventListener('click', () => { shopCat = b.dataset.cat as typeof shopCat; rerender(); }));
   app.querySelectorAll<HTMLElement>('[data-rar]').forEach((b) => b.addEventListener('click', () => { shopRarity = Number(b.dataset.rar); rerender(); }));
-  app.querySelectorAll<HTMLElement>('[data-gear]').forEach((b) => b.addEventListener('click', () => { if (buyGear(prof(), bag, b.dataset.gear!, Number(b.dataset.r)).ok) rerender(); }));
+  app.querySelectorAll<HTMLElement>('[data-gear]').forEach((b) => b.addEventListener('click', () => { if (isGearUnlocked(save.gearSeen, b.dataset.gear!, Number(b.dataset.r)) && buyGear(prof(), bag, b.dataset.gear!, Number(b.dataset.r)).ok) rerender(); }));
+  bindGearTaps(app, rerender); // v0.69.0: tocar no item mostra fusão e onde conseguir
   app.querySelectorAll<HTMLElement>('[data-orb]').forEach((b) => b.addEventListener('click', () => { if (buyOrb(prof(), save.items, b.dataset.orb as XpItemId).ok) rerender(); }));
   app.querySelectorAll<HTMLElement>('[data-pull]').forEach((b) =>
     b.addEventListener('click', () => buyCards(BANNERS.find((x) => x.id === b.dataset.banner)!, Number(b.dataset.pull) as 1 | 10, shop, b.dataset.pay as 'gem' | 'gold')),

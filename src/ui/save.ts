@@ -5,7 +5,7 @@ import { SPELLS, isSpell } from '../core/spells';
 import type { CardInstance } from '../core/types';
 import { DEFAULT_LEADER, LEADERS } from '../core/leaders';
 import { LEGACY_ITEM_TO_ORB, MAX_STEP, XP_ITEMS, ascendCostFor, migrateBarV24, migrateOldCard, newOwned, stepOf, type OwnedCard, type XpItemId } from '../core/progression';
-import { addGear, charGear, normalizeGear, reqRarity, type GearBag } from '../core/gear';
+import { addGear, charGear, gearKey, normalizeGear, stageGearIds, stageGearRarity, normalizeGearSeen, reqRarity, type GearBag, type GearSeen } from '../core/gear';
 import { DIFFICULTIES, clearedIn, regionUnlocked, type DailyUse, type Difficulty } from '../core/adventure';
 import { REGION_COUNT, WORLD_STAGE_COUNT } from '../core/world';
 import { TUTORIAL_STARTER, TUT_BATTLE1, TUT_DONE } from '../core/tutorial';
@@ -48,6 +48,8 @@ export interface SaveData {
   v23?: boolean;
   /** v0.24.0: itens de ascensão ("item:raridade" → quantidade). Saves antigos começam vazios. */
   gear?: GearBag;
+  /** v0.69.0: itens (id + cor) já ganhos numa fase — só esses podem ser fundidos ou comprados na Loja */
+  gearSeen?: GearSeen;
   /** migração v0.24.0: barras na proporção 3 / 6 / 10 (a fração de progresso de cada carta é mantida) */
   v24?: boolean;
   /** v0.25.0: etapa do tutorial (0 Batalha 1 · 1 pacote · 2 Batalha 2 · 3 concluído). Saves antigos: concluído. */
@@ -90,6 +92,8 @@ export interface SaveData {
   v67?: boolean;
   /** v0.68.0: curva de XP de perfil nova — XP convertido mantendo o nível */
   v68?: boolean;
+  /** v0.69.0: cadeado dos itens — o que já estava na mochila foi liberado */
+  v69?: boolean;
   /** v0.59.0: Heróis — raridades já obtidas de cada personagem (ver core/heroes.ts) */
   heroSeen?: Record<string, number[]>;
   /** v0.59.0: prêmios dos Heróis já resgatados */
@@ -174,6 +178,8 @@ export function defaultSave(): SaveData {
     v63: true,
     v67: true,
     v68: true,
+    v69: true,
+    gearSeen: [],
     spells: {},
     gems: 0,
     dupes: {},
@@ -350,6 +356,17 @@ export function loadSave(): SaveData {
     migrateV39(merged);
     merged.items = migrateOrbs(d.items as Record<string, unknown>);
     merged.gear = normalizeGear(d.gear); // v0.24.0: save sem itens de ascensão começa com a mochila vazia
+    // v0.69.0: cadeado dos itens; save antigo libera o que já tem na mochila
+    merged.gearSeen = normalizeGearSeen(d.gearSeen);
+    if (!d.v69) {
+      const seen = new Set(merged.gearSeen);
+      for (const [k, n] of Object.entries(merged.gear)) if (n > 0) seen.add(k);
+      // fases já vencidas: a cor comum dos itens delas (na tabela nova) também fica liberada
+      const done: [Difficulty, number[]][] = [['facil', merged.cleared], ['normal', merged.clearedDiff?.normal ?? []], ['dificil', merged.clearedDiff?.dificil ?? []]];
+      for (const [diff, ids] of done) for (const st of ids) for (const id of stageGearIds(st)) seen.add(gearKey(id, stageGearRarity(st, diff)[0]));
+      merged.gearSeen = [...seen];
+    }
+    merged.v69 = true;
     migrateV25(merged, d);
     merged.gems = Math.max(0, Math.floor(Number(d.gems) || 0)); // v0.33.0
     return merged;

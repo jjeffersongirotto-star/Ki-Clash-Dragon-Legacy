@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GEAR, GEAR_CATEGORIES, GEAR_DROP, GEAR_RARE_CHANCE, GEAR_SETS, STAGE_GEAR, addGear, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor, normalizeGear, stageGearDrop, type GearBag } from '../../src/core/gear';
+import { GEAR, GEAR_CATEGORIES, GEAR_SETS, stageGearRarity, stageGearChance, STAGE_GEAR, addGear, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor, normalizeGear, stageGearDrop, type GearBag } from '../../src/core/gear';
 import { CHAR_BY_ID, PLAYABLE, getChar } from '../../src/core/characters';
 import { FIRST_WIN_XP_MULT, rewardsFor } from '../../src/core/adventure';
 import { STEP_BAR, cardBarXp, migrateBarV24, newOwned, stepXp } from '../../src/core/progression';
@@ -87,18 +87,19 @@ describe('v0.24.0 — itens de ascensão', () => {
     }
   });
 
-  it('cor do item: Fácil cinza/verde 60/40 · Normal azul/roxo 80/20 · Difícil roxo/laranja 80/20', () => {
-    expect(GEAR_DROP).toEqual({ facil: [1, 2], normal: [3, 4], dificil: [4, 5] });
+  it('cor do item (v0.69.0: por faixa de fases): Fácil 1 cinza/verde 60/40 · Normal 1 azul/roxo 80/20 · Difícil 1 roxo/laranja 80/20', () => {
+    const exp = { facil: [1, 2, 0.4], normal: [3, 4, 0.2], dificil: [4, 5, 0.2] } as const;
     for (const d of ['facil', 'normal', 'dificil'] as const) {
-      const [lo, hi] = GEAR_DROP[d];
+      const [lo, hi, ch] = exp[d];
+      expect(stageGearRarity(1, d)).toEqual([lo, hi]);
+      expect(stageGearChance(1, d)).toBe(ch);
       expect(stageGearDrop(1, d, () => 0.7).map((g) => g.rarity)).toEqual([lo, lo, lo]);
       expect(stageGearDrop(1, d, () => 0.1).map((g) => g.rarity)).toEqual([hi, hi, hi]);
     }
-    expect(GEAR_RARE_CHANCE).toEqual({ facil: 0.4, normal: 0.2, dificil: 0.2 });
     let seed = 1;
     const rng = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
     let rare = 0;
-    for (let i = 0; i < 3000; i++) rare += stageGearDrop(2, 'normal', rng).filter((g) => g.rarity === GEAR_DROP.normal[1]).length;
+    for (let i = 0; i < 3000; i++) rare += stageGearDrop(2, 'normal', rng).filter((g) => g.rarity === 4).length;
     expect(rare / 9000).toBeGreaterThan(0.17);
     expect(rare / 9000).toBeLessThan(0.23);
   });

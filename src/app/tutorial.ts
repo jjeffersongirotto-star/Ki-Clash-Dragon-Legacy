@@ -217,7 +217,10 @@ export function finishTutorial() {
   for (const [id, n] of Object.entries(TUTORIAL_REWARD.orbs)) save.items[id as XpItemId] += n ?? 0;
   save.essencias += TUTORIAL_REWARD.essencias;
   const gear = tutorialGear();
-  for (const [k, n] of Object.entries(gear)) (save.gear ??= {})[k] = (save.gear[k] ?? 0) + n;
+  for (const [k, n] of Object.entries(gear)) {
+    (save.gear ??= {})[k] = (save.gear[k] ?? 0) + n;
+    if (!(save.gearSeen ??= []).includes(k)) save.gearSeen.push(k); // v0.69.0: ganhos no tutorial contam como ganhos
+  }
   // v0.32.0: os 3 personagens do começo vêm com 3 cópias cada (para o baralho inicial ter 9 cartas)
   for (const id of TUTORIAL_CHARS) if (save.cards[id]) {
     const have = dupeCount(save.dupes, id);
