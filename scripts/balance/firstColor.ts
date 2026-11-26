@@ -10,6 +10,10 @@ const N = Number(process.argv[2] ?? 24);
 const scans: { name: string; diff: Difficulty; rarity: number; from: number }[] = [
   { name: 'azul (cartas Incomuns) no Fácil', diff: 'facil', rarity: 2, from: 11 },
   { name: 'roxo (cartas Raras) no Fácil', diff: 'facil', rarity: 3, from: 11 },
+  // aviso (pedido do jogador): o laranja só cai no Difícil — cartas Épicas sem laranja não podem travar antes dele
+  { name: 'AVISO laranja: cartas Épicas sem laranja no Fácil', diff: 'facil', rarity: 4, from: 11 },
+  { name: 'AVISO laranja: cartas Épicas sem laranja no Normal', diff: 'normal', rarity: 4, from: 1 },
+  { name: 'AVISO roxo: cartas Raras sem roxo no Normal', diff: 'normal', rarity: 3, from: 1 },
 ];
 for (const s of scans) {
   let hit = 0;
