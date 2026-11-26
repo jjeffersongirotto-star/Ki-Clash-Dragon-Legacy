@@ -32,7 +32,7 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
 4. Ao tocar **LUTAR** (ou ativar o botão **Auto**), suas unidades agem sozinhas, da mais avançada para a mais recuada. Depois o inimigo compra, invoca e age.
 
 ### Tela de batalha
-- **HUD superior VS:** no topo da tela, as barras de vida do seu Comandante (**Você**) e do Comandante inimigo (com o nome da fase), frente a frente, e o **turno atual** (T) no centro.
+- **HUD superior VS:** no topo da tela, as barras de vida do seu Comandante (**Você**) e do Comandante inimigo (com o nome da fase), frente a frente, e o **turno atual** (T) no centro. **v0.67.10 — tempo da partida:** no centro, acima do turno, um relógio conta o tempo da batalha: segundos até 59 (0, 1 … 59) e depois minutos e segundos (01:00, 01:04 …). Para quando a batalha acaba e quando o app vai para segundo plano.
 - **Botão Auto (`Auto: OFF` / `Auto: ON`):** com o Auto ligado, o jogo **invoca suas cartas sozinho** (com a mesma lógica de invocação da IA) e toca **LUTAR** a cada turno, até a batalha acabar ou você desligar. Ele desliga sozinho ao fim da batalha ou ao sair (cancelar a saída não desliga).
 - **Contador `Em campo (N)`:** mostra quantas unidades suas estão vivas na arena.
 - **Selecionar carta da mão:** tocar seleciona (e mostra as informações no painel); **tocar de novo na mesma carta tira a seleção**.

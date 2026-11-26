@@ -91,8 +91,8 @@ export class BattleView {
               <div class="vs-bar"><i id="topBarP" style="width:100%"></i></div>
             </div>
           </div>
-          <div class="vs-center" title="Turno atual">
-            <span class="vs-inf">∞</span>
+          <div class="vs-center" title="Tempo da partida e turno atual">
+            <span class="vs-inf vs-time" id="battleTime">0</span>
             <small>T<b id="turnNo">1</b></small>
           </div>
           <div class="vs-side vs-e">
@@ -145,6 +145,7 @@ export class BattleView {
       <details class="log-panel" open><summary>${ico('registro', '📜')} Registro da batalha</summary><ol class="log" id="log"></ol></details>
     </div>`;
     const battleEl = this.root.querySelector('.battle') as HTMLElement;
+    this.startClock();
     this.root.querySelector('[data-act=log]')!.addEventListener('click', () => battleEl.classList.toggle('log-open'));
     this.root.querySelector('[data-act=info-close]')!.addEventListener('click', () => {
       if (this.selected != null) this.clearSelection();
@@ -187,9 +188,33 @@ export class BattleView {
     );
   }
 
+  /** v0.67.10: tempo da partida entre as duas vidas — segundos até 59, depois mm:ss (01:04). Para com o app em segundo plano. */
+  seconds = 0;
+  private clock = 0;
+  static fmtTime(sec: number) {
+    if (sec < 60) return String(sec);
+    const m = Math.floor(sec / 60);
+    return `${String(m).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
+  }
+  private startClock() {
+    this.stopClock();
+    const el = this.root.querySelector<HTMLElement>('#battleTime');
+    this.clock = window.setInterval(() => {
+      if (this.disposed || this.state.winner) return this.stopClock();
+      if (document.hidden) return;
+      this.seconds++;
+      if (el) el.textContent = BattleView.fmtTime(this.seconds);
+    }, 1000);
+  }
+  private stopClock() {
+    if (this.clock) window.clearInterval(this.clock);
+    this.clock = 0;
+  }
+
   /** Para tudo ao sair da batalha (Auto, turnos em andamento, janelas da batalha). */
   dispose() {
     this.disposed = true;
+    this.stopClock();
     this.autoMode = false;
     document.querySelectorAll('.battle-card-modal-bg').forEach((el) => el.remove());
   }
