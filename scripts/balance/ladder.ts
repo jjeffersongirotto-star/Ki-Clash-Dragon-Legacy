@@ -48,6 +48,7 @@ const stats = runCampaign({ name: 'escada', hp: LEADER_HP, thresholds: LEADER_TH
   onPlayer: (pi) => console.error(`jogador ${pi} (${Math.round((Date.now() - t0) / 1000)} s)`),
   pick: !CALIB ? undefined : (i, winAt) => {
     const { id: k, diff: d } = order[i];
+    if (d === 'facil' && k <= 10) return undefined; // v0.71.0: região 1 ajustada à mão (baralhos menores, IA simples)
     const T = target(d, k) - MARGIN, s0 = base(d, k);
     // v0.70.0: Fácil 1 e 2 só com cartas Comuns (degrau até 2 = Comum++)
     const top = d === 'facil' && k <= 2 ? 2 : 17.99;

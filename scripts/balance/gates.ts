@@ -2,7 +2,7 @@
  * v0.70.0 — Fases-portão: a região onde cada cor de item aparece pela primeira vez (cadeado por item e cor).
  * Um baralho cheio de cartas da raridade que PRECISA dessa cor, no máximo a que dá para chegar sem ela (raridade base,
  * sem "+"), tem que vencer pelo menos 30% das vezes (pedido do jogador).
- * npx vite-node scripts/balance/gates.ts [batalhas por fase]
+ * GATES_RUN=1 npx vite-node scripts/balance/gates.ts [batalhas por fase]
  */
 import { simulate } from './sim';
 import { PLAYABLE } from '../../src/core/characters';
@@ -44,7 +44,7 @@ export function gateWin(diff: Difficulty, stageId: number, rarity: number, n = N
   return w / n;
 }
 
-if (process.env.GATES_RUN !== '0') {
+if (process.env.GATES_RUN === '1') {
   for (const g of GATES) {
     const deck = refDeck(g.rarity);
     const res: string[] = [];
