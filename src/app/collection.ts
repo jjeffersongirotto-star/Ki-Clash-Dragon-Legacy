@@ -8,11 +8,13 @@ import { cardMatches, toggleSel } from '../core/cardFilter';
 import { MAX_STEP, TIER_NAMES, statsFor, stepOf, tierLabel } from '../core/progression';
 import { playerLeaderImg, unitSpriteHTML } from '../ui/art';
 import { cardPower } from '../core/power';
-import { canEvolve, evolveLeader, leaderHp, leaderMaxLevel, nextRequirement } from '../core/leaders';
+import { canEvolve, leaderHp, leaderMaxLevel, nextRequirement, reachableLevel } from '../core/leaders';
 import { abilityListHTML, cardHTML, raceIcon, catIcon, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML, gemHTML } from '../ui/components';
 import { ico } from '../ui/icons';
 import { SPELLS, getSpell, isSpell } from '../core/spells';
-import { gameAlert, showDialog } from '../ui/dialog';
+import { gameAlert, gameConfirm, showDialog } from '../ui/dialog';
+import { autoDeck } from '../core/deckbuild';
+import { clearSpotlight, spotlight } from '../ui/spotlight';
 import { leaveBattleMode } from '../ui/orientation';
 import { MAX_COPIES, addToDeck, deckMin, copiesIn, spellCopies, maxCopiesFor, deckCount, deckIssue, deckMax, profileLevel, removeFromDeck, setCopies } from '../ui/save';
 import { app, save, setTrainSel, persist, unlockStage, entryName, teamPower, activeLeader, leaderLevel, fmt } from './state';
@@ -47,6 +49,33 @@ export function leaderPanelHTML(): string {
   </section>`;
 }
 
+/**
+ * v0.70.0: passo guiado do Comandante — na primeira vez que o Poder do baralho alcança o Nv.2, a tela escurece e
+ * destaca o caminho (Base → Baralho → Evoluir). Termina ao evoluir.
+ */
+export const leaderGuideActive = () => !save.tutLeader && leaderLevel() === 1 && canEvolve(activeLeader(), 1, teamPower());
+export const LEADER_GUIDE_HOME = 'Seu <b>Comandante</b> pode evoluir! O Poder do seu baralho já alcança o próximo nível. Toque em <b>Baralho</b>.';
+const LEADER_GUIDE_DECK = 'Este é o seu <b>Comandante</b>: a vida dele é a sua vida na batalha. Quando o <b>Poder do baralho</b> alcança o requisito, ele pode evoluir e ganhar mais vida (é grátis). Toque em <b>Evoluir</b>.';
+
+/** v0.70.0: ⚡ Montar melhor — as cartas de maior Poder (com as cópias que você tem) e até 3 feitiços que combinam. */
+export function buildBestDeck() {
+  const max = deckMax(save);
+  const owned = Object.values(save.cards).filter((c) => !getChar(c.charId).summonOnly).map((c) => ({ charId: c.charId, stars: c.stars, plus: stepOf(c) }));
+  const spellSlots = Math.min(6, Math.max(0, max - 24));
+  const picked = autoDeck(owned, max, spellSlots, save.spells);
+  save.deck = [];
+  save.copies = {};
+  for (const c of picked) {
+    if (!addToDeck(save, c.charId)) continue;
+    setCopies(save, c.charId, c.copies ?? MAX_COPIES);
+  }
+  // o que sobrou de espaço (cartas com menos cópias): completa com os próximos personagens mais fortes
+  for (const c of owned.sort((a, b) => cardPower(b) - cardPower(a))) {
+    if (deckCount(save) >= max) break;
+    addToDeck(save, c.charId);
+  }
+}
+
 export async function evolveDialog() {
   const def = activeLeader();
   const lv = leaderLevel();
@@ -54,18 +83,20 @@ export async function evolveDialog() {
   const req = nextRequirement(def, lv);
   if (req == null) return;
   const ready = canEvolve(def, lv, power);
+  // v0.70.0: um toque sobe todos os níveis que o Poder já alcança
+  const to = reachableLevel(def, lv, power);
   const v = await showDialog({
     title: ready ? `Evoluir o Comandante ${def.name}?` : 'Poder insuficiente',
     html: `<div class="evo-leader">
         <div class="lp-fig evo-fig"><div class="hero-aura"></div>${playerLeaderImg()}</div>
         <div class="evo-rows">
-          <div class="evo-row"><span>Nível</span><b>${lv}</b><i>→</i><b class="up">${lv + 1}</b></div>
-          <div class="evo-row"><span>❤ Vida</span><b>${leaderHp(def, lv)}</b><i>→</i><b class="up">${leaderHp(def, lv + 1)}</b></div>
+          <div class="evo-row"><span>Nível</span><b>${lv}</b><i>→</i><b class="up">${ready ? to : lv + 1}</b></div>
+          <div class="evo-row"><span>❤ Vida</span><b>${leaderHp(def, lv)}</b><i>→</i><b class="up">${leaderHp(def, ready ? to : lv + 1)}</b></div>
           <div class="evo-row"><span>⚡ Poder</span><b class="${ready ? 'up' : 'warn'}">${fmt(power)}</b><i>/</i><b>${fmt(req)}</b></div>
         </div>
       </div>
       <p class="dialog-msg">${ready
-        ? 'O Poder do baralho só é conferido <b>agora</b>. Depois de evoluir, pode trocar cartas à vontade: o Comandante <b>nunca perde o nível</b>. Evoluir é grátis.'
+        ? `O Poder do baralho só é conferido <b>agora</b>${to > lv + 1 ? ` e alcança <b>${to - lv} níveis</b> de uma vez` : ''}. Depois de evoluir, pode trocar cartas à vontade: o Comandante <b>nunca perde o nível</b>. Evoluir é grátis.`
         : `Faltam <b>⚡ ${fmt(req - power)}</b> de Poder na equipe para evoluir o Comandante. Treine e desperte as cartas (ou coloque cartas mais fortes na equipe) e volte aqui.`}</p>`,
     icon: ready ? '👑' : '⚡',
     buttons: ready
@@ -73,12 +104,14 @@ export async function evolveDialog() {
       : [{ label: 'Entendi', value: 'cancel', kind: 'primary' }],
   });
   if (v !== 'ok') return;
-  const r = evolveLeader(def, lv, teamPower());
-  if (!r.ok) return;
-  save.leaders = { ...(save.leaders ?? {}), [def.id]: { level: Math.max(lv, r.level) } };
+  const now = reachableLevel(def, lv, teamPower());
+  if (now <= lv) return;
+  save.leaders = { ...(save.leaders ?? {}), [def.id]: { level: now } };
+  save.tutLeader = true; // v0.70.0: o passo guiado do Comandante termina ao evoluir
+  clearSpotlight();
   persist();
   collection();
-  await gameAlert(`Comandante ${def.name} Nv.${r.level}!`, `Vida máxima do Comandante: ${leaderHp(def, r.level)}.`, '👑');
+  await gameAlert(`Comandante ${def.name} Nv.${now}!`, `Vida máxima do Comandante: ${leaderHp(def, now)}.`, '👑');
 }
 
 // ---------------- BARALHO ----------------
@@ -113,7 +146,7 @@ export function collection() {
   app.innerHTML = `<div class="screen">${topbar('Baralho')}
     ${leaderPanelHTML()}
     <section class="deck-bar">
-      <div class="deck-title"><span class="deck-power" title="Poder do baralho = soma do Poder de cada personagem do baralho (uma vez cada; feitiços não contam)">⚡ ${fmt(teamPower())}</span> Baralho <b>${count}/${max}</b> <small>(nível de perfil ${profileLevel(save)} · mínimo ${deckMin(save)} · até ${MAX_COPIES} cópias por carta${issue ? ` · <span class="warn">${esc(issue)}</span>` : ''})</small></div>
+      <div class="deck-title"><button class="btn small primary deck-best" id="deckBest" title="Monta o baralho com as cartas de maior Poder (dá para trocar depois)">⚡ Montar melhor</button><span class="deck-power" title="Poder do baralho = soma do Poder de cada personagem do baralho (uma vez cada; feitiços não contam)">⚡ ${fmt(teamPower())}</span> Baralho <b>${count}/${max}</b> <small>(nível de perfil ${profileLevel(save)} · mínimo ${deckMin(save)} · até ${MAX_COPIES} cópias por carta${issue ? ` · <span class="warn">${esc(issue)}</span>` : ''})</small></div>
       <div class="deck-slots deck-copies">${save.deck.map(entryHTML).join('')}${count < max ? '<div class="slot">+</div>' : ''}</div>
     </section>
     <div class="race-filters">
@@ -165,7 +198,18 @@ export function collection() {
       }),
     ),
   );
-  app.querySelector('#lpEvolve')?.addEventListener('click', () => void evolveDialog());
+  app.querySelector('#deckBest')?.addEventListener('click', async () => {
+    if (!(await gameConfirm('Montar o melhor baralho?', 'O baralho atual é trocado pelas cartas de maior Poder (com as cópias que você tem) e alguns feitiços que combinam. Dá para trocar as cartas depois.', '⚡ Montar'))) return;
+    buildBestDeck();
+    persist();
+    collection();
+  });
+  app.querySelector('#lpEvolve')?.addEventListener('click', async () => {
+    clearSpotlight();
+    await evolveDialog();
+    if (leaderGuideActive()) collection(); // "Agora não": o destaque volta
+  });
+  if (leaderGuideActive()) requestAnimationFrame(() => { const el = app.querySelector('#lpEvolve'); if (el) { el.scrollIntoView({ block: 'center' }); spotlight(el, LEADER_GUIDE_DECK); } });
 }
 
 export function cardDetail(id: string, previewStars?: number) {

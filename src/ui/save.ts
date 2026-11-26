@@ -3,7 +3,8 @@ import { DECK_MIN, DECK_SLOTS, MAX_COPIES, deckMinFor, deckProblem, deckSize } f
 import { deckMaxFor, profileLevelFor } from '../core/deckbuild';
 import { SPELLS, isSpell } from '../core/spells';
 import type { CardInstance } from '../core/types';
-import { DEFAULT_LEADER, LEADERS } from '../core/leaders';
+import { DEFAULT_LEADER, LEADERS, reachableLevel } from '../core/leaders';
+import { deckPower } from '../core/power';
 import { LEGACY_ITEM_TO_ORB, MAX_STEP, XP_ITEMS, ascendCostFor, migrateBarV24, migrateOldCard, newOwned, stepOf, type OwnedCard, type XpItemId } from '../core/progression';
 import { addGear, charGear, gearKey, normalizeGear, stageGearIds, stageGearRarity, normalizeGearSeen, reqRarity, type GearBag, type GearSeen } from '../core/gear';
 import { DIFFICULTIES, clearedIn, regionUnlocked, type DailyUse, type Difficulty } from '../core/adventure';
@@ -94,6 +95,10 @@ export interface SaveData {
   v68?: boolean;
   /** v0.69.0: cadeado dos itens — o que já estava na mochila foi liberado */
   v69?: boolean;
+  /** v0.70.0: passo guiado do Comandante (evoluir pela primeira vez) já feito */
+  tutLeader?: boolean;
+  /** v0.70.0: Comandante com 30 níveis — nível antigo (de 10) convertido */
+  v70?: boolean;
   /** v0.59.0: Heróis — raridades já obtidas de cada personagem (ver core/heroes.ts) */
   heroSeen?: Record<string, number[]>;
   /** v0.59.0: prêmios dos Heróis já resgatados */
@@ -179,6 +184,7 @@ export function defaultSave(): SaveData {
     v67: true,
     v68: true,
     v69: true,
+    v70: true,
     gearSeen: [],
     spells: {},
     gems: 0,
@@ -352,6 +358,7 @@ export function loadSave(): SaveData {
     migrateV32(merged, d); // antes do baralho: as cópias que você tem limitam o baralho
     migrateV41(merged, d); // idem para os feitiços
     migrateV17(merged);
+    migrateV70(merged, d); // depois do baralho: o nível novo depende do Poder do baralho
     normalizeV20(merged);
     migrateV39(merged);
     merged.items = migrateOrbs(d.items as Record<string, unknown>);
@@ -495,6 +502,28 @@ export function migrateV26(merged: SaveData, raw: Partial<SaveData>, now = Date.
 export function migrateV68(merged: SaveData, raw: Partial<SaveData>): SaveData {
   if (!raw.v68 && raw.v26 && merged.profile) merged.profile.xp = convertOldXp(merged.profile.xp);
   merged.v68 = true;
+  return merged;
+}
+
+/** Vida do Comandante nos 10 níveis de antes da v0.70.0. */
+const LEADER_HP_V62 = [20, 26, 32, 38, 44, 48, 52, 56, 60, 64];
+/**
+ * v0.70.0: o Comandante passa de 10 para 30 níveis. O nível novo é o que o Poder do baralho atual alcança nos requisitos
+ * novos, sem passar da vida que ele já tinha (nível 1 continua 1).
+ */
+export function migrateV70(merged: SaveData, raw: Partial<SaveData>): SaveData {
+  if (!raw.v70 && merged.leaders) {
+    const power = deckPower(deckCards(merged).filter((c) => !isSpell(c.charId)));
+    for (const [id, st] of Object.entries(merged.leaders)) {
+      const def = LEADERS.find((l) => l.id === id);
+      if (!def || st.level <= 1) continue;
+      const oldHp = LEADER_HP_V62[Math.min(LEADER_HP_V62.length, st.level) - 1];
+      let byHp = 1;
+      while (byHp < def.hpByLevel.length && def.hpByLevel[byHp] <= oldHp) byHp++;
+      st.level = Math.max(1, Math.min(byHp, reachableLevel(def, 1, power)));
+    }
+  }
+  merged.v70 = true;
   return merged;
 }
 

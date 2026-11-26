@@ -2,6 +2,22 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.70.0] — 26/11/2026 · Comandante com 30 níveis, Montar melhor e ajustes de interface
+Terceira parte das mudanças do teste de jogador novo.
+- **Comandante com 30 níveis** (antes 10). A vida vai de 20 a 64, como antes, mas sobe aos poucos (cerca de +1,5 por nível).
+  - **Níveis 2 a 20** acompanham a campanha. Os requisitos vêm do Poder medido no simulador ao longo das 300 fases: o nível 2 pede 185 de Poder (por volta da Fácil 5), e o 20 pede 1.345, perto do fim do Difícil.
+  - **Níveis 21 a 30** são o fim de jogo. O **nível 30 pede o Poder do baralho máximo**: 40 personagens diferentes no máximo ++, que hoje somam 4.785.
+  - **Um toque sobe todos os níveis** que o Poder já alcança.
+  - Quem já joga fica no nível que o Poder do baralho atual alcança, sem passar da vida que tinha.
+- **Passo guiado do Comandante (uma vez):** na primeira vez que dá para evoluir, a tela escurece e destaca o caminho (Baralho e depois Evoluir), com a explicação. Termina ao evoluir.
+- **⚡ Montar melhor** no Baralho: monta o baralho com as cartas de maior Poder, com as cópias que você tem, e alguns feitiços que combinam. Dá para trocar depois.
+- **Resultado da batalha** em 2 colunas no celular deitado: cabe sem rolar.
+- **Correções:**
+  - No Comprar 10, o selo "Repetido" aparecia cortado.
+  - No tutorial, as cartas do pacote não ficam mais umas sobre as outras.
+  - A mãozinha do tutorial fica centralizada e, na descrição da carta, aponta para o ✕.
+  - O aviso de nível novo diz "Energia reabastecida".
+
 ## [0.69.0] — 26/11/2026 · Itens: cores por dificuldade, fusão, cadeado e onde conseguir
 Segunda parte das mudanças do teste de jogador novo. O gargalo do jogo era conseguir o item certo para evoluir as cartas.
 - **Cores dos itens por dificuldade:** o **Fácil** dá de cinza a azul, com roxo só no fim (fases 51–80 com 10% de chance, fases 81–100 com 40%). O **Normal** dá de azul para cima, e o **Difícil**, de roxo para cima. Antes o Fácil chegava ao laranja e o Normal não fazia falta.

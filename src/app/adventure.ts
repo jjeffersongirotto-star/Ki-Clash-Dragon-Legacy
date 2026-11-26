@@ -282,7 +282,7 @@ export function grantedHTML(g: GrantResult): string {
       return `<div class="unlock" style="${starStyle(g.stars)}">${spellCardHTML(sp.id, { compact: true })}<div><b>Novo feitiço!</b><br>${sp.icon} ${esc(sp.name)} · ${tierHTML(g.stars)}<br><small>Conjurador: ${esc(spellCastersLabel(sp))}${joined ? ' · entrou direto no seu baralho' : caster ? '' : ' · coloque no baralho (Coleção) quando tiver quem conjure'}</small></div></div>`;
     }
     const joined = save.deck.includes(sp.id) && g.copies <= MAX_COPIES && setCopiesIfRoom(sp.id);
-    return `<div class="unlock dup" style="${starStyle(g.stars)}">${spellCardHTML(sp.id, { compact: true })}<div><b>Repetido:</b> ${sp.icon} ${esc(sp.name)} ${tierHTML(g.stars)}<br>${ico('colecao', '🃏')} <b>+1 cópia</b> · agora você tem <b>${g.copies}</b><br><small>${joined ? 'A cópia entrou no seu baralho.' : g.copies > MAX_COPIES ? `Sobra guardada no ${ico('inventario', '🎒')} Inventário (Desmanchar).` : 'Ajuste as cópias no baralho na Coleção.'}</small></div></div>`;
+    return `<div class="unlock dup" style="${starStyle(g.stars)}">${spellCardHTML(sp.id, { compact: true })}<div><b>Repetido</b>: ${sp.icon} ${esc(sp.name)} ${tierHTML(g.stars)}<br>${ico('colecao', '🃏')} <b>+1 cópia</b> · agora você tem <b>${g.copies}</b><br><small>${joined ? 'A cópia entrou no seu baralho.' : g.copies > MAX_COPIES ? `Sobra guardada no ${ico('inventario', '🎒')} Inventário (Desmanchar).` : 'Ajuste as cópias no baralho na Coleção.'}</small></div></div>`;
   }
   const def = getChar(g.charId);
   if (g.isNew) {
@@ -290,7 +290,7 @@ export function grantedHTML(g: GrantResult): string {
     return `<div class="unlock" style="${starStyle(g.stars)}">${cardHTML(save.cards[def.id], { compact: true })}<div><b>Novo personagem!</b><br>${esc(def.name)} — ${raceHTML(def)} ${categoryHTML(def, true)} · ${tierHTML(g.stars)}${joined ? '<br><small>Entrou direto no seu baralho.</small>' : ''}</div></div>`;
   }
   // v0.32.0: o repetido vira mais 1 cópia guardada (o Desmanchar, no 🎒 Inventário, decide o que fazer com ela)
-  return `<div class="unlock dup" style="${starStyle(g.stars)}">${cardHTML({ charId: g.charId, stars: g.stars }, { compact: true })}<div><b>Repetido:</b> ${esc(def.name)} ${tierHTML(g.stars)}<br>${ico('colecao', '🃏')} <b>+1 cópia</b> · agora você tem <b>${g.copies}</b><br><small>Guardada no ${ico('inventario', '🎒')} Inventário (Desmanchar).</small></div></div>`;
+  return `<div class="unlock dup" style="${starStyle(g.stars)}">${cardHTML({ charId: g.charId, stars: g.stars }, { compact: true })}<div><b>Repetido</b>: ${esc(def.name)} ${tierHTML(g.stars)}<br>${ico('colecao', '🃏')} <b>+1 cópia</b> · agora você tem <b>${g.copies}</b><br><small>Guardada no ${ico('inventario', '🎒')} Inventário (Desmanchar).</small></div></div>`;
 }
 
 /** v0.41.0: feitiço repetido que já está no baralho ganha +1 cópia nele, se couber. */
@@ -349,7 +349,8 @@ export function repeatStage(stageId: number, diff: Difficulty) {
 
 export function resultModal(html: string) {
   // v0.52.2: o ✕ do canto (e qualquer saída) leva para a seleção de fases, nunca de volta à batalha terminada
-  modal(`${html}<div class="row"><button class="btn primary" data-m="adv">Continuar</button><button class="btn" data-m="train">Treinar</button><button data-m="close" hidden></button></div>`, (m) => {
+  // v0.70.0: corpo do resultado em 2 colunas no celular deitado (cabe sem rolar)
+  modal(`<div class="result-body">${html}</div><div class="row result-btns"><button class="btn primary" data-m="adv">Continuar</button><button class="btn" data-m="train">Treinar</button><button data-m="close" hidden></button></div>`, (m) => {
     m.querySelector('[data-m=close]')!.addEventListener('click', () => {
       closeModal();
       adventure(save.region);

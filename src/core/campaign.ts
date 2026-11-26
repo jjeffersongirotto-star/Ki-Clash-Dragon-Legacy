@@ -3,6 +3,8 @@ import { LADDER_STEPS } from './ladderSteps';
 import { fromStepIndex, stepIndex } from './progression';
 import { DECK_SLOTS } from './deck';
 import { LEADER_HP } from './leaders';
+/** v0.70.0: vida do Comandante do jogador por nível da escala de 10 níveis (v0.62.0) — referência da vida do inimigo (não muda com os 30 níveis). */
+const LEADER_HP_REF = [20, 26, 32, 38, 44, 48, 52, 56, 60, 64];
 import { getSpell } from './spells';
 import { cardPower } from './power';
 import { COMMANDER_LOOK, isCleanCommander } from './commanders';
@@ -91,7 +93,7 @@ export const STAGE_PACKS = false;
  * Assim o Comandante do jogador deixa de ser derrubado num turno só, sem a campanha ficar fácil.
  */
 export function enemyLeaderHp(i: number): number {
-  return ENEMY_HERO_HP[i] ?? 12 + 2 * i + Math.round((LEADER_HP[Math.min(i, LEADER_HP.length - 1)] - LEADER_HP[0]) / 2);
+  return ENEMY_HERO_HP[i] ?? 12 + 2 * i + Math.round((LEADER_HP_REF[Math.min(i, LEADER_HP_REF.length - 1)] - LEADER_HP_REF[0]) / 2);
 }
 /**
  * v0.28.0 — vida do Comandante inimigo por fase, reequilibrada no simulador (scripts/balance/v28.ts) junto com
@@ -429,7 +431,8 @@ export function worldPlan(): WorldPlan {
 
 /** Degrau-alvo das cartas inimigas em cada uma das 100 fases (Fácil). */
 export const WORLD_STEPS: number[] = Array.from({ length: WORLD_STAGE_COUNT }, (_, i) =>
-  i < ENEMY_STEPS.length ? ENEMY_STEPS[i] : (LADDER_STEPS.facil?.[i] ?? lerp(WORLD_STEP_RANGE[regionOf(i + 1) - 2], localOf(i + 1))),
+  // v0.70.0: as 100 fases do Fácil vêm da escada calibrada (antes as 10 primeiras ficavam fixas em ENEMY_STEPS)
+  LADDER_STEPS.facil?.[i] ?? (i < ENEMY_STEPS.length ? ENEMY_STEPS[i] : lerp(WORLD_STEP_RANGE[regionOf(i + 1) - 2], localOf(i + 1))),
 );
 /** Curva do Fácil de antes da v0.67.4 (base da escada do Normal e do Difícil). */
 export const WORLD_STEPS_V673: number[] = Array.from({ length: WORLD_STAGE_COUNT }, (_, i) => (i < ENEMY_STEPS.length ? ENEMY_STEPS[i] : lerp(WORLD_STEP_RANGE[regionOf(i + 1) - 2], localOf(i + 1))));
