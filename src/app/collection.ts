@@ -222,7 +222,7 @@ function copiesSectionHTML(id: string): string {
   const full = deckCount(save) >= deckMax(save);
   const canAdd = !full && picked.length < MAX_COPIES;
   const row = (label: string, c: { stars: number; plus: number }, deckBtn: string, trainAttr: string) =>
-    `<div class="copy-row" style="${starStyle(c.stars)}"><span class="tier-dot"></span><span class="copy-name">${label} · <b>${tierLabel(c.stars, c.plus)}</b> <small>${ico('poder', '⚡')}${fmt(cardPower({ charId: id, ...c }))}</small></span>${deckBtn}<button class="btn small ghost" ${trainAttr}>${ico('treinar', '🔥')} Treinar</button></div>`;
+    `<div class="copy-row" style="${starStyle(c.stars)}"><span class="tier-dot"></span><span class="copy-name">${label} · <b>${tierLabel(c.stars, c.plus)}</b> <small>${ico('poder', '⚡')}${fmt(cardPower({ charId: id, ...c }))}</small></span>${deckBtn}<button class="btn small ghost" ${trainAttr} title="Treinar esta cópia">${ico('treinar', '🔥')}</button></div>`;
   const used = copyList(save, id).map((c, ref) => {
     const on = picked.includes(ref);
     const btn = on

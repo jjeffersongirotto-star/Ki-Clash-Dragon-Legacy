@@ -602,6 +602,8 @@ export function migrateV71(merged: SaveData, raw: Partial<SaveData>): SaveData {
   merged.extra = raw.extra as SaveData['extra'];
   merged.pick = raw.pick as SaveData['pick'];
   normalizeCopies(merged, clampStars);
+  // cópia tirada da caixa e nunca treinada nem posta no baralho volta a ser guardada (pode ser desmanchada)
+  for (const id of Object.keys(merged.extra ?? {})) compactCopies(merged, id);
   if (!raw.v71) {
     merged.extra = {};
     merged.pick = {};

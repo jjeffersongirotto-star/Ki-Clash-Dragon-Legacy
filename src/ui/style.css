@@ -1979,5 +1979,6 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .copy-head { font-weight: 700; margin-bottom: 6px; }
 .copy-head small { font-weight: 400; opacity: .8; }
 .copy-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; flex-wrap: wrap; border-top: 1px solid #ffffff12; }
+.copy-row .btn.small { padding: 4px 8px; font-size: 12px; }
 .copy-row:first-of-type { border-top: 0; }
-.copy-name { flex: 1 1 150px; font-size: 13px; }
+.copy-name { flex: 1 1 110px; min-width: 0; font-size: 13px; }
