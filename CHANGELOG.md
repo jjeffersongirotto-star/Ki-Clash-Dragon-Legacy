@@ -2,6 +2,10 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.67.10] — 26/11/2026 · Tempo da partida na batalha
+- **Relógio entre as duas vidas**, no lugar do ∞: conta os segundos até 59 e depois minutos e segundos (01:04, 01:05 …). Para quando a batalha acaba e quando o app vai para segundo plano.
+- **Correção:** no celular deitado, a tela do **Despertar** (ao subir uma carta de degrau no Treinar) cortava o botão **Continuar** fora da tela, e não havia como sair. Agora a arte encolhe em telas baixas e o botão aparece.
+
 ## [0.67.9] — 25/11/2026 · Quem ataca de longe com pouca vida, mais ataque nas raridades altas e troca de tipos
 - **Sayuri vira Maga** (alcance 4, dano mágico) e **Daisuke vira Assassino** (corpo a corpo, dano físico). Os dois trocam uma habilidade para combinar com o tipo novo: a Sayuri fica com o Perfurar e o Daisuke com o Corte Diagonal (todo assassino tem).
 - **Quem ataca de longe tem no máximo 10 de vida, e só no Mítico+ dos 3 de mais vida** (Mestre Hayato, Odo e Tiberius). Teto por raridade: Comum 4, Incomum 5, Raro 6, Épico 7, Lendário 7, Mítico 8 (o degrau "+" dá +1). 38 cartas perderam vida. Exemplos: Kael 6|17 → 6|7; Lunaris 6|15 → 6|7; Hayato 6|19 → 6|8. O Vorax segue a carta de referência.
