@@ -11,7 +11,8 @@ import { DIFFICULTIES, clearedIn, regionUnlocked, type DailyUse, type Difficulty
 import { REGION_COUNT, WORLD_STAGE_COUNT } from '../core/world';
 import { TUTORIAL_STARTER, TUT_BATTLE1, TUT_DONE } from '../core/tutorial';
 import { convertOldXp, levelFromXp, newProfile, normalizeProfile, type ProfileState } from '../core/profile';
-import { addDupe, dupeCount, totalCopies, type Dupes, type SpellBag } from '../core/banner';
+import { addDupe, dupeCount, takeDupe, type Dupes, type SpellBag } from '../core/banner';
+import { compactCopies, normalizeCopies, ownedCopyCount, pickOf, pickStrongest, pickedCards, setPickCount, unpickWeakest } from '../core/copies';
 
 export interface SaveData {
   version: 1;
@@ -99,6 +100,12 @@ export interface SaveData {
   tutLeader?: boolean;
   /** v0.70.0: Comandante com 30 níveis — nível antigo (de 10) convertido */
   v70?: boolean;
+  /** v0.72.0: cópias usadas além da principal (cada uma com a sua cor, degrau e XP) — ver core/copies.ts */
+  extra?: Record<string, OwnedCard[]>;
+  /** v0.72.0: quais cópias de cada personagem estão no baralho (0 = principal, 1… = `extra`) */
+  pick?: Record<string, number[]>;
+  /** migração v0.72.0: as cópias que já estavam no baralho viraram cópias próprias, na cor da principal */
+  v72?: boolean;
   /** v0.59.0: Heróis — raridades já obtidas de cada personagem (ver core/heroes.ts) */
   heroSeen?: Record<string, number[]>;
   /** v0.59.0: prêmios dos Heróis já resgatados */
@@ -185,6 +192,9 @@ export function defaultSave(): SaveData {
     v68: true,
     v69: true,
     v70: true,
+    v72: true,
+    extra: {},
+    pick: {},
     gearSeen: [],
     spells: {},
     gems: 0,
@@ -210,21 +220,31 @@ export const spellCopies = (d: SaveData, id: string) => Math.max(0, Math.floor(d
 export const usable = (d: SaveData, id: string) => (isSpell(id) ? spellCopies(d, id) > 0 : !!CHAR_BY_ID[id] && !!d.cards[id]);
 /** v0.32.0: quantas cópias da carta o baralho pode ter: até 3, mas só as que você tem (v0.41.0: feitiços também). */
 export const maxCopiesFor = (d: SaveData, id: string) => Math.max(1, Math.min(MAX_COPIES, ownedCopies(d, id)));
-export const copiesIn = (d: SaveData, id: string) => Math.max(1, Math.min(maxCopiesFor(d, id), Math.floor(d.copies?.[id] ?? MAX_COPIES)));
-/** v0.32.0: cópias que você tem da carta (0 se não tem; v0.41.0: feitiços também) */
+/** cópias da carta no baralho (v0.72.0: personagem = as cópias escolhidas, cada uma com a sua cor) */
+export const copiesIn = (d: SaveData, id: string) =>
+  isSpell(id) ? Math.max(1, Math.min(maxCopiesFor(d, id), Math.floor(d.copies?.[id] ?? MAX_COPIES))) : Math.max(1, pickOf(d, id).length);
+/** v0.32.0: cópias que você tem da carta (0 se não tem; v0.41.0: feitiços também; v0.72.0: usadas + guardadas) */
 export function ownedCopies(d: SaveData, id: string): number {
-  return isSpell(id) ? spellCopies(d, id) : totalCopies(d.cards, d.dupes, id);
+  return isSpell(id) ? spellCopies(d, id) : ownedCopyCount(d, id);
 }
-/** as entradas do baralho prontas para a batalha */
+/** v0.72.0: as cópias do personagem que estão no baralho (da mais forte para a mais fraca) */
+export const deckCopies = (d: SaveData, id: string): OwnedCard[] =>
+  pickedCards(d, id).slice().sort((a, b) => b.stars - a.stars || stepOf(b) - stepOf(a));
+/** as entradas do baralho prontas para a batalha (v0.72.0: personagem com a cor de cada cópia em `variants`) */
 export function deckCards(d: SaveData): CardInstance[] {
   return d.deck
     .filter((id, i, a) => usable(d, id) && a.indexOf(id) === i)
-    .map((id) =>
-      isSpell(id)
-        ? { charId: id, stars: 1, copies: copiesIn(d, id) }
-        : { charId: id, stars: d.cards[id].stars, plus: stepOf(d.cards[id]), copies: copiesIn(d, id) },
-    );
+    .map((id) => {
+      if (isSpell(id)) return { charId: id, stars: 1, copies: copiesIn(d, id) };
+      const cs = deckCopies(d, id);
+      const variants = cs.map((c) => ({ stars: c.stars, plus: stepOf(c) }));
+      const same = variants.every((v) => v.stars === variants[0].stars && v.plus === variants[0].plus);
+      return { charId: id, stars: cs[0].stars, plus: stepOf(cs[0]), copies: cs.length, ...(same ? {} : { variants }) };
+    });
 }
+/** v0.72.0: todas as cópias de personagem do baralho (para o Poder) */
+export const deckOwnedCopies = (d: SaveData): OwnedCard[] =>
+  d.deck.filter((id, i, a) => !isSpell(id) && d.cards[id] && a.indexOf(id) === i).flatMap((id) => pickedCards(d, id));
 export const deckCount = (d: SaveData) => deckSize(deckCards(d));
 /**
  * v0.25.0: mínimo do baralho = 3 × personagens que o jogador tem (até 20).
@@ -245,18 +265,24 @@ export function addToDeck(d: SaveData, id: string): number {
   const n = Math.min(maxCopiesFor(d, id), room);
   if (n < 1) return 0;
   d.deck.push(id);
-  (d.copies ??= {})[id] = n;
+  if (isSpell(id)) (d.copies ??= {})[id] = n;
+  else pickStrongest(d, id, n);
   return n;
 }
 export function removeFromDeck(d: SaveData, id: string) {
   d.deck = d.deck.filter((x) => x !== id);
   if (d.copies) delete d.copies[id];
+  if (d.pick?.[id]) {
+    delete d.pick[id];
+    compactCopies(d, id);
+  }
 }
-/** muda as cópias (1–3) respeitando o máximo do baralho; retorna o valor final */
+/** muda as cópias (1–3) respeitando o máximo do baralho; retorna o valor final (personagem: entram as mais fortes de fora) */
 export function setCopies(d: SaveData, id: string, n: number): number {
   const cur = copiesIn(d, id);
   const room = deckMax(d) - deckCount(d) + cur;
   const v = Math.max(1, Math.min(maxCopiesFor(d, id), Math.floor(n), room));
+  if (!isSpell(id)) return setPickCount(d, id, v);
   (d.copies ??= {})[id] = v;
   return v;
 }
@@ -269,12 +295,14 @@ export function setCopies(d: SaveData, id: string, n: number): number {
 export function migrateV17(d: SaveData): SaveData {
   d.copies = d.copies && typeof d.copies === 'object' ? d.copies : {};
   d.deck = d.deck.filter((id, i, a) => usable(d, id) && a.indexOf(id) === i);
-  for (const k of Object.keys(d.copies)) if (!d.deck.includes(k)) delete d.copies[k];
-  for (const id of d.deck) d.copies[id] = copiesIn(d, id);
+  for (const k of Object.keys(d.copies)) if (!d.deck.includes(k) || !isSpell(k)) delete d.copies[k];
+  for (const k of Object.keys(d.pick ?? {})) if (!d.deck.includes(k)) removeFromDeck(d, k);
+  for (const id of d.deck) if (isSpell(id)) d.copies[id] = copiesIn(d, id);
   const max = deckMax(d);
   for (let i = d.deck.length - 1; i >= 0 && deckCount(d) > max; i--) {
     const id = d.deck[i];
-    while (deckCount(d) > max && d.copies[id] > 1) d.copies[id]--;
+    if (isSpell(id)) while (deckCount(d) > max && d.copies[id] > 1) d.copies[id]--;
+    else while (deckCount(d) > max && unpickWeakest(d, id));
     if (deckCount(d) > max) removeFromDeck(d, id);
   }
   d.v17 = true;
@@ -357,6 +385,7 @@ export function loadSave(): SaveData {
     migrateV68(merged, d);
     migrateV32(merged, d); // antes do baralho: as cópias que você tem limitam o baralho
     migrateV41(merged, d); // idem para os feitiços
+    migrateV72(merged, d); // v0.72.0: cópias próprias (antes de conferir o baralho)
     migrateV17(merged);
     migrateV70(merged, d); // depois do baralho: o nível novo depende do Poder do baralho
     normalizeV20(merged);
@@ -556,6 +585,42 @@ export function migrateV32(merged: SaveData, raw: Partial<SaveData>): SaveData {
     }
   merged.genXp = Math.max(0, Math.floor(Number(raw.genXp) || 0));
   merged.v32 = true;
+  return merged;
+}
+
+/** raridade válida para o personagem (dentro da faixa mínima–máxima dele) */
+const clampStars = (id: string, st: number) => {
+  const def = CHAR_BY_ID[id];
+  return Math.max(def.minStars, Math.min(def.maxStars, Number.isFinite(st) ? st : def.minStars));
+};
+/**
+ * v0.72.0 — cada cópia é uma carta própria. Save antigo: as cópias que o baralho usava (todas na cor da carta)
+ * viram cópias próprias NA COR, DEGRAU E XP DA PRINCIPAL (ninguém perde força); cada uma gasta uma cópia guardada.
+ * As cópias guardadas que sobram continuam guardadas (com a raridade delas).
+ */
+export function migrateV72(merged: SaveData, raw: Partial<SaveData>): SaveData {
+  merged.extra = raw.extra as SaveData['extra'];
+  merged.pick = raw.pick as SaveData['pick'];
+  normalizeCopies(merged, clampStars);
+  if (!raw.v72) {
+    merged.extra = {};
+    merged.pick = {};
+    const ids = merged.deck.filter((id, i, a) => !isSpell(id) && CHAR_BY_ID[id] && merged.cards[id] && a.indexOf(id) === i);
+    for (const id of ids) {
+      const main = merged.cards[id];
+      const want = Math.max(1, Math.min(MAX_COPIES, Math.floor(Number(raw.copies?.[id] ?? MAX_COPIES)) || MAX_COPIES));
+      const pick = [0];
+      while (pick.length < want) {
+        const row = merged.dupes?.[id];
+        const r = row ? Math.max(...Object.keys(row).map(Number).filter((k) => row[k] > 0)) : NaN;
+        if (!Number.isFinite(r) || !takeDupe(merged.dupes!, id, r)) break;
+        ((merged.extra[id] ??= [])).push({ charId: id, stars: main.stars, plus: stepOf(main), xp: main.xp });
+        pick.push(merged.extra[id].length);
+      }
+      merged.pick[id] = pick;
+    }
+  }
+  merged.v72 = true;
   return merged;
 }
 

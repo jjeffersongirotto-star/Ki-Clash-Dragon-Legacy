@@ -19,7 +19,6 @@ import { SPELLS, getSpell, isSpell } from '../core/spells';
 import { cardHTML, catIcon, esc, orbBagHTML, orbHTML, spellCardHTML, starStyle, essIcon } from '../ui/components';
 import { ico } from '../ui/icons';
 import { leaveBattleMode } from '../ui/orientation';
-import { copiesIn } from '../ui/save';
 import { app, save, persist, fmt } from './state';
 import { topbar, bindNav, modal, closeModal } from './ui';
 import { bindGearTaps, gearTapHTML } from './gearItem';
@@ -30,8 +29,11 @@ let mode: 'direcionado' | 'geral' = 'direcionado';
 
 export const setInventoryTab = (t: typeof tab) => (tab = t);
 
-/** Cópias que o baralho está usando agora (0 se o personagem não está no baralho). */
-const deckUse = (id: string) => (save.deck.includes(id) ? copiesIn(save, id) : 0);
+/**
+ * Cópias guardadas "presas" ao baralho. v0.72.0: as cópias do baralho são cópias próprias (fora das guardadas),
+ * então nenhuma cópia guardada fica presa — todas podem ser desmanchadas.
+ */
+const deckUse = (_id: string) => 0;
 
 export function inventory() {
   leaveBattleMode();

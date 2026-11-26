@@ -285,6 +285,7 @@ describe('v0.17.0 — baralho com cópias e nível de perfil (decisão 6)', () =
     d.dupes = Object.fromEntries(STARTER_IDS.map((id) => [id, { 1: 2 }]));
     d.deck = STARTER_IDS.slice(0, 10);
     d.spells = { 'f-chuva': 3, 'f-raio': 3 }; // v0.41.0: feitiço só entra no baralho se você tiver
+    for (const id of d.deck) setCopies(d, id, 3); // v0.72.0: as cópias do baralho são escolhidas (cópias próprias)
     return d;
   };
   it('save: entra com o máximo de cópias que couber, −/+ respeitam o limite, migração corta o excesso', () => {
