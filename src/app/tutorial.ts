@@ -239,14 +239,14 @@ export function finishTutorial() {
   const items = Object.keys(gear).map((k) => { const [id, r] = k.split(':'); return gearHTML(id, Number(r), `+${gear[k]}`); }).join('');
   resultModalWith(
     `<h2 class="win">${ico('tutorial', '🎓')} Batalhas concluídas!</h2><p>Recompensa:</p><div class="res big"><span>${essIcon()} +${TUTORIAL_REWARD.essencias}</span>${orbBagHTML(TUTORIAL_REWARD.orbs)}${items}<span>${gemHTML(`+${TUTORIAL_GEMS}`)} Gemas</span></div>
-    <p class="hint">Com as <b>${gemHTML()} Gemas de Invocação</b> você compra cartas novas no <b>${ico('banner', '🎴')} Banner</b>. Vamos usar as 2 agora!</p>`,
+    <p class="hint">Com as <b>${gemHTML()} Gemas de Invocação</b> você compra cartas novas no <b>${ico('banner', '🎴')} Banner</b>. São <b>10 compras grátis</b> de iniciante: vamos usar agora!</p>`,
     [{ label: `${ico('banner', '🎴')} Ir ao Banner`, primary: true, run: bannerGuide }],
   );
 }
 
 /**
- * v0.33.0: último passo do tutorial — guiado no 🎴 Banner: compra 1 carta com uma Gema, depois mais 1 com a outra,
- * e sai pelo ✕. Depois, a mensagem final (Treinar / Base).
+ * v0.33.0: último passo do tutorial — guiado no 🎴 Banner e sai pelo ✕. Depois, a mensagem final (Treinar / Base).
+ * v0.71.0: as 10 Gemas de iniciante viram 10 cartas de uma vez (Comprar 10 cartas).
  */
 export function bannerGuide() {
   if (!save.tutBanner) return home();
@@ -274,19 +274,19 @@ export function bannerGuide() {
     if (!modalOpen && gems <= 0) return done();
     // detalhes da carta abertos (segurou a carta): nada do tutorial por cima, só o ✕ da janela
     if (document.querySelector('.battle-card-modal-bg')) return clearSpotlight();
-    if (!modalOpen && !document.querySelector('[data-pull="1"][data-pay="gem"]')) return; // ainda montando a Loja
+    const buy10 = document.querySelector('[data-pull="10"][data-pay="gem"]');
+    if (!modalOpen && !buy10) return; // ainda montando a Loja
     if (!modalOpen && !introDone) {
       const box = document.querySelector('.banner-box .banner-art') ?? document.querySelector('.banner-box');
       return spotlight(box, `Este é o <b>${ico('banner', '🎴')} Banner</b>: aqui você compra cartas novas. Cada compra sorteia um <b>personagem</b> ou um <b>feitiço</b> numa raridade; a cada 80 compras sai uma <b>Lendária</b> garantida.`, { onSkip: done, lock: true, onNext: () => (introDone = true), tipAt: 'bottom' });
     }
-    if (!modalOpen) return spotlight(document.querySelector('[data-pull="1"][data-pay="gem"]'), `Cada <b>${gemHTML()} Gema</b> compra 1 carta. Toque em <b>Comprar 1 carta</b> com a Gema.`, { onSkip: done });
+    if (!modalOpen) return spotlight(buy10, `Cada <b>${gemHTML()} Gema</b> compra 1 carta. Você tem <b>10 compras grátis</b> de iniciante: toque em <b>Comprar 10 cartas</b> com as Gemas.`, { onSkip: done });
     if (gems !== seenPulls) {
       seenPulls = gems;
       cardSeen = false;
     }
     if (!cardSeen)
-      return spotlight(null, 'Esta é a carta que você ganhou! <b>Segure</b> a carta para ver as habilidades. Carta nova entra na coleção; repetida vira mais 1 cópia.', { onSkip: done, clear: true, onNext: () => (cardSeen = true) });
-    if (gems > 0) return spotlight(document.querySelector('.modal-bg [data-again="1"][data-pay="gem"]'), 'Agora use a outra Gema: toque em <b>Comprar 1 carta</b> com a Gema.', { onSkip: done, tipAt: 'top' });
+      return spotlight(null, 'Estas são as cartas que você ganhou! <b>Segure</b> uma carta para ver as habilidades. Carta nova entra na coleção; repetida vira mais 1 cópia.', { onSkip: done, clear: true, onNext: () => (cardSeen = true) });
     spotlight(document.querySelector('.modal-bg .modal-x'), 'Quando quiser, toque no <b>✕</b> para continuar.', { onSkip: done, tipAt: 'bottom' });
   }, 150);
 }

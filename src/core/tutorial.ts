@@ -50,8 +50,11 @@ export const TUTORIAL_BATTLES: Stage[] = [
  * (tutorialGear), os 3 sobem para Comum+. Simulador: vitória ao chegar na fase 1 = 93% com o baralho só dos 3 personagens.
  */
 export const TUTORIAL_REWARD: { essencias: number; orbs: OrbBag } = { essencias: 12, orbs: { orbe1: 10, orbe3: 3 } };
-/** v0.33.0: 💠 Gemas de Invocação no fim do tutorial (gastas no passo guiado do Banner). */
-export const TUTORIAL_GEMS = 2;
+/**
+ * v0.33.0: 💠 Gemas de Invocação no fim do tutorial (gastas no passo guiado do Banner).
+ * v0.71.0: 10 Gemas = 10 compras grátis de iniciante, feitas de uma vez (Comprar 10) no passo guiado. Antes: 2.
+ */
+export const TUTORIAL_GEMS = 10;
 
 /** Itens que o tutorial dá: os do "+" de cada um dos 3 personagens (para o jogador aprender o Despertar). */
 export function tutorialGear(): GearBag {

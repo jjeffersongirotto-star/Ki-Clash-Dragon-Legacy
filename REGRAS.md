@@ -1130,7 +1130,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Baralho com poucas cópias:** a batalha aceita baralho com qualquer número de cartas (o mínimo é conferido na tela do baralho), porque quem só tem 1 cópia de cada personagem tem menos cartas.
 - **Tutorial guiado:** as duas batalhas têm semente fixa e as cartas chegam prontas (sem espera). A tela escurece tudo menos o que deve ser tocado (carta, casa, LUTAR ou o aviso de girar a tela), com seta e texto do passo; o resto não responde ao toque. "Pular tutorial" sempre disponível.
 - **Onde invocar no tutorial (v0.42.1):** na hora de colocar um personagem, as **6 casas da sua zona** ficam claras e destacadas juntas e **qualquer uma delas vale**. Na 1ª invocação da Batalha 1, primeiro só as 6 casas acendem (com o texto "qualquer um dos 6 quadrados destacados"); uns 3 segundos depois, uma casa ganha um **círculo** e a seta, com o pedido para colocar ali. Feitiços continuam apontando só o alvo certo.
-- **Fim do tutorial:** +2 💠 Gemas e um passo guiado no 🎴 Banner (Comprar 1 → Comprar 1 de novo → ✕). Se o jogo fechar antes, o passo volta ao abrir a Base enquanto houver gemas.
+- **Fim do tutorial:** +2 💠 Gemas e um passo guiado no 🎴 Banner (Comprar 1 → Comprar 1 de novo → ✕). **v0.71.0:** +10 💠 Gemas (**10 compras grátis de iniciante**), usadas de uma vez no passo guiado (Comprar 10 cartas → ✕). Se o jogo fechar antes, o passo volta ao abrir a Base enquanto houver gemas.
 
 ## 36. Artes novas inteiras (v0.34.0)
 - As **121 artes** (120 personagens + Cria Sombria) foram trocadas pelas ilustrações limpas novas, no padrão aprovado no teste do Quorr: retrato 0,72, sem nada de carta, personagem inteiro. Saem em 486×675 (WebP), sem cortar o personagem.
