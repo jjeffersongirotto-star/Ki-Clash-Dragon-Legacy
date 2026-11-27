@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.72.2] — 27/11/2026 · Orbes com prévia no Treinar
+- **Orbes no Treinar** (pedido do jogador: tocar no Orbe já gastava). Agora tocar num Orbe só **escolhe**; aparecem os botões **−** e **+** para tirar ou pôr mais.
+  - A barra de XP mostra a **prévia** de onde vai chegar com os Orbes escolhidos. Só gasta ao tocar em **🔮 Usar** (ou **Limpar** para desfazer).
+  - O **+** para quando a escolha já enche a barra e avisa se algum XP passaria do cheio.
+
 ## [0.72.1] — 27/11/2026 · Difícil 7 a 10 mais leve
 - **Difícil, regiões 6 a 10** (pedido do jogador: as regiões 7 e 8 estavam com 18% e 14% de vitória ao chegar). A força dos inimigos agora sobe devagar da fase 45 até a 100, sem ficar parada e depois dar um salto.
   - Vitória ao chegar no simulador (com missões e Torre): região 7 **28%**, região 8 **24%**, região 10 **26%**.

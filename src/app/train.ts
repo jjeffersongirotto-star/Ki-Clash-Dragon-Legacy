@@ -3,7 +3,7 @@
  * v0.28.1: separado do main.ts (organização do código, sem mudar o jogo).
  */
 import { CATEGORY_INFO, getChar } from '../core/characters';
-import { MAX_STEP, TIER_NAMES, XP_ITEMS, ascendCost, ascendCostFor, barFull, canAscend, cardBarXp, feedXp, isMaxTier, nextTier, statsFor, stepOf, stepXp, tierLabel, xpProgress, type XpItemId } from '../core/progression';
+import { MAX_STEP, TIER_NAMES, XP_ITEMS, ascendCost, ascendCostFor, barFull, canAscend, cardBarXp, feedXp, isMaxTier, nextTier, statsFor, stepOf, stepXp, tierLabel, xpProgress, type OwnedCard, type XpItemId } from '../core/progression';
 import { portraitHTML, unitSpriteHTML } from '../ui/art';
 import { abilityListHTML, catIcon, gearHTML, orbHTML, cardHTML, categoryHTML, esc, raceHTML, starStyle, tierHTML, essIcon } from '../ui/components';
 import { ico } from '../ui/icons';
@@ -55,12 +55,13 @@ export function train() {
   // v0.71.0: o Treinar vale para UMA cópia (cada cópia tem a sua cor, degrau e XP, e paga o preço inteiro)
   if (!copyAt(save, trainSel, trainRef)) setTrainSel(trainSel, 0);
   const card = copyAt(save, trainSel, trainRef)!;
+  if (orbKey !== `${trainSel}:${trainRef}`) orbPick = {}; // outra carta: a escolha de Orbes recomeça
+  orbKey = `${trainSel}:${trainRef}`;
   const def = getChar(card.charId);
   const plus = stepOf(card);
   const st = statsFor(def, card.stars, plus);
   const top = isMaxTier(card);
   const full = barFull(card);
-  const pct = Math.round(xpProgress(card) * 100);
   const nt = nextTier(card);
   const ntLabel = nt ? tierLabel(nt.stars, nt.plus) : '';
   const nextSt = nt ? statsFor(def, nt.stars, nt.plus) : st;
@@ -91,10 +92,10 @@ export function train() {
         <div class="detail-badges">${tierHTML(card.stars, plus)} ${raceHTML(def, true)} ${categoryHTML(def, true)}</div>
         <h2>${esc(def.name)}</h2>
         <div><b>${tierLabel(card.stars, plus)}</b> · <span class="ess">${essIcon()} ${save.essencias} Essências</span></div>
-        <div class="xpbar"><i style="width:${pct}%"></i><span>${top ? 'TOPO: RARIDADE MÁXIMA "++"' : full ? 'BARRA CHEIA: PODE SUBIR O DEGRAU' : `${card.xp} / ${cardBarXp(card)} XP (${pct}%)`}</span></div>
+        <div class="xpbar" id="xpbar">${xpBarInner(card)}</div>
         <div class="stat-row"><span>Ataque <b>${st.atk}</b>${nextSt.atk > st.atk ? ` <em>→ ${nextSt.atk}</em>` : ''}</span><span>Vida <b>${st.hp}</b>${nextSt.hp > st.hp ? ` <em>→ ${nextSt.hp}</em>` : ''}</span></div>
         ${abilityListHTML(def, card.stars, plus)}
-        <div class="items">${XP_ITEMS.map((it) => `<button class="item-btn" data-item="${it.id}" ${save.items[it.id] > 0 && !top && !full ? '' : 'disabled'}><span class="ic">${orbHTML(it.id)}</span><b>${it.name}</b><small>+${it.xp} XP · você tem ${save.items[it.id]}</small></button>`).join('')}</div>
+        <div class="orb-feed">${orbFeedHTML(card)}</div>
         ${ascendBtn}
         ${top || full ? '' : `<p class="hint">Alimente Orbes 🔮 até encher a barra (o XP que passar do cheio se perde). Com a barra cheia, suba o degrau com Essências ${essIcon()}.</p>`}
         ${ladderHTML(card)}
@@ -124,24 +125,7 @@ export function train() {
       train();
     }),
   );
-  app.querySelectorAll<HTMLElement>('[data-item]').forEach((el) =>
-    el.addEventListener('click', () => {
-      const it = XP_ITEMS.find((x) => x.id === el.dataset.item)!;
-      if (save.items[it.id as XpItemId] <= 0) return;
-      save.items[it.id as XpItemId]--;
-      track('orb'); // v0.72.0: missão diária
-      const r = feedXp(card, it.xp);
-      persist();
-      train();
-      if (r.filled) {
-        const fx = document.createElement('div');
-        fx.className = 'levelup';
-        fx.textContent = 'BARRA CHEIA!';
-        document.body.appendChild(fx);
-        setTimeout(() => fx.remove(), 1400);
-      }
-    }),
-  );
+  bindOrbFeed(card);
   app.querySelector('#gearBag')?.addEventListener('click', gearBagDialog);
   app.querySelector('#ascend')?.addEventListener('click', () => {
     const from = { stars: card.stars, plus: stepOf(card) };
@@ -154,6 +138,111 @@ export function train() {
       evolutionReveal(card.charId, from, { stars: card.stars, plus: stepOf(card) }, before);
     }
   });
+}
+
+// ---------------- ORBES (v0.72.2) ----------------
+// Tocar num Orbe só escolhe: a barra mostra até onde o XP vai chegar. Só gasta ao tocar em "Usar".
+let orbPick: Partial<Record<XpItemId, number>> = {};
+let orbKey = '';
+const pickXp = () => XP_ITEMS.reduce((a, it) => a + (orbPick[it.id as XpItemId] ?? 0) * it.xp, 0);
+const pickCount = () => XP_ITEMS.reduce((a, it) => a + (orbPick[it.id as XpItemId] ?? 0), 0);
+
+function xpBarInner(card: OwnedCard): string {
+  if (isMaxTier(card)) return '<i style="width:100%"></i><span>TOPO: RARIDADE MÁXIMA "++"</span>';
+  const cap = cardBarXp(card);
+  if (barFull(card)) return '<i style="width:100%"></i><span>BARRA CHEIA: PODE SUBIR O DEGRAU</span>';
+  const pct = Math.round(xpProgress(card) * 100);
+  const add = pickXp();
+  if (!add) return `<i style="width:${pct}%"></i><span>${card.xp} / ${cap} XP (${pct}%)</span>`;
+  const to = Math.min(cap, card.xp + add);
+  const toPct = Math.round((100 * to) / cap);
+  return `<b class="xp-ghost" style="width:${toPct}%"></b><i style="width:${pct}%"></i><span>${card.xp} → <em>${to}</em> / ${cap} XP (${toPct}%)</span>`;
+}
+
+function orbFeedHTML(card: OwnedCard): string {
+  const closed = isMaxTier(card) || barFull(card);
+  const room = closed ? 0 : cardBarXp(card) - card.xp;
+  const add = pickXp();
+  const cards = XP_ITEMS.map((it) => {
+    const id = it.id as XpItemId;
+    const n = orbPick[id] ?? 0;
+    const have = save.items[id];
+    const canAdd = !closed && n < have && add < room;
+    return `<div class="item-btn orb-pick${n ? ' on' : ''}${!closed && have > 0 ? '' : ' off'}" data-item="${id}" role="button">
+      <span class="ic">${orbHTML(id)}</span><b>${it.name}</b><small>+${it.xp} XP · você tem ${have}</small>
+      ${n ? `<span class="orb-step"><button class="btn small" data-orb-minus="${id}" aria-label="Tirar um">−</button><b>${n}</b><button class="btn small" data-orb-plus="${id}" aria-label="Pôr mais um" ${canAdd ? '' : 'disabled'}>+</button></span>` : ''}
+    </div>`;
+  }).join('');
+  const lost = Math.max(0, add - room);
+  const bar = pickCount()
+    ? `<div class="orb-use"><span>${pickCount()} Orbe${pickCount() > 1 ? 's' : ''} · +${add} XP${lost ? ` <span class="warn">(${lost} XP passam do cheio e se perdem)</span>` : ''}</span><button class="btn small" id="orbClear">Limpar</button><button class="btn primary" id="orbUse">🔮 Usar</button></div>`
+    : closed ? '' : '<p class="hint orb-tip">Toque num Orbe para escolher. A barra mostra até onde o XP vai; nada é gasto até tocar em <b>Usar</b>.</p>';
+  return `<div class="items">${cards}</div>${bar}`;
+}
+
+function bindOrbFeed(card: OwnedCard) {
+  const box = app.querySelector<HTMLElement>('.orb-feed');
+  if (!box) return;
+  const refresh = () => {
+    box.innerHTML = orbFeedHTML(card);
+    const bar = app.querySelector<HTMLElement>('#xpbar');
+    if (bar) bar.innerHTML = xpBarInner(card);
+  };
+  const room = () => (isMaxTier(card) || barFull(card) ? 0 : cardBarXp(card) - card.xp);
+  const inc = (id: XpItemId) => {
+    if ((orbPick[id] ?? 0) >= save.items[id] || pickXp() >= room()) return;
+    orbPick[id] = (orbPick[id] ?? 0) + 1;
+  };
+  box.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    const minus = t.closest<HTMLElement>('[data-orb-minus]');
+    const plus = t.closest<HTMLElement>('[data-orb-plus]');
+    if (minus) {
+      const id = minus.dataset.orbMinus as XpItemId;
+      orbPick[id] = Math.max(0, (orbPick[id] ?? 0) - 1);
+      if (!orbPick[id]) delete orbPick[id];
+      return refresh();
+    }
+    if (plus) {
+      inc(plus.dataset.orbPlus as XpItemId);
+      return refresh();
+    }
+    if (t.closest('#orbClear')) {
+      orbPick = {};
+      return refresh();
+    }
+    if (t.closest('#orbUse')) return useOrbs(card);
+    const pick = t.closest<HTMLElement>('[data-item]');
+    if (pick && !orbPick[pick.dataset.item as XpItemId]) {
+      inc(pick.dataset.item as XpItemId);
+      refresh();
+    }
+  });
+}
+
+function useOrbs(card: OwnedCard) {
+  let used = 0, filled = false;
+  for (const it of XP_ITEMS) {
+    const id = it.id as XpItemId;
+    const n = Math.min(orbPick[id] ?? 0, save.items[id]);
+    for (let k = 0; k < n; k++) {
+      save.items[id]--;
+      used++;
+      if (feedXp(card, it.xp).filled) filled = true;
+    }
+  }
+  orbPick = {};
+  if (!used) return train();
+  track('orb', used); // v0.72.0: missão diária
+  persist();
+  train();
+  if (filled) {
+    const fx = document.createElement('div');
+    fx.className = 'levelup';
+    fx.textContent = 'BARRA CHEIA!';
+    document.body.appendChild(fx);
+    setTimeout(() => fx.remove(), 1400);
+  }
 }
 
 /** a cópia usada mais forte do personagem (a que abre no Treinar) */
