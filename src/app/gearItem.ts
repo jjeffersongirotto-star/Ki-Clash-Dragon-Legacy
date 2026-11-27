@@ -42,7 +42,7 @@ function bodyHTML(id: string, sel: number): string {
   } else if (!open) fuse = `<p class="hint gi-why">🔒 Ganhe este item ${label.toLowerCase()} numa fase para liberar a Loja.</p>`;
   const src = gearSources(id, sel);
   const where = src.length
-    ? `<ul class="gi-where">${src.map((s) => `<li><b>${DIFFICULTY_LABEL[s.diff]}:</b> fases ${stageList(s.stages)}</li>`).join('')}</ul>`
+    ? `<ul class="gi-where">${src.map((s) => `<li><b>${DIFFICULTY_LABEL[s.diff]}:</b> ${[s.stages.length ? `fases ${stageList(s.stages)}` : '', s.chance.length ? `com chance nas fases ${stageList(s.chance)}` : ''].filter(Boolean).join(' · ')}</li>`).join('')}</ul>`
     : '<p class="hint">Nenhuma fase dá esta cor.</p>';
   return `<div class="gi-tabs">${tabs}</div>
     <p class="gi-color"><b style="color:${STAR_COLORS[sel].color}">${label}</b> · você tem <b>${gearCount(bag, id, sel)}</b>${open ? '' : ' · 🔒 bloqueado'}</p>

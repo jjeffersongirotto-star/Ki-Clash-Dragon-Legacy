@@ -13,7 +13,7 @@ import { getSpell, isSpell } from '../core/spells';
 import { gameAlert, showDialog } from '../ui/dialog';
 import { enterBattleMode, leaveBattleMode } from '../ui/orientation';
 import { MAX_COPIES, addToDeck, copiesIn, deckOwnedCopies, maxCopiesFor, ownedCopies, setCopies, deckMin, deckCards, deckCount, deckIssue, deckMax, teamReady } from '../ui/save';
-import { addGear, markGearSeen, stageGearChance, stageGearDrop, stageGearIds, stageGearRarity } from '../core/gear';
+import { addGear, markGearSeen, stageGearDrop, stageGearIds, stageGearOdds, stageGearRarity } from '../core/gear';
 import { DAILY_LIMIT, DIFFICULTIES, DIFFICULTY_ICON, FIRST_WIN_XP_MULT, DIFFICULTY_LABEL, gemsFor, spellRewardFor, HARD_LEGENDARY_CHANCE, HARD_MYTHIC_CHANCE, STAR_COUNT, starGoals, goalPlain, addStars, type WinResult, rewardsFor, canPlay, canRepeat, dailyLeft, difficultyUnlocked, isCleared, regionUnlocked, markCleared, stageFor, stageUnlocked, starCount, starsForWin, starsOf, useDaily, type Difficulty } from '../core/adventure';
 import { enemyCommanderArt, faceUrl } from '../ui/art';
 import { cardDetails, onLongPress } from '../ui/battleModals';
@@ -258,14 +258,19 @@ export function stageDialog(stageId: number) {
 
 /** v0.52.1: ⓘ dos itens da fase — as chances detalhadas, fora da frente da janela. */
 function dropInfo(stageId: number, diff: Difficulty) {
-  const [lo, hi] = stageGearRarity(stageId, diff);
+  const { low: lo, high: hi, odds } = stageGearOdds(stageId, diff);
   const ids = stageGearIds(stageId);
-  const rare = Math.round(stageGearChance(stageId, diff) * 100);
+  // v0.72.0: chance de quantos dos 3 itens vêm uma cor acima
+  const pct = (p: number) => `${(Math.round(p * 1000) / 10).toLocaleString('pt-BR')}%`;
+  const lab = (c: number) => STAR_COLORS[c].label.toLowerCase();
+  const rows = hi > lo
+    ? [`<b>${pct(odds[0])}</b> os ${ids.length} em ${lab(lo)}`, ...[1, 2, 3].filter((k) => odds[k] > 0).map((k) => `<b>${pct(odds[k])}</b> ${k === 3 ? 'os 3' : k} em ${lab(hi)}`)]
+    : [`<b>100%</b> ${lab(lo)}`];
   return showDialog({
     title: 'Chances dos itens',
     html: `<p class="hint">Cada vitória dá ${ids.length} itens desta fase:</p>
       <div class="drop-info-items">${ids.map((id) => gearHTML(id, lo)).join(' ')}</div>
-      <p>${hi > lo ? `<b>${100 - rare}%</b> ${STAR_COLORS[lo].label} · <b>${rare}%</b> ${STAR_COLORS[hi].label}` : `<b>100%</b> ${STAR_COLORS[lo].label}`}</p>
+      <p class="drop-odds">${rows.join('<br>')}</p>
       ${diff === 'dificil' ? `<p>Orbes extras no Difícil: ${orbHTML('orbe5')} <b>${HARD_LEGENDARY_CHANCE * 100}%</b> · ${orbHTML('orbe6')} <b>${HARD_MYTHIC_CHANCE * 100}%</b></p>` : ''}`,
     buttons: [],
   });

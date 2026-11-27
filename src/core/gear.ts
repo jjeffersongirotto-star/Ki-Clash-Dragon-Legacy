@@ -10,7 +10,7 @@
  *   Cartas Lendárias e Míticas pedem só itens Lendários (laranja).
  *   Quais itens (e quais são os "de cima"): fixos para cada personagem, numa ordem sorteada do conjunto da categoria.
  * - Cada fase dá sempre os mesmos 3 itens (de categorias diferentes); as 10 fases cobrem os 30.
- *   A cor sai pela tabela GEAR_BANDS (v0.69.0: cor comum, cor rara e chance por dificuldade e faixa de fases).
+ *   A cor sai pela curva GEAR_CURVE (v0.72.0: cor da fase e chance de 1, 2 ou 3 itens virem uma cor acima).
  */
 import { getChar } from './characters';
 import { shuffle } from './rng';
@@ -129,73 +129,87 @@ export const STAGE_GEAR: string[][] = Array.from({ length: 10 }, (_, p) =>
   }),
 );
 
-/** Cor comum e cor rara do drop até a fase `upTo` (inclusive) e a chance da rara. */
-export interface GearBand {
-  upTo: number;
-  low: number;
-  high: number;
-  rare: number;
-}
 /**
- * v0.69.0 — TABELA DE CORES DOS ITENS POR DIFICULDADE E FASE (mude só aqui).
- * O Fácil tem teto (azul, com roxo só no fim); o Normal dá azul e roxo; o Difícil, roxo e laranja (v0.71.0: laranja só no Difícil).
- * Até a v0.68: cada dificuldade tinha [comum, rara] e subia +1 cor a cada 2 regiões (o Fácil chegava ao laranja).
+ * v0.72.0 — COR DOS ITENS POR DIFICULDADE E FASE (pedido do jogador; mude só aqui).
+ * Cada fase tem um "nível de cor" x (1 = cinza … 5 = laranja), que sobe aos poucos ao longo das fases (`GEAR_CURVE`,
+ * ligando os pontos). A parte inteira é a **cor da fase**; a parte quebrada (t, de 0 a 1) diz quantos dos 3 itens da
+ * vitória vêm **uma cor acima** (`GEAR_ODDS`, ligando as duas pontas):
+ *   t = 0 → 94,9% nenhum · 4% um · 1% dois · 0,1% os três (pedido do jogador: "nem jogando as 10 vezes é garantido");
+ *   t = 1 (perto da fase em que a cor faz falta) → ~35% dos itens na cor nova e ~65% na mais fraca (a diferença diminui,
+ *   mas não se inverte). Poucas fases depois a cor nova vira a cor da fase e a próxima começa do t = 0.
+ * Os pontos vêm de scripts/balance/firstColor.ts (onde um baralho que precisa da cor começa a travar).
+ * Até a v0.71: faixas fixas `GEAR_BANDS` (cor comum, cor rara e uma chance por item).
  */
-export const GEAR_BANDS: Record<Difficulty, GearBand[]> = {
-  facil: [
-    // v0.71.0 (pedido do jogador): cada cor aparece ~5 fases antes de onde começa a fazer falta
-    // (scripts/balance/firstColor.ts): azul a partir da 11 (antes 21), roxo a partir da 54 (antes 51)
-    { upTo: 10, low: 1, high: 2, rare: 0.4 },
-    { upTo: 53, low: 2, high: 3, rare: 0.4 },
-    { upTo: 80, low: 3, high: 4, rare: 0.1 },
-    { upTo: 100, low: 3, high: 4, rare: 0.4 },
-  ],
-  // v0.71.0 (pedido do jogador): laranja só no Difícil — o Normal dá azul e roxo
-  normal: [
-    { upTo: 50, low: 3, high: 4, rare: 0.2 },
-    { upTo: 100, low: 3, high: 4, rare: 0.5 },
-  ],
-  dificil: [
-    { upTo: 30, low: 4, high: 5, rare: 0.2 },
-    { upTo: 100, low: 5, high: 5, rare: 0 },
-  ],
+export const GEAR_CURVE: Record<Difficulty, [stage: number, x: number][]> = {
+  // verde desde o começo; azul faz falta na 16, roxo na 59, laranja na 88 (raro no Fácil: no máximo ~15% dos itens)
+  facil: [[1, 1.6], [10, 1.99], [11, 1.999], [12, 2.0], [16, 2.99], [19, 2.999], [20, 3.0], [44, 3.0], [59, 3.99], [62, 3.999], [63, 4.0], [100, 4.35]],
+  // roxo faz falta na 17, laranja na 29 (raro no Normal: no máximo ~20% dos itens; o lugar dele é o Difícil)
+  normal: [[1, 3.4], [17, 3.99], [20, 3.999], [21, 4.0], [29, 4.4], [45, 4.54], [100, 4.54]],
+  // laranja: começa em ~19% e vira a cor da fase na 34
+  dificil: [[1, 4.5], [20, 4.8], [30, 4.99], [33, 4.999], [34, 5.0], [100, 5.0]],
 };
-/** A faixa de cores da fase. */
-export function stageGearBand(stageId: number, diff: Difficulty): GearBand {
-  const bands = GEAR_BANDS[diff];
-  return bands.find((b) => stageId <= b.upTo) ?? bands[bands.length - 1];
-}
-
 /** v0.39.0: os 3 itens da fase pelo número dela na região (a fase 3 de toda região dá os itens da fase 3). */
 export const stageGearIds = (stageId: number): string[] => STAGE_GEAR[(stageId - 1) % STAGE_GEAR.length] ?? [];
-/** Cores dos itens na fase: [comum, rara] (iguais quando só sai uma cor). */
-export function stageGearRarity(stageId: number, diff: Difficulty): [number, number] {
-  const b = stageGearBand(stageId, diff);
-  return [b.low, b.rare > 0 ? b.high : b.low];
-}
-/** Chance da cor rara na fase (0 quando só sai uma cor). */
-export const stageGearChance = (stageId: number, diff: Difficulty) => {
-  const b = stageGearBand(stageId, diff);
-  return b.high > b.low ? b.rare : 0;
+/** Chance de 0, 1, 2 e 3 itens virem uma cor acima, por t (ligando os pontos). */
+export const GEAR_ODDS: [t: number, p: [number, number, number, number]][] = [
+  [0, [0.949, 0.04, 0.01, 0.001]],
+  [1, [0.3, 0.4, 0.235, 0.065]],
+];
+const lerp = <T extends number[]>(pts: [number, T][], v: number): T => {
+  if (v <= pts[0][0]) return pts[0][1];
+  for (let i = 1; i < pts.length; i++) {
+    const [a, pa] = pts[i - 1], [b, pb] = pts[i];
+    if (v <= b) return pa.map((y, k) => y + ((pb[k] - y) * (v - a)) / (b - a)) as T;
+  }
+  return pts[pts.length - 1][1];
 };
-/** Itens que a fase dá numa vitória ou Repetir: os 3 da fase, cada um com a cor sorteada. */
+/** Nível de cor da fase (1 a 5). */
+export const stageGearLevel = (stageId: number, diff: Difficulty): number => lerp(GEAR_CURVE[diff].map(([st, x]) => [st, [x]] as [number, number[]]), stageId)[0];
+/** Cor da fase, cor acima e a chance de 0/1/2/3 itens virem na cor acima. */
+export function stageGearOdds(stageId: number, diff: Difficulty): { low: number; high: number; odds: [number, number, number, number] } {
+  const x = Math.round(stageGearLevel(stageId, diff) * 1000) / 1000;
+  const low = Math.min(GEAR_MAX_RARITY, Math.floor(x));
+  if (low >= GEAR_MAX_RARITY) return { low, high: low, odds: [1, 0, 0, 0] };
+  const odds = lerp(GEAR_ODDS.map(([t, p]) => [t, [...p]] as [number, number[]]), x - low).map((p) => Math.round(p * 10000) / 10000) as [number, number, number, number];
+  return { low, high: low + 1, odds };
+}
+/** Cores dos itens na fase: [cor da fase, cor acima] (iguais quando só sai uma cor). */
+export function stageGearRarity(stageId: number, diff: Difficulty): [number, number] {
+  const { low, high } = stageGearOdds(stageId, diff);
+  return [low, high];
+}
+/** Parte dos itens que vem na cor acima, em média (0 quando só sai uma cor). */
+export const stageGearChance = (stageId: number, diff: Difficulty) => {
+  const { odds } = stageGearOdds(stageId, diff);
+  return Math.round(((odds[1] + 2 * odds[2] + 3 * odds[3]) / 3) * 10000) / 10000;
+};
+/** Itens que a fase dá numa vitória ou Repetir: os 3 da fase; sorteia quantos vêm na cor acima (e quais). */
 export function stageGearDrop(stageId: number, diff: Difficulty, rng: () => number = Math.random): { id: string; rarity: number }[] {
-  const [low, high] = stageGearRarity(stageId, diff);
-  const chance = stageGearChance(stageId, diff);
-  return stageGearIds(stageId).map((id) => ({ id, rarity: rng() < chance ? high : low }));
+  const { low, high, odds } = stageGearOdds(stageId, diff);
+  const ids = stageGearIds(stageId);
+  let r = rng(), up = 0;
+  while (up < 3 && r >= odds[up]) r -= odds[up++];
+  const pos = [0, 1, 2];
+  for (let i = 2; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [pos[i], pos[j]] = [pos[j], pos[i]]; }
+  const which = new Set(pos.slice(0, up));
+  return ids.map((id, i) => ({ id, rarity: which.has(i) ? high : low }));
 }
 
-/** Onde conseguir um item numa cor: as fases (por dificuldade) que podem dar esse item nessa cor. */
-export function gearSources(id: string, rarity: number, stages = 100): { diff: Difficulty; stages: number[] }[] {
-  const out: { diff: Difficulty; stages: number[] }[] = [];
+/**
+ * Onde conseguir um item numa cor: as fases (por dificuldade) que dão esse item nessa cor. `stages` = é a cor da fase
+ * (vem sempre, salvo a chance de vir acima); `chance` (v0.72.0) = só com chance (a cor acima da fase).
+ */
+export function gearSources(id: string, rarity: number, stages = 100): { diff: Difficulty; stages: number[]; chance: number[] }[] {
+  const out: { diff: Difficulty; stages: number[]; chance: number[] }[] = [];
   for (const diff of ['facil', 'normal', 'dificil'] as Difficulty[]) {
-    const list: number[] = [];
+    const list: number[] = [], chance: number[] = [];
     for (let s = 1; s <= stages; s++) {
       if (!stageGearIds(s).includes(id)) continue;
       const [lo, hi] = stageGearRarity(s, diff);
-      if (lo === rarity || hi === rarity) list.push(s);
+      if (lo === rarity) list.push(s);
+      else if (hi === rarity && stageGearChance(s, diff) > 0) chance.push(s);
     }
-    if (list.length) out.push({ diff, stages: list });
+    if (list.length || chance.length) out.push({ diff, stages: list, chance });
   }
   return out;
 }
