@@ -10,7 +10,7 @@ import { CATEGORY_INFO } from '../core/characters';
 import { essIcon, gearHTML } from '../ui/components';
 import { ico } from '../ui/icons';
 import { showDialog } from '../ui/dialog';
-import { save, persist, fmt } from './state';
+import { save, persist, fmt, track } from './state';
 
 /** Lista curta de fases: "1, 11, 21" (até 6 números; depois "…"). */
 const stageList = (ids: number[]) => (ids.length > 6 ? `${ids.slice(0, 6).join(', ')}, …` : ids.join(', '));
@@ -42,7 +42,7 @@ function bodyHTML(id: string, sel: number): string {
   } else if (!open) fuse = `<p class="hint gi-why">🔒 Ganhe este item ${label.toLowerCase()} numa fase para liberar a Loja.</p>`;
   const src = gearSources(id, sel);
   const where = src.length
-    ? `<ul class="gi-where">${src.map((s) => `<li><b>${DIFFICULTY_LABEL[s.diff]}:</b> fases ${stageList(s.stages)}</li>`).join('')}</ul>`
+    ? `<ul class="gi-where">${src.map((s) => `<li><b>${DIFFICULTY_LABEL[s.diff]}:</b> ${[s.stages.length ? `fases ${stageList(s.stages)}` : '', s.chance.length ? `com chance nas fases ${stageList(s.chance)}` : ''].filter(Boolean).join(' · ')}</li>`).join('')}</ul>`
     : '<p class="hint">Nenhuma fase dá esta cor.</p>';
   return `<div class="gi-tabs">${tabs}</div>
     <p class="gi-color"><b style="color:${STAR_COLORS[sel].color}">${label}</b> · você tem <b>${gearCount(bag, id, sel)}</b>${open ? '' : ' · 🔒 bloqueado'}</p>
@@ -66,6 +66,7 @@ export function gearItemDialog(id: string, rarity = 1, after?: () => void) {
         body.querySelectorAll<HTMLElement>('[data-gr]').forEach((b) => b.addEventListener('click', () => { sel = Number(b.dataset.gr); body.innerHTML = bodyHTML(id, sel); bind(); }));
         body.querySelector<HTMLButtonElement>('[data-fuse]')?.addEventListener('click', () => {
           if (!fuseGear((save.gear ??= {}), save, save.gearSeen, id, sel).ok) return;
+          track('item'); // v0.72.0: missão diária
           changed = true;
           persist();
           body.innerHTML = bodyHTML(id, sel);

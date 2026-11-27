@@ -1,4 +1,5 @@
 import { CHAR_BY_ID } from '../core/characters';
+import { trackMission, type MissionEvent } from '../core/missions';
 import { syncSeen } from '../core/heroes';
 /**
  * Estado do app: conta e save abertos, Comandante, perfil, energia e Ouro de Dragão.
@@ -126,6 +127,10 @@ export function grantProfileAndGold(stageId: number, diff: Difficulty, first = f
   return `<div class="res big"><span>${goldHTML(`+${fmt(gold)}`)}</span><span>👤 +${xp} XP de perfil</span></div>${levelNote(r, before)}`;
 }
 /** Nível de perfil já subido ao gastar energia no começo da batalha (mostrado no fim). */
+/** v0.72.0: conta um passo das missões diárias. */
+export const track = (ev: MissionEvent, n = 1) => {
+  save.missions = trackMission(save.missions, ev, n);
+};
 export let pendingLevelNote = '';
 export const setPendingLevelNote = (html: string) => (pendingLevelNote = html);
 export async function noEnergy(cost: number) {

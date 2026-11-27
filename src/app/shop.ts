@@ -14,7 +14,7 @@ import { GEAR_BY_ID, GEAR_CATEGORIES, GEAR_RARITIES, GEAR_SETS, gearCount, gearN
 import { bindGearTaps, gearTapHTML } from './gearItem';
 import { BANNERS, PITY_EVERY, PITY_RARITY as PITY_RARITY_LABEL, bannerPrice, grantCard, pityCount, pull, type Banner } from '../core/banner';
 import { GEAR_PRICE, ORB_PRICE, buyGear, buyOrb } from '../core/shop';
-import { app, save, persist, teamCards, fmt, prof } from './state';
+import { app, save, persist, teamCards, fmt, prof, track } from './state';
 import { topbar, bindNav, modal, closeModal } from './ui';
 import { showDialog } from '../ui/dialog';
 import { grantedHTML } from './adventure';
@@ -78,7 +78,7 @@ export function shop() {
   app.querySelectorAll<HTMLElement>('[data-binfo]').forEach((b) => b.addEventListener('click', () => bannerInfo(BANNERS.find((x) => x.id === b.dataset.binfo)!)));
   app.querySelectorAll<HTMLElement>('[data-cat]').forEach((b) => b.addEventListener('click', () => { shopCat = b.dataset.cat as typeof shopCat; rerender(); }));
   app.querySelectorAll<HTMLElement>('[data-rar]').forEach((b) => b.addEventListener('click', () => { shopRarity = Number(b.dataset.rar); rerender(); }));
-  app.querySelectorAll<HTMLElement>('[data-gear]').forEach((b) => b.addEventListener('click', () => { if (isGearUnlocked(save.gearSeen, b.dataset.gear!, Number(b.dataset.r)) && buyGear(prof(), bag, b.dataset.gear!, Number(b.dataset.r)).ok) rerender(); }));
+  app.querySelectorAll<HTMLElement>('[data-gear]').forEach((b) => b.addEventListener('click', () => { if (isGearUnlocked(save.gearSeen, b.dataset.gear!, Number(b.dataset.r)) && buyGear(prof(), bag, b.dataset.gear!, Number(b.dataset.r)).ok) { track('item'); rerender(); } }));
   bindGearTaps(app, rerender); // v0.69.0: tocar no item mostra fusão e onde conseguir
   app.querySelectorAll<HTMLElement>('[data-orb]').forEach((b) => b.addEventListener('click', () => { if (buyOrb(prof(), save.items, b.dataset.orb as XpItemId).ok) rerender(); }));
   app.querySelectorAll<HTMLElement>('[data-pull]').forEach((b) =>

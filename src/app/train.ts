@@ -10,7 +10,7 @@ import { ico } from '../ui/icons';
 import { leaveBattleMode } from '../ui/orientation';
 import { bindGearTaps, gearTapHTML } from './gearItem';
 import { GEAR_CATEGORIES, GEAR_PER_STEP, GEAR_RARITIES, GEAR_SETS, reqRarity, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor } from '../core/gear';
-import { app, save, trainSel, trainRef, setTrainSel, persist } from './state';
+import { app, save, trainSel, trainRef, setTrainSel, persist, track } from './state';
 import { bestCopy, copyAt, copyList, materialize, pickOf } from '../core/copies';
 import { cardPower } from '../core/power';
 import { topbar, bindNav, modal, closeModal, bakeAllGrid } from './ui';
@@ -129,6 +129,7 @@ export function train() {
       const it = XP_ITEMS.find((x) => x.id === el.dataset.item)!;
       if (save.items[it.id as XpItemId] <= 0) return;
       save.items[it.id as XpItemId]--;
+      track('orb'); // v0.72.0: missão diária
       const r = feedXp(card, it.xp);
       persist();
       train();

@@ -6,6 +6,8 @@ import type { CardInstance } from '../core/types';
 import { DEFAULT_LEADER, LEADERS, reachableLevel } from '../core/leaders';
 import { deckPower } from '../core/power';
 import { LEGACY_ITEM_TO_ORB, MAX_STEP, XP_ITEMS, ascendCostFor, migrateBarV24, migrateOldCard, newOwned, stepOf, type OwnedCard, type XpItemId } from '../core/progression';
+import { normalizeTower, type TowerState } from '../core/tower';
+import { normalizeMissions, type MissionState } from '../core/missions';
 import { addGear, charGear, gearKey, normalizeGear, stageGearIds, stageGearRarity, normalizeGearSeen, reqRarity, type GearBag, type GearSeen } from '../core/gear';
 import { DIFFICULTIES, clearedIn, regionUnlocked, type DailyUse, type Difficulty } from '../core/adventure';
 import { REGION_COUNT, WORLD_STAGE_COUNT } from '../core/world';
@@ -106,6 +108,10 @@ export interface SaveData {
   pick?: Record<string, number[]>;
   /** migração v0.71.0: as cópias que já estavam no baralho viraram cópias próprias, na cor da principal */
   v71?: boolean;
+  /** v0.72.0: 🗼 Torre — maior andar vencido */
+  tower?: TowerState;
+  /** v0.72.0: 📜 missões diárias do dia (progresso e prêmios resgatados) */
+  missions?: MissionState;
   /** v0.59.0: Heróis — raridades já obtidas de cada personagem (ver core/heroes.ts) */
   heroSeen?: Record<string, number[]>;
   /** v0.59.0: prêmios dos Heróis já resgatados */
@@ -405,6 +411,8 @@ export function loadSave(): SaveData {
     merged.v69 = true;
     migrateV25(merged, d);
     merged.gems = Math.max(0, Math.floor(Number(d.gems) || 0)); // v0.33.0
+    merged.tower = normalizeTower(d.tower); // v0.72.0
+    merged.missions = normalizeMissions(d.missions);
     return merged;
   } catch {
     return defaultSave();

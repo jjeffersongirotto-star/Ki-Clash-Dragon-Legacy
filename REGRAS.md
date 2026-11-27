@@ -1763,7 +1763,30 @@ Medido em `scripts/balance/world.ts` (4 jogadores). Vitória ao chegar, média p
 ## Itens: faixas de cor, fusão e cadeado (v0.69.0)
 Lógica em `src/core/gear.ts` (`GEAR_BANDS`, `fuseGear`, `gearSources`); janela do item em `src/app/gearItem.ts`.
 
-### Cores dos itens por dificuldade e fase (tabela `GEAR_BANDS`)
+### Cores dos itens por dificuldade e fase (curva `GEAR_CURVE`, v0.72.0)
+Cada vitória continua dando os 3 itens fixos da fase (a fase 3 de toda região dá os mesmos 3 itens). A cor vem de um **nível de cor** que sobe aos poucos com as fases (pedido do jogador):
+- A parte inteira é a **cor da fase**. A parte quebrada diz **quantos dos 3 itens vêm uma cor acima** (`GEAR_ODDS`):
+  - **No começo de cada cor:** 94,9% nenhum · 4% um · 1% dois · 0,1% os três. Nem jogando as 10 vezes do dia é garantido (chance de vir algum ≈ 40%).
+  - **A chance sobe** conforme chega a fase em que a cor faz falta, até **~30% dos itens na cor nova** (e ~70% na mais fraca): a diferença diminui, mas não se inverte.
+  - **Poucas fases depois**, a cor nova vira a cor da fase, e a próxima cor começa de novo nos 4% / 1% / 0,1%.
+- Onde cada cor faz falta vem de `scripts/balance/firstColor.ts` (a fase em que um baralho que precisa da cor começa a travar):
+
+| Dificuldade | Cor | Chega a ~30% | Vira a cor da fase |
+|---|---|---|---|
+| Fácil | verde (desde a fase 1, ~22%) | 10 | 12 |
+| Fácil | azul | 16 | 20 |
+| Fácil | roxo | 59 | 63 |
+| Fácil | laranja (raro) | — (~14% na 100) | — |
+| Normal | roxo (desde a 1, ~15%) | 17 | 21 |
+| Normal | laranja (raro) | — (no máximo ~20%) | — |
+| Difícil | laranja (desde a 1, ~19%) | 30 | 34 |
+
+- O **laranja fica raro fora do Difícil**: o lugar dele é o Difícil (só laranja a partir da fase 34).
+- A **ⓘ Chances dos itens** da fase mostra a chance de 0, 1, 2 ou 3 itens virem na cor acima; o **Onde conseguir** do item separa as fases em que é a cor da fase das que só dão com chance.
+- *(v0.69.0–v0.71: faixas fixas `GEAR_BANDS`, com cor comum, cor rara e uma chance por item — abaixo.)*
+
+<details><summary>Tabela antiga (v0.69.0–v0.71)</summary>
+
 Cada vitória continua dando os 3 itens fixos da fase (a fase 3 de toda região dá os mesmos 3 itens). A cor agora vem da **faixa de fases**:
 
 | Dificuldade | Fases | Cor comum / cor rara | Chance da rara |
@@ -1780,6 +1803,9 @@ Cada vitória continua dando os 3 itens fixos da fase (a fase 3 de toda região 
 - O **Fácil tem teto** (azul, com roxo só no fim). Para evoluir cartas Raras e acima, o jogador precisa tentar o **Normal**.
 - **v0.71.0 (pedido do jogador):** o **laranja só cai no Difícil** (o Normal dá azul e roxo, com 50% de roxo a partir da fase 51). A **primeira aparição** do azul e do roxo no Fácil fica ~5 fases antes de onde um baralho que precisa da cor começa a travar (`scripts/balance/firstColor.ts`: azul trava na 16 → cai a partir da **11**, antes 21; roxo trava na 59 → a partir da **54**, antes 51). *(v0.69.0–v0.70: Fácil 1–20 cinza/verde, 21–50 verde/azul, 51–80 azul/roxo 10%; Normal 1–30 azul/roxo, 31–70 roxo/laranja, 71–100 laranja.)*
 - *(Até a v0.68: Fácil cinza/verde, Normal azul/roxo e Difícil roxo/laranja, subindo +1 cor a cada 2 regiões; o Fácil chegava ao laranja.)*
+
+
+</details>
 
 ### 🔒 Cadeado (por item e cor)
 - O jogo guarda os itens **já ganhos numa fase** (ou no tutorial), **por item e cor** (ex.: "Elmo roxo"). Só esses podem ser **fundidos** ou **comprados na Loja**. Assim a fusão e a Loja não deixam pular etapas.
@@ -1800,6 +1826,7 @@ Lógica em `src/core/leaders.ts`; painel e janela em `src/app/collection.ts`.
   - **Níveis 2 a 20** acompanham a campanha: Poder típico medido no simulador ao longo das 300 fases (Fácil, Normal e Difícil intercalados), um pouco abaixo do jogador simulado. Quem zera o Difícil fica perto do nível 20.
   - **Níveis 21 a 30** são o fim de jogo e sobem em progressão até o **nível 30 = Poder do baralho máximo**: o baralho de 40 cartas mais forte possível, cada carta na raridade mais alta que alcança, com "++" e **contando cada cópia** (v0.71.0: **6.075**; na v0.70.0 eram 40 personagens diferentes, 4.785).
   - **v0.71.0:** recalculados com as cópias individuais (o Poder do baralho soma todas as cópias). O nível 2 pede **520** e o 20 pede **2.770**; os níveis 2 a 20 ficam 15% abaixo do Poder típico do jogador simulado.
+  - **v0.72.0:** recalculados com as missões diárias e a Torre (o jogador simulado faz as duas): nível 2 = **520**, 10 = **1.270**, 20 = **3.160**, 30 = **6.075**.
 - O Poder continua sendo conferido **só na hora de evoluir**: dá para montar o baralho mais forte, evoluir e depois voltar ao baralho que quiser. O Comandante nunca perde nível.
 - **Um toque sobe todos os níveis** que o Poder já alcança (a janela mostra "alcança N níveis de uma vez").
 - **Passo guiado (uma vez só):** na primeira vez que o Poder alcança o nível 2, a tela escurece e destaca o caminho: **Baralho** na Base e depois **Evoluir**, com a explicação. Termina ao evoluir ("Agora não" faz o destaque voltar).
@@ -1828,3 +1855,28 @@ Lógica em `src/core/copies.ts`; telas em `src/app/collection.ts` (Suas cópias)
 - **Poder do baralho** = soma do Poder de **cada carta** do baralho (cada cópia com a cor dela; feitiços não contam). O Comandante usa esse Poder.
 - **Cópias guardadas:** as que nunca foram treinadas ficam guardadas por cor (Inventário → Personagens repetidos) e podem ser desmanchadas. Ao entrar no baralho ou ser treinada, a cópia passa a ser uma cópia própria; se sair do baralho sem nunca ter sido treinada, volta a ser guardada. Cópia já treinada não é desmanchada.
 - **Saves antigos:** as cópias que já estavam no baralho viram cópias próprias **na cor, degrau e XP da principal** (ninguém perde força); cada uma usa uma cópia guardada. As outras guardadas continuam como estavam.
+
+## 🗼 Torre (v0.72.0)
+Lógica em `src/core/tower.ts`; tela em `src/app/tower.ts` (prédio **Torre** na Base). Pedido do jogador: um modo para juntar recursos além da campanha, no estilo das torres de outros jogos do tipo.
+- **100 andares** em fila: só dá para lutar no próximo andar ainda não vencido. Abre depois de vencer a **Fácil 10** (fim da região 1).
+- **Grátis:** não gasta energia nem o limite do dia; dá para tentar quantas vezes quiser.
+- **Força do andar k:** o baralho da **Normal (k + 2)**; o degrau começa no da Normal (k + 2) e vai chegando ao do **Difícil k** (o andar 100 tem a força do Difícil 100), mais **0,3 degrau**. Assim a Torre acompanha o jogo inteiro. A cada **10 andares, um chefe**: +1 degrau, +50% de vida e IA +1.
+- **Prêmio só na primeira vitória** de cada andar: Ouro, Essências e Orbes da Normal (k + 2) **em dobro** (como uma primeira vitória), XP de perfil e os 3 itens dela; a cada 5 andares, mais 3 itens; a cada 10 (chefe), **💠 2 Gemas** (20 no total).
+- A tela mostra o andar atual (rival, prêmio e **Lutar**) e a lista dos próximos andares com os prêmios.
+
+## 📜 Missões diárias (v0.72.0)
+Lógica em `src/core/missions.ts`; janela em `src/app/missions.ts` (botão **📜 Missões** no topo da Base, com o número de prêmios para resgatar).
+- **6 missões por dia** (as mesmas todo dia), que zeram à **meia-noite de Brasília** (como o limite das fases):
+
+| Missão | Meta | Prêmio |
+|---|---|---|
+| 🏆 Vença batalhas (Aventura ou Torre) | 3 | Ouro de 3 vitórias |
+| ⚔️ Jogue (batalha, Repetir ou Torre) | 8 | Essências de 3 vitórias |
+| ⚡ Gaste energia | 40 | Orbes de 2 vitórias |
+| 🔮 Use Orbes no Treinar | 5 | Ouro de 2 vitórias |
+| 🗼 Lute na Torre | 1 | Orbes de 2 vitórias |
+| 🛡️ Compre ou funda um item de ascensão | 1 | Essências de 2 vitórias |
+
+- **"De N vitórias"** = o que N vitórias dão na **fase de referência**: a fase já vencida que mais dá Ouro, em qualquer dificuldade. Assim os prêmios crescem com o progresso.
+- Cada missão cumprida tem o botão **Resgatar**. Cumprir todas abre o **🎁 Baú do dia**: **💠 1 Gema** e **2 itens de ascensão** da cor da fase de referência (nunca uma cor acima: não pula o cadeado).
+- A missão da Torre só conta depois que a Torre abre; antes disso o Baú não pede essa missão.

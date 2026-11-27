@@ -1,29 +1,45 @@
 import { describe, expect, it } from 'vitest';
-import { FUSE_COST, addGear, fuseGear, gearCount, gearSources, isGearUnlocked, markGearSeen, stageGearChance, stageGearRarity, type GearBag } from '../../src/core/gear';
+import { FUSE_COST, addGear, fuseGear, gearCount, gearSources, isGearUnlocked, markGearSeen, stageGearChance, stageGearOdds, stageGearRarity, type GearBag } from '../../src/core/gear';
 
 describe('v0.69.0 — cores dos itens por faixa', () => {
-  it('Fácil tem teto: cinza → azul, roxo só no fim; Normal azul+; Difícil roxo+', () => {
-    // v0.71.0: azul a partir da 11 e roxo a partir da 54 (antes 21 e 51)
-    expect(stageGearRarity(10, 'facil')).toEqual([1, 2]);
-    expect(stageGearRarity(11, 'facil')).toEqual([2, 3]);
-    expect(stageGearRarity(53, 'facil')).toEqual([2, 3]);
-    expect(stageGearRarity(54, 'facil')).toEqual([3, 4]);
-    expect(stageGearChance(54, 'facil')).toBe(0.1);
-    expect(stageGearChance(81, 'facil')).toBe(0.4);
+  it('v0.72.0: cor da fase sobe aos poucos; a cor acima começa com 94,9 / 4 / 1 / 0,1% e chega a ~30% (não inverte)', () => {
+    // começo de cada cor: chance pequena (nem jogando 10 vezes é garantido)
+    expect(stageGearOdds(30, 'facil')).toEqual({ low: 3, high: 4, odds: [0.949, 0.04, 0.01, 0.001] });
+    // perto de onde a cor faz falta: ~30% dos itens na cor nova; nunca mais que isso
+    expect(stageGearRarity(16, 'facil')).toEqual([2, 3]);
+    expect(stageGearChance(16, 'facil')).toBeGreaterThan(0.29);
+    expect(stageGearChance(59, 'facil')).toBeGreaterThan(0.29);
+    expect(stageGearRarity(20, 'facil')[0]).toBe(3);
+    expect(stageGearRarity(63, 'facil')[0]).toBe(4);
+    for (const d of ['facil', 'normal', 'dificil'] as const)
+      for (let s = 1; s <= 100; s++) {
+        expect(stageGearChance(s, d)).toBeLessThanOrEqual(0.31);
+        expect(stageGearOdds(s, d).odds.reduce((x, y) => x + y, 0)).toBeCloseTo(1, 3);
+        if (s === 1) continue;
+        // a cor da fase nunca desce; dentro da mesma cor, a chance nunca desce
+        const a = stageGearOdds(s - 1, d), b = stageGearOdds(s, d);
+        expect(b.low).toBeGreaterThanOrEqual(a.low);
+        if (a.low === b.low) expect(stageGearChance(s, d)).toBeGreaterThanOrEqual(stageGearChance(s - 1, d));
+      }
+    // laranja: raro no Fácil e no Normal (o lugar dele é o Difícil, que fica só laranja)
     for (let s = 1; s <= 100; s++) {
-      expect(Math.max(...stageGearRarity(s, 'facil'))).toBeLessThanOrEqual(4);
-      expect(Math.min(...stageGearRarity(s, 'normal'))).toBeGreaterThanOrEqual(3);
-      expect(Math.min(...stageGearRarity(s, 'dificil'))).toBeGreaterThanOrEqual(4);
+      expect(stageGearRarity(s, 'facil')[0]).toBeLessThanOrEqual(4);
+      expect(stageGearRarity(s, 'normal')[0]).toBeLessThanOrEqual(4);
+      expect(stageGearRarity(s, 'normal')[0]).toBeGreaterThanOrEqual(3);
+      expect(stageGearRarity(s, 'dificil')[0]).toBeGreaterThanOrEqual(4);
     }
-    // v0.71.0: laranja só no Difícil
-    for (let s = 1; s <= 100; s++) expect(Math.max(...stageGearRarity(s, 'normal'))).toBeLessThanOrEqual(4);
-    expect(stageGearChance(71, 'normal')).toBe(0.5);
+    expect(stageGearChance(100, 'facil')).toBeLessThan(0.16);
+    expect(stageGearChance(100, 'normal')).toBeLessThan(0.21);
+    expect(stageGearRarity(40, 'dificil')).toEqual([5, 5]);
   });
 
-  it('onde conseguir: item da fase 1 em cinza sai no Fácil 1 (v0.71.0: a 11 já dá verde/azul)', () => {
+  it('onde conseguir: cor da fase × só com chance', () => {
     const src = gearSources('elmo', 1);
-    expect(src).toEqual([{ diff: 'facil', stages: [1] }]);
-    expect(gearSources('elmo', 5).map((s) => s.diff)).toEqual(['dificil']);
+    expect(src).toEqual([{ diff: 'facil', stages: [1, 11], chance: [] }]);
+    const az = gearSources('elmo', 3).find((s) => s.diff === 'facil')!;
+    expect(az.chance).toEqual([]); // v0.72.0: o azul só tem chance nas fases 12–19 (o elmo cai na 1, 11, 21…)
+    expect(az.stages).toContain(21);
+    expect(gearSources('elmo', 5).map((s) => s.diff)).toEqual(['facil', 'normal', 'dificil']);
   });
 });
 

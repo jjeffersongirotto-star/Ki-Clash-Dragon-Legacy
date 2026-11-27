@@ -1987,3 +1987,40 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .copy-on { display: inline-block; padding: 0 6px; border-radius: 8px; background: #2e9e4f; color: #fff; font-size: 11px; font-weight: 800; line-height: 16px; }
 .copy-row.on { background: linear-gradient(90deg, #2e9e4f2e, transparent 70%); border-left: 3px solid #2e9e4f; padding-left: 6px; border-radius: 6px; }
 .copy-tab.on { border-color: #2e9e4f; box-shadow: inset 0 0 0 1px #2e9e4f; }
+
+/* v0.72.0 Missões diárias (botão da Base e janela) */
+.hub-missions { position: relative; }
+.hm-badge { position: absolute; top: -8px; right: -8px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: #ff3d5a; color: #fff; font-weight: 900; font-size: 13px; display: grid; place-items: center; box-shadow: 0 0 0 2px #2a0a10; }
+.ms-dialog { max-width: min(640px, 96vw); }
+.ms-list { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
+.ms-row, .ms-chest { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: #0c1130; border: 1px solid #2c3670; }
+.ms-row.done { border-color: #f5b301; }
+.ms-row.got, .ms-chest.got { opacity: .6; }
+.ms-row.locked { opacity: .5; }
+.ms-ico { font-size: 22px; }
+.ms-txt { display: grid; gap: 3px; font-size: 13px; }
+.ms-txt small { opacity: .8; font-size: 11px; }
+.ms-bar { display: block; height: 6px; border-radius: 3px; background: #1d2550; overflow: hidden; }
+.ms-bar i { display: block; height: 100%; background: linear-gradient(90deg, #f5b301, #ffd76a); }
+.ms-prize { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; justify-content: flex-end; font-size: 12px; }
+.ms-ok { color: #7dff9a; font-weight: 900; font-size: 18px; }
+.ms-chest { grid-template-columns: auto 1fr auto; border-color: #6b4cff; }
+.ms-chest.ready { border-color: #f5b301; box-shadow: 0 0 10px rgba(245,179,1,.4); }
+.ms-got { margin-bottom: 8px; }
+@media (max-width: 520px) { .ms-row { grid-template-columns: auto 1fr auto; } .ms-prize { grid-column: 2 / 4; justify-content: flex-start; } }
+
+/* v0.72.0 Torre */
+.tower-screen .tower-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 10px 12px; max-width: 980px; margin: 0 auto; }
+.tower-card { background: #0c1130; border: 1px solid #3a4580; border-radius: 14px; padding: 10px 12px; text-align: center; }
+.tower-card h3 { margin: 4px 0; color: #ffd76a; }
+.tower-boss { color: #ff6b81; }
+.tower-card .btn.big { margin-top: 6px; }
+.tower-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; align-content: start; }
+.tower-list li { display: grid; gap: 3px; padding: 6px 10px; border-radius: 10px; background: #0c1130; border: 1px solid #2c3670; font-size: 13px; }
+.tower-list li span { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 12px; }
+.tower-list li.next { border-color: #f5b301; box-shadow: 0 0 8px rgba(245,179,1,.35); }
+.tower-list li.done { opacity: .6; }
+.tower-list li.boss b { color: #ff9aa8; }
+.tower-lock { max-width: 560px; margin: 24px auto; text-align: center; padding: 0 14px; }
+.tower-big { font-size: 54px; margin: 0; }
+@media (max-width: 720px) and (orientation: portrait) { .tower-screen .tower-wrap { grid-template-columns: 1fr; } }

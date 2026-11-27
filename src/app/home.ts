@@ -22,6 +22,9 @@ import { bannerGuide, tutorial } from './tutorial';
 import { bindProfileCard, profileCardHTML } from './profile';
 import { LEADER_GUIDE_HOME, leaderGuideActive } from './collection';
 import { spotlight } from '../ui/spotlight';
+import { missionsDialog } from './missions';
+import { missionsToClaim } from '../core/missions';
+import { towerUnlocked } from '../core/tower';
 
 // ---------------- BASE ----------------
 
@@ -29,6 +32,7 @@ export function home(): void {
   if (!tutorialDone(save)) return tutorial(); // v0.25.0: o jogador novo começa pelo tutorial
   if (save.tutBanner && (save.gems ?? 0) > 0) return bannerGuide(); // v0.33.0: passo guiado do Banner
   leaveBattleMode();
+  const toClaim = missionsToClaim(save.missions, towerUnlocked(save.cleared)); // v0.72.0
   const lay = (k: string, spot: HubSpot, extra = '') => {
     const b0 = HUB_BOXES[k];
     const b = b0 && moved(b0, spot);
@@ -54,11 +58,13 @@ export function home(): void {
     <div class="account-box hub-top">${profileCardHTML()}
       <div class="res hub-res"><span>${goldHTML(fmt(prof().gold))}</span><span class="res-energy">${energyHTML(energyNow(), energyMax(prof()))}</span></div>
       <span class="hub-spacer"></span>
+      <button class="btn small hub-missions" id="hubMissions" aria-label="Missões diárias">📜 Missões${toClaim ? `<span class="hm-badge">${toClaim}</span>` : ''}</button>
       ${isInstalledApp() ? '' : `<a class="btn small hub-dl" href="${downloadLink().url}" rel="noopener" title="${downloadLink().label}">${ico('baixar', '⬇')} Baixar</a>`}
       <button class="btn small upd-btn" id="updBtn" title="Procurar atualização" aria-label="Procurar atualização">${ico('atualizar', '<svg class="upd-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M20.5 3.5v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'upd-ico')}</button></div>
   </div>`;
   app.querySelectorAll<HTMLButtonElement>('.hub-spot').forEach((el) => el.addEventListener('click', () => tapSpot(HUB_SPOTS[Number(el.dataset.spot)])));
   app.querySelector('#hubHeroes')!.addEventListener('click', () => go('heroes')); // v0.59.0
+  app.querySelector('#hubMissions')!.addEventListener('click', () => missionsDialog(home)); // v0.72.0
   bindNav();
   bindProfileCard(app, home, accountDialog);
   app.querySelector('#updBtn')!.addEventListener('click', (e) => searchUpdate(e.currentTarget as HTMLButtonElement));

@@ -87,21 +87,22 @@ describe('v0.24.0 — itens de ascensão', () => {
     }
   });
 
-  it('cor do item (v0.69.0: por faixa de fases): Fácil 1 cinza/verde 60/40 · Normal 1 azul/roxo 80/20 · Difícil 1 roxo/laranja 80/20', () => {
-    const exp = { facil: [1, 2, 0.4], normal: [3, 4, 0.2], dificil: [4, 5, 0.2] } as const;
+  it('cor do item (v0.72.0: curva de cor): Fácil 1 cinza/verde · Normal 1 azul/roxo · Difícil 1 roxo/laranja', () => {
+    const exp = { facil: [1, 2], normal: [3, 4], dificil: [4, 5] } as const;
     for (const d of ['facil', 'normal', 'dificil'] as const) {
-      const [lo, hi, ch] = exp[d];
+      const [lo, hi] = exp[d];
       expect(stageGearRarity(1, d)).toEqual([lo, hi]);
-      expect(stageGearChance(1, d)).toBe(ch);
-      expect(stageGearDrop(1, d, () => 0.7).map((g) => g.rarity)).toEqual([lo, lo, lo]);
-      expect(stageGearDrop(1, d, () => 0.1).map((g) => g.rarity)).toEqual([hi, hi, hi]);
+      // sorteio baixo = nenhum acima; sorteio no fim = os 3 acima
+      expect(stageGearDrop(1, d, () => 0.01).map((g) => g.rarity)).toEqual([lo, lo, lo]);
+      expect(stageGearDrop(1, d, () => 0.99999).map((g) => g.rarity)).toEqual([hi, hi, hi]);
     }
     let seed = 1;
     const rng = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
     let rare = 0;
     for (let i = 0; i < 3000; i++) rare += stageGearDrop(2, 'normal', rng).filter((g) => g.rarity === 4).length;
-    expect(rare / 9000).toBeGreaterThan(0.17);
-    expect(rare / 9000).toBeLessThan(0.23);
+    const ch = stageGearChance(2, 'normal');
+    expect(rare / 9000).toBeGreaterThan(ch - 0.03);
+    expect(rare / 9000).toBeLessThan(ch + 0.03);
   });
 
   it('rewardsFor traz os 3 itens da fase (vitória e Repetir)', () => {
@@ -147,7 +148,7 @@ describe('v0.24.1 — bônus da primeira vitória', () => {
   it('primeira vitória: XP por jogar em dobro e itens da fase 2 vezes (recompensa + bônus)', () => {
     expect(FIRST_WIN_XP_MULT).toBe(2);
     const bag: GearBag = {};
-    for (const g of [...rewardsFor(3, 'facil', () => 0.9).gear, ...stageGearDrop(3, 'facil', () => 0.9)]) addGear(bag, g.id, g.rarity);
+    for (const g of [...rewardsFor(3, 'facil', () => 0.05).gear, ...stageGearDrop(3, 'facil', () => 0.05)]) addGear(bag, g.id, g.rarity);
     for (const id of STAGE_GEAR[2]) expect(gearCount(bag, id, 1)).toBe(2);
   });
 });
