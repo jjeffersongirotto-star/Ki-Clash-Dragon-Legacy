@@ -1989,10 +1989,8 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .copy-tab.on { border-color: #2e9e4f; box-shadow: inset 0 0 0 1px #2e9e4f; }
 
 /* v0.73.0 Missões diárias (botão da Base e janela) */
-.hub-missions { position: fixed; right: calc(max(10px, env(safe-area-inset-right)) + clamp(70px, 10.5vw, 124px)); bottom: max(8px, env(safe-area-inset-bottom)); z-index: 6; display: grid; justify-items: center; gap: 2px; background: none; border: 0; padding: 0; cursor: pointer; }
-.hub-missions .hm-ico { font-size: clamp(38px, 6.2vw, 72px); line-height: 1; filter: drop-shadow(0 0 6px rgba(255,190,60,.55)) drop-shadow(0 3px 3px #000); }
-.hub-missions:active .hm-ico { transform: scale(.94); }
-.hm-badge { position: absolute; top: -4px; right: -6px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #ff3d5a; color: #fff; font-weight: 900; font-size: 13px; display: grid; place-items: center; box-shadow: 0 0 0 2px #2a0a10; }
+.hub-missions { position: relative; }
+.hm-badge { position: absolute; top: -8px; right: -8px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: #ff3d5a; color: #fff; font-weight: 900; font-size: 13px; display: grid; place-items: center; box-shadow: 0 0 0 2px #2a0a10; }
 .ms-dialog { max-width: min(640px, 96vw); }
 .ms-list { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 6px; }
 .ms-row, .ms-chest { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: #0c1130; border: 1px solid #2c3670; }

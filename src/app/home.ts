@@ -54,11 +54,11 @@ export function home(): void {
         return `<button class="hub-spot${s.nav ? '' : ' locked'}" data-spot="${i}" aria-label="${esc(s.label)}${s.nav ? '' : ' (em breve)'}" style="left:${h.left}%;top:${h.top}%;width:${h.width}%;height:${h.height}%"><span class="hub-tag${s.tagUp ? ' up' : ''}${s.tagLeft ? ' left' : ''}"><span class="hub-ribbon">${s.nav ? '' : '<span class="lk">🔒</span> '}${s.br ? esc(s.label.slice(0, s.br)) + '<br>' + esc(s.label.slice(s.br + 1)) : esc(s.label)}</span></span></button>`;
       }).join('')}
     </div></div>
-    <button class="hub-missions" id="hubMissions" aria-label="Missões diárias"><span class="hm-ico" aria-hidden="true">📜</span><span class="hub-ribbon">Missões</span>${toClaim ? `<span class="hm-badge">${toClaim}</span>` : ''}</button>
     <button class="hub-heroes" id="hubHeroes" aria-label="Heróis"><img class="hh-ico" src="${albumIconUrl}" alt="" aria-hidden="true" draggable="false"><span class="hub-ribbon">Heróis</span></button>
     <div class="account-box hub-top">${profileCardHTML()}
       <div class="res hub-res"><span>${goldHTML(fmt(prof().gold))}</span><span class="res-energy">${energyHTML(energyNow(), energyMax(prof()))}</span></div>
       <span class="hub-spacer"></span>
+      <button class="btn small hub-missions" id="hubMissions" aria-label="Missões diárias">📜 Missões${toClaim ? `<span class="hm-badge">${toClaim}</span>` : ''}</button>
       ${isInstalledApp() ? '' : `<a class="btn small hub-dl" href="${downloadLink().url}" rel="noopener" title="${downloadLink().label}">${ico('baixar', '⬇')} Baixar</a>`}
       <button class="btn small upd-btn" id="updBtn" title="Procurar atualização" aria-label="Procurar atualização">${ico('atualizar', '<svg class="upd-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M20.5 3.5v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>', 'upd-ico')}</button></div>
   </div>`;
