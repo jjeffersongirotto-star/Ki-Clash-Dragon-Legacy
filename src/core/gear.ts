@@ -135,25 +135,25 @@ export const STAGE_GEAR: string[][] = Array.from({ length: 10 }, (_, p) =>
  * ligando os pontos). A parte inteira é a **cor da fase**; a parte quebrada (t, de 0 a 1) diz quantos dos 3 itens da
  * vitória vêm **uma cor acima** (`GEAR_ODDS`, ligando as duas pontas):
  *   t = 0 → 94,9% nenhum · 4% um · 1% dois · 0,1% os três (pedido do jogador: "nem jogando as 10 vezes é garantido");
- *   t = 1 (perto da fase em que a cor faz falta) → ~35% dos itens na cor nova e ~65% na mais fraca (a diferença diminui,
+ *   t = 1 (perto da fase em que a cor faz falta) → ~30% dos itens na cor nova e ~70% na mais fraca (a diferença diminui,
  *   mas não se inverte). Poucas fases depois a cor nova vira a cor da fase e a próxima começa do t = 0.
  * Os pontos vêm de scripts/balance/firstColor.ts (onde um baralho que precisa da cor começa a travar).
  * Até a v0.71: faixas fixas `GEAR_BANDS` (cor comum, cor rara e uma chance por item).
  */
 export const GEAR_CURVE: Record<Difficulty, [stage: number, x: number][]> = {
   // verde desde o começo; azul faz falta na 16, roxo na 59, laranja na 88 (raro no Fácil: no máximo ~15% dos itens)
-  facil: [[1, 1.6], [10, 1.99], [11, 1.999], [12, 2.0], [16, 2.99], [19, 2.999], [20, 3.0], [44, 3.0], [59, 3.99], [62, 3.999], [63, 4.0], [100, 4.35]],
+  facil: [[1, 1.71], [10, 1.99], [11, 1.999], [12, 2.0], [16, 2.99], [19, 2.999], [20, 3.0], [44, 3.0], [59, 3.99], [62, 3.999], [63, 4.0], [100, 4.42]],
   // roxo faz falta na 17, laranja na 29 (raro no Normal: no máximo ~20% dos itens; o lugar dele é o Difícil)
-  normal: [[1, 3.4], [17, 3.99], [20, 3.999], [21, 4.0], [29, 4.4], [45, 4.54], [100, 4.54]],
+  normal: [[1, 3.46], [17, 3.99], [20, 3.999], [21, 4.0], [29, 4.45], [45, 4.63], [100, 4.63]],
   // laranja: começa em ~19% e vira a cor da fase na 34
-  dificil: [[1, 4.5], [20, 4.8], [30, 4.99], [33, 4.999], [34, 5.0], [100, 5.0]],
+  dificil: [[1, 4.6], [20, 4.85], [30, 4.99], [33, 4.999], [34, 5.0], [100, 5.0]],
 };
 /** v0.39.0: os 3 itens da fase pelo número dela na região (a fase 3 de toda região dá os itens da fase 3). */
 export const stageGearIds = (stageId: number): string[] => STAGE_GEAR[(stageId - 1) % STAGE_GEAR.length] ?? [];
 /** Chance de 0, 1, 2 e 3 itens virem uma cor acima, por t (ligando os pontos). */
 export const GEAR_ODDS: [t: number, p: [number, number, number, number]][] = [
   [0, [0.949, 0.04, 0.01, 0.001]],
-  [1, [0.3, 0.4, 0.235, 0.065]],
+  [1, [0.38, 0.38, 0.19, 0.05]],
 ];
 const lerp = <T extends number[]>(pts: [number, T][], v: number): T => {
   if (v <= pts[0][0]) return pts[0][1];

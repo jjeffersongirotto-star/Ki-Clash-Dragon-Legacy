@@ -2,18 +2,18 @@ import { describe, expect, it } from 'vitest';
 import { FUSE_COST, addGear, fuseGear, gearCount, gearSources, isGearUnlocked, markGearSeen, stageGearChance, stageGearOdds, stageGearRarity, type GearBag } from '../../src/core/gear';
 
 describe('v0.69.0 — cores dos itens por faixa', () => {
-  it('v0.72.0: cor da fase sobe aos poucos; a cor acima começa com 94,9 / 4 / 1 / 0,1% e chega a ~35% (não inverte)', () => {
+  it('v0.72.0: cor da fase sobe aos poucos; a cor acima começa com 94,9 / 4 / 1 / 0,1% e chega a ~30% (não inverte)', () => {
     // começo de cada cor: chance pequena (nem jogando 10 vezes é garantido)
     expect(stageGearOdds(30, 'facil')).toEqual({ low: 3, high: 4, odds: [0.949, 0.04, 0.01, 0.001] });
-    // perto de onde a cor faz falta: ~35% dos itens na cor nova; nunca mais que isso
+    // perto de onde a cor faz falta: ~30% dos itens na cor nova; nunca mais que isso
     expect(stageGearRarity(16, 'facil')).toEqual([2, 3]);
-    expect(stageGearChance(16, 'facil')).toBeGreaterThan(0.33);
-    expect(stageGearChance(59, 'facil')).toBeGreaterThan(0.33);
+    expect(stageGearChance(16, 'facil')).toBeGreaterThan(0.29);
+    expect(stageGearChance(59, 'facil')).toBeGreaterThan(0.29);
     expect(stageGearRarity(20, 'facil')[0]).toBe(3);
     expect(stageGearRarity(63, 'facil')[0]).toBe(4);
     for (const d of ['facil', 'normal', 'dificil'] as const)
       for (let s = 1; s <= 100; s++) {
-        expect(stageGearChance(s, d)).toBeLessThanOrEqual(0.36);
+        expect(stageGearChance(s, d)).toBeLessThanOrEqual(0.31);
         expect(stageGearOdds(s, d).odds.reduce((x, y) => x + y, 0)).toBeCloseTo(1, 3);
         if (s === 1) continue;
         // a cor da fase nunca desce; dentro da mesma cor, a chance nunca desce
