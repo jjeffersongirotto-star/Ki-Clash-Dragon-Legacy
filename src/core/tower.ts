@@ -5,8 +5,8 @@
  * - 100 andares em fila: só dá para lutar no próximo andar ainda não vencido.
  * - **Grátis**: não gasta energia nem o limite do dia; dá para tentar quantas vezes quiser.
  * - Abre depois de vencer a Fácil 10 (fim da região 1).
- * - Força do andar k: a da Normal (k + TOWER_OFFSET) + `TOWER_BONUS` degraus — um pouco à frente da Normal, para ser
- *   um desafio que melhora quando o baralho melhora. A cada 10 andares, um **chefe**: +1 degrau e +50% de vida.
+ * - Força do andar k: começa na Normal (k + TOWER_OFFSET) e vai chegando ao Difícil k (o andar 100 = Difícil 100),
+ *   mais `TOWER_BONUS` degraus — um desafio que acompanha o jogo inteiro. A cada 10 andares, um **chefe**: +1 degrau e +50% de vida.
  * - Prêmio (só na primeira vitória de cada andar): Ouro, Essências e Orbes da Normal equivalente (em dobro, como uma
  *   primeira vitória) e os 3 itens dela; a cada 5 andares +3 itens; a cada 10 (chefe) 💠 Gemas.
  */
@@ -30,7 +30,12 @@ export const isBossFloor = (floor: number) => floor % 10 === 0;
 /** a fase da Normal que o andar usa de base (baralho, vida, recompensas) */
 export const towerBase = (floor: number) => Math.min(100, Math.max(1, floor + TOWER_OFFSET));
 /** degrau das cartas inimigas do andar */
-export const towerStep = (floor: number) => Math.min(17.99, ladderStep('normal', towerBase(floor)) + TOWER_BONUS + (isBossFloor(floor) ? TOWER_BOSS_BONUS : 0));
+export const towerStep = (floor: number) => {
+  // começa como a Normal (k + 2) e vai chegando ao Difícil k: o andar 100 é o Difícil 100 (a Torre dura até o fim do jogo)
+  const n = ladderStep('normal', towerBase(floor)), d = ladderStep('dificil', floor);
+  const s = n + (Math.max(n, d) - n) * (floor / TOWER_FLOORS);
+  return Math.min(17.99, s + TOWER_BONUS + (isBossFloor(floor) ? TOWER_BOSS_BONUS : 0));
+};
 
 /** A batalha do andar. `id` 0: sem "Fase N" no título; o Comandante é o mais forte do baralho. */
 export function towerStage(floor: number): Stage {

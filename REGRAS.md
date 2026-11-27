@@ -1859,7 +1859,7 @@ Lógica em `src/core/copies.ts`; telas em `src/app/collection.ts` (Suas cópias)
 Lógica em `src/core/tower.ts`; tela em `src/app/tower.ts` (prédio **Torre** na Base). Pedido do jogador: um modo para juntar recursos além da campanha, no estilo das torres de outros jogos do tipo.
 - **100 andares** em fila: só dá para lutar no próximo andar ainda não vencido. Abre depois de vencer a **Fácil 10** (fim da região 1).
 - **Grátis:** não gasta energia nem o limite do dia; dá para tentar quantas vezes quiser.
-- **Força do andar k:** o baralho e o degrau da **Normal (k + 2)** mais **0,3 degrau** — um pouco à frente da Normal. A cada **10 andares, um chefe**: +1 degrau, +50% de vida e IA +1.
+- **Força do andar k:** o baralho da **Normal (k + 2)**; o degrau começa no da Normal (k + 2) e vai chegando ao do **Difícil k** (o andar 100 tem a força do Difícil 100), mais **0,3 degrau**. Assim a Torre acompanha o jogo inteiro. A cada **10 andares, um chefe**: +1 degrau, +50% de vida e IA +1.
 - **Prêmio só na primeira vitória** de cada andar: Ouro, Essências e Orbes da Normal (k + 2) **em dobro** (como uma primeira vitória), XP de perfil e os 3 itens dela; a cada 5 andares, mais 3 itens; a cada 10 (chefe), **💠 2 Gemas** (20 no total).
 - A tela mostra o andar atual (rival, prêmio e **Lutar**) e a lista dos próximos andares com os prêmios.
 
