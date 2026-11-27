@@ -108,9 +108,9 @@ export interface SaveData {
   pick?: Record<string, number[]>;
   /** migração v0.71.0: as cópias que já estavam no baralho viraram cópias próprias, na cor da principal */
   v71?: boolean;
-  /** v0.73.0: 🗼 Torre — maior andar vencido */
+  /** v0.72.0: 🗼 Torre — maior andar vencido */
   tower?: TowerState;
-  /** v0.73.0: 📜 missões diárias do dia (progresso e prêmios resgatados) */
+  /** v0.72.0: 📜 missões diárias do dia (progresso e prêmios resgatados) */
   missions?: MissionState;
   /** v0.59.0: Heróis — raridades já obtidas de cada personagem (ver core/heroes.ts) */
   heroSeen?: Record<string, number[]>;
@@ -411,7 +411,7 @@ export function loadSave(): SaveData {
     merged.v69 = true;
     migrateV25(merged, d);
     merged.gems = Math.max(0, Math.floor(Number(d.gems) || 0)); // v0.33.0
-    merged.tower = normalizeTower(d.tower); // v0.73.0
+    merged.tower = normalizeTower(d.tower); // v0.72.0
     merged.missions = normalizeMissions(d.missions);
     return merged;
   } catch {

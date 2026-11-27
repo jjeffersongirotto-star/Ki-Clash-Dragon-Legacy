@@ -7,7 +7,7 @@ import { HUB_SPOTS } from '../../src/app/hubConfig';
 const DAY = Date.UTC(2026, 10, 27, 15); // 12h em Brasília
 const prog = (cleared: number[], normal: number[] = [], dificil: number[] = []) => ({ cleared, clearedDiff: { normal, dificil } });
 
-describe('v0.73.0 — Torre', () => {
+describe('v0.72.0 — Torre', () => {
   it('100 andares, abre depois da Fácil 10, sempre o próximo andar', () => {
     expect(TOWER_FLOORS).toBe(100);
     expect(towerUnlocked([1, 2, 3])).toBe(false);
@@ -38,7 +38,7 @@ describe('v0.73.0 — Torre', () => {
   });
 });
 
-describe('v0.73.0 — Missões diárias', () => {
+describe('v0.72.0 — Missões diárias', () => {
   it('progresso por evento, até a meta; zera no dia seguinte', () => {
     let m = trackMission(undefined, 'win', 1, DAY);
     m = trackMission(m, 'win', 5, DAY);

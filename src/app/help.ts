@@ -5,7 +5,7 @@
 import { CATEGORY_INFO, RACE_INFO, STAR_COLORS } from '../core/characters';
 import { TIER_NAMES } from '../core/progression';
 import { ico } from '../ui/icons';
-import { catIcon, goldHTML, essIcon, raceIcon } from '../ui/components';
+import { catIcon, gemHTML, goldHTML, essIcon, raceIcon } from '../ui/components';
 import { leaveBattleMode } from '../ui/orientation';
 import { ENERGY_COST } from '../core/profile';
 import { COLS, ROWS } from '../core/battle';
@@ -53,6 +53,9 @@ export function help() {
       <li>A energia <b>recupera 1 a cada 6 minutos</b> até o máximo do seu nível de perfil (nível 1 = 20 … nível 100 = 300).</li>
       <li>O <b>nível de perfil</b> sobe com XP de perfil: <b>1 por energia gasta</b> e mais um bônus a cada vitória ou Repetir (em dobro na primeira vitória). Ao subir de nível, a energia é <b>reabastecida até o máximo</b> do nível novo. O nível também aumenta o tamanho do baralho.</li>
       <li>Cada vitória ou Repetir dá <b>Ouro de Dragão</b> (mais nas fases altas e nas dificuldades difíceis; em dobro na primeira vitória). Gaste na <b>🏪 Loja</b> em itens de ascensão, Orbes e cartas do <b>${ico('banner', '🎴')} Banner</b> (personagem repetido vira mais 1 cópia: o baralho usa até 3 de cada, e as sobras você desmancha em XP no <b>🎒 Inventário</b>).</li></ul>
+    <h3>🗼 Torre e 📜 Missões diárias</h3><ul>
+      <li><b>Torre</b> (abre depois da Fácil 10): 100 andares, cada um mais difícil. <b>Não gasta energia</b> e dá para tentar quantas vezes quiser; o prêmio (Ouro, Essências, Orbes e itens) vem na <b>primeira vitória</b> de cada andar. A cada 10 andares, um <b>chefe</b> com ${gemHTML('')} Gemas.</li>
+      <li><b>Missões diárias</b> (botão 📜 Missões na Base): 6 tarefas por dia; cada uma cumprida dá um prêmio para <b>resgatar</b>, e cumprir todas abre o <b>Baú do dia</b> (1 Gema e 2 itens). Voltam à meia-noite (Brasília). Os prêmios crescem com o seu progresso.</li></ul>
     <h3>Categorias (ícone no canto da carta)</h3><ul>${Object.entries(CATEGORY_INFO).map(([k, c]) => `<li><b>${catIcon(k)} ${c.label}</b> — ${c.desc}</li>`).join('')}</ul>
   </div></div>`;
   bindNav();

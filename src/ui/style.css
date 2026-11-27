@@ -1988,7 +1988,7 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .copy-row.on { background: linear-gradient(90deg, #2e9e4f2e, transparent 70%); border-left: 3px solid #2e9e4f; padding-left: 6px; border-radius: 6px; }
 .copy-tab.on { border-color: #2e9e4f; box-shadow: inset 0 0 0 1px #2e9e4f; }
 
-/* v0.73.0 Missões diárias (botão da Base e janela) */
+/* v0.72.0 Missões diárias (botão da Base e janela) */
 .hub-missions { position: relative; }
 .hm-badge { position: absolute; top: -8px; right: -8px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: #ff3d5a; color: #fff; font-weight: 900; font-size: 13px; display: grid; place-items: center; box-shadow: 0 0 0 2px #2a0a10; }
 .ms-dialog { max-width: min(640px, 96vw); }
@@ -2009,7 +2009,7 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .ms-got { margin-bottom: 8px; }
 @media (max-width: 520px) { .ms-row { grid-template-columns: auto 1fr auto; } .ms-prize { grid-column: 2 / 4; justify-content: flex-start; } }
 
-/* v0.73.0 Torre */
+/* v0.72.0 Torre */
 .tower-screen .tower-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 10px 12px; max-width: 980px; margin: 0 auto; }
 .tower-card { background: #0c1130; border: 1px solid #3a4580; border-radius: 14px; padding: 10px 12px; text-align: center; }
 .tower-card h3 { margin: 4px 0; color: #ffd76a; }

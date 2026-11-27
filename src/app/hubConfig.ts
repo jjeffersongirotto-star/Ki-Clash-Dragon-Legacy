@@ -1,5 +1,5 @@
 /**
- * v0.46.0: locais do hub (mapa flutuante da Base). 1–8 abrem telas (v0.73.0: a Torre, 8); 9–14 ficam trancados ("Em breve").
+ * v0.46.0: locais do hub (mapa flutuante da Base). 1–8 abrem telas (v0.72.0: a Torre, 8); 9–14 ficam trancados ("Em breve").
  * Sem import de DOM: dá para testar no vitest.
  */
 export interface HubSpot {
@@ -32,7 +32,7 @@ export const HUB_SPOTS: HubSpot[] = [
   { key: '06-inventario', label: 'Inventário', nav: 'inventory' },
   // o tutorial guiado só roda uma vez; o Acampamento abre o "Como jogar"
   { key: '07-tutorial', label: 'Acampamento', nav: 'help', dx: -20 },
-  { key: '08-torre', label: 'Torre', nav: 'tower' }, // v0.73.0
+  { key: '08-torre', label: 'Torre', nav: 'tower' }, // v0.72.0
   { key: '09-invasao', label: 'Invasão de Chefe', nav: null, br: 7, soon: 'Chefes gigantes invadem o mundo por tempo limitado.' },
   { key: '10-arena', label: 'Arena', nav: null, soon: 'Lute contra baralhos de outros jogadores controlados pela IA.', dy: 60 },
   { key: '11-masmorra-dupla', label: 'Masmorra em Dupla', nav: null, soon: 'Explore masmorras com um parceiro.', dx: -40, dy: 40 },

@@ -1,5 +1,5 @@
 /**
- * v0.73.0 — 📜 MISSÕES DIÁRIAS (lógica pura, sem DOM). Pedido do jogador: mais recursos para quem fica travado,
+ * v0.72.0 — 📜 MISSÕES DIÁRIAS (lógica pura, sem DOM). Pedido do jogador: mais recursos para quem fica travado,
  * no estilo das missões diárias de outros jogos do tipo.
  *
  * - 6 missões por dia (as mesmas todo dia), que zeram à meia-noite de Brasília (como o limite das fases).

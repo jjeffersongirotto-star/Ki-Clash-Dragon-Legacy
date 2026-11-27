@@ -1854,3 +1854,28 @@ Lógica em `src/core/copies.ts`; telas em `src/app/collection.ts` (Suas cópias)
 - **Poder do baralho** = soma do Poder de **cada carta** do baralho (cada cópia com a cor dela; feitiços não contam). O Comandante usa esse Poder.
 - **Cópias guardadas:** as que nunca foram treinadas ficam guardadas por cor (Inventário → Personagens repetidos) e podem ser desmanchadas. Ao entrar no baralho ou ser treinada, a cópia passa a ser uma cópia própria; se sair do baralho sem nunca ter sido treinada, volta a ser guardada. Cópia já treinada não é desmanchada.
 - **Saves antigos:** as cópias que já estavam no baralho viram cópias próprias **na cor, degrau e XP da principal** (ninguém perde força); cada uma usa uma cópia guardada. As outras guardadas continuam como estavam.
+
+## 🗼 Torre (v0.72.0)
+Lógica em `src/core/tower.ts`; tela em `src/app/tower.ts` (prédio **Torre** na Base). Pedido do jogador: um modo para juntar recursos além da campanha, no estilo das torres de outros jogos do tipo.
+- **100 andares** em fila: só dá para lutar no próximo andar ainda não vencido. Abre depois de vencer a **Fácil 10** (fim da região 1).
+- **Grátis:** não gasta energia nem o limite do dia; dá para tentar quantas vezes quiser.
+- **Força do andar k:** o baralho e o degrau da **Normal (k + 2)** mais **0,3 degrau** — um pouco à frente da Normal. A cada **10 andares, um chefe**: +1 degrau, +50% de vida e IA +1.
+- **Prêmio só na primeira vitória** de cada andar: Ouro, Essências e Orbes da Normal (k + 2) **em dobro** (como uma primeira vitória), XP de perfil e os 3 itens dela; a cada 5 andares, mais 3 itens; a cada 10 (chefe), **💠 2 Gemas** (20 no total).
+- A tela mostra o andar atual (rival, prêmio e **Lutar**) e a lista dos próximos andares com os prêmios.
+
+## 📜 Missões diárias (v0.72.0)
+Lógica em `src/core/missions.ts`; janela em `src/app/missions.ts` (botão **📜 Missões** no topo da Base, com o número de prêmios para resgatar).
+- **6 missões por dia** (as mesmas todo dia), que zeram à **meia-noite de Brasília** (como o limite das fases):
+
+| Missão | Meta | Prêmio |
+|---|---|---|
+| 🏆 Vença batalhas (Aventura ou Torre) | 3 | Ouro de 3 vitórias |
+| ⚔️ Jogue (batalha, Repetir ou Torre) | 8 | Essências de 3 vitórias |
+| ⚡ Gaste energia | 40 | Orbes de 2 vitórias |
+| 🔮 Use Orbes no Treinar | 5 | Ouro de 2 vitórias |
+| 🗼 Lute na Torre | 1 | Orbes de 2 vitórias |
+| 🛡️ Compre ou funda um item de ascensão | 1 | Essências de 2 vitórias |
+
+- **"De N vitórias"** = o que N vitórias dão na **fase de referência**: a fase já vencida que mais dá Ouro, em qualquer dificuldade. Assim os prêmios crescem com o progresso.
+- Cada missão cumprida tem o botão **Resgatar**. Cumprir todas abre o **🎁 Baú do dia**: **💠 1 Gema** e **2 itens de ascensão** da cor da fase de referência (nunca uma cor acima: não pula o cadeado).
+- A missão da Torre só conta depois que a Torre abre; antes disso o Baú não pede essa missão.

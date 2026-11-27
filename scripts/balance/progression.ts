@@ -30,7 +30,7 @@ import { MISSIONS, missionReward } from '../../src/core/missions';
 import { TOWER_FLOORS, TOWER_UNLOCK_STAGE, towerReward, towerStage } from '../../src/core/tower';
 
 /**
- * v0.73.0 — dias de jogo: a cada SIM_DAY batalhas o simulador conta um dia. SIM_MISSIONS=1 dá as missões diárias
+ * v0.72.0 — dias de jogo: a cada SIM_DAY batalhas o simulador conta um dia. SIM_MISSIONS=1 dá as missões diárias
  * (todas, com o Baú); SIM_TOWER=1 tenta a Torre (até SIM_TOWER_TRIES derrotas por dia). SIM_GOLD = multiplicador do
  * Ouro das fases (teste de "mais dinheiro / menos dinheiro").
  */
@@ -248,7 +248,7 @@ function giveBag(p: Player, r: { gold?: number; essencias: number; orbs: Record<
   for (const g of r.gear) gainGear(p, g.id, g.rarity);
   if (r.gems) pullCards(p, r.gems);
 }
-/** v0.73.0: conta uma batalha; a cada SIM_DAY, um dia novo (missões diárias e Torre). */
+/** v0.72.0: conta uma batalha; a cada SIM_DAY, um dia novo (missões diárias e Torre). */
 function played(p: Player, sc: Schedule) {
   if (++p.plays % SIM_DAY) return;
   p.days++;
@@ -277,7 +277,7 @@ function levelUp(p: Player, sc: Schedule) {
 export interface StageStat {
   /** v0.71.0: fração das cartas do baralho com a barra cheia, mas sem Essências ou itens para o Despertar (travadas por recurso) */
   blocked: number[];
-  /** v0.73.0: dias de jogo (SIM_DAY batalhas cada) e andar da Torre ao chegar */
+  /** v0.72.0: dias de jogo (SIM_DAY batalhas cada) e andar da Torre ao chegar */
   days: number[]; tower: number[];
   arrivePower: number[]; leader: number[]; winAtArrival: number[]; attempts: number[]; burst: number[]; maxAtk: number[]; hpLeftWin: number[]; winStats: { cards: number; spells: number; kills: number }[] }
 

@@ -1,5 +1,5 @@
 /**
- * v0.73.0 — 🗼 TORRE (lógica pura, sem DOM). Pedido do jogador: um modo para juntar recursos além da campanha,
+ * v0.72.0 — 🗼 TORRE (lógica pura, sem DOM). Pedido do jogador: um modo para juntar recursos além da campanha,
  * no estilo das torres de outros jogos do tipo (andares cada vez mais difíceis, prêmio só na primeira vitória).
  *
  * - 100 andares em fila: só dá para lutar no próximo andar ainda não vencido.

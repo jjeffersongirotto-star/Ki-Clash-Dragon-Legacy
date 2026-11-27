@@ -129,7 +129,7 @@ export function train() {
       const it = XP_ITEMS.find((x) => x.id === el.dataset.item)!;
       if (save.items[it.id as XpItemId] <= 0) return;
       save.items[it.id as XpItemId]--;
-      track('orb'); // v0.73.0: missão diária
+      track('orb'); // v0.72.0: missão diária
       const r = feedXp(card, it.xp);
       persist();
       train();

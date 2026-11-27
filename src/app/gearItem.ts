@@ -66,7 +66,7 @@ export function gearItemDialog(id: string, rarity = 1, after?: () => void) {
         body.querySelectorAll<HTMLElement>('[data-gr]').forEach((b) => b.addEventListener('click', () => { sel = Number(b.dataset.gr); body.innerHTML = bodyHTML(id, sel); bind(); }));
         body.querySelector<HTMLButtonElement>('[data-fuse]')?.addEventListener('click', () => {
           if (!fuseGear((save.gear ??= {}), save, save.gearSeen, id, sel).ok) return;
-          track('item'); // v0.73.0: missão diária
+          track('item'); // v0.72.0: missão diária
           changed = true;
           persist();
           body.innerHTML = bodyHTML(id, sel);

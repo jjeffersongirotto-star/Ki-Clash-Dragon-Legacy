@@ -1,5 +1,5 @@
 /**
- * v0.73.0 — 🗼 Torre: tela dos andares, batalha do andar e prêmio da primeira vitória (regras em core/tower.ts).
+ * v0.72.0 — 🗼 Torre: tela dos andares, batalha do andar e prêmio da primeira vitória (regras em core/tower.ts).
  */
 import { getChar } from '../core/characters';
 import { stageCommander } from '../core/campaign';

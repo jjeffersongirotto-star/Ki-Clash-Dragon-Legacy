@@ -1,5 +1,5 @@
 /**
- * v0.73.0 — 📜 Missões diárias: janela com as missões do dia, os prêmios para resgatar e o Baú (regras em core/missions.ts).
+ * v0.72.0 — 📜 Missões diárias: janela com as missões do dia, os prêmios para resgatar e o Baú (regras em core/missions.ts).
  */
 import { CHEST_GEMS, CHEST_ITEMS, MISSIONS, chestMissions, chestReady, claimMission, freshMissions, missionReward, type MissionReward } from '../core/missions';
 import { towerUnlocked } from '../core/tower';
