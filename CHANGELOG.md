@@ -2,6 +2,20 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.72.0] — 27/11/2026 · 🗼 Torre, 📜 Missões diárias e chance de itens mais fortes
+- **Itens com chance de vir uma cor acima** (pedido do jogador). Em cada vitória, dos 3 itens:
+  - longe da fase em que a nova cor faz falta: **94,9%** todos da cor da fase, **4%** 1 item acima, **1%** 2 itens acima, **0,1%** os 3 acima;
+  - a chance sobe aos poucos até a fase em que a cor faz falta, chegando a **cerca de 30%** dos itens da cor nova (nunca inverte). Depois, a cor nova passa a ser a da fase.
+  - O "Onde conseguir" do item e a janela de prêmios da fase mostram essas chances.
+- **🗼 Torre** (abre depois da Fácil 10): 100 andares em fila, cada um mais forte. **Grátis**: não gasta energia, dá para tentar quantas vezes quiser.
+  - O andar 1 é parecido com a Normal 3 e o **andar 100 tem a força do Difícil 100**: a Torre acompanha o jogo inteiro.
+  - Prêmio só na **primeira vitória** de cada andar: Ouro, Essências e Orbes em dobro e 3 itens; a cada 5 andares +3 itens; a cada 10 um **chefe** (mais forte, +50% de vida) com 💠 2 Gemas.
+- **📜 Missões diárias** (botão na barra de cima da Base): 6 missões que voltam à meia-noite de Brasília — vencer 3, jogar 8, gastar 40 de energia, usar 5 Orbes, lutar na Torre e comprar ou fundir 1 item.
+  - Os prêmios crescem com o progresso (valem 2 ou 3 vitórias na sua fase mais forte). Cumprir todas abre o **Baú do dia**: 💠 1 Gema + 2 itens.
+- **Dificuldade recalibrada** contando com as missões e a Torre (que dão bastante recurso a mais). Quem faz as missões fica perto das metas de vitória ao chegar (Fácil 97% → 45%, Normal 55% → 30%, Difícil 50% → 20%); quem não faz fica um pouco abaixo.
+- **Comandante:** requisitos de Poder recalculados (nível 2 pede 520, o 20 pede 3.160, o 30 continua 6.075).
+- **Simulador:** conta dias (25 batalhas por dia), faz as missões e a Torre, e aceita mais ou menos Ouro para testar a economia.
+
 ## [0.71.0] — 27/11/2026 · Cópias individuais, 10 compras grátis e dificuldade mais suave
 Quarta parte das mudanças do teste de jogador novo.
 - **Cada cópia é uma carta própria:** tem a sua raridade (cor), o seu "+" e o seu XP. Treinar e Despertar valem para **uma cópia**, e cada uma paga o preço inteiro.

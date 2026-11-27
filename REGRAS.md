@@ -1826,6 +1826,7 @@ Lógica em `src/core/leaders.ts`; painel e janela em `src/app/collection.ts`.
   - **Níveis 2 a 20** acompanham a campanha: Poder típico medido no simulador ao longo das 300 fases (Fácil, Normal e Difícil intercalados), um pouco abaixo do jogador simulado. Quem zera o Difícil fica perto do nível 20.
   - **Níveis 21 a 30** são o fim de jogo e sobem em progressão até o **nível 30 = Poder do baralho máximo**: o baralho de 40 cartas mais forte possível, cada carta na raridade mais alta que alcança, com "++" e **contando cada cópia** (v0.71.0: **6.075**; na v0.70.0 eram 40 personagens diferentes, 4.785).
   - **v0.71.0:** recalculados com as cópias individuais (o Poder do baralho soma todas as cópias). O nível 2 pede **520** e o 20 pede **2.770**; os níveis 2 a 20 ficam 15% abaixo do Poder típico do jogador simulado.
+  - **v0.72.0:** recalculados com as missões diárias e a Torre (o jogador simulado faz as duas): nível 2 = **520**, 10 = **1.270**, 20 = **3.160**, 30 = **6.075**.
 - O Poder continua sendo conferido **só na hora de evoluir**: dá para montar o baralho mais forte, evoluir e depois voltar ao baralho que quiser. O Comandante nunca perde nível.
 - **Um toque sobe todos os níveis** que o Poder já alcança (a janela mostra "alcança N níveis de uma vez").
 - **Passo guiado (uma vez só):** na primeira vez que o Poder alcança o nível 2, a tela escurece e destaca o caminho: **Baralho** na Base e depois **Evoluir**, com a explicação. Termina ao evoluir ("Agora não" faz o destaque voltar).
