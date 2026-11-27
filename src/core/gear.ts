@@ -143,8 +143,10 @@ export interface GearBand {
  */
 export const GEAR_BANDS: Record<Difficulty, GearBand[]> = {
   facil: [
-    { upTo: 20, low: 1, high: 2, rare: 0.4 },
-    { upTo: 50, low: 2, high: 3, rare: 0.4 },
+    // v0.71.0 (pedido do jogador): cada cor aparece ~5 fases antes de onde começa a fazer falta
+    // (scripts/balance/firstColor.ts): azul a partir da 11 (antes 21), roxo a partir da 54 (antes 51)
+    { upTo: 10, low: 1, high: 2, rare: 0.4 },
+    { upTo: 53, low: 2, high: 3, rare: 0.4 },
     { upTo: 80, low: 3, high: 4, rare: 0.1 },
     { upTo: 100, low: 3, high: 4, rare: 0.4 },
   ],

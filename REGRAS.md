@@ -1768,17 +1768,17 @@ Cada vitória continua dando os 3 itens fixos da fase (a fase 3 de toda região 
 
 | Dificuldade | Fases | Cor comum / cor rara | Chance da rara |
 |---|---|---|---|
-| Fácil | 1–20 | cinza / verde | 40% |
-| Fácil | 21–50 | verde / azul | 40% |
-| Fácil | 51–80 | azul / roxo | 10% |
+| Fácil | 1–10 | cinza / verde | 40% |
+| Fácil | 11–53 | verde / azul | 40% |
+| Fácil | 54–80 | azul / roxo | 10% |
 | Fácil | 81–100 | azul / roxo | 40% |
-| Normal | 1–30 | azul / roxo | 20% |
-| Normal | 31–70 | roxo / laranja | 20% |
-| Normal | 71–100 | laranja | — |
+| Normal | 1–50 | azul / roxo | 20% |
+| Normal | 51–100 | azul / roxo | 50% |
 | Difícil | 1–30 | roxo / laranja | 20% |
 | Difícil | 31–100 | laranja | — |
 
-- O **Fácil tem teto** (azul, com roxo só no fim). Para evoluir cartas Raras e acima, o jogador precisa tentar o **Normal**; os itens laranja (cartas Lendárias e Míticas) vêm do Normal avançado e do Difícil.
+- O **Fácil tem teto** (azul, com roxo só no fim). Para evoluir cartas Raras e acima, o jogador precisa tentar o **Normal**.
+- **v0.71.0 (pedido do jogador):** o **laranja só cai no Difícil** (o Normal dá azul e roxo, com 50% de roxo a partir da fase 51). A **primeira aparição** do azul e do roxo no Fácil fica ~5 fases antes de onde um baralho que precisa da cor começa a travar (`scripts/balance/firstColor.ts`: azul trava na 16 → cai a partir da **11**, antes 21; roxo trava na 59 → a partir da **54**, antes 51). *(v0.69.0–v0.70: Fácil 1–20 cinza/verde, 21–50 verde/azul, 51–80 azul/roxo 10%; Normal 1–30 azul/roxo, 31–70 roxo/laranja, 71–100 laranja.)*
 - *(Até a v0.68: Fácil cinza/verde, Normal azul/roxo e Difícil roxo/laranja, subindo +1 cor a cada 2 regiões; o Fácil chegava ao laranja.)*
 
 ### 🔒 Cadeado (por item e cor)
