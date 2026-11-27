@@ -4,10 +4,10 @@ import { HUB_SPOTS, hitBox } from '../../src/app/hubConfig';
 import { HUB_BOXES } from '../../src/ui/hubLayers';
 
 describe('v0.46.0 hub', () => {
-  it('14 locais: 1–7 abrem telas, 8–14 ficam trancados', () => {
+  it('14 locais: 1–8 abrem telas (v0.73.0: Torre), 9–14 ficam trancados', () => {
     expect(HUB_SPOTS).toHaveLength(14);
-    expect(HUB_SPOTS.slice(0, 7).map((s) => s.nav)).toEqual(['adventure', 'collection', 'train', 'shop', 'shop', 'inventory', 'help']);
-    expect(HUB_SPOTS.slice(7).every((s) => s.nav === null && !!s.soon)).toBe(true);
+    expect(HUB_SPOTS.slice(0, 8).map((s) => s.nav)).toEqual(['adventure', 'collection', 'train', 'shop', 'shop', 'inventory', 'help', 'tower']);
+    expect(HUB_SPOTS.slice(8).every((s) => s.nav === null && !!s.soon)).toBe(true);
   });
   it('cada local tem caixa, camada normal e brilho; os trancados têm camada com cadeado', () => {
     for (const s of HUB_SPOTS) {

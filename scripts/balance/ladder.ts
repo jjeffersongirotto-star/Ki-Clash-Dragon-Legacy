@@ -67,10 +67,10 @@ const stats = runCampaign({ name: 'escada', hp: LEADER_HP, thresholds: LEADER_TH
     return at(lo);
   },
 });
-const res = { order, bonus, win: stats.map((s) => s.winAtArrival), pow: stats.map((s) => s.arrivePower), blocked: stats.map((s) => s.blocked) };
+const res = { order, bonus, win: stats.map((s) => s.winAtArrival), pow: stats.map((s) => s.arrivePower), blocked: stats.map((s) => s.blocked), days: stats.map((s) => s.days), tower: stats.map((s) => s.tower) };
 if (out) writeFileSync(out, JSON.stringify(res));
 for (const d of ['facil', 'normal', 'dificil'] as const)
   for (let r = 0; r < 10; r++) {
     const idx = order.map((o, i) => (o.diff === d && o.id > r * 10 && o.id <= r * 10 + 10 ? i : -1)).filter((i) => i >= 0);
-    console.log(`${d} região ${r + 1}: vitória ao chegar ${Math.round(100 * mean(idx.map((i) => mean(res.win[i]))))}% · degrau extra ${mean(idx.map((i) => mean(bonus[d][order[i].id - 1] ?? [0]))).toFixed(2)} · travadas por recurso ${Math.round(100 * mean(idx.map((i) => mean(res.blocked[i]))))}%`);
+    console.log(`${d} região ${r + 1}: vitória ao chegar ${Math.round(100 * mean(idx.map((i) => mean(res.win[i]))))}% · degrau extra ${mean(idx.map((i) => mean(bonus[d][order[i].id - 1] ?? [0]))).toFixed(2)} · travadas por recurso ${Math.round(100 * mean(idx.map((i) => mean(res.blocked[i]))))}% · dia ${Math.round(mean(res.days[idx[idx.length - 1]]))} · Torre ${Math.round(mean(res.tower[idx[idx.length - 1]]))}`);
   }

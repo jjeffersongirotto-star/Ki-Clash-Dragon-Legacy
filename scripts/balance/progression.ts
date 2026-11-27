@@ -26,12 +26,26 @@ import type { CardInstance } from '../../src/core/types';
 import { getChar } from '../../src/core/characters';
 import { BALANCE_V2 } from '../../src/core/balanceV2';
 import { autoDeck, deckMaxFor, profileLevelFor } from '../../src/core/deckbuild';
+import { MISSIONS, missionReward } from '../../src/core/missions';
+import { TOWER_FLOORS, TOWER_UNLOCK_STAGE, towerReward, towerStage } from '../../src/core/tower';
+
+/**
+ * v0.73.0 — dias de jogo: a cada SIM_DAY batalhas o simulador conta um dia. SIM_MISSIONS=1 dá as missões diárias
+ * (todas, com o Baú); SIM_TOWER=1 tenta a Torre (até SIM_TOWER_TRIES derrotas por dia). SIM_GOLD = multiplicador do
+ * Ouro das fases (teste de "mais dinheiro / menos dinheiro").
+ */
+const SIM_DAY = Number(process.env.SIM_DAY ?? 25);
+const SIM_MISSIONS = process.env.SIM_MISSIONS === '1';
+const SIM_TOWER = process.env.SIM_TOWER === '1';
+const SIM_TOWER_TRIES = Number(process.env.SIM_TOWER_TRIES ?? 3);
+const SIM_GOLD = Number(process.env.SIM_GOLD ?? 1);
+export const simDays = { total: 0 };
 
 export interface Schedule { name: string; hp: number[]; thresholds: number[]; enemyHp: (stageIdx: number) => number }
 
 const XP = Object.fromEntries(XP_ITEMS.map((i) => [i.id, i.xp])) as Record<string, number>;
 
-interface Player { cards: Record<string, OwnedCard>; items: Record<string, number>; ess: number; cleared: number; leader: number; gear: GearBag; seen: string[]; gold: number; extra: Record<string, OwnedCard[]>; spells: Record<string, number>; bank: { xp: number }; rng: () => number }
+interface Player { prog: { cleared: number[]; clearedDiff: { normal: number[]; dificil: number[] } }; tower: number; plays: number; days: number; towerGems: number; dailyGold: number; cards: Record<string, OwnedCard>; items: Record<string, number>; ess: number; cleared: number; leader: number; gear: GearBag; seen: string[]; gold: number; extra: Record<string, OwnedCard[]>; spells: Record<string, number>; bank: { xp: number }; rng: () => number }
 
 /** v0.25.0: SIM_OLD_START=1 começa como antes do tutorial (todos os de Comum, sem pacotes de Comum nas fases). */
 const SIM_OLD_START = process.env.SIM_OLD_START === '1';
@@ -209,7 +223,8 @@ function reward(p: Player, i0: number, first: boolean, repeatMult = 0.5) {
   for (const [id, k] of Object.entries(r.orbs)) p.items[id] = (p.items[id] ?? 0) + Math.floor((k ?? 0) * f);
   p.ess += Math.floor(r.essencias * f);
   if (f >= 1) for (const g of r.gear) gainGear(p, g.id, g.rarity); // v0.24.0: itens só com recompensa inteira
-  p.gold += Math.floor(goldFor(i + 1, diff) * f * (first ? FIRST_WIN_MULT : 1)); // v0.26.0: Ouro de Dragão
+  p.gold += Math.floor(goldFor(i + 1, diff) * f * (first ? FIRST_WIN_MULT : 1) * SIM_GOLD); // v0.26.0: Ouro de Dragão
+  if (first) (diff === 'facil' ? p.prog.cleared : p.prog.clearedDiff[diff]).push(i + 1);
   if (first) for (const g of stageGearDrop(i + 1, diff)) gainGear(p, g.id, g.rarity); // v0.24.1: bônus da 1ª vitória
   // v0.25.0: pacote da primeira vitória (o desbloqueio de sempre + um personagem de Comum) — desligado na v0.33.0
   if (first && STAGE_PACKS) for (const id of stagePack(i + 1)) if (!p.cards[id]) { p.cards[id] = newOwned(id); p.extra[id] = [newOwned(id), newOwned(id)]; }
@@ -226,6 +241,34 @@ function winXp(p: Player, i: number, first = false) {
   if (SIM_PLAYXP) for (const c of team(p)) feedXp(c, playXp(STAGE_MAP.fn(i).id) * (first ? FIRST_WIN_XP_MULT : 1));
 }
 
+function giveBag(p: Player, r: { gold?: number; essencias: number; orbs: Record<string, number | undefined>; gear: { id: string; rarity: number }[]; gems?: number }) {
+  p.gold += r.gold ?? 0;
+  p.ess += r.essencias;
+  for (const [id, k] of Object.entries(r.orbs)) p.items[id] = (p.items[id] ?? 0) + (k ?? 0);
+  for (const g of r.gear) gainGear(p, g.id, g.rarity);
+  if (r.gems) pullCards(p, r.gems);
+}
+/** v0.73.0: conta uma batalha; a cada SIM_DAY, um dia novo (missões diárias e Torre). */
+function played(p: Player, sc: Schedule) {
+  if (++p.plays % SIM_DAY) return;
+  p.days++;
+  if (SIM_MISSIONS) {
+    const open = p.prog.cleared.includes(TOWER_UNLOCK_STAGE);
+    for (const d of MISSIONS) if (open || d.event !== 'tower') { const r = missionReward(p.prog, d.id, p.rng); p.dailyGold += r.gold; giveBag(p, r); }
+    giveBag(p, missionReward(p.prog, 'chest', p.rng));
+  }
+  if (SIM_TOWER && p.prog.cleared.includes(TOWER_UNLOCK_STAGE)) {
+    let losses = 0;
+    while (p.tower < TOWER_FLOORS && losses < SIM_TOWER_TRIES) {
+      spend(p); levelUp(p, sc);
+      const st = towerStage(p.tower + 1);
+      const r = simulate(battleDeck(p, p.prog.cleared.length), st.enemyDeck, sc.hp[p.leader - 1], st.enemyHeroHp, 5000000 + p.plays * 13 + losses, st.aiLevel);
+      if (r.winner === 'player') { p.tower++; const rw = towerReward(p.tower, p.rng); p.towerGems += rw.gems; giveBag(p, rw); }
+      else losses++;
+    }
+  }
+}
+
 function levelUp(p: Player, sc: Schedule) {
   const dp = deckPower(team(p));
   while (p.leader < sc.hp.length && dp >= sc.thresholds[p.leader - 1]) p.leader++; // thresholds[L-1] = requisito do nível L+1
@@ -234,6 +277,8 @@ function levelUp(p: Player, sc: Schedule) {
 export interface StageStat {
   /** v0.71.0: fração das cartas do baralho com a barra cheia, mas sem Essências ou itens para o Despertar (travadas por recurso) */
   blocked: number[];
+  /** v0.73.0: dias de jogo (SIM_DAY batalhas cada) e andar da Torre ao chegar */
+  days: number[]; tower: number[];
   arrivePower: number[]; leader: number[]; winAtArrival: number[]; attempts: number[]; burst: number[]; maxAtk: number[]; hpLeftWin: number[]; winStats: { cards: number; spells: number; kills: number }[] }
 
 /**
@@ -246,12 +291,12 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
   const repeatMult = opts.repeatMult ?? 0.5;
   // v0.39.0: `stages` = as 100 fases do mundo; `bannerGold` = o Ouro que sobra da Loja vira cartas do Banner (10 por vez)
   const STAGES = opts.stages ?? CAMPAIGN;
-  const stats: StageStat[] = STAGES.map(() => ({ blocked: [], arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [], winStats: [] }));
+  const stats: StageStat[] = STAGES.map(() => ({ days: [], tower: [], blocked: [], arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [], winStats: [] }));
   let seed = 7;
   for (let pi = opts.firstPlayer ?? 0; pi < (opts.firstPlayer ?? 0) + players; pi++) {
     opts.onPlayer?.(pi);
     let rs = 1000 + pi * 7919;
-    const p: Player = { cards: {}, items: SIM_OLD_START ? { orbe1: 10, orbe3: 3 } : {}, ess: SIM_OLD_START ? 10 : 0, cleared: 0, leader: 1, gear: {}, seen: [], gold: 0, extra: {}, spells: {}, bank: { xp: 0 }, rng: () => ((rs = (rs * 16807) % 2147483647) / 2147483647) };
+    const p: Player = { prog: { cleared: [], clearedDiff: { normal: [], dificil: [] } }, tower: 0, plays: 0, days: 0, towerGems: 0, dailyGold: 0, cards: {}, items: SIM_OLD_START ? { orbe1: 10, orbe3: 3 } : {}, ess: SIM_OLD_START ? 10 : 0, cleared: 0, leader: 1, gear: {}, seen: [], gold: 0, extra: {}, spells: {}, bank: { xp: 0 }, rng: () => ((rs = (rs * 16807) % 2147483647) / 2147483647) };
     if (SIM_OLD_START) for (const id of STARTER_IDS) { p.cards[id] = newOwned(id); p.extra[id] = [newOwned(id), newOwned(id)]; }
     else {
       // v0.25.0: jogador que acabou o tutorial — Riku, Sora e Nara e a recompensa do tutorial
@@ -274,7 +319,7 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
         if (chosen) STAGES[i] = chosen;
       }
       const st = stats[i];
-      st.arrivePower.push(deckPower(team(p))); st.leader.push(p.leader);
+      st.arrivePower.push(deckPower(team(p))); st.leader.push(p.leader); st.days.push(p.days); st.tower.push(p.tower);
       { const t = team(p); st.blocked.push(t.filter((c) => !isMaxTier(c) && barFull(c) && (p.ess < ascendCost(c) || !gearOk(p, c))).length / Math.max(1, t.length)); }
       // taxa de vitória exatamente no momento em que chega à fase
       const hp = sc.hp[p.leader - 1];
@@ -290,12 +335,14 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
         attempts++;
         spend(p); levelUp(p, sc);
         const r = simulate(battleDeck(p, i), STAGES[i].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i), seed++, STAGES[i].aiLevel);
+        played(p, sc);
         if (r.winner === 'player') { reward(p, i, true, repeatMult); winXp(p, i, true); break; }
         p.items.orbe1 = (p.items.orbe1 ?? 0) + 1;
         if (attempts > (opts.maxAttempts ?? 300)) break;
         if (i > 0) {
           spend(p); levelUp(p, sc);
           const rr = simulate(battleDeck(p, i), STAGES[i - 1].enemyDeck, sc.hp[p.leader - 1], sc.enemyHp(i - 1), seed++, STAGES[i - 1].aiLevel);
+          played(p, sc);
           if (rr.winner === 'player') { reward(p, i - 1, false, repeatMult); winXp(p, i - 1); } else p.items.orbe1 = (p.items.orbe1 ?? 0) + 1;
         }
       }

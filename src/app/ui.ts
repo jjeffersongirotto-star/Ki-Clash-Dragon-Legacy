@@ -16,6 +16,7 @@ import { train } from './train';
 import { shop } from './shop';
 import { help } from './help';
 import { inventory } from './inventory';
+import { tower } from './tower';
 
 /** v0.51.0: `res` troca os recursos da direita (ex.: Loja só com Ouro) e centraliza o título. */
 export function topbar(title: string, back = true, res?: string) {
@@ -40,6 +41,7 @@ export function go(screen: string) {
   else if (screen === 'shop') shop();
   else if (screen === 'inventory') inventory();
   else if (screen === 'heroes') heroes();
+  else if (screen === 'tower') tower();
 }
 
 export function resultModalWith(html: string, buttons: { label: string; primary?: boolean; run: () => void }[]) {

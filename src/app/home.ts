@@ -22,6 +22,9 @@ import { bannerGuide, tutorial } from './tutorial';
 import { bindProfileCard, profileCardHTML } from './profile';
 import { LEADER_GUIDE_HOME, leaderGuideActive } from './collection';
 import { spotlight } from '../ui/spotlight';
+import { missionsDialog } from './missions';
+import { missionsToClaim } from '../core/missions';
+import { towerUnlocked } from '../core/tower';
 
 // ---------------- BASE ----------------
 
@@ -29,6 +32,7 @@ export function home(): void {
   if (!tutorialDone(save)) return tutorial(); // v0.25.0: o jogador novo começa pelo tutorial
   if (save.tutBanner && (save.gems ?? 0) > 0) return bannerGuide(); // v0.33.0: passo guiado do Banner
   leaveBattleMode();
+  const toClaim = missionsToClaim(save.missions, towerUnlocked(save.cleared)); // v0.73.0
   const lay = (k: string, spot: HubSpot, extra = '') => {
     const b0 = HUB_BOXES[k];
     const b = b0 && moved(b0, spot);
@@ -50,6 +54,7 @@ export function home(): void {
         return `<button class="hub-spot${s.nav ? '' : ' locked'}" data-spot="${i}" aria-label="${esc(s.label)}${s.nav ? '' : ' (em breve)'}" style="left:${h.left}%;top:${h.top}%;width:${h.width}%;height:${h.height}%"><span class="hub-tag${s.tagUp ? ' up' : ''}${s.tagLeft ? ' left' : ''}"><span class="hub-ribbon">${s.nav ? '' : '<span class="lk">🔒</span> '}${s.br ? esc(s.label.slice(0, s.br)) + '<br>' + esc(s.label.slice(s.br + 1)) : esc(s.label)}</span></span></button>`;
       }).join('')}
     </div></div>
+    <button class="hub-missions" id="hubMissions" aria-label="Missões diárias"><span class="hm-ico" aria-hidden="true">📜</span><span class="hub-ribbon">Missões</span>${toClaim ? `<span class="hm-badge">${toClaim}</span>` : ''}</button>
     <button class="hub-heroes" id="hubHeroes" aria-label="Heróis"><img class="hh-ico" src="${albumIconUrl}" alt="" aria-hidden="true" draggable="false"><span class="hub-ribbon">Heróis</span></button>
     <div class="account-box hub-top">${profileCardHTML()}
       <div class="res hub-res"><span>${goldHTML(fmt(prof().gold))}</span><span class="res-energy">${energyHTML(energyNow(), energyMax(prof()))}</span></div>
@@ -59,6 +64,7 @@ export function home(): void {
   </div>`;
   app.querySelectorAll<HTMLButtonElement>('.hub-spot').forEach((el) => el.addEventListener('click', () => tapSpot(HUB_SPOTS[Number(el.dataset.spot)])));
   app.querySelector('#hubHeroes')!.addEventListener('click', () => go('heroes')); // v0.59.0
+  app.querySelector('#hubMissions')!.addEventListener('click', () => missionsDialog(home)); // v0.73.0
   bindNav();
   bindProfileCard(app, home, accountDialog);
   app.querySelector('#updBtn')!.addEventListener('click', (e) => searchUpdate(e.currentTarget as HTMLButtonElement));

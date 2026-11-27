@@ -24,7 +24,7 @@ const LOCK = () => ico('bloqueado', '🔒');
 import { grantCard, type GrantResult } from '../core/banner';
 import { firstClearOffer } from '../core/firstPick';
 import { ENERGY_COST, energyMax, goldFor, profileXpFor, spendEnergy } from '../core/profile';
-import { app, save, persist, activeLeader, leaderLevel, prof, energyNow, levelNote, grantProfileAndGold, pendingLevelNote, setPendingLevelNote, noEnergy } from './state';
+import { app, save, persist, activeLeader, leaderLevel, prof, energyNow, levelNote, grantProfileAndGold, pendingLevelNote, setPendingLevelNote, noEnergy, track } from './state';
 import { topbar, bindNav, modal, closeModal } from './ui';
 import { collection } from './collection';
 import { train } from './train';
@@ -347,6 +347,8 @@ export function repeatStage(stageId: number, diff: Difficulty) {
   if (!spent.ok) return void noEnergy(cost);
   const st = stageFor(stageId, diff);
   save.daily = useDaily(save.daily, diff, stageId);
+  track('play');
+  track('energy', cost);
   const got = grantRewards(st, diff) + levelNote(spent, before) + grantProfileAndGold(stageId, diff);
   persist();
   resultModal(`<h2 class="win">⟲ Fase ${stageLabel(st.id)} repetida</h2><p>${esc(st.name)} · ${DIFFICULTY_LABEL[diff]}</p>${got}<p class="hint">Hoje: <b>${dailyLeft(save.daily, diff, stageId)}/${DAILY_LIMIT}</b> restantes nesta fase.</p>`);
@@ -421,6 +423,8 @@ export function startBattle(stageId: number, diff: Difficulty = advDiff()) {
   const spent = spendEnergy(prof(), cost);
   if (!spent.ok) return void noEnergy(cost);
   setPendingLevelNote(levelNote(spent, before));
+  track('play');
+  track('energy', cost);
   persist();
   const stage = stageFor(stageId, diff);
   const deck = deckCards(save);
@@ -449,6 +453,7 @@ export function finishBattle(stageId: number, diff: Difficulty, winner: string, 
   const first = !isCleared(save, diff, stageId);
   let html = '';
   if (winner === 'player') {
+    track('win');
     const got = grantRewards(stage, diff, first) + grantPlayXp(stageId, first) + grantProfileAndGold(stageId, diff, first);
     if (first) markCleared(save, diff, stageId);
     else save.daily = useDaily(save.daily, diff, stageId);

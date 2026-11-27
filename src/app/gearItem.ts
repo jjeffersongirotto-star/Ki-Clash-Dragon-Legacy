@@ -10,7 +10,7 @@ import { CATEGORY_INFO } from '../core/characters';
 import { essIcon, gearHTML } from '../ui/components';
 import { ico } from '../ui/icons';
 import { showDialog } from '../ui/dialog';
-import { save, persist, fmt } from './state';
+import { save, persist, fmt, track } from './state';
 
 /** Lista curta de fases: "1, 11, 21" (até 6 números; depois "…"). */
 const stageList = (ids: number[]) => (ids.length > 6 ? `${ids.slice(0, 6).join(', ')}, …` : ids.join(', '));
@@ -66,6 +66,7 @@ export function gearItemDialog(id: string, rarity = 1, after?: () => void) {
         body.querySelectorAll<HTMLElement>('[data-gr]').forEach((b) => b.addEventListener('click', () => { sel = Number(b.dataset.gr); body.innerHTML = bodyHTML(id, sel); bind(); }));
         body.querySelector<HTMLButtonElement>('[data-fuse]')?.addEventListener('click', () => {
           if (!fuseGear((save.gear ??= {}), save, save.gearSeen, id, sel).ok) return;
+          track('item'); // v0.73.0: missão diária
           changed = true;
           persist();
           body.innerHTML = bodyHTML(id, sel);
