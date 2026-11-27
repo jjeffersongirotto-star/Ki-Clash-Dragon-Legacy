@@ -1346,8 +1346,7 @@ body::before { inset: 0 0 auto 0; height: 100lvh; }
   border: 2px solid var(--rc, #9aa); box-shadow: 0 0 0 1px #000, 0 0 8px var(--rc, transparent); background: #0b1026; }
 .art-sprite .art-img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; display: block; }
 .art-sprite .art-img.flip { transform: scaleX(-1); }
-.unit.side-player .art-sprite { border-color: #2fb8ff; box-shadow: 0 0 0 1px #000, 0 0 8px #2fb8ff; }
-.unit.side-enemy .art-sprite { border-color: #ff3d6e; box-shadow: 0 0 0 1px #000, 0 0 8px #ff3d6e; }
+/* v0.72.3: na arena a moldura tem a cor da raridade (antes azul = sua, vermelha = do rival) */
 .u-portrait:has(.art-sprite) { left: 6%; right: 6%; top: 2%; bottom: 20%; filter: drop-shadow(0 3px 4px rgba(0,0,0,.75)); }
 .ds-sprite .art-sprite { height: 100%; }
 .banner-hero .art-sprite { width: 108px; height: 130px; }

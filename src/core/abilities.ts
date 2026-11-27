@@ -101,13 +101,13 @@ export const ABILITIES: Record<AbilityId, AbilityDef> = {
     id: 'diagFrente',
     name: 'Corte Diagonal',
     // v0.64.7: une o antigo Golpe Reverso — ataca quem está atrás, nas diagonais e ao lado antes de atacar à frente
-    description: 'Ataca primeiro quem está atrás, nas diagonais ou ao lado; se não houver ninguém, ataca à frente.',
+    description: 'Ataca primeiro quem está atrás, nas diagonais ou ao lado (outra fileira), com o mesmo dano do ataque; se não houver ninguém, ataca à frente.',
     descAt: (s) =>
       s <= 2
-        ? 'Ataca primeiro quem está atrás ou na diagonal de trás; se não houver ninguém, ataca à frente.'
+        ? 'Ataca primeiro quem está atrás ou na diagonal de trás (outra fileira), com o mesmo dano do ataque; se não houver ninguém, ataca à frente.'
         : s <= 4
-          ? 'Ataca primeiro quem está atrás, nas diagonais ou ao lado; se não houver ninguém, ataca à frente.'
-          : 'Ataca primeiro quem está atrás, nas diagonais ou ao lado; se não houver ninguém, ataca à frente. Corte duplo: também acerta o próximo inimigo dessa ordem com 50% do dano.',
+          ? 'Ataca primeiro quem está atrás, nas diagonais ou ao lado (outra fileira), com o mesmo dano do ataque; se não houver ninguém, ataca à frente.'
+          : 'Ataca primeiro quem está atrás, nas diagonais ou ao lado (outra fileira), com o mesmo dano do ataque; se não houver ninguém, ataca à frente. Corte duplo: também acerta o próximo inimigo dessa ordem com 50% do dano.',
     icon: '↗',
     targeting: 'diagFrente',
     scaling: 'Raro em diante: também ao lado e na diagonal da frente. Lendário em diante: corte duplo — também acerta o próximo inimigo dessa ordem com 50% do dano.',
@@ -798,6 +798,8 @@ ABILITIES.sedeEterna.legacyDescription = ABILITIES.sedeEterna.description;
 ABILITIES.sedeEterna.text = (v) =>
   `Cada ataque tira ${v} de vida extra do alvo e cura ele mesmo nessa quantidade. Ao derrotar um inimigo, passa a Marca da Sede ao aliado mais próximo (1 de vida extra por ataque, e ele se cura).`;
 ABILITIES.diagFrente.legacyDescription = 'Também ataca o inimigo na diagonal logo à frente (outra fileira, 1 coluna adiante).';
+/** v0.72.3: textos antigos que não valem mais (podem estar salvos no editor do aparelho) */
+export const STALE_DESC = new Set(['Também ataca o inimigo na diagonal logo à frente (outra fileira, 1 coluna adiante).']);
 ABILITIES.guarda.resBonus = (s) => ({ phys: at([1, 1, 2, 2, 3, 4], s), mag: 0 });
 ABILITIES.barreira.resBonus = (s) => ({ phys: 0, mag: at([1, 1, 1, 2, 2, 3], s) });
 ABILITIES.inabalavel.resBonus = (s) => ({ phys: at([2, 2, 3, 3, 4, 4], s), mag: at([0, 0, 0, 1, 1, 2], s) });

@@ -120,7 +120,7 @@ Zerar a vida do **Comandante inimigo** antes que o inimigo zere a sua. Comandant
   - **Caça-Conjuradores (Ren):** prioriza inimigos de **longo alcance** (magos, arqueiros, suportes à distância) até 2 casas; sem eles, ataca normalmente.
   - **Ataque Surpresa (Kuro):** o inimigo de **maior ataque** até 2 casas.
   - **Feixe Perfurante (Lyra):** o mais próximo e também **os que estão atrás dele** no alcance 4.
-  - **Corte Diagonal (Nara):** a casa diagonal logo à frente, se não houver ninguém em frente.
+  - **Corte Diagonal:** antes da frente, ataca quem está atrás e na diagonal de trás (Comum e Incomum); do Raro em diante também ao lado e na diagonal da frente. Mesmo dano do ataque (v0.64.7; texto corrigido na v0.72.3).
   - **Golpe Reverso (Toru):** prioriza a casa diagonal logo atrás.
 - **Comandante:** se não houver unidade inimiga válida, a unidade ataca o Comandante com seu alcance normal:
   - corpo a corpo: da **última coluna**;
@@ -1391,6 +1391,8 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Ajustes à mão (v0.64.5):** entradas `manual` em `balanceV2.ts` ficam fora da Regra de Origem e da fórmula de Espera. Cada carta pode ter `range`, `dmg`, `desc` (descrição só dela) e `tweaks` (variações só dela: Emboscada sem perfurar e limitada a 2 casas no Zarek; Fúria sem limite no Kael; Vampirismo da Vharga cura tudo ao derrotar; Inabalável do Titan-X só físico). A Emboscada só procura o mais distante até 2 casas para todos. Copiador copia também habilidades de Míticos.
 - **v0.64.6:** "Longo Alcance" não é mais habilidade: ao carregar as cartas (e ao aplicar o editor) quem tinha passa a ter `range` 4 (`rangeFromLongoAlcance`). "Ataca de longe" (`hasRangeBonus`) = alcance 3+ ou habilidade que soma alcance (Disparo Sombrio). Emboscada do Zarek (`emboscadaComAliado`): só com aliado à frente na fileira mira o mais distante no alcance (4); senão o mais próximo.
 - **Corte Diagonal (v0.64.7):** une o Golpe Reverso (`diagTras` vira `diagFrente` ao carregar). Antes da frente, mira na ordem `diagCells`: atrás, diagonal de trás e — do Raro em diante — lado e diagonal da frente; sem alvo, ataque normal à frente. Lendário+: corte duplo de 50% no próximo inimigo da ordem (frente inclusa). Descrição curta; no Comum/Incomum mostra a restrição. Tutorial Batalha 2: vida 9.
+- **Descrição das habilidades (v0.72.3):** sem o "agora: …" quando a descrição já traz o valor da raridade ou quando a habilidade ainda não tem efeito (ex.: "sem corte duplo"). O Corte Diagonal diz que o dano é o mesmo do ataque e que, no Comum e no Incomum, mira atrás e na diagonal de trás. Textos antigos salvos no editor do aparelho são ignorados.
+- **Moldura das unidades na arena (v0.72.3):** a cor da **raridade** da carta (antes azul = sua, vermelha = do rival). O lado continua claro pela direção do retrato e pela cor da barra de vida.
 
 ## Habilidades v0.65.0 — valores por raridade (Comum · Incomum · Raro · Épico · Lendário · Mítico)
 - Descrições com o valor da raridade da carta (`text` em `abilities.ts`, tabela `V65_TABLE`). Sem tetos gerais (`effectiveAtk` mínimo 0; `computeDamage` mínimo 0; resistência, bônus de aliados e redução de inimigos sem teto).

@@ -2,6 +2,11 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.72.3] — 27/11/2026 · Molduras com a cor da raridade e texto do Corte Diagonal
+- **Cartas na arena com a cor da raridade** (pedido do jogador): a moldura da unidade em campo agora é cinza, verde, azul, roxo, laranja ou vermelha conforme a raridade, para as suas cartas e as do rival (antes: azul para as suas, vermelha para as do rival).
+- **Corte Diagonal com o texto certo:** a janela da batalha mostrava um texto antigo ("diagonal logo à frente"). Agora diz o que a habilidade faz: no Comum e no Incomum ataca primeiro **atrás e na diagonal de trás**; do Raro em diante também ao lado e na diagonal da frente. Sempre com o **mesmo dano do ataque**.
+- **Sem "agora: sem corte duplo"** e avisos parecidos: a descrição já traz o que vale na raridade da carta.
+
 ## [0.72.2] — 27/11/2026 · Orbes com prévia no Treinar
 - **Orbes no Treinar** (pedido do jogador: tocar no Orbe já gastava). Agora tocar num Orbe só **escolhe**; aparecem os botões **−** e **+** para tirar ou pôr mais.
   - A barra de XP mostra a **prévia** de onde vai chegar com os Orbes escolhidos. Só gasta ao tocar em **🔮 Usar** (ou **Limpar** para desfazer).
