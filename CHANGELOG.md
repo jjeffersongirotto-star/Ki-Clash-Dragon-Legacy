@@ -2,6 +2,10 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.72.1] — 27/11/2026 · Difícil 7 a 10 mais leve
+- **Difícil, regiões 6 a 10** (pedido do jogador: as regiões 7 e 8 estavam com 18% e 14% de vitória ao chegar). A força dos inimigos agora sobe devagar da fase 45 até a 100, sem ficar parada e depois dar um salto.
+  - Vitória ao chegar no simulador (com missões e Torre): região 7 **28%**, região 8 **24%**, região 10 **26%**.
+
 ## [0.72.0] — 27/11/2026 · 🗼 Torre, 📜 Missões diárias e chance de itens mais fortes
 - **Itens com chance de vir uma cor acima** (pedido do jogador). Em cada vitória, dos 3 itens:
   - longe da fase em que a nova cor faz falta: **94,9%** todos da cor da fase, **4%** 1 item acima, **1%** 2 itens acima, **0,1%** os 3 acima;
