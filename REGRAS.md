@@ -1763,7 +1763,30 @@ Medido em `scripts/balance/world.ts` (4 jogadores). Vitória ao chegar, média p
 ## Itens: faixas de cor, fusão e cadeado (v0.69.0)
 Lógica em `src/core/gear.ts` (`GEAR_BANDS`, `fuseGear`, `gearSources`); janela do item em `src/app/gearItem.ts`.
 
-### Cores dos itens por dificuldade e fase (tabela `GEAR_BANDS`)
+### Cores dos itens por dificuldade e fase (curva `GEAR_CURVE`, v0.72.0)
+Cada vitória continua dando os 3 itens fixos da fase (a fase 3 de toda região dá os mesmos 3 itens). A cor vem de um **nível de cor** que sobe aos poucos com as fases (pedido do jogador):
+- A parte inteira é a **cor da fase**. A parte quebrada diz **quantos dos 3 itens vêm uma cor acima** (`GEAR_ODDS`):
+  - **No começo de cada cor:** 94,9% nenhum · 4% um · 1% dois · 0,1% os três. Nem jogando as 10 vezes do dia é garantido (chance de vir algum ≈ 40%).
+  - **A chance sobe** conforme chega a fase em que a cor faz falta, até **~30% dos itens na cor nova** (e ~70% na mais fraca): a diferença diminui, mas não se inverte.
+  - **Poucas fases depois**, a cor nova vira a cor da fase, e a próxima cor começa de novo nos 4% / 1% / 0,1%.
+- Onde cada cor faz falta vem de `scripts/balance/firstColor.ts` (a fase em que um baralho que precisa da cor começa a travar):
+
+| Dificuldade | Cor | Chega a ~30% | Vira a cor da fase |
+|---|---|---|---|
+| Fácil | verde (desde a fase 1, ~22%) | 10 | 12 |
+| Fácil | azul | 16 | 20 |
+| Fácil | roxo | 59 | 63 |
+| Fácil | laranja (raro) | — (~14% na 100) | — |
+| Normal | roxo (desde a 1, ~15%) | 17 | 21 |
+| Normal | laranja (raro) | — (no máximo ~20%) | — |
+| Difícil | laranja (desde a 1, ~19%) | 30 | 34 |
+
+- O **laranja fica raro fora do Difícil**: o lugar dele é o Difícil (só laranja a partir da fase 34).
+- A **ⓘ Chances dos itens** da fase mostra a chance de 0, 1, 2 ou 3 itens virem na cor acima; o **Onde conseguir** do item separa as fases em que é a cor da fase das que só dão com chance.
+- *(v0.69.0–v0.71: faixas fixas `GEAR_BANDS`, com cor comum, cor rara e uma chance por item — abaixo.)*
+
+<details><summary>Tabela antiga (v0.69.0–v0.71)</summary>
+
 Cada vitória continua dando os 3 itens fixos da fase (a fase 3 de toda região dá os mesmos 3 itens). A cor agora vem da **faixa de fases**:
 
 | Dificuldade | Fases | Cor comum / cor rara | Chance da rara |
@@ -1780,6 +1803,9 @@ Cada vitória continua dando os 3 itens fixos da fase (a fase 3 de toda região 
 - O **Fácil tem teto** (azul, com roxo só no fim). Para evoluir cartas Raras e acima, o jogador precisa tentar o **Normal**.
 - **v0.71.0 (pedido do jogador):** o **laranja só cai no Difícil** (o Normal dá azul e roxo, com 50% de roxo a partir da fase 51). A **primeira aparição** do azul e do roxo no Fácil fica ~5 fases antes de onde um baralho que precisa da cor começa a travar (`scripts/balance/firstColor.ts`: azul trava na 16 → cai a partir da **11**, antes 21; roxo trava na 59 → a partir da **54**, antes 51). *(v0.69.0–v0.70: Fácil 1–20 cinza/verde, 21–50 verde/azul, 51–80 azul/roxo 10%; Normal 1–30 azul/roxo, 31–70 roxo/laranja, 71–100 laranja.)*
 - *(Até a v0.68: Fácil cinza/verde, Normal azul/roxo e Difícil roxo/laranja, subindo +1 cor a cada 2 regiões; o Fácil chegava ao laranja.)*
+
+
+</details>
 
 ### 🔒 Cadeado (por item e cor)
 - O jogo guarda os itens **já ganhos numa fase** (ou no tutorial), **por item e cor** (ex.: "Elmo roxo"). Só esses podem ser **fundidos** ou **comprados na Loja**. Assim a fusão e a Loja não deixam pular etapas.
