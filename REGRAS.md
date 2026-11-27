@@ -749,6 +749,7 @@ Vitória ao chegar, v0.16.0 → v0.17.0. O jogador simulado usa os 10 mais forte
 
 - **Conversão dos saves (sem perder XP):** 📜 Pergaminho → **Orbe Comum**, 💎 Cristal → **Orbe Raro**, 🔮 Orbe do Dragão Ancestral → **Orbe Lendário**. Save novo começa com **10 Orbes Comuns e 3 Raros** (o mesmo XP de antes; desde a v0.25.0 eles vêm na recompensa do tutorial).
 - Usados no **Treinar** (um botão por raridade). Nas barras de recursos aparecem só os Orbes que o jogador tem.
+- **Escolher antes de usar (v0.72.2):** tocar num Orbe só o **escolhe**: aparecem os botões **−** e **+** para mudar a quantidade, e a barra de XP mostra a **prévia** de até onde vai chegar (faixa listrada e "XP atual → XP depois"). Nada é gasto até tocar em **🔮 Usar**; **Limpar** desfaz a escolha. O **+** para quando a escolha já enche a barra (e avisa quanto XP passaria do cheio). Trocar de carta ou de cópia zera a escolha.
 
 ### Orbes nas fases (pela dificuldade)
 - **Fácil:** Orbes **Comuns** e **Incomuns**, com o mesmo XP de antes (o antigo 📜 virou Comuns; o 💎 e o 🔮 viraram Incomuns).
