@@ -31,7 +31,7 @@ export interface Schedule { name: string; hp: number[]; thresholds: number[]; en
 
 const XP = Object.fromEntries(XP_ITEMS.map((i) => [i.id, i.xp])) as Record<string, number>;
 
-interface Player { cards: Record<string, OwnedCard>; items: Record<string, number>; ess: number; cleared: number; leader: number; gear: GearBag; seen: string[]; gold: number; copies: Record<string, number>; spells: Record<string, number>; bank: { xp: number }; rng: () => number }
+interface Player { cards: Record<string, OwnedCard>; items: Record<string, number>; ess: number; cleared: number; leader: number; gear: GearBag; seen: string[]; gold: number; extra: Record<string, OwnedCard[]>; spells: Record<string, number>; bank: { xp: number }; rng: () => number }
 
 /** v0.25.0: SIM_OLD_START=1 começa como antes do tutorial (todos os de Comum, sem pacotes de Comum nas fases). */
 const SIM_OLD_START = process.env.SIM_OLD_START === '1';
@@ -40,9 +40,18 @@ const SIM_OLD_START = process.env.SIM_OLD_START === '1';
 const SIM_GEAR = process.env.SIM_GEAR !== '0';
 const gearOk = (p: Player, c: OwnedCard) => !SIM_GEAR || hasGearFor(p.gear, c);
 
+/** v0.71.0: cada cópia é uma carta própria — as cópias do personagem (a principal + até 2 outras). */
+const copiesOfP = (p: Player, id: string): OwnedCard[] => [p.cards[id], ...(p.extra[id] ?? [])];
+const charPower = (p: Player, id: string) => deckPower(copiesOfP(p, id));
+/** os personagens do baralho (os 10 de maior Poder somando as cópias), representados pela cópia mais forte */
+function teamChars(p: Player): OwnedCard[] {
+  const rep = (id: string) => copiesOfP(p, id).slice().sort((a, b) => cardPower(b) - cardPower(a))[0];
+  const ids = Object.keys(p.cards).sort((a, b) => charPower(p, b) - charPower(p, a));
+  return SIM_SYNERGY ? synergyTeam(ids.map(rep)) : ids.slice(0, 10).map(rep);
+}
+/** v0.71.0: todas as cópias dos personagens do baralho (para treinar e para o Poder) */
 function team(p: Player): OwnedCard[] {
-  const all = Object.values(p.cards).sort((a, b) => cardPower(b) - cardPower(a));
-  return SIM_SYNERGY ? synergyTeam(all) : all.slice(0, 10);
+  return teamChars(p).flatMap((c) => copiesOfP(p, c.charId));
 }
 /**
  * v0.67.1: SIM_SYNERGY=1 — o jogador monta o baralho com SINERGIA em vez de só os 10 de maior Poder: para cada raça,
@@ -86,11 +95,15 @@ const SIM_ALL_SPELLS = process.env.SIM_ALL_SPELLS === '1';
 const SIM_TUT_SPELL = process.env.SIM_TUT_SPELL ?? TUTORIAL_SPELL;
 const battleDeck = (p: Player, cleared: number): CardInstance[] => {
   const max = deckMaxFor(profileLevelFor(cleared));
-  const owned = asDeck(team(p));
+  const owned = asDeck(teamChars(p));
   const room = Math.max(0, max - 3 * owned.length);
   const deck = SIM_SPELLS ? autoDeck(owned, 3 * owned.length + Math.min(4, room), Math.min(4, room), SIM_ALL_SPELLS ? undefined : p.spells) : autoDeck(owned, Math.min(max, 3 * owned.length), 0);
-  // v0.32.0: o baralho só usa as cópias que o jogador tem (até 3)
-  return deck.map((c) => (c.charId.startsWith('f-') ? c : { ...c, copies: Math.max(1, Math.min(c.copies ?? 3, p.copies[c.charId] ?? 3)) }));
+  // v0.32.0: o baralho só usa as cópias que o jogador tem (até 3). v0.71.0: cada cópia com a cor dela
+  return deck.map((c) => {
+    if (c.charId.startsWith('f-')) return c;
+    const cs = copiesOfP(p, c.charId).slice().sort((a, b) => cardPower(b) - cardPower(a)).slice(0, Math.max(1, Math.min(c.copies ?? 3, 3)));
+    return { charId: c.charId, stars: cs[0].stars, plus: cs[0].plus, copies: cs.length, variants: cs.map((x) => ({ stars: x.stars, plus: x.plus })) };
+  });
 };
 
 /**
@@ -106,9 +119,15 @@ function pullCards(p: Player, n: number) {
         else bankXp(p.bank, generalXp(c.stars), p.items);
         continue;
       }
-      if (!p.cards[c.charId]) { p.cards[c.charId] = { ...newOwned(c.charId), stars: c.stars, plus: 0 }; p.copies[c.charId] = 1; }
-      else if ((p.copies[c.charId] ?? 1) < 3) p.copies[c.charId] = (p.copies[c.charId] ?? 1) + 1;
-      else feedCopy(p.cards[c.charId], c.stars, 0, p.rng, p.items);
+      if (!p.cards[c.charId]) { p.cards[c.charId] = { ...newOwned(c.charId), stars: c.stars, plus: 0 }; continue; }
+      // v0.71.0: a cópia é uma carta própria (na cor dela); com 3, a mais fraca vira XP da principal
+      const row = (p.extra[c.charId] ??= []);
+      row.push({ ...newOwned(c.charId), stars: c.stars, plus: 0 });
+      if (row.length > 2) {
+        row.sort((a, b) => cardPower(b) - cardPower(a));
+        const w = row.pop()!;
+        feedCopy(p.cards[c.charId], w.stars, w.plus, p.rng, p.items);
+      }
     }
 }
 
@@ -193,7 +212,7 @@ function reward(p: Player, i0: number, first: boolean, repeatMult = 0.5) {
   p.gold += Math.floor(goldFor(i + 1, diff) * f * (first ? FIRST_WIN_MULT : 1)); // v0.26.0: Ouro de Dragão
   if (first) for (const g of stageGearDrop(i + 1, diff)) gainGear(p, g.id, g.rarity); // v0.24.1: bônus da 1ª vitória
   // v0.25.0: pacote da primeira vitória (o desbloqueio de sempre + um personagem de Comum) — desligado na v0.33.0
-  if (first && STAGE_PACKS) for (const id of stagePack(i + 1)) if (!p.cards[id]) { p.cards[id] = newOwned(id); p.copies[id] = 3; }
+  if (first && STAGE_PACKS) for (const id of stagePack(i + 1)) if (!p.cards[id]) { p.cards[id] = newOwned(id); p.extra[id] = [newOwned(id), newOwned(id)]; }
   // v0.33.0: 💠 Gemas na primeira vitória (fases 3, 6, 9 e 10) viram cartas do banner
   if (first) pullCards(p, gemsFor(i + 1)); // em cada dificuldade (como no jogo)
   // v0.41.0: ✦ feitiço na primeira vitória das fases 2, 5 e 8 de cada região
@@ -212,7 +231,10 @@ function levelUp(p: Player, sc: Schedule) {
   while (p.leader < sc.hp.length && dp >= sc.thresholds[p.leader - 1]) p.leader++; // thresholds[L-1] = requisito do nível L+1
 }
 
-export interface StageStat { arrivePower: number[]; leader: number[]; winAtArrival: number[]; attempts: number[]; burst: number[]; maxAtk: number[]; hpLeftWin: number[]; winStats: { cards: number; spells: number; kills: number }[] }
+export interface StageStat {
+  /** v0.71.0: fração das cartas do baralho com a barra cheia, mas sem Essências ou itens para o Despertar (travadas por recurso) */
+  blocked: number[];
+  arrivePower: number[]; leader: number[]; winAtArrival: number[]; attempts: number[]; burst: number[]; maxAtk: number[]; hpLeftWin: number[]; winStats: { cards: number; spells: number; kills: number }[] }
 
 /**
  * v0.20.1: `opts.repeats` = quantos "Repetir" (recompensa inteira, sem batalha) o jogador usa na última fase vencida
@@ -224,16 +246,16 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
   const repeatMult = opts.repeatMult ?? 0.5;
   // v0.39.0: `stages` = as 100 fases do mundo; `bannerGold` = o Ouro que sobra da Loja vira cartas do Banner (10 por vez)
   const STAGES = opts.stages ?? CAMPAIGN;
-  const stats: StageStat[] = STAGES.map(() => ({ arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [], winStats: [] }));
+  const stats: StageStat[] = STAGES.map(() => ({ blocked: [], arrivePower: [], leader: [], winAtArrival: [], attempts: [], burst: [], maxAtk: [], hpLeftWin: [], winStats: [] }));
   let seed = 7;
   for (let pi = opts.firstPlayer ?? 0; pi < (opts.firstPlayer ?? 0) + players; pi++) {
     opts.onPlayer?.(pi);
     let rs = 1000 + pi * 7919;
-    const p: Player = { cards: {}, items: SIM_OLD_START ? { orbe1: 10, orbe3: 3 } : {}, ess: SIM_OLD_START ? 10 : 0, cleared: 0, leader: 1, gear: {}, seen: [], gold: 0, copies: {}, spells: {}, bank: { xp: 0 }, rng: () => ((rs = (rs * 16807) % 2147483647) / 2147483647) };
-    if (SIM_OLD_START) for (const id of STARTER_IDS) p.cards[id] = newOwned(id);
+    const p: Player = { cards: {}, items: SIM_OLD_START ? { orbe1: 10, orbe3: 3 } : {}, ess: SIM_OLD_START ? 10 : 0, cleared: 0, leader: 1, gear: {}, seen: [], gold: 0, extra: {}, spells: {}, bank: { xp: 0 }, rng: () => ((rs = (rs * 16807) % 2147483647) / 2147483647) };
+    if (SIM_OLD_START) for (const id of STARTER_IDS) { p.cards[id] = newOwned(id); p.extra[id] = [newOwned(id), newOwned(id)]; }
     else {
       // v0.25.0: jogador que acabou o tutorial — Riku, Sora e Nara e a recompensa do tutorial
-      for (const id of TUTORIAL_CHARS) p.cards[id] = newOwned(id);
+      for (const id of TUTORIAL_CHARS) { p.cards[id] = newOwned(id); p.extra[id] = [newOwned(id), newOwned(id)]; } // 3 cópias de cada
       for (const [id, k] of Object.entries(TUTORIAL_REWARD.orbs)) p.items[id] = (p.items[id] ?? 0) + (k ?? 0);
       p.ess += TUTORIAL_REWARD.essencias;
       // v0.41.0: o feitiço do pacote do tutorial
@@ -253,6 +275,7 @@ export function runCampaign(sc: Schedule, players: number, probe = 40, opts: { r
       }
       const st = stats[i];
       st.arrivePower.push(deckPower(team(p))); st.leader.push(p.leader);
+      { const t = team(p); st.blocked.push(t.filter((c) => !isMaxTier(c) && barFull(c) && (p.ess < ascendCost(c) || !gearOk(p, c))).length / Math.max(1, t.length)); }
       // taxa de vitória exatamente no momento em que chega à fase
       const hp = sc.hp[p.leader - 1];
       let w = 0;

@@ -75,7 +75,7 @@ describe('v0.37.0 — adversário esperto', () => {
   });
 
   it('níveis por fase: começa simples e sobe; Normal/Difícil somam (até 3); o Auto do jogador usa a IA simples', () => {
-    expect(STAGE_AI).toEqual([0, 0, 0, 1, 1, 1, 2, 2, 2, 3]);
+    expect(STAGE_AI).toEqual([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]); // v0.71.0: IA simples em toda a região 1 do Fácil
     expect(STAGES.map((s) => s.aiLevel)).toEqual(STAGE_AI);
     expect(stageFor(1, 'normal').aiLevel).toBe(1);
     expect(stageFor(1, 'dificil').aiLevel).toBe(2);

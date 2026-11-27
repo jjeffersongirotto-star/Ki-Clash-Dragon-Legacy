@@ -58,7 +58,7 @@ describe('v0.33.0 — tutorial guiado, sempre igual', () => {
   });
 
   it('💠 Gemas: 2 no fim do tutorial; fases 3, 6 e 9 dão 1 e a fase 10 dá 3 (só na 1ª vitória)', () => {
-    expect(TUTORIAL_GEMS).toBe(2);
+    expect(TUTORIAL_GEMS).toBe(10); // v0.71.0: 10 compras grátis de iniciante
     expect(GEMS_BY_STAGE).toEqual({ 3: 1, 6: 1, 9: 1, 10: 3 });
     expect(STAGES.map((st) => gemsFor(st.id))).toEqual([0, 0, 1, 0, 0, 1, 0, 0, 1, 3]);
     for (const st of STAGES) expect(st.pack).toEqual([]);

@@ -50,7 +50,7 @@ describe('v0.52.1 Loja com Gemas ou Ouro e ícones atuais', () => {
   });
   it('tutorial do Banner aponta o botão de Gema e o ✕ do canto (a tela não trava)', () => {
     const tut = readFileSync('src/app/tutorial.ts', 'utf8');
-    expect(tut).toContain('[data-pull="1"][data-pay="gem"]');
+    expect(tut).toContain(`[data-pull="10"][data-pay="gem"]`); // v0.71.0: 10 compras grátis de uma vez
     expect(tut).toContain("'.modal-bg .modal-x'");
     expect(tut).not.toContain("'.pull-x'");
   });

@@ -1964,3 +1964,26 @@ body.overlay-open .hub-cena, .is-under .hub-cena { animation-play-state: paused;
 .modal:has(.pull-reveal) .pull-reveal.pull-10.pull-pack { grid-template-columns: repeat(4, 1fr); --pc: min(19vw, calc(98dvh - 250px) * 0.68); }
 /* v0.70.0 — botão Montar melhor no título do baralho */
 .deck-best { margin-right: 8px; vertical-align: middle; }
+
+/* v0.71.0 — cópias individuais (cada cópia com a sua cor) */
+.copy-dots { display: flex; gap: 3px; justify-content: center; margin: 2px 0 1px; }
+.copy-dots span { min-width: 14px; height: 10px; border-radius: 5px; background: var(--rc); box-shadow: 0 0 4px var(--rg); font-size: 9px; line-height: 10px; color: #fff; text-align: center; font-weight: 800; }
+.copy-tabs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 2px; }
+.copy-tabs-lbl { font-size: 13px; opacity: .85; }
+.copy-tab { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--rc) 60%, transparent); background: color-mix(in srgb, var(--rc) 14%, #0006); color: inherit; font-size: 12px; cursor: pointer; }
+.copy-tab.sel { outline: 2px solid var(--rc); box-shadow: 0 0 8px var(--rg); }
+.copy-tab.box { border-style: dashed; opacity: .9; }
+.copy-tab .tier-dot, .copy-row .tier-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--rc); box-shadow: 0 0 5px var(--rg); display: inline-block; flex: none; }
+.copy-hint { margin-top: 2px; }
+.copy-list { margin: 8px 0; padding: 8px; border-radius: 10px; background: #0003; }
+.copy-head { font-weight: 700; margin-bottom: 6px; }
+.copy-head small { font-weight: 400; opacity: .8; }
+.copy-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; flex-wrap: wrap; border-top: 1px solid #ffffff12; }
+.copy-row .btn.small { padding: 4px 8px; font-size: 12px; }
+.copy-row:first-of-type { border-top: 0; }
+.copy-name { flex: 1 1 110px; min-width: 0; font-size: 13px; }
+.copy-n { display: inline-block; padding: 0 6px; border-radius: 8px; background: var(--rc); color: #fff; font-size: 11px; font-weight: 800; line-height: 16px; box-shadow: 0 0 5px var(--rg); }
+.copy-in { color: #7ee08a; }
+.copy-on { display: inline-block; padding: 0 6px; border-radius: 8px; background: #2e9e4f; color: #fff; font-size: 11px; font-weight: 800; line-height: 16px; }
+.copy-row.on { background: linear-gradient(90deg, #2e9e4f2e, transparent 70%); border-left: 3px solid #2e9e4f; padding-left: 6px; border-radius: 6px; }
+.copy-tab.on { border-color: #2e9e4f; box-shadow: inset 0 0 0 1px #2e9e4f; }

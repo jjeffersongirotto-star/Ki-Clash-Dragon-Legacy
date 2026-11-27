@@ -6,6 +6,9 @@ import { createBattle, Ctx, endPlayerTurn } from '../../src/core/battle';
 import { aiDeploy } from '../../src/core/ai';
 import type { BattleState, CardInstance } from '../../src/core/types';
 
+// v0.71.0: o simulador não precisa dos retratos de cada evento (só a animação da tela usa) — ~2× mais rápido
+Ctx.headless = true;
+
 export interface SimResult {
   winner: 'player' | 'enemy' | 'empate';
   turns: number;

@@ -10,7 +10,9 @@ import { ico } from '../ui/icons';
 import { leaveBattleMode } from '../ui/orientation';
 import { bindGearTaps, gearTapHTML } from './gearItem';
 import { GEAR_CATEGORIES, GEAR_PER_STEP, GEAR_RARITIES, GEAR_SETS, reqRarity, ascendWithGear, charGear, gearCount, gearNeeded, hasGearFor } from '../core/gear';
-import { app, save, trainSel, setTrainSel, persist } from './state';
+import { app, save, trainSel, trainRef, setTrainSel, persist } from './state';
+import { bestCopy, copyAt, copyList, materialize, pickOf } from '../core/copies';
+import { cardPower } from '../core/power';
 import { topbar, bindNav, modal, closeModal, bakeAllGrid } from './ui';
 
 // ---------------- TREINO ----------------
@@ -50,7 +52,9 @@ export function train() {
   leaveBattleMode();
   void bakeAllGrid();
   if (!save.cards[trainSel]) setTrainSel(Object.keys(save.cards)[0]);
-  const card = save.cards[trainSel];
+  // v0.71.0: o Treinar vale para UMA cópia (cada cópia tem a sua cor, degrau e XP, e paga o preço inteiro)
+  if (!copyAt(save, trainSel, trainRef)) setTrainSel(trainSel, 0);
+  const card = copyAt(save, trainSel, trainRef)!;
   const def = getChar(card.charId);
   const plus = stepOf(card);
   const st = statsFor(def, card.stars, plus);
@@ -72,8 +76,9 @@ export function train() {
   app.innerHTML = `<div class="screen">${topbar('Treinar')}
     <div class="row"><button class="btn small" id="gearBag">🎒 Itens de ascensão</button></div>
     <div class="train-list">${Object.values(save.cards)
-      .map((c) => cardHTML(c, { compact: true, grid: true, extraClass: `train-pick ${c.charId === trainSel ? 'sel' : ''}`, attrs: `data-sel="${c.charId}"` }))
+      .map((c) => cardHTML(bestCopy(save, c.charId) ?? c, { compact: true, grid: true, extraClass: `train-pick ${c.charId === trainSel ? 'sel' : ''}`, attrs: `data-sel="${c.charId}"` }))
       .join('')}</div>
+    ${copyTabsHTML(trainSel, trainRef)}
     <div class="train-main" style="${starStyle(card.stars)}">
       <div class="train-visuals">
         <div class="train-art">${cardHTML(card)}</div>
@@ -99,7 +104,23 @@ export function train() {
   bindGearTaps(app, train); // v0.69.0: tocar num item que falta abre fusão e onde conseguir
   app.querySelectorAll<HTMLElement>('[data-sel]').forEach((el) =>
     el.addEventListener('click', () => {
-      setTrainSel(el.dataset.sel!);
+      setTrainSel(el.dataset.sel!, strongestRef(el.dataset.sel!));
+      train();
+    }),
+  );
+  app.querySelectorAll<HTMLElement>('[data-cref]').forEach((el) =>
+    el.addEventListener('click', () => {
+      setTrainSel(trainSel, Number(el.dataset.cref));
+      train();
+    }),
+  );
+  // cópia guardada: vira uma cópia própria para poder treinar
+  app.querySelectorAll<HTMLElement>('[data-cbox]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const ref = materialize(save, trainSel, Number(el.dataset.cbox));
+      if (ref == null) return;
+      persist();
+      setTrainSel(trainSel, ref);
       train();
     }),
   );
@@ -132,6 +153,30 @@ export function train() {
       evolutionReveal(card.charId, from, { stars: card.stars, plus: stepOf(card) }, before);
     }
   });
+}
+
+/** a cópia usada mais forte do personagem (a que abre no Treinar) */
+function strongestRef(id: string): number {
+  const list = copyList(save, id);
+  let best = 0;
+  list.forEach((c, i) => cardPower(c) > cardPower(list[best]) && (best = i));
+  return best;
+}
+
+/** v0.71.0: escolher qual cópia treinar — as usadas (✔ = no baralho) e as guardadas (por cor). */
+function copyTabsHTML(id: string, sel: number): string {
+  // v0.71.0: no Treinar cada cópia aparece separada (cada uma tem a sua barra de XP); as do baralho ficam marcadas
+  const inDeck = save.deck.includes(id) ? pickOf(save, id) : [];
+  const used = copyList(save, id)
+    .map((c, ref) => ({ c, ref, on: inDeck.includes(ref) }))
+    .sort((a, b) => Number(b.on) - Number(a.on) || cardPower(b.c) - cardPower(a.c) || b.c.xp - a.c.xp)
+    .map(({ c, ref, on }) => `<button class="copy-tab ${ref === sel ? 'sel' : ''} ${on ? 'on' : ''}" data-cref="${ref}" style="${starStyle(c.stars)}" title="${on ? 'No baralho' : 'Fora do baralho'}"><span class="tier-dot"></span>${on ? '<span class="copy-on">✔</span> ' : ''}<b>${tierLabel(c.stars, stepOf(c))}</b> <small>${isMaxTier(c) ? 'topo' : `${Math.round(xpProgress(c) * 100)}% XP`}</small></button>`);
+  const box = Object.entries(save.dupes?.[id] ?? {})
+    .filter(([, k]) => k > 0)
+    .sort((a, b) => +b[0] - +a[0])
+    .map(([r, k]) => `<button class="copy-tab box" data-cbox="${r}" style="${starStyle(+r)}" title="Cópia guardada (nunca treinada): toque para treinar"><span class="tier-dot"></span><b>${tierLabel(+r)}</b>${k > 1 ? ` <span class="copy-n">×${k}</span>` : ''} · guardada</button>`);
+  return `<div class="copy-tabs"><span class="copy-tabs-lbl">Cópias de ${esc(getChar(id).name)}:</span>${[...used, ...box].join('')}</div>
+    <p class="hint copy-hint">Cada cópia é uma carta própria: treine e desperte uma de cada vez (cada uma paga o preço inteiro). <span class="copy-on">✔</span> = no baralho de batalha.</p>`;
 }
 
 /**

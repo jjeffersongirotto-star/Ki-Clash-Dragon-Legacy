@@ -10,7 +10,7 @@
  *   fase já vencida. A primeira vitória e as derrotas não gastam. Volta à meia-noite de Brasília (UTC−3).
  */
 import { LADDER_STEPS } from './ladderSteps';
-import { ENEMY_SPELL_COPIES, WORLD_SPELLS, WORLD_STEPS, WORLD_STEPS_V673, enemyCard, enemyDeckFor, getStage, regionOrbTier, type Stage } from './campaign';
+import { ENEMY_HERO_HP_V62, ENEMY_SPELL_COPIES, STAGE_AI_V37, WORLD_SPELLS, WORLD_STEPS, WORLD_STEPS_V673, enemyCard, enemyDeckFor, getStage, regionOrbTier, type Stage } from './campaign';
 import { HARD_DECKS } from './hardDecks';
 import { getChar } from './characters';
 import { getSpell } from './spells';
@@ -109,7 +109,9 @@ export function hardIdsAt(s: number): string[] {
 /** Fase do Normal/Difícil com as cartas inimigas no degrau `s` (v0.67.4: separado para a calibração). */
 export function hardStageAt(stageId: number, diff: 'normal' | 'dificil', s: number, ids: string[] = hardIdsAt(s)): Stage {
   const i = stageId - 1;
-  const base = getStage(stageId);
+  // v0.71.0: o começo do Fácil ficou mais leve; o Normal e o Difícil continuam com a vida e a IA de antes na região 1
+  const base0 = getStage(stageId);
+  const base = i < STAGE_AI_V37.length ? { ...base0, enemyHeroHp: ENEMY_HERO_HP_V62[i], aiLevel: STAGE_AI_V37[i] } : base0;
   if (!ids.length) return { ...base, enemyDeck: enemyDeckFor(i, s, WORLD_SPELLS[i], 0), aiLevel: Math.min(3, (base.aiLevel ?? 0) + (diff === 'normal' ? 1 : 2)) };
   const frac = s - Math.floor(s);
   const deck: CardInstance[] = ids.map((id, k) => ({ ...enemyCard(id, Math.floor(s) + (Math.floor((k + 1) * frac) > Math.floor(k * frac) ? 1 : 0)), copies: 3 }));

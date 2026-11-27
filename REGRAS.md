@@ -1130,7 +1130,7 @@ Política da Loja no simulador: quando um personagem está com a barra cheia e a
 - **Baralho com poucas cópias:** a batalha aceita baralho com qualquer número de cartas (o mínimo é conferido na tela do baralho), porque quem só tem 1 cópia de cada personagem tem menos cartas.
 - **Tutorial guiado:** as duas batalhas têm semente fixa e as cartas chegam prontas (sem espera). A tela escurece tudo menos o que deve ser tocado (carta, casa, LUTAR ou o aviso de girar a tela), com seta e texto do passo; o resto não responde ao toque. "Pular tutorial" sempre disponível.
 - **Onde invocar no tutorial (v0.42.1):** na hora de colocar um personagem, as **6 casas da sua zona** ficam claras e destacadas juntas e **qualquer uma delas vale**. Na 1ª invocação da Batalha 1, primeiro só as 6 casas acendem (com o texto "qualquer um dos 6 quadrados destacados"); uns 3 segundos depois, uma casa ganha um **círculo** e a seta, com o pedido para colocar ali. Feitiços continuam apontando só o alvo certo.
-- **Fim do tutorial:** +2 💠 Gemas e um passo guiado no 🎴 Banner (Comprar 1 → Comprar 1 de novo → ✕). Se o jogo fechar antes, o passo volta ao abrir a Base enquanto houver gemas.
+- **Fim do tutorial:** +2 💠 Gemas e um passo guiado no 🎴 Banner (Comprar 1 → Comprar 1 de novo → ✕). **v0.71.0:** +10 💠 Gemas (**10 compras grátis de iniciante**), usadas de uma vez no passo guiado (Comprar 10 cartas → ✕). Se o jogo fechar antes, o passo volta ao abrir a Base enquanto houver gemas.
 
 ## 36. Artes novas inteiras (v0.34.0)
 - As **121 artes** (120 personagens + Cria Sombria) foram trocadas pelas ilustrações limpas novas, no padrão aprovado no teste do Quorr: retrato 0,72, sem nada de carta, personagem inteiro. Saem em 486×675 (WebP), sem cortar o personagem.
@@ -1748,6 +1748,10 @@ Medido em `scripts/balance/world.ts` (4 jogadores). Vitória ao chegar, média p
   - Em cada fase, procura o degrau que dá a vitória ao chegar pedida. Depois a curva é suavizada e nunca desce.
   - **Alvo de vitória ao chegar (a dificuldade não muda com o jogador):** Fácil, de 45% na fase 11 a 25% na fase 100; Normal, de 50% a 20%; Difícil, de 45% a 12%. Fora do primeiro mundo, nunca passa de 50%. A ideia é repetir fases já ganhas para juntar itens e subir cartas, ou comprar pacotes.
   - **Medido no simulador (4 jogadores), vitória ao chegar por região 1 a 10 (v0.67.9, depois da vida de quem ataca de longe e do ataque novo):** Fácil 31 · 33 · 42 · 30 · 26 · 33 · 28 · 21 · 25 · 19%; Normal 41 · 31 · 42 · 29 · 13 · 35 · 37 · 38 · 33 · 20%; Difícil 36 · 23 · 29 · 27 · 21 · 17 · 20 · 24 · 9 · 10%. Com só 4 jogadores, a mesma tabela varia até ±15 pontos numa região de uma medição para outra (às vezes mais).
+  - **v0.71.0 (pedido do jogador: curva mais suave; quem fica travado muito tempo para de jogar, e uma pessoa joga melhor que o automático):** alvo de vitória ao chegar **Fácil 97% → 45%**, **Normal 55% → 30%**, **Difícil 50% → 20%** (da fase 1 à 100; no Fácil, da 11). Até **10 pontos abaixo do alvo** pode ficar, principalmente onde o jogador chega com cartas travadas por falta de recurso (Ouro, itens, XP): missões diárias, torre e outros modos de recurso vão ajudar.
+    - Calibrado com as cópias individuais e o Comandante novo (a busca fica sempre do lado em que o jogador ainda passa da meta; antes ela às vezes parava logo depois de um "degrau" em que a vitória despenca e a fase ficava com 0%). Depois, ajuste à mão para tirar saltos: Difícil 20 a 50 numa subida contínua, fim do Normal (90 a 100) sem salto.
+    - **Medido (4 jogadores, fases como ficam no jogo), vitória ao chegar por região 1 a 10:** Fácil 100 · 84 · 82 · 81 · 71 · 59 · 65 · 57 · 61 · 38%; Normal 46 · 55 · 54 · 43 · 37 · 41 · 25 · 42 · 35 · 47%; Difícil 52 · 43 · 46 · 32 · 37 · 22 · 30 · 27 · 24 · 13%.
+    - **Cartas travadas por falta de recurso ao chegar** (parte do baralho que não dá para melhorar): Fácil e Normal ~65–80%; no Difícil cai de ~75% (regiões 1–3) para menos de 10% (regiões 7–10).
   - Até v0.67.3: Normal k = Fácil (5 + 2·(k − 1)) e Difícil k = Normal (5 + 2·(k − 1)).
 - **Baralhos:** vêm de `src/core/hardDecks.ts`, gerado por `scripts/balance/decks.ts` (v0.67.3: gerados de novo com a tabela nova e o Poder medido de novo; o baralho de referência do jogador são as 10 cartas de maior Poder da faixa, agora as mais fortes de verdade, e entram os baralhos com nota a partir de 3%).
   - Em cada faixa, os baralhos estão ordenados do mais fraco ao mais forte (nota = vitória contra um baralho de jogador forte da faixa, com os dois lados no Auto).
@@ -1764,17 +1768,17 @@ Cada vitória continua dando os 3 itens fixos da fase (a fase 3 de toda região 
 
 | Dificuldade | Fases | Cor comum / cor rara | Chance da rara |
 |---|---|---|---|
-| Fácil | 1–20 | cinza / verde | 40% |
-| Fácil | 21–50 | verde / azul | 40% |
-| Fácil | 51–80 | azul / roxo | 10% |
+| Fácil | 1–10 | cinza / verde | 40% |
+| Fácil | 11–53 | verde / azul | 40% |
+| Fácil | 54–80 | azul / roxo | 10% |
 | Fácil | 81–100 | azul / roxo | 40% |
-| Normal | 1–30 | azul / roxo | 20% |
-| Normal | 31–70 | roxo / laranja | 20% |
-| Normal | 71–100 | laranja | — |
+| Normal | 1–50 | azul / roxo | 20% |
+| Normal | 51–100 | azul / roxo | 50% |
 | Difícil | 1–30 | roxo / laranja | 20% |
 | Difícil | 31–100 | laranja | — |
 
-- O **Fácil tem teto** (azul, com roxo só no fim). Para evoluir cartas Raras e acima, o jogador precisa tentar o **Normal**; os itens laranja (cartas Lendárias e Míticas) vêm do Normal avançado e do Difícil.
+- O **Fácil tem teto** (azul, com roxo só no fim). Para evoluir cartas Raras e acima, o jogador precisa tentar o **Normal**.
+- **v0.71.0 (pedido do jogador):** o **laranja só cai no Difícil** (o Normal dá azul e roxo, com 50% de roxo a partir da fase 51). A **primeira aparição** do azul e do roxo no Fácil fica ~5 fases antes de onde um baralho que precisa da cor começa a travar (`scripts/balance/firstColor.ts`: azul trava na 16 → cai a partir da **11**, antes 21; roxo trava na 59 → a partir da **54**, antes 51). *(v0.69.0–v0.70: Fácil 1–20 cinza/verde, 21–50 verde/azul, 51–80 azul/roxo 10%; Normal 1–30 azul/roxo, 31–70 roxo/laranja, 71–100 laranja.)*
 - *(Até a v0.68: Fácil cinza/verde, Normal azul/roxo e Difícil roxo/laranja, subindo +1 cor a cada 2 regiões; o Fácil chegava ao laranja.)*
 
 ### 🔒 Cadeado (por item e cor)
@@ -1794,7 +1798,8 @@ Lógica em `src/core/leaders.ts`; painel e janela em `src/app/collection.ts`.
 - **30 níveis**, com a vida de **20 a 64** distribuída (cerca de +1,5 por nível: 20, 22, 23, 25 … 64). A vida máxima é a mesma de antes; só o caminho ficou mais gradual.
 - **Requisitos de Poder** (`LEADER_THRESHOLDS`):
   - **Níveis 2 a 20** acompanham a campanha: Poder típico medido no simulador ao longo das 300 fases (Fácil, Normal e Difícil intercalados), um pouco abaixo do jogador simulado. Quem zera o Difícil fica perto do nível 20.
-  - **Níveis 21 a 30** são o fim de jogo e sobem em progressão até o **nível 30 = Poder do baralho máximo**: 40 personagens diferentes, cada um na raridade mais alta que alcança, com "++" (hoje **4.785**).
+  - **Níveis 21 a 30** são o fim de jogo e sobem em progressão até o **nível 30 = Poder do baralho máximo**: o baralho de 40 cartas mais forte possível, cada carta na raridade mais alta que alcança, com "++" e **contando cada cópia** (v0.71.0: **6.075**; na v0.70.0 eram 40 personagens diferentes, 4.785).
+  - **v0.71.0:** recalculados com as cópias individuais (o Poder do baralho soma todas as cópias). O nível 2 pede **520** e o 20 pede **2.770**; os níveis 2 a 20 ficam 15% abaixo do Poder típico do jogador simulado.
 - O Poder continua sendo conferido **só na hora de evoluir**: dá para montar o baralho mais forte, evoluir e depois voltar ao baralho que quiser. O Comandante nunca perde nível.
 - **Um toque sobe todos os níveis** que o Poder já alcança (a janela mostra "alcança N níveis de uma vez").
 - **Passo guiado (uma vez só):** na primeira vez que o Poder alcança o nível 2, a tela escurece e destaca o caminho: **Baralho** na Base e depois **Evoluir**, com a explicação. Termina ao evoluir ("Agora não" faz o destaque voltar).
@@ -1809,3 +1814,17 @@ Lógica em `src/core/leaders.ts`; painel e janela em `src/app/collection.ts`.
 - **Mãozinha do tutorial:** centralizada no alvo; no passo da descrição da carta, aponta para o **✕** que fecha.
 - **Nível de perfil:** o aviso diz "Energia reabastecida (+N ⚡)".
 
+
+## Cópias individuais (v0.71.0)
+Lógica em `src/core/copies.ts`; telas em `src/app/collection.ts` (Suas cópias) e `src/app/train.ts`.
+- **Cada cópia é uma carta própria**, com a sua raridade (cor), o seu degrau ("+", "++") e a sua barra de XP. Ter um personagem Mítico não faz a cópia Épica dele ficar Mítica.
+- **Baralho:** de 1 a 3 cópias de cada personagem, em qualquer combinação de cores (ex.: só 2 cópias, uma Épica e uma Rara). Cada cópia luta com a cor e o "+" dela; na batalha as cópias saem do monte em ordem sorteada.
+  - **− / +** no baralho: o "+" põe a cópia mais forte que está fora; o "−" tira a mais fraca.
+  - Na janela do personagem, **Suas cópias** lista as cópias (e as guardadas, por cor) com **− / ＋** (tirar/pôr no baralho) e 🔥 **Treinar**. Cópias iguais (mesma cor e "+"; **o XP não conta**) aparecem uma vez só, com o selo **×N**. As que estão no baralho de batalha ficam numa linha própria, marcada com **✔ Baralho** (fundo verde). Ao pôr no baralho entra a de mais XP; ao tirar, sai a de menos XP.
+  - **No Treinar cada cópia aparece separada** (cada uma com a sua barra de XP); as do baralho têm o ✔ verde.
+  - A carta mostrada no baralho é a cópia mais forte; as bolinhas embaixo mostram a cor de cada cópia.
+- **Treinar e Despertar valem para uma cópia de cada vez**, e cada cópia paga o preço inteiro (Orbes, Essências e itens). No Treinar, escolha a cópia na linha **Cópias de …** (✔ = no baralho).
+- **XP por jogar:** cada cópia do baralho ganha o XP.
+- **Poder do baralho** = soma do Poder de **cada carta** do baralho (cada cópia com a cor dela; feitiços não contam). O Comandante usa esse Poder.
+- **Cópias guardadas:** as que nunca foram treinadas ficam guardadas por cor (Inventário → Personagens repetidos) e podem ser desmanchadas. Ao entrar no baralho ou ser treinada, a cópia passa a ser uma cópia própria; se sair do baralho sem nunca ter sido treinada, volta a ser guardada. Cópia já treinada não é desmanchada.
+- **Saves antigos:** as cópias que já estavam no baralho viram cópias próprias **na cor, degrau e XP da principal** (ninguém perde força); cada uma usa uma cópia guardada. As outras guardadas continuam como estavam.

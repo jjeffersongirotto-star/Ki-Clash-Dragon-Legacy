@@ -18,10 +18,10 @@ const N = Number(process.argv[2] ?? 1);
 const first = Number(process.argv[3] ?? 0);
 const out = process.argv[4];
 const PROBE = Number(process.env.PROBE ?? 12);
-// v0.67.4 (pedido do jogador): fora do primeiro mundo, no máximo 50% de vitória ao chegar, caindo com o nível
+// v0.71.0 (pedido do jogador): curva mais suave — Fácil 97%→45%, Normal 55%→30%, Difícil 50%→20% (o simulador joga pior que uma pessoa)
 // v0.70.0 (pedido do jogador): o Fácil começa perto de 100% e cai devagar até ~30% na fase 100
 export const target = (d: Difficulty, k: number) =>
-  d === 'facil' ? 0.97 - (0.67 * (k - 1)) / 99 : d === 'normal' ? 0.5 - (0.3 * (k - 1)) / 99 : 0.45 - (0.33 * (k - 1)) / 99;
+  d === 'facil' ? 0.97 - (0.52 * (k - 1)) / 99 : d === 'normal' ? 0.55 - (0.25 * (k - 1)) / 99 : 0.5 - (0.3 * (k - 1)) / 99;
 const CALIB = process.env.CALIB !== '0';
 // CALIB=2: refina a partir da tabela atual (LADDER_STEPS), com margem de 3 pontos abaixo do alvo
 const REFINE = process.env.CALIB === '2';
@@ -48,22 +48,29 @@ const stats = runCampaign({ name: 'escada', hp: LEADER_HP, thresholds: LEADER_TH
   onPlayer: (pi) => console.error(`jogador ${pi} (${Math.round((Date.now() - t0) / 1000)} s)`),
   pick: !CALIB ? undefined : (i, winAt) => {
     const { id: k, diff: d } = order[i];
+    if (d === 'facil' && k <= 10) return undefined; // v0.71.0: região 1 ajustada à mão (baralhos menores, IA simples)
     const T = target(d, k) - MARGIN, s0 = base(d, k);
     // v0.70.0: Fácil 1 e 2 só com cartas Comuns (degrau até 2 = Comum++)
     const top = d === 'facil' && k <= 2 ? 2 : 17.99;
     const at = (b: number) => stageAt(d, k, Math.max(0, Math.min(top, s0 + b)));
     let lo: number, hi: number;
-    if (winAt(at(0), PROBE) > T) { lo = 0; hi = Math.min(6, 17.99 - s0); }
-    else { lo = -Math.min(3, s0); hi = 0; }
+    const w0 = winAt(at(0), PROBE);
+    // v0.71.0: já perto da meta → mantém o degrau, sem buscar (poupa ~6 medições por fase). Pedido do jogador: um pouco
+    // abaixo da meta pode ficar (até 10 pontos) — mais recursos (missões diárias, torre…) ajudam a passar.
+    if (w0 <= T + 0.06 && w0 >= T - 0.1) { (bonus[d][k - 1] ??= []).push(0); return at(0); }
+    if (w0 > T) { lo = 0; hi = Math.min(6, 17.99 - s0); }
+    else { lo = -Math.min(6, s0); hi = 0; }
     for (let it = 0; it < 6; it++) { const m = (lo + hi) / 2; if (winAt(at(m), PROBE) > T) lo = m; else hi = m; }
-    (bonus[d][k - 1] ??= []).push(hi);
-    return at(hi);
+    // v0.71.0: fica com o lado que ainda passa da meta (lo). O `hi` caía às vezes logo depois de um "degrau" em que a
+    // vitória despenca (troca de raridade dos inimigos) e a fase ficava com 0% ao chegar.
+    (bonus[d][k - 1] ??= []).push(lo);
+    return at(lo);
   },
 });
-const res = { order, bonus, win: stats.map((s) => s.winAtArrival), pow: stats.map((s) => s.arrivePower) };
+const res = { order, bonus, win: stats.map((s) => s.winAtArrival), pow: stats.map((s) => s.arrivePower), blocked: stats.map((s) => s.blocked) };
 if (out) writeFileSync(out, JSON.stringify(res));
 for (const d of ['facil', 'normal', 'dificil'] as const)
   for (let r = 0; r < 10; r++) {
     const idx = order.map((o, i) => (o.diff === d && o.id > r * 10 && o.id <= r * 10 + 10 ? i : -1)).filter((i) => i >= 0);
-    console.log(`${d} região ${r + 1}: vitória ao chegar ${Math.round(100 * mean(idx.map((i) => mean(res.win[i]))))}% · degrau extra ${mean(idx.map((i) => mean(bonus[d][order[i].id - 1] ?? [0]))).toFixed(2)}`);
+    console.log(`${d} região ${r + 1}: vitória ao chegar ${Math.round(100 * mean(idx.map((i) => mean(res.win[i]))))}% · degrau extra ${mean(idx.map((i) => mean(bonus[d][order[i].id - 1] ?? [0]))).toFixed(2)} · travadas por recurso ${Math.round(100 * mean(idx.map((i) => mean(res.blocked[i]))))}%`);
   }

@@ -161,6 +161,13 @@ export interface CardInstance {
   plus?: number | boolean;
   /** v0.17.0: cópias no baralho (1–3; padrão 3). Feitiços usam o id do feitiço em `charId`. */
   copies?: number;
+  /**
+   * v0.71.0: cada cópia é uma carta própria (cor e "+" dela). Uma entrada por cópia (`copies` = tamanho);
+   * sem valor, todas as cópias são iguais à carta (`stars`/`plus`).
+   */
+  variants?: { stars: number; plus?: number }[];
+  /** v0.71.0: na mão/derrotadas, qual cópia do grupo é (índice em `variants`) */
+  copy?: number;
 }
 
 export interface Unit {
@@ -188,6 +195,8 @@ export interface Unit {
   card?: CardInstance;
   /** grupo do baralho de onde a cópia saiu (vai para as derrotadas quando a unidade cai) */
   slot?: number;
+  /** v0.71.0: qual cópia do grupo esta unidade é */
+  copy?: number;
   /** v0.17.0: efeitos com duração */
   effects?: Effect[];
   /** v0.17.0: Renascer já usado / Anjo da Guarda (habilidade) já usado */

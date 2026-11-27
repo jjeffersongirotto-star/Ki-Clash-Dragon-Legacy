@@ -14,6 +14,8 @@ import type { CharacterDef } from './types';
 export interface HeroSave {
   cards: Record<string, { stars: number }>;
   dupes?: Record<string, Record<number, number>>;
+  /** v0.71.0: cópias usadas (cada uma com a sua raridade) */
+  extra?: Record<string, { stars: number }[]>;
   spells?: Record<string, number>;
   heroSeen?: Record<string, number[]>;
   heroClaims?: string[];
@@ -52,6 +54,7 @@ export function syncSeen(d: HeroSave, byId: Record<string, CharacterDef>): Recor
     else add(seen, id, c.stars);
   }
   for (const [id, by] of Object.entries(d.dupes ?? {})) for (const [st, n] of Object.entries(by)) if (n > 0 && byId[id]) add(seen, id, +st);
+  for (const [id, row] of Object.entries(d.extra ?? {})) if (byId[id]) for (const c of row) add(seen, id, c.stars);
   return seen;
 }
 export const hasRarity = (d: HeroSave, id: string, st: number) => !!d.heroSeen?.[id]?.includes(st);

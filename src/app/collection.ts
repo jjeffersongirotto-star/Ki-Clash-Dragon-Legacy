@@ -7,7 +7,8 @@ import { CATEGORY_INFO, PLAYABLE, RACE_INFO, getChar, isComingSoon } from '../co
 import { cardMatches, toggleSel } from '../core/cardFilter';
 import { MAX_STEP, TIER_NAMES, statsFor, stepOf, tierLabel } from '../core/progression';
 import { playerLeaderImg, unitSpriteHTML } from '../ui/art';
-import { cardPower } from '../core/power';
+import { cardPower, deckPower } from '../core/power';
+import { bestCopy, copyGroups, copyList, materialize, pickCopy, pickOf, unpickCopy } from '../core/copies';
 import { canEvolve, leaderHp, leaderMaxLevel, nextRequirement, reachableLevel } from '../core/leaders';
 import { abilityListHTML, cardHTML, raceIcon, catIcon, categoryHTML, dmgLabel, esc, raceHTML, reachLabel, spellCardHTML, spellCastersLabel, spellInfoHTML, starStyle, tierHTML, gemHTML } from '../ui/components';
 import { ico } from '../ui/icons';
@@ -16,7 +17,7 @@ import { gameAlert, gameConfirm, showDialog } from '../ui/dialog';
 import { autoDeck } from '../core/deckbuild';
 import { clearSpotlight, spotlight } from '../ui/spotlight';
 import { leaveBattleMode } from '../ui/orientation';
-import { MAX_COPIES, addToDeck, deckMin, copiesIn, spellCopies, maxCopiesFor, deckCount, deckIssue, deckMax, profileLevel, removeFromDeck, setCopies } from '../ui/save';
+import { MAX_COPIES, addToDeck, deckCopies, deckMin, copiesIn, spellCopies, maxCopiesFor, deckCount, deckIssue, deckMax, profileLevel, removeFromDeck, setCopies } from '../ui/save';
 import { app, save, setTrainSel, persist, unlockStage, entryName, teamPower, activeLeader, leaderLevel, fmt } from './state';
 import { topbar, bindNav, modal, closeModal, bakeAllGrid } from './ui';
 import { train } from './train';
@@ -60,10 +61,10 @@ const LEADER_GUIDE_DECK = 'Este é o seu <b>Comandante</b>: a vida dele é a sua
 /** v0.70.0: ⚡ Montar melhor — as cartas de maior Poder (com as cópias que você tem) e até 3 feitiços que combinam. */
 export function buildBestDeck() {
   const max = deckMax(save);
-  const owned = Object.values(save.cards).filter((c) => !getChar(c.charId).summonOnly).map((c) => ({ charId: c.charId, stars: c.stars, plus: stepOf(c) }));
+  const owned = Object.values(save.cards).filter((c) => !getChar(c.charId).summonOnly).map((c) => bestCopy(save, c.charId) ?? c).map((c) => ({ charId: c.charId, stars: c.stars, plus: stepOf(c) }));
   const spellSlots = Math.min(6, Math.max(0, max - 24));
   const picked = autoDeck(owned, max, spellSlots, save.spells);
-  save.deck = [];
+  for (const id of [...save.deck]) removeFromDeck(save, id);
   save.copies = {};
   for (const c of picked) {
     if (!addToDeck(save, c.charId)) continue;
@@ -121,7 +122,7 @@ export function collection() {
   leaveBattleMode();
   void bakeAllGrid();
   const byPower = (a: string, b: string) => {
-    const A = save.cards[a], B = save.cards[b];
+    const A = bestCopy(save, a)!, B = bestCopy(save, b)!;
     return cardPower(B) - cardPower(A) || B.stars - A.stars || stepOf(B) - stepOf(A) || getChar(a).cost - getChar(b).cost;
   };
   const matchRace = (id: string) => cardMatches(getChar(id).race, [getChar(id).category], raceSel, typeSel);
@@ -140,13 +141,15 @@ export function collection() {
     const n = copiesIn(save, id);
     const card = isSpell(id)
       ? spellCardHTML(id, { compact: true, extraClass: 'grid-card', attrs: `data-card="${id}"` })
-      : cardHTML(save.cards[id], { compact: true, grid: true, attrs: `data-card="${id}"`, power: cardPower(save.cards[id]) });
-    return `<div class="deck-entry">${card}<div class="copies" data-copies="${id}"><button class="cp-btn" data-cp="-1" aria-label="Menos uma cópia" ${n <= 1 ? 'disabled' : ''}>−</button><b>×${n}</b><button class="cp-btn" data-cp="1" aria-label="Mais uma cópia" title="${n >= maxCopiesFor(save, id) && n < MAX_COPIES ? `Você tem ${maxCopiesFor(save, id)} cópia(s) desta carta` : ''}" ${n >= maxCopiesFor(save, id) || count >= max ? 'disabled' : ''}>+</button></div></div>`;
+      : cardHTML(deckCopies(save, id)[0], { compact: true, grid: true, attrs: `data-card="${id}"`, power: deckPower(deckCopies(save, id)) });
+    // v0.71.0: a cor de cada cópia do baralho
+    const dots = isSpell(id) ? '' : `<div class="copy-dots">${deckCopies(save, id).map((c) => `<span style="${starStyle(c.stars)}" title="${tierLabel(c.stars, stepOf(c))}">${'+'.repeat(stepOf(c))}</span>`).join('')}</div>`;
+    return `<div class="deck-entry">${card}${dots}<div class="copies" data-copies="${id}"><button class="cp-btn" data-cp="-1" aria-label="Menos uma cópia" ${n <= 1 ? 'disabled' : ''}>−</button><b>×${n}</b><button class="cp-btn" data-cp="1" aria-label="Mais uma cópia" title="${n >= maxCopiesFor(save, id) && n < MAX_COPIES ? `Você tem ${maxCopiesFor(save, id)} cópia(s) desta carta` : ''}" ${n >= maxCopiesFor(save, id) || count >= max ? 'disabled' : ''}>+</button></div></div>`;
   };
   app.innerHTML = `<div class="screen">${topbar('Baralho')}
     ${leaderPanelHTML()}
     <section class="deck-bar">
-      <div class="deck-title"><button class="btn small primary deck-best" id="deckBest" title="Monta o baralho com as cartas de maior Poder (dá para trocar depois)">⚡ Montar melhor</button><span class="deck-power" title="Poder do baralho = soma do Poder de cada personagem do baralho (uma vez cada; feitiços não contam)">⚡ ${fmt(teamPower())}</span> Baralho <b>${count}/${max}</b> <small>(nível de perfil ${profileLevel(save)} · mínimo ${deckMin(save)} · até ${MAX_COPIES} cópias por carta${issue ? ` · <span class="warn">${esc(issue)}</span>` : ''})</small></div>
+      <div class="deck-title"><button class="btn small primary deck-best" id="deckBest" title="Monta o baralho com as cartas de maior Poder (dá para trocar depois)">⚡ Montar melhor</button><span class="deck-power" title="Poder do baralho = soma do Poder de cada carta do baralho (cada cópia com a cor dela; feitiços não contam)">⚡ ${fmt(teamPower())}</span> Baralho <b>${count}/${max}</b> <small>(nível de perfil ${profileLevel(save)} · mínimo ${deckMin(save)} · até ${MAX_COPIES} cópias por carta${issue ? ` · <span class="warn">${esc(issue)}</span>` : ''})</small></div>
       <div class="deck-slots deck-copies">${save.deck.map(entryHTML).join('')}${count < max ? '<div class="slot">+</div>' : ''}</div>
     </section>
     <div class="race-filters">
@@ -159,7 +162,7 @@ export function collection() {
     </div>
     <p class="hint">Toque numa carta para inspecionar a evolução visual de raridade em raridade (Comum → Mítico), ver o sprite de arena e editar a equipe.</p>
     <h3 class="sec-title">Seus personagens <small>(${owned.length})</small></h3>
-    <div class="card-grid">${owned.map((id) => cardHTML(save.cards[id], { grid: true, power: cardPower(save.cards[id]), attrs: `data-card="${id}"`, badge: save.deck.includes(id) ? `✔ ×${copiesIn(save, id)}` : undefined, extraClass: save.deck.includes(id) ? 'in-deck' : '' })).join('')}</div>
+    <div class="card-grid">${owned.map((id) => cardHTML(bestCopy(save, id)!, { grid: true, power: cardPower(bestCopy(save, id)!), attrs: `data-card="${id}"`, badge: save.deck.includes(id) ? `✔ ×${copiesIn(save, id)}` : undefined, extraClass: save.deck.includes(id) ? 'in-deck' : '' })).join('')}</div>
     <h3 class="sec-title">✦ Feitiços <small>(${ownedSpells.length}/${SPELLS.length} · ocupam vagas do baralho; precisam de um aliado da categoria em campo)</small></h3>
     <div class="card-grid spell-grid">${ownedSpells.map((sp) => spellCardHTML(sp.id, { attrs: `data-card="${sp.id}"`, badge: save.deck.includes(sp.id) ? `✔ ×${copiesIn(save, sp.id)}` : `×${spellCopies(save, sp.id)}`, extraClass: save.deck.includes(sp.id) ? 'grid-card in-deck' : 'grid-card' })).join('')}</div>
     ${lockedSpells.length ? `<div class="divider"><span>${ico('bloqueado', '🔒')} Feitiços ainda não obtidos (${lockedSpells.length})</span></div>
@@ -212,9 +215,30 @@ export function collection() {
   if (leaderGuideActive()) requestAnimationFrame(() => { const el = app.querySelector('#lpEvolve'); if (el) { el.scrollIntoView({ block: 'center' }); spotlight(el, LEADER_GUIDE_DECK); } });
 }
 
+/** v0.71.0: as cópias do personagem — cada uma com a sua cor; pôr/tirar do baralho e treinar uma por uma. */
+function copiesSectionHTML(id: string): string {
+  const inDeck = save.deck.includes(id);
+  const picked = inDeck ? pickOf(save, id) : [];
+  const full = deckCount(save) >= deckMax(save);
+  const canAdd = !full && picked.length < MAX_COPIES;
+  // v0.71.0: cópias iguais (mesma cor e "+"; o XP não conta) aparecem uma vez só, com ×N; as do baralho ficam marcadas
+  const row = (c: { stars: number; plus: number }, n: number, note: string, btns: string, trainAttr: string, on = false) =>
+    `<div class="copy-row${on ? ' on' : ''}" style="${starStyle(c.stars)}"><span class="tier-dot"></span><span class="copy-name">${on ? '<span class="copy-on">✔ Baralho</span> ' : ''}<b>${tierLabel(c.stars, c.plus)}</b>${n > 1 ? ` <span class="copy-n">×${n}</span>` : ''} <small>${ico('poder', '⚡')}${fmt(cardPower({ charId: id, ...c }))}${note}</small></span>${btns}<button class="btn small ghost" ${trainAttr} title="Treinar (no Treinar cada cópia aparece separada)">${ico('treinar', '🔥')}</button></div>`;
+  const used = copyGroups(save, id, inDeck).map((g) =>
+    g.inDeck
+      ? row(g, g.refs.length, '', `<button class="btn small" data-cunpick="${g.refs[0]}" ${picked.length > 1 ? '' : 'disabled title="O baralho fica com pelo menos 1 cópia (use Tirar do baralho)"'} title="Tirar uma cópia do baralho">−</button>`, `data-ctrain="${g.refs[0]}"`, true)
+      : row(g, g.refs.length, '', `<button class="btn small primary" data-cpick="${g.refs[0]}" ${canAdd ? '' : 'disabled'} title="Pôr uma cópia no baralho">＋</button>`, `data-ctrain="${g.refs[0]}"`),
+  );
+  const box = Object.entries(save.dupes?.[id] ?? {})
+    .filter(([, k]) => k > 0)
+    .sort((a, b) => +b[0] - +a[0])
+    .map(([r, k]) => row({ stars: +r, plus: 0 }, k, ' · guardada', `<button class="btn small primary" data-cpickbox="${r}" ${canAdd ? '' : 'disabled'} title="Pôr uma cópia no baralho">＋</button>`, `data-ctrainbox="${r}"`));
+  return `<div class="copy-list"><div class="copy-head">${ico('colecao', '🃏')} Suas cópias <small>(cada uma é uma carta própria: cor, "+" e XP dela · no baralho: ${picked.length}/${MAX_COPIES})</small></div>${[...used, ...box].join('')}${full && !picked.length ? '<p class="hint warn">Baralho cheio: tire uma carta para abrir espaço.</p>' : ''}</div>`;
+}
+
 export function cardDetail(id: string, previewStars?: number) {
   const def = getChar(id);
-  const owned = save.cards[id];
+  const owned = bestCopy(save, id);
   const curStars = owned?.stars ?? def.minStars;
   const curPlus = stepOf(owned);
   const stars = previewStars ?? curStars;
@@ -250,6 +274,7 @@ export function cardDetail(id: string, previewStars?: number) {
         <div class="sp-tabs">${starTabs.join('')}</div>
       </div>
       <div class="stat-row"><span title="Rodadas que a carta espera na mão até poder ser invocada">Espera <b>⏳ ${waitFor(def.id)}</b></span><span>Ataque <b>${st.atk}</b></span><span>Vida <b>${st.hp}</b></span><span>${dmgLabel(def)}</span><span>Alcance <b>${reachLabel(def)}</b></span><span>Movimento <b>${def.move}</b></span></div>
+      ${owned ? copiesSectionHTML(id) : ''}
       ${abilityListHTML(def, stars, plus)}
       ${lockNote}
       <p class="lore">${esc(def.lore)}</p>
@@ -261,10 +286,39 @@ export function cardDetail(id: string, previewStars?: number) {
         btn.addEventListener('click', () => cardDetail(id, +btn.dataset.pstar!)),
       );
       m.querySelector('[data-m=train]')?.addEventListener('click', () => {
-        setTrainSel(id);
+        const list = copyList(save, id);
+        setTrainSel(id, Math.max(0, list.findIndex((c) => cardPower(c) === Math.max(...list.map(cardPower)))));
         closeModal();
         train();
       });
+      // v0.71.0: cópias — pôr/tirar do baralho e treinar
+      const after = () => {
+        persist();
+        collection();
+        cardDetail(id, previewStars);
+      };
+      const addCopy = (choice: { ref?: number; stars?: number }) => {
+        if (deckCount(save) >= deckMax(save)) return;
+        if (!save.deck.includes(id)) {
+          const ref = choice.ref ?? materialize(save, id, choice.stars!);
+          if (ref == null) return;
+          save.deck.push(id);
+          (save.pick ??= {})[id] = [ref];
+        } else if (pickCopy(save, id, choice) == null) return;
+        after();
+      };
+      m.querySelectorAll<HTMLElement>('[data-cpick]').forEach((b) => b.addEventListener('click', () => addCopy({ ref: Number(b.dataset.cpick) })));
+      m.querySelectorAll<HTMLElement>('[data-cpickbox]').forEach((b) => b.addEventListener('click', () => addCopy({ stars: Number(b.dataset.cpickbox) })));
+      m.querySelectorAll<HTMLElement>('[data-cunpick]').forEach((b) => b.addEventListener('click', () => unpickCopy(save, id, Number(b.dataset.cunpick)) && after()));
+      const goTrain = (ref: number | null) => {
+        if (ref == null) return;
+        persist();
+        setTrainSel(id, ref);
+        closeModal();
+        train();
+      };
+      m.querySelectorAll<HTMLElement>('[data-ctrain]').forEach((b) => b.addEventListener('click', () => goTrain(Number(b.dataset.ctrain))));
+      m.querySelectorAll<HTMLElement>('[data-ctrainbox]').forEach((b) => b.addEventListener('click', () => goTrain(materialize(save, id, Number(b.dataset.ctrainbox)))));
       m.querySelector('[data-m=deck]')?.addEventListener('click', () => void toggleDeck(id, inDeck));
     });
 }

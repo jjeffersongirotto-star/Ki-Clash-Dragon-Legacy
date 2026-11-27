@@ -3,7 +3,7 @@ import { ABILITIES, COURACA_CAP, has } from './abilities';
 import { abilitiesAt, getChar } from './characters';
 import { BALANCE_V2, hasTweak } from './balanceV2';
 import { statsFor, tierLabel, stepOf } from './progression';
-import { DECK_ABS_MAX, createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, returnFromNecropolis, HAND_SIZE } from './deck';
+import { DECK_ABS_MAX, createDeck, deckProblem, defeatCopy, drawOpening, drawStep, playFromHand, returnFromNecropolis, toPile, HAND_SIZE } from './deck';
 import { getSpell, isSpell } from './spells';
 import { nextRandom } from './rng';
 import type {
@@ -59,8 +59,14 @@ export interface BattleSetup {
 
 /** Coletor de eventos: cada evento leva um retrato do estado para a UI animar. */
 export class Ctx {
+  /** v0.71.0: simulador — sem retrato do estado nem texto do registro (só a tela usa; o resultado da batalha é o mesmo) */
+  static headless = false;
   events: RecordedEvent[] = [];
   emit(state: BattleState, ev: BattleEvent) {
+    if (Ctx.headless) {
+      this.events.push({ ...ev } as RecordedEvent);
+      return;
+    }
     state.log.push(ev.text);
     this.events.push({ ...ev, snap: snapshot(state) } as RecordedEvent);
   }
@@ -129,7 +135,10 @@ export function canMulligan(state: BattleState, side: Side): boolean {
 export function mulligan(state: BattleState, side: Side): boolean {
   if (!canMulligan(state, side)) return false;
   const d = state.decks[side];
-  for (const h of d.hand) if (d.slots[h.slot]) d.slots[h.slot].inHand = Math.max(0, d.slots[h.slot].inHand - 1);
+  for (const h of d.hand) if (d.slots[h.slot]) {
+    d.slots[h.slot].inHand = Math.max(0, d.slots[h.slot].inHand - 1);
+    toPile(d.slots[h.slot], h.copy);
+  }
   d.hand = [];
   // o turno 1 já começou: a espera já andou 1 rodada
   for (const h of drawOpening(d, state)) h.wait = state.noWait ? 0 : Math.max(0, waitFor(h.charId) - OPENING_HEADSTART - 1);
@@ -756,7 +765,7 @@ function onHit(state: BattleState, ctx: Ctx, u: Unit, t: Unit, secondary: boolea
 function kill(state: BattleState, ctx: Ctx, victim: Unit, killer?: Unit) {
   victim.hp = 0;
   state.units = state.units.filter((x) => x !== victim);
-  if (victim.slot != null) defeatCopy(state.decks[victim.side], victim.slot);
+  if (victim.slot != null) defeatCopy(state.decks[victim.side], victim.slot, victim.copy);
   // v0.28.0: personagem derrotado conta para o outro lado (a Cria Sombria não conta)
   const st = state.stats?.[enemyOf(victim.side)];
   if (st && !victim.isMinion) st.kills++;
@@ -1120,6 +1129,7 @@ export function deploy(state: BattleState, side: Side, handIndex: number, row: n
   if (state.stats) state.stats[side].cards++;
   const u = placeUnit(state, { charId: card.charId, stars: card.stars, plus: stepOf(card) }, side, row, col);
   u.slot = card.slot;
+  if (card.copy != null) u.copy = card.copy;
   ctx.emit(state, { type: 'deploy', uid: u.uid, text: `${side === 'player' ? 'Você invoca' : 'Inimigo invoca'} ${def.name} (${tierLabel(card.stars, stepOf(card))}).` });
   const aura = has(u.abilities, (a) => a.enemyAtkAura);
   if (aura) ctx.emit(state, { type: 'aura', uid: u.uid, text: `🌀 ${def.name} drena o ataque de todos os inimigos!` });

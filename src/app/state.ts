@@ -11,7 +11,7 @@ import { getLeader } from '../core/leaders';
 import { energyHTML, gemHTML, goldHTML } from '../ui/components';
 import { getSpell, isSpell } from '../core/spells';
 import { gameAlert } from '../ui/dialog';
-import { allSpells, rawSaveHas, deckMax, hasSave, loadSave, setSaveKey, writeSave, type SaveData } from '../ui/save';
+import { allSpells, rawSaveHas, deckMax, deckOwnedCopies, hasSave, loadSave, setSaveKey, writeSave, type SaveData } from '../ui/save';
 import type { Difficulty } from '../core/adventure';
 import { FIRST_WIN_MULT, PROFILE_MAX, addProfileXp, energyMax, goldFor, msToNextEnergy, profileXpFor, tickEnergy, totalXpFor, newProfile, type ProfileState } from '../core/profile';
 import { adminMinSave, adminSave, loadAccounts, saveKeyFor } from '../ui/accounts';
@@ -30,6 +30,8 @@ export function openAccountSave(): SaveData {
     const a = adminSave();
     d.deck = a.deck;
     d.copies = a.copies;
+    d.extra = a.extra;
+    d.pick = a.pick;
     d.spells = a.spells;
     writeSave(d);
     return d;
@@ -71,7 +73,12 @@ export let save: SaveData = openAccountSave();
 export const setSave = (d: SaveData) => (save = d);
 export const firstChar = () => save.deck.find((id) => !isSpell(id) && save.cards[id]) ?? Object.keys(save.cards)[0];
 export let trainSel: string = firstChar();
-export const setTrainSel = (id: string) => (trainSel = id);
+/** v0.71.0: qual cópia do personagem está no Treinar (0 = principal; ver core/copies.ts) */
+export let trainRef = 0;
+export const setTrainSel = (id: string, ref = 0) => {
+  trainSel = id;
+  trainRef = ref;
+};
 
 export const persist = () => {
   syncSeen(save, CHAR_BY_ID); // v0.59.0: Heróis — raridades obtidas
@@ -81,9 +88,10 @@ export const unlockStage = (charId: string) => STAGES.find((s) => s.pack.include
 
 // ---------------- v0.13: PODER e COMANDANTE ----------------
 /** v0.17: o Poder do baralho soma cada personagem uma vez (cópias e feitiços não contam) */
-export const teamCards = () => save.deck.filter((id) => !isSpell(id) && save.cards[id]).map((id) => save.cards[id]);
+/** v0.71.0: todas as cópias de personagem do baralho (cada uma com a sua cor) */
+export const teamCards = () => deckOwnedCopies(save);
 export const entryName = (id: string) => (isSpell(id) ? `${getSpell(id).icon} ${getSpell(id).name}` : getChar(id).name);
-/** Poder do baralho = soma do Poder das cartas da equipe */
+/** Poder do baralho = soma do Poder de cada carta do baralho (v0.71.0: cada cópia conta, com a cor dela) */
 export const teamPower = () => deckPower(teamCards());
 export const activeLeader = () => getLeader(save.activeLeader);
 export const leaderLevel = () => Math.max(1, save.leaders?.[activeLeader().id]?.level ?? 1);

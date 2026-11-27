@@ -9,7 +9,7 @@ import { LEADER_HP } from '../../src/core/leaders';
 import { ascendCost, bagXp, cardBarXp, newOwned } from '../../src/core/progression';
 import { TUTORIAL_BATTLES, TUTORIAL_CHARS, TUTORIAL_PACK, TUTORIAL_REWARD, TUTORIAL_STARTER, TUT_BATTLE2, TUT_DONE, tutorialGear } from '../../src/core/tutorial';
 import { adminSave } from '../../src/ui/accounts';
-import { deckIssue, deckMin, defaultSave, loadSave, setSaveKey, tutorialDone, writeSave } from '../../src/ui/save';
+import { deckIssue, deckMin, defaultSave, setCopies, loadSave, setSaveKey, tutorialDone, writeSave } from '../../src/ui/save';
 
 const store = new Map<string, string>();
 beforeEach(() => {
@@ -101,6 +101,7 @@ describe('v0.25.0 — tutorial', () => {
     for (const id of TUTORIAL_PACK) d.cards[id] = newOwned(id);
     d.dupes = Object.fromEntries(TUTORIAL_CHARS.map((id) => [id, { 1: 2 }])); // v0.32.0: 3 cópias de cada (fim do tutorial)
     d.deck = ['riku', 'sora']; // tem 3 personagens: o mínimo conta os que ele TEM
+    for (const id of d.deck) setCopies(d, id, 3); // v0.71.0: cópias escolhidas
     expect(deckIssue(d)).toMatch(/6 de no mínimo 9/);
   });
 

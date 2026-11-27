@@ -3,7 +3,7 @@ import { act, attack, createBattle, Ctx, effectiveAtk, findTarget, placeUnit } f
 import { CHARACTERS, NEW_IDS, PLAYABLE, STARTER_IDS, getChar, isComingSoon } from '../../src/core/characters';
 import { STAGES, UNLOCKS } from '../../src/core/campaign';
 import { abilityPower } from '../../src/core/abilities';
-import { defaultSave, migrateV8, migrateV32, teamReady, type SaveData } from '../../src/ui/save';
+import { defaultSave, migrateV8, migrateV32, migrateV71, teamReady, type SaveData } from '../../src/ui/save';
 import { newOwned } from '../../src/core/progression';
 import type { BattleState, CardInstance, Category } from '../../src/core/types';
 
@@ -45,10 +45,10 @@ describe('progressão v0.8', () => {
     const order = Object.entries(UNLOCKS).sort((a, b) => +a[0] - +b[0]).map(([, id]) => getChar(id).minStars);
     for (let i = 1; i < order.length; i++) expect(order[i]).toBeGreaterThanOrEqual(order[i - 1]);
   });
-  it('baralho da IA: personagens diferentes, v0.33.0: 3 na fase 1 e +1 por fase até 10', () => {
+  it('baralho da IA: personagens diferentes (v0.71.0: 3 a 5, começo mais leve)', () => {
     // v0.18.0: os feitiços da IA ficam fora da contagem de personagens
     const chars = (st: (typeof STAGES)[number]) => st.enemyDeck.filter((x) => !x.charId.startsWith('f-'));
-    const want = [3, 4, 5, 6, 7, 8, 9, 10, 10, 10];
+    const want = [3, 3, 4, 4, 5, 5, 5, 5, 5, 5];
     STAGES.forEach((st, i) => {
       expect(chars(st)).toHaveLength(want[i]);
       expect(new Set(chars(st).map((x) => x.charId)).size).toBe(want[i]);
@@ -75,6 +75,7 @@ describe('progressão v0.8', () => {
     expect(m.deck.slice(0, 3)).toEqual(['riku', 'nara', 'kenji']);
     expect(m.deck).toHaveLength(10);
     migrateV32(m, {}); // v0.32.0: save antigo ganha 3 cópias de cada personagem (o baralho não perde nada)
+    migrateV71(m, {}); // v0.71.0: as cópias do baralho viram cópias próprias
     expect(teamReady(m)).toBe(true);
     expect(m.v8).toBe(true);
   });

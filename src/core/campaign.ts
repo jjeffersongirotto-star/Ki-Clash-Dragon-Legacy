@@ -62,13 +62,18 @@ const POOLS_V8: string[][] = [
  * diferentes e cada fase libera +1 (fase 8 em diante: 10). Fases 1–3 só com personagens de Comum (os 3 iniciais do
  * jogador levam vantagem); da fase 4 em diante, os personagens mais fortes do baralho de antes da fase.
  */
-export const ENEMY_DISTINCT = [3, 4, 5, 6, 7, 8, 9, 10, 10, 10];
+/** v0.71.0: começo bem mais leve (pedido do jogador: vencer quase sempre nas primeiras fases); até a v0.70: 3, 4, 5, 6, 7, 8, 9, 10, 10, 10. */
+export const ENEMY_DISTINCT = [3, 3, 4, 4, 5, 5, 5, 5, 5, 5];
 const EARLY_POOLS: string[][] = [
   ['hana', 'daichi', 'kuro'],
-  ['kuro', 'ren', 'hana', 'ysmera'],
-  ['daichi', 'ysmera', 'ren', 'suri', 'jin'],
+  ['kuro', 'ren', 'hana'], // v0.71.0: 3 (antes + ysmera)
+  ['daichi', 'ysmera', 'ren', 'suri'], // v0.71.0: 4 (antes + jin)
 ];
-export const POOLS: string[][] = POOLS_V8.map((pool, i) => EARLY_POOLS[i] ?? pool.slice(pool.length - ENEMY_DISTINCT[i]));
+/** v0.71.0: a fase 10 (fim da região 1) com só 1 Incomum, o Bufo (mago da Bola de Fogo); antes Gorath, Yume, Tobi e Bufo. */
+const LATE_POOLS: Record<number, string[]> = { 9: ['toru', 'jin', 'shin', 'medi3', 'bufo'] };
+/** só para o simulador (scripts/balance/region1.ts): o baralho da fase i com `n` personagens diferentes */
+export const POOLS_V8_FOR_TEST = (i: number, n: number): string[] => (EARLY_POOLS[i] && EARLY_POOLS[i].length >= n ? EARLY_POOLS[i].slice(0, n) : POOLS_V8[i].slice(POOLS_V8[i].length - n));
+export const POOLS: string[][] = POOLS_V8.map((pool, i) => EARLY_POOLS[i] ?? LATE_POOLS[i] ?? pool.slice(pool.length - ENEMY_DISTINCT[i]));
 
 /**
  * Desbloqueio pela progressão normal (primeira vitória na fase): Incomum, Raro e Épico.
@@ -102,7 +107,9 @@ export function enemyLeaderHp(i: number): number {
  */
 /* v0.62.0 (balanceamento v2.0, escala enxuta): vida do Comandante inimigo reduzida junto com o ataque das cartas
    (até a v0.61.0: 14, 14, 18, 34, 36, 40, 36, 41, 39, 56). */
-export const ENEMY_HERO_HP = [14, 14, 16, 18, 20, 22, 24, 26, 28, 30];
+/** v0.71.0: vida do Comandante inimigo nas fases 1–10 do Fácil (até a v0.70: 14, 14, 16, 18, 20, 22, 24, 26, 28, 30 — que o Normal e o Difícil continuam usando). */
+export const ENEMY_HERO_HP = [12, 12, 13, 14, 15, 16, 16, 15, 16, 15];
+export const ENEMY_HERO_HP_V62 = [14, 14, 16, 18, 20, 22, 24, 26, 28, 30];
 /* v0.37.0: com a IA esperta nas fases 4–10 (STAGE_AI), reequilibrado no simulador (scripts/balance/v28.ts, SIM_SPELLS=0).
    v0.36.0: 14, 14, 18, 32, 30, 37, 56, 62, 72, 106. */
 /* v0.36.0: arena de 10 colunas (os dois lados chegam mais rápido), reequilibrado no simulador (scripts/balance/v28.ts,
@@ -173,9 +180,9 @@ export function poolAtRarity(i: number, pool: string[], r: number): string[] {
 }
 
 /** Baralho da IA na fase `i`: os personagens da fase (v0.33.0: 3 a 10) com 3 cópias (no degrau da fase + `bonus`) e os feitiços da fase com 2 cópias. */
-export function enemyDeckFor(i: number, target = WORLD_STEPS[i], spellIds = WORLD_SPELLS[i], bonus = 0): CardInstance[] {
+export function enemyDeckFor(i: number, target = WORLD_STEPS[i], spellIds = WORLD_SPELLS[i], bonus = 0, poolOverride?: string[]): CardInstance[] {
   // v0.39.0: fases 11–100 (regiões 2–10) com os baralhos gerados em `worldPlan`
-  const base = i < POOLS.length ? POOLS[i] : worldPlan().pools[i - POOLS.length];
+  const base = poolOverride ?? (i < POOLS.length ? POOLS[i] : worldPlan().pools[i - POOLS.length]);
   const pool = bonus > 0 ? poolAtRarity(i, base, Math.max(1, Math.min(6, Math.floor((target + bonus) / 3) + 1))) : base;
   if (new Set(pool).size !== pool.length || pool.length > DECK_SLOTS) throw new Error(`Fase ${i + 1}: a IA precisa de até ${DECK_SLOTS} personagens diferentes`);
   const frac = target - Math.floor(target);
@@ -194,7 +201,9 @@ export function enemyDeckFor(i: number, target = WORLD_STEPS[i], spellIds = WORL
  * v0.37.0 — nível da IA inimiga por fase no Fácil (0 = simples, 1–3 = esperta: pensa mais turnos à frente).
  * As primeiras fases ficam com a IA simples; Normal e Difícil somam +1 e +2 (até 3), em adventure.ts.
  */
-export const STAGE_AI = [0, 0, 0, 1, 1, 1, 2, 2, 2, 3];
+/** v0.71.0: IA simples em toda a região 1 do Fácil (até a v0.70: 0, 0, 0, 1, 1, 1, 2, 2, 2, 3 — base do Normal e do Difícil). */
+export const STAGE_AI = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+export const STAGE_AI_V37 = [0, 0, 0, 1, 1, 1, 2, 2, 2, 3];
 
 export const STAGES: Stage[] = NAMES.map((name, i) => ({
   id: i + 1,

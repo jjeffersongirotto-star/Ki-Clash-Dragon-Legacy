@@ -57,6 +57,8 @@ export interface DeckSlot {
   seq: number;
   /** última compra em que veio (-1 = nunca) */
   lastStep: number;
+  /** v0.71.0: cópias (índices em `card.variants`) que estão no monte, na ordem em que saem */
+  pile?: number[];
 }
 
 /** `wait`: rodadas que faltam para poder invocar (v0.16.0) */
@@ -110,11 +112,23 @@ export function buildSlots(cards: CardInstance[]): CardInstance[] {
   return out;
 }
 
+/** v0.71.0: a carta de uma cópia (cor e "+" da cópia, quando as cópias são diferentes). */
+export function copyCard(card: CardInstance, copy: number | undefined): CardInstance {
+  const v = copy != null ? card.variants?.[copy] : undefined;
+  return v ? { ...card, stars: v.stars, plus: v.plus ?? 0, copy } : card;
+}
+/** as cópias são todas iguais? (então não há o que sortear) */
+const sameCopies = (c: CardInstance) => !c.variants || c.variants.every((v) => v.stars === c.variants![0].stars && (v.plus ?? 0) === (c.variants![0].plus ?? 0));
+
 export function createDeck(cards: CardInstance[], rng: { seed: number }): DeckState {
-  const slots: DeckSlot[] = buildSlots(cards).map((card, slot) => ({
+  const slots: DeckSlot[] = buildSlots(cards).map((c, slot) => {
+    const copies = copiesOf(c);
+    const card: CardInstance = c.variants ? { ...c, variants: c.variants.slice(0, copies) } : c;
+    if (card.variants && card.variants.length < copies) card.variants = undefined;
+    return {
     slot,
     card,
-    copies: copiesOf(card),
+    copies,
     defeated: 0,
     inHand: 0,
     onField: 0,
@@ -122,7 +136,11 @@ export function createDeck(cards: CardInstance[], rng: { seed: number }): DeckSt
     dueAt: 1,
     seq: 0,
     lastStep: -1,
-  }));
+    pile: card.variants ? Array.from({ length: copies }, (_, i) => i) : undefined,
+    };
+  });
+  // v0.71.0: cópias diferentes saem do monte em ordem sorteada (cópias iguais não gastam sorteio)
+  for (const s of slots) if (s.pile && !sameCopies(s.card)) shuffle(s.pile, rng);
   // ordem aleatória para os grupos nunca comprados
   shuffle(slots, rng).forEach((s, i) => (s.seq = -1000 + i));
   return { slots, hand: [], defeated: [], step: 0, queue: queueFor(slots.length) };
@@ -142,7 +160,11 @@ function take(d: DeckState, s: DeckSlot, k: number, opening: boolean) {
   s.eligibleAt = d.step + (opening ? q.oElig : q.elig);
   s.dueAt = d.step + (opening ? q.oGuar : q.guar);
   s.seq = d.step * 100 + k;
-  d.hand.push({ ...s.card, slot: s.slot });
+  d.hand.push({ ...copyCard(s.card, s.pile?.shift()), slot: s.slot });
+}
+/** v0.71.0: a cópia volta para o monte (fim da fila). */
+export function toPile(s: DeckSlot | undefined, copy: number | undefined) {
+  if (s?.pile && copy != null) s.pile.push(copy);
 }
 
 /** Mão inicial: 6 cartas distintas sorteadas. Conta como uma compra (a compra 0). */
@@ -199,12 +221,13 @@ export function playFromHand(d: DeckState, handIndex: number): HandCard | undefi
 }
 
 /** A unidade daquela cópia morreu: a cópia vai para as derrotadas para sempre. */
-export function defeatCopy(d: DeckState, slot: number) {
+export function defeatCopy(d: DeckState, slot: number, copy?: number) {
   const s = d.slots[slot];
   if (!s) return;
   s.onField = Math.max(0, s.onField - 1);
   s.defeated = Math.min(s.copies, s.defeated + 1);
-  d.defeated.push({ charId: s.card.charId, stars: s.card.stars, plus: s.card.plus });
+  const c = copyCard(s.card, copy);
+  d.defeated.push({ charId: c.charId, stars: c.stars, plus: c.plus, ...(c.copy != null ? { copy: c.copy } : {}) });
 }
 
 /** v0.17.0: feitiço lançado — a cópia sai da mão e volta ao monte (a fila decide quando volta à mão). */
@@ -215,6 +238,7 @@ export function castFromHand(d: DeckState, handIndex: number): HandCard | undefi
   const s = d.slots[c.slot];
   if (s) {
     s.inHand = Math.max(0, s.inHand - 1);
+    toPile(s, c.copy);
     // a espera para voltar à mão recomeça no lançamento (como se tivesse acabado de ser comprado)
     const q = d.queue ?? queueFor(DECK_SLOTS);
     s.eligibleAt = d.step + q.elig;
@@ -235,8 +259,9 @@ export function returnFromNecropolis(d: DeckState): { card: CardInstance; toHand
   s.defeated--;
   if (d.hand.length < HAND_SIZE) {
     s.inHand++;
-    d.hand.push({ ...s.card, slot: s.slot, wait: 0 });
+    d.hand.push({ ...copyCard(s.card, card.copy), slot: s.slot, wait: 0 });
     return { card, toHand: true };
   }
+  toPile(s, card.copy);
   return { card, toHand: false };
 }

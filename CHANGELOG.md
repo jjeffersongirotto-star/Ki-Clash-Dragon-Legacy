@@ -2,6 +2,22 @@
 
 Toda PR deve adicionar uma entrada aqui e atualizar o [REGRAS.md](REGRAS.md). Horários em Brasília (UTC−3).
 
+## [0.71.0] — 27/11/2026 · Cópias individuais, 10 compras grátis e dificuldade mais suave
+Quarta parte das mudanças do teste de jogador novo.
+- **Cada cópia é uma carta própria:** tem a sua raridade (cor), o seu "+" e o seu XP. Treinar e Despertar valem para **uma cópia**, e cada uma paga o preço inteiro.
+  - O baralho leva de **1 a 3 cópias** de cada personagem, em qualquer combinação de raridades (por exemplo, uma Mítica e uma Épica).
+  - **Cópias iguais** (mesma cor e mesmo "+"; o XP não conta) aparecem uma vez só, com **×N**. As cópias que estão no baralho ficam marcadas com **✔ Baralho**.
+  - No **Treinar**, cada cópia aparece separada, com a sua barra de XP.
+  - O **Poder do baralho** soma todas as cópias, e o XP de jogar vai para cada carta do baralho.
+  - Quem já joga: as cópias que estavam no baralho viram cartas com a raridade, o "+" e o XP da principal.
+- **10 compras grátis de iniciante:** no fim do tutorial você ganha 10 💠 Gemas (antes 2), usadas de uma vez no Comprar 10 cartas.
+- **Dificuldade mais suave** (pedido do jogador: quem fica travado muito tempo para de jogar). Vitória ao chegar: **Fácil 97% → 45%**, **Normal 55% → 30%**, **Difícil 50% → 20%**.
+  - **Região 1 do Fácil mais leve:** inimigo com a IA simples em todas as fases e Comandantes inimigos com menos vida (12 a 16).
+  - Onde o jogador chega com cartas travadas por falta de recurso, a fase pode ficar até 10 pontos abaixo da meta. As missões diárias e a torre vão ajudar ali.
+- **Itens:** o **laranja só cai no Difícil**; o Normal dá azul e roxo. No Fácil, o **azul começa na fase 11** (antes 21) e o **roxo na 54** (antes 51), cerca de 5 fases antes de fazerem falta.
+- **Comandante:** os requisitos de Poder foram recalculados com as cópias. O nível 2 pede 520, o 20 pede 2.770 e o **30 pede 6.075**, o baralho de 40 cartas mais forte possível.
+- **Simulador mais rápido** (cerca de 1,6×) para as calibrações.
+
 ## [0.70.0] — 26/11/2026 · Comandante com 30 níveis, Montar melhor e ajustes de interface
 Terceira parte das mudanças do teste de jogador novo.
 - **Comandante com 30 níveis** (antes 10). A vida vai de 20 a 64, como antes, mas sobe aos poucos (cerca de +1,5 por nível).

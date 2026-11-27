@@ -139,6 +139,7 @@ export function adminSave(): SaveData {
   const deck = autoDeck(Object.values(cards).map((c) => ({ charId: c.charId, stars: c.stars, plus: c.plus })), deckMaxFor(PROFILE_MAX_LEVEL), 10);
   d.deck = deck.map((c) => c.charId);
   d.copies = Object.fromEntries(deck.map((c) => [c.charId, c.copies ?? 3]));
+  deckAsCopies(d, deck);
   d.items = { orbe1: 999, orbe2: 999, orbe3: 999, orbe4: 999, orbe5: 999, orbe6: 999 };
   // v0.24.0: 99 de cada item de ascensão em cada raridade
   d.gear = Object.fromEntries(GEAR.flatMap((g) => GEAR_RARITIES.map((r) => [gearKey(g.id, r), 99])));
@@ -166,5 +167,20 @@ export function adminMinSave(): SaveData {
   const deck = autoDeck(Object.values(cards).map((c) => ({ charId: c.charId, stars: c.stars, plus: c.plus })), deckMaxFor(PROFILE_MAX_LEVEL), 10);
   d.deck = deck.map((c) => c.charId);
   d.copies = Object.fromEntries(deck.map((c) => [c.charId, c.copies ?? 3]));
+  deckAsCopies(d, deck);
   return d;
+}
+
+/** v0.71.0: as cópias do baralho da ADM são cópias próprias iguais à principal (as 9 guardadas continuam para testar). */
+function deckAsCopies(d: SaveData, deck: { charId: string; copies?: number }[]) {
+  d.extra = {};
+  d.pick = {};
+  for (const c of deck) {
+    const main = d.cards[c.charId];
+    if (!main) continue;
+    const n = Math.max(1, Math.min(3, c.copies ?? 3));
+    d.extra[c.charId] = Array.from({ length: n - 1 }, () => ({ ...main }));
+    d.pick[c.charId] = Array.from({ length: n }, (_, i) => i);
+    for (const k of Object.keys(d.copies ?? {})) if (k === c.charId) delete d.copies![k];
+  }
 }
