@@ -1,4 +1,4 @@
-import { ABILITIES } from '../core/abilities';
+import { ABILITIES, STALE_DESC } from '../core/abilities';
 import { CATEGORY_INFO, RACE_INFO, STAR_COLORS, getChar } from '../core/characters';
 import { TIER_NAMES, XP_ITEMS, statsFor, stepIndex, stepOf, tierLabel, type OrbBag, type XpItemId } from '../core/progression';
 import type { AbilityId, CardInstance, CharacterDef } from '../core/types';
@@ -146,10 +146,13 @@ export function abilityListHTML(def: CharacterDef, stars?: number, step = 0): st
     const ab = ABILITIES[a];
     const p = ab.power?.(s, stepIndex(s, step));
     // v0.65.0: o valor da raridade já vem escrito na descrição
-    const now = !ab.text && ab.powerLabel && p != null ? ` <span class="ab-now">agora: ${esc(ab.powerLabel(p))}</span>` : '';
+    // v0.72.3: sem "agora: …" quando a descrição já traz o valor da raridade (descAt) ou quando ainda não tem efeito (0)
+    const now = !ab.text && !ab.descAt && ab.powerLabel && p ? ` <span class="ab-now">agora: ${esc(ab.powerLabel(p))}</span>` : '';
+    const own = def.abilityDesc?.[a];
+    const ownDesc = own && own !== ab.legacyDescription && !STALE_DESC.has(own) ? own : undefined;
     const at = def.unlock?.[a];
-    if (at && at > s) return `<li class="ab-locked"><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> 🔒 <span class="ab-now">desbloqueia no ${TIER_NAMES[at]}</span> — ${esc(def.abilityDesc?.[a] ?? ab.text?.(ab.power?.(at, (at - 1) * 3) ?? 0, at) ?? ab.description)}</li>`;
-    return `<li><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> — ${esc(def.abilityDesc?.[a] ?? ab.descAt?.(s) ?? ab.text?.(p ?? 0, s) ?? ab.description)}${now}</li>`;
+    if (at && at > s) return `<li class="ab-locked"><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> 🔒 <span class="ab-now">desbloqueia no ${TIER_NAMES[at]}</span> — ${esc(ownDesc ?? ab.text?.(ab.power?.(at, (at - 1) * 3) ?? 0, at) ?? ab.description)}</li>`;
+    return `<li><b>${abilityIconHTML(a)} ${esc(ab.name)}</b> — ${esc(ownDesc ?? ab.descAt?.(s) ?? ab.text?.(p ?? 0, s) ?? ab.description)}${now}</li>`;
   });
   if (def.physRes) rows.push(`<li><b>${abilityIconHTML('guarda')} Resistência física ${def.physRes}</b> — reduz cada golpe físico em ${def.physRes}.</li>`);
   if (def.magRes) rows.push(`<li><b>${abilityIconHTML('barreira')} Resistência mágica ${def.magRes}</b> — reduz cada golpe mágico em ${def.magRes}.</li>`);

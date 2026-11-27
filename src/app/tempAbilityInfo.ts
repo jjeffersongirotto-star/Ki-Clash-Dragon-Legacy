@@ -11,7 +11,7 @@ export const GROUP_ORDER: AbilityGroup[] = ['perto', 'longe', 'hibrido'];
 
 const P = 'perto', L = 'longe', H = 'hibrido';
 export const ABILITY_INFO: Record<AbilityId, { g: AbilityGroup; b: string }> = {
-  diagFrente: { g: P, b: 'Também corta o inimigo na diagonal à frente' },
+  diagFrente: { g: P, b: 'Ataca primeiro atrás e na diagonal de trás' },
   diagTras: { g: P, b: 'Ataca quem passou por ele na diagonal de trás' },
   guarda: { g: H, b: 'Recebe menos dano de golpes físicos' },
   salto: { g: P, b: 'Avança saltando por cima das unidades e bate mais forte depois do salto' },
