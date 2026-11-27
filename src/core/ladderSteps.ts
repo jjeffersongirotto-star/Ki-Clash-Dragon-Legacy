@@ -1,7 +1,7 @@
 /**
  * v0.67.4 — Degrau das cartas inimigas de cada fase (índice 0 = fase 1), CALIBRADO por scripts/balance/ladder.ts
- * (não editar à mão). Pedido do jogador: fora do primeiro mundo, no máximo 50% de vitória ao chegar, caindo com o nível
- * (Fácil 45% → 25%, Normal 50% → 20%, Difícil 45% → 12%). As 10 primeiras do Fácil não mudam.
+ * (v0.71.0: Fácil 97% → 45%, Normal 55% → 30%, Difícil 50% → 20% de vitória ao chegar, com cópias individuais; depois
+ * suavizada à mão nos saltos — Difícil 20–50 e Normal 90–100). As 10 primeiras do Fácil não mudam.
  */
 export const LADDER_STEPS: { facil: number[] | null; normal: number[] | null; dificil: number[] | null } = {
   facil: [

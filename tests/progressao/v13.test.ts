@@ -96,7 +96,7 @@ describe('v0.13 — Líder', () => {
     for (let i = 1; i < LEADER_THRESHOLDS.length; i++) expect(LEADER_THRESHOLDS[i]).toBeGreaterThan(LEADER_THRESHOLDS[i - 1]);
     expect(nextRequirement(bar, 1)).toBe(LEADER_THRESHOLDS[1]);
     expect(nextRequirement(bar, 30)).toBeNull();
-    expect(LEADER_THRESHOLDS[29]).toBe(4785); // v0.70.0: nível 30 = baralho máximo (40 personagens no máximo ++)
+    expect(LEADER_THRESHOLDS[29]).toBe(6075); // v0.71.0: nível 30 = baralho máximo contando as cópias (v0.70.0: 4785)
   });
   it('trava pelo Poder: só evolui com Poder ≥ requisito, 1 nível por vez', () => {
     const t = LEADER_THRESHOLDS[1];
